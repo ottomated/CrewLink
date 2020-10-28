@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
 // import * as mem from 'memoryjs';
 // import * as Struct from 'structron';
-import registry from 'registry-js';
+import * as registry from 'registry-js';
 
 ipcMain.on('start', (event) => {
 	// const amongUs = mem.openProcess('Among Us.exe');
