@@ -1,0 +1,12 @@
+.waiting {
+	font-size: 20px;
+	display: block;
+	margin-top: 12px;
+	margin-bottom: 12px;
+	text-align: center;
+}
+
+.spinner {
+	display: flex;
+	justify-content: center;
+}
