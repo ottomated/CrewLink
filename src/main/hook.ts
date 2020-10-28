@@ -1,7 +1,9 @@
-import { ipcMain } from 'electron';
+import { dialog, ipcMain } from 'electron';
+import path from 'path';
 // import * as mem from 'memoryjs';
 // import * as Struct from 'structron';
-import * as registry from 'registry-js';
+import { HKEY, enumerateValues } from 'registry-js';
+import { spawn } from 'child_process';
 
 ipcMain.on('start', (event) => {
 	// const amongUs = mem.openProcess('Among Us.exe');
@@ -12,13 +14,24 @@ ipcMain.on('start', (event) => {
 		requestAnimationFrame(frame);
 	}
 	requestAnimationFrame(frame);
-	
+
 });
 
 ipcMain.on('openGame', () => {
 	console.log('opengamer');
-	console.log(registry
-		.enumerateValues(registry.HKEY.HKEY_LOCAL_MACHINE, 'SOFTWARE\\WOW6432Node\\Valve\\Steam')
-		.find(v=>v.name === 'InstallPath'));
-		
+	const steamPath = enumerateValues(HKEY.HKEY_LOCAL_MACHINE,
+		'SOFTWARE\\WOW6432Node\\Valve\\Steam')
+		.find(v => v.name === 'InstallPath');
+	if (!steamPath) {
+		dialog.showErrorBox('Error', 'Could not find your Steam install path.');
+	} else {
+		try {
+			spawn(path.join(steamPath.data as string, 'steam.exe'), [
+				'-applaunch',
+				'945360'
+			]);
+		} catch (e) {
+			dialog.showErrorBox('Error', 'Please launch the game through Steam.');
+		}
+	}
 })
