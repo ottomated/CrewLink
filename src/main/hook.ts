@@ -1,28 +1,30 @@
 import { dialog, ipcMain } from 'electron';
 import path from 'path';
-import * as mem from 'memoryjs';
 // import * as Struct from 'structron';
 import { HKEY, enumerateValues } from 'registry-js';
 import spawn from 'cross-spawn';
+import GameReader from './GameReader';
 
 ipcMain.on('start', (event) => {
-	mem.getProcesses()
-	// const amongUs = mem.openProcess('Among Us.exe');
-	// const gameAssembly = mem.findModule('GameAssembly.dll', amongUs.th32ProcessID);
 
+	const gameReader = new GameReader(event.reply);
+	ipcMain.on('initState', (event) => {
+		event.returnValue = gameReader.lastState;
+	});
 	const frame = () => {
-		console.log('frame');
-		requestAnimationFrame(frame);
+		gameReader.loop();
+		setTimeout(frame, 1000 / 20);
 	}
-	requestAnimationFrame(frame);
+	frame();
 
 });
 
 ipcMain.on('openGame', () => {
-	console.log('opengamer');
+	// Get steam path from registry
 	const steamPath = enumerateValues(HKEY.HKEY_LOCAL_MACHINE,
 		'SOFTWARE\\WOW6432Node\\Valve\\Steam')
 		.find(v => v.name === 'InstallPath');
+	// Check if Steam is installed
 	if (!steamPath) {
 		dialog.showErrorBox('Error', 'Could not find your Steam install path.');
 	} else {

@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import * as path from 'path'
 import { format as formatUrl } from 'url'
 import './hook';
@@ -10,7 +10,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
 let mainWindow: BrowserWindow | null;
 
-app.disableHardwareAcceleration();
+// app.disableHardwareAcceleration();
 
 function createMainWindow() {
 	const window = new BrowserWindow({
@@ -18,10 +18,13 @@ function createMainWindow() {
 		height: 350,
 		resizable: false,
 		frame: false,
+		fullscreenable: false,
+		maximizable: false,
 		transparent: true,
 		webPreferences: {
 			nodeIntegration: true,
-			enableRemoteModule: true
+			enableRemoteModule: true,
+			webSecurity: false
 		}
 	});
 
@@ -73,3 +76,25 @@ app.on('activate', () => {
 app.on('ready', () => {
 	mainWindow = createMainWindow()
 })
+
+ipcMain.on('alwaysOnTop', (event, onTop: boolean) => {
+	if (mainWindow) {
+		mainWindow.setAlwaysOnTop(onTop, 'floating', 1);
+		mainWindow.setVisibleOnAllWorkspaces(true);
+		mainWindow.setFullScreenable(false);
+		mainWindow.on('focus', () => {
+			console.log("focus");
+			setTimeout(() => {
+			mainWindow!.setAlwaysOnTop(onTop, 'floating', 1);
+			}, 250);
+		});
+		mainWindow.on('blur', () => {
+			// mainWindow?.focus();
+			console.log('blur');
+			
+			setTimeout(() => {
+				mainWindow!.setAlwaysOnTop(onTop, 'floating', 1);
+				}, 250);
+		});
+	}
+});

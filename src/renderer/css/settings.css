@@ -1,0 +1,38 @@
+#settings {
+	transition: transform .2s ease-in;
+	width: 100vw;
+	height: 100vh;
+	background: #171717ad;
+	backdrop-filter: blur(4px);
+	position: absolute;
+	top: 0;
+	left:0;
+	z-index: 10;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.form-control {
+	user-select: none;
+}
+
+.form-control.l {
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+}
+
+.form-control.m {
+	margin-bottom: 10px;
+}
+
+.titlebar-button.back {
+	right: 2px;
+	transition: transform .1s linear;
+}
+
+.titlebar-button.back:hover {
+	transform: translateX(-1px);
+}

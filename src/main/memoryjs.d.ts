@@ -68,3 +68,5 @@ declare module 'memoryjs' {
 	export function callFunction<T>(handle: number, args: FunctionArg[], returnType: number, address: number): FunctionResult<T>;
 
 }
+
+declare module 'structron';
