@@ -10,8 +10,9 @@
 	z-index: 10;
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
+	justify-content: start;
 	align-items: center;
+	padding-top: 20px;
 }
 
 .form-control {
@@ -35,4 +36,25 @@
 
 .titlebar-button.back:hover {
 	transform: translateX(-1px);
+}
+
+input[type="text"] {
+	background: #1d1d1d;
+	border: 1px solid rgba(255, 255, 255, 0.5);
+	outline: none;
+	color: white;
+	padding: 5px;
+	border-radius: 5px;
+}
+input[type="text"]:focus {
+	border-color: white;
+}
+
+select {
+	background: #1d1d1d;
+	border: 1px solid rgba(255, 255, 255, 0.5);
+	outline: none;
+	color: white;
+	padding: 5px;
+	border-radius: 5px;
 }

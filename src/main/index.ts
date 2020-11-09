@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path'
 import { format as formatUrl } from 'url'
 import './hook';
@@ -74,27 +74,23 @@ app.on('activate', () => {
 
 // create main BrowserWindow when electron is ready
 app.on('ready', () => {
-	mainWindow = createMainWindow()
-})
+	mainWindow = createMainWindow();
+});
 
-ipcMain.on('alwaysOnTop', (event, onTop: boolean) => {
-	if (mainWindow) {
-		mainWindow.setAlwaysOnTop(onTop, 'floating', 1);
-		mainWindow.setVisibleOnAllWorkspaces(true);
-		mainWindow.setFullScreenable(false);
-		mainWindow.on('focus', () => {
-			console.log("focus");
-			setTimeout(() => {
-			mainWindow!.setAlwaysOnTop(onTop, 'floating', 1);
-			}, 250);
-		});
-		mainWindow.on('blur', () => {
-			// mainWindow?.focus();
-			console.log('blur');
-			
-			setTimeout(() => {
-				mainWindow!.setAlwaysOnTop(onTop, 'floating', 1);
-				}, 250);
-		});
-	}
+// ipcMain.on('alwaysOnTop', (event, onTop: boolean) => {
+// 	if (mainWindow) {
+// 		mainWindow.setAlwaysOnTop(onTop, 'floating', 1);
+// 		mainWindow.setVisibleOnAllWorkspaces(true);
+// 		mainWindow.setFullScreenable(false);
+// 	}
+// });
+
+ipcMain.on('shortcut', (event, val) => {
+	event.returnValue = false;
+	// console.log('register', val);
+	// globalShortcut.unregisterAll();
+	// event.returnValue = globalShortcut.register(val!, () => {
+	// 	console.log("push-to-talk");
+	// })
+
 });

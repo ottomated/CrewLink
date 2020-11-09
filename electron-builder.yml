@@ -1,0 +1,14 @@
+appId: net.ottomated.among-us
+productName: 
+copyright: Copyright © 2020 Ottomated
+directories:
+  output: dist
+  buildResources: resources
+files:
+  - from: .
+    filter:
+      - package.json
+      - app
+win:
+  publish:
+    - github

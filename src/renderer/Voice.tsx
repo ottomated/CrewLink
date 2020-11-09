@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 import Avatar from './Avatar';
-import audioActivity from 'audio-activity';
-import { GameStateContext } from './App';
+import { GameStateContext, SettingsContext } from './App';
 import { AmongUsState, GameState, Player } from '../main/GameReader';
 import ReactTooltip from 'react-tooltip';
 import Peer from 'simple-peer';
+import { ipcRenderer, remote } from 'electron';
+import VAD from './vad';
 
 interface PeerConnections {
 	[peer: string]: Peer.Instance;
@@ -31,10 +32,12 @@ interface SocketIdMap {
 interface ConnectionStuff {
 	socket: typeof Socket;
 	stream: MediaStream;
+	pushToTalk: boolean;
+	deafened: boolean;
 }
 
 interface OtherTalking {
-	[playerId: number]: number; // volume level
+	[playerId: number]: boolean; // isTalking
 }
 
 // function clamp(number: number, min: number, max: number): number {
@@ -52,6 +55,7 @@ interface OtherTalking {
 
 function calculateVoiceAudio(state: AmongUsState, me: Player, other: Player, gain: GainNode, pan: PannerNode): void {
 	const audioContext = pan.context;
+	pan.positionZ.setValueAtTime(-0.5, audioContext.currentTime);
 	const panPos = [
 		other.x - me.x,
 		other.y - me.y
@@ -64,7 +68,6 @@ function calculateVoiceAudio(state: AmongUsState, me: Player, other: Player, gai
 		gain.gain.value = 1;
 		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
 		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
-		pan.positionZ.setValueAtTime(-0.5, audioContext.currentTime);
 		return;
 	}
 	if (!me.isDead && other.isDead) {
@@ -75,14 +78,12 @@ function calculateVoiceAudio(state: AmongUsState, me: Player, other: Player, gai
 		gain.gain.value = 1;
 		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
 		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
-		pan.positionZ.setValueAtTime(-0.5, audioContext.currentTime);
 	} else if (state.gameState === GameState.TASKS) {
 		// const distance = Math.sqrt(Math.pow(me.x - other.x, 2) + Math.pow(me.y - other.y, 2));
 		gain.gain.value = 1;
 		// gain.gain.value = mapNumber(distance, 0, 2.66, 1, 0);
 		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
 		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
-		pan.positionZ.setValueAtTime(-0.5, audioContext.currentTime);
 	} else {
 		gain.gain.value = 0;
 	}
@@ -90,26 +91,77 @@ function calculateVoiceAudio(state: AmongUsState, me: Player, other: Player, gai
 
 
 export default function Voice() {
+	const [settings] = useContext(SettingsContext);
 	const gameState = useContext(GameStateContext);
-	console.log(gameState);
 	const [talking, setTalking] = useState(false);
 	const [socketPlayerIds, setSocketPlayerIds] = useState<SocketIdMap>({});
 	const [connect, setConnect] = useState<({ connect: (lobbyCode: string, playerId: number) => void }) | null>(null);
 	const [otherTalking, setOtherTalking] = useState<OtherTalking>({});
 	const audioElements = useRef<AudioElements>({});
 
-	// const [audioContext] = useState<AudioContext>(() => new AudioContext());
-	const connectionStuff = useRef<ConnectionStuff>({} as any);
+	const [deafenedState, setDeafened] = useState(false);
+	const [connected, setConnected] = useState(false);
+
 	useEffect(() => {
-		connectionStuff.current.socket = io('ws://ottomated.net:5679', { transports: ['websocket'] });
+		if (!connectionStuff.current.stream) return;
+		connectionStuff.current.stream.getAudioTracks()[0].enabled = !settings.pushToTalk;
+		connectionStuff.current.pushToTalk = settings.pushToTalk;
+	}, [settings.pushToTalk]);
+
+	// const [audioContext] = useState<AudioContext>(() => new AudioContext());
+	const connectionStuff = useRef<ConnectionStuff>({ pushToTalk: settings.pushToTalk, deafened: false } as any);
+	useEffect(() => {
+		console.log(gameState);
+		// Connect to voice relay server
+		connectionStuff.current.socket = io(`ws://${settings.serverIP}`, { transports: ['websocket'] });
 		const { socket } = connectionStuff.current;
+
+		socket.on('connect', () => {
+			setConnected(true);
+		});
+		socket.on('disconnect', () => {
+			setConnected(false);
+		});
+
+		// Initialize variables
 		let audioListener: any;
-		navigator.getUserMedia({ video: false, audio: true }, async (stream) => {
+		let audio: boolean | MediaTrackConstraints = true;
+
+
+		// Get microphone settings
+		if (settings.microphone.toLowerCase() !== 'default')
+			audio = { deviceId: settings.microphone };
+
+		navigator.getUserMedia({ video: false, audio }, async (stream) => {
 			connectionStuff.current.stream = stream;
 
-			audioListener = audioActivity(stream, (level) => {
-				setTalking(level > 0.1);
+			stream.getAudioTracks()[0].enabled = !settings.pushToTalk;
+
+			ipcRenderer.on('toggleDeafen', () => {
+				connectionStuff.current.deafened = !connectionStuff.current.deafened;
+				stream.getAudioTracks()[0].enabled = !connectionStuff.current.deafened;
+				setDeafened(connectionStuff.current.deafened);
 			});
+			ipcRenderer.on('pushToTalk', (_: any, pressing: boolean) => {
+				if (!connectionStuff.current.pushToTalk) return;
+				if (!connectionStuff.current.deafened) {
+					stream.getAudioTracks()[0].enabled = pressing;
+				}
+				// console.log(stream.getAudioTracks()[0].enabled);
+			});
+
+			const ac = new AudioContext();
+			ac.createMediaStreamSource(stream)
+			audioListener = VAD(ac, ac.createMediaStreamSource(stream), undefined, {
+				onVoiceStart: () => setTalking(true),
+				onVoiceStop: () => setTalking(false),
+				// onUpdate: console.log,
+				noiseCaptureDuration: 1,
+			});
+
+			// audioListener = audioActivity(stream, (level) => {
+			// 	setTalking(level > 0.1);
+			// });
 			const peerConnections: PeerConnections = {};
 			const inCall: InCall = {};
 			audioElements.current = {};
@@ -161,48 +213,38 @@ export default function Voice() {
 					let audio = document.createElement('audio');
 					document.body.appendChild(audio);
 					audio.srcObject = stream;
+					if (settings.speaker.toLowerCase() !== 'default')
+						(audio as any).setSinkId(settings.speaker);
 
 					const context = new AudioContext();
 					var source = context.createMediaStreamSource(stream);
 					let gain = context.createGain();
 					let pan = context.createPanner();
-					let analyzer = context.createAnalyser();
-					let processor = context.createScriptProcessor(2048, 1, 1);
-					analyzer.smoothingTimeConstant = 0.3;
-					analyzer.fftSize = 1024;
-					processor.addEventListener('audioprocess', () => {
-						var sum = 0;
-						var data = new Uint8Array(analyzer.frequencyBinCount);
-						analyzer.getByteFrequencyData(data);
-				
-						for(var i = 0; i < data.length; i++) {
-							sum += data[i];
-						}
-				
-						const volume = (sum / data.length) / 255;
-						console.log(volume);
-						setSocketPlayerIds(socketPlayerIds => {
-							setOtherTalking(old => ({
-								...old,
-								[socketPlayerIds[peer]]: volume
-							}));
-							return socketPlayerIds;
-						});
-					});
 					// let compressor = context.createDynamicsCompressor();
 					pan.refDistance = 0.1;
 					pan.panningModel = 'equalpower';
 					pan.distanceModel = 'linear';
-					pan.maxDistance = 2.66;
+					pan.maxDistance = 2.66 * 2;
 					pan.rolloffFactor = 1;
-					source.connect(pan);
+					VAD(context, source, pan, {
+						onVoiceStart: () => setTalking(true),
+						onVoiceStop: () => setTalking(false),
+						// onUpdate: console.log,
+					});
 					pan.connect(gain);
-					gain.connect(analyzer);
-					analyzer.connect(processor);
+					gain.connect(context.destination);
+
+					const setTalking = (talking: boolean) => {
+						setSocketPlayerIds(socketPlayerIds => {
+							setOtherTalking(old => ({
+								...old,
+								[socketPlayerIds[peer]]: talking
+							}));
+							return socketPlayerIds;
+						});
+					};
 					// gain.connect(compressor);
 					// compressor.connect();
-
-					analyzer.connect(context.destination);
 
 					// console.log(pan, audio);
 					// pan.pan.setValueAtTime(-1, audioContext.currentTime);
@@ -247,6 +289,7 @@ export default function Voice() {
 
 		}, (error) => {
 			console.error(error);
+			remote.dialog.showErrorBox('Error', 'Couldn\'t connect to your microphone:\n' + error);
 		});
 
 		return () => {
@@ -274,6 +317,9 @@ export default function Voice() {
 			const audio = audioElements.current[playerSocketIds[player.id]];
 			if (audio) {
 				calculateVoiceAudio(gameState, myPlayer!, player, audio.gain, audio.pan);
+				if (connectionStuff.current.deafened) {
+					audio.gain.gain.value = 0;
+				}
 			}
 		}
 
@@ -295,7 +341,7 @@ export default function Voice() {
 		<div className="root">
 			<div className="top">
 				{myPlayer &&
-					<Avatar player={myPlayer} borderColor='#2ecc71' talking={talking} isAlive={!myPlayer.isDead} size={100} />
+					<Avatar deafened={deafenedState} player={myPlayer} borderColor={connected ? '#2ecc71' : '#c0392b'} talking={talking} isAlive={!myPlayer.isDead} size={100} />
 					// <div className="avatar" style={{ borderColor: talking ? '#2ecc71' : 'transparent' }}>
 					// 	<Canvas src={alive} color={playerColors[myPlayer.colorId][0]} shadow={playerColors[myPlayer.colorId][1]} />
 					// </div>
@@ -321,7 +367,7 @@ export default function Voice() {
 						let connected = Object.values(socketPlayerIds).includes(player.id);
 						return (
 							<Avatar key={player.id}
-								player={player} talking={!connected || otherTalking[player.id] > 0.1} borderColor={connected ? '#2ecc71' : '#c0392b'} isAlive size={50} />
+								player={player} talking={!connected || otherTalking[player.id]} borderColor={connected ? '#2ecc71' : '#c0392b'} isAlive size={50} />
 						);
 					})
 				}
