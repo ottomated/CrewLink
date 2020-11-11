@@ -2,7 +2,7 @@
   "name": "crewlink",
   "version": "1.0.0",
   "license": "GPLV3",
-  "description": "Free, open, Among Us Proximity Chat",
+  "description": "Free, open, Among Us proximity voice chat",
   "repository": {
     "type": "git",
     "url": "https://github.com/ottomated/crewlink.git"
