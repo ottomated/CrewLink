@@ -24,7 +24,7 @@ function App() {
 		microphone: 'Default',
 		speaker: 'Default',
 		pushToTalk: false,
-		serverIP: 'ottomated.net:9736',
+		serverIP: '54.193.94.35:9736',
 		pushToTalkShortcut: 'V',
 		deafenShortcut: 'RControl',
 		offsets: {

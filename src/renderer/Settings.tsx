@@ -25,7 +25,7 @@ const store = new Store<ISettings>({
 		},
 		serverIP: {
 			type: 'string',
-			default: 'ottomated.net:9736'
+			default: '54.193.94.35:9736'
 		},
 		pushToTalkShortcut: {
 			type: 'string',
