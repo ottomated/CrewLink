@@ -1,5 +1,6 @@
 'use strict'
 
+import {autoUpdater} from 'electron-updater';
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path'
 import { format as formatUrl } from 'url'
@@ -11,6 +12,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 let mainWindow: BrowserWindow | null;
 
 // app.disableHardwareAcceleration();
+autoUpdater.checkForUpdatesAndNotify();
 
 function createMainWindow() {
 	const window = new BrowserWindow({

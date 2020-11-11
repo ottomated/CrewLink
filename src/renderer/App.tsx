@@ -18,6 +18,7 @@ function App() {
 	const [state, setState] = useState<AppState>(AppState.MENU);
 	const [gameState, setGameState] = useState<AmongUsState>({} as AmongUsState);
 	const [settingsOpen, setSettingsOpen] = useState(false);
+	const [errored, setErrored] = useState(false);
 	const settings = useReducer(settingsReducer, {
 		alwaysOnTop: false,
 		microphone: 'Default',
@@ -43,6 +44,7 @@ function App() {
 		const onError = (_: Electron.IpcRendererEvent, error: string) => {
 			alert(error + '\n\nRestart the app after you fix this.');
 			shouldInit = false;
+			setErrored(true);
 		};
 		ipcRenderer.on('gameOpen', onOpen);
 		ipcRenderer.on('error', onError);
@@ -62,7 +64,7 @@ function App() {
 	let page;
 	switch (state) {
 		case AppState.MENU:
-			page = <Menu />;
+			page = <Menu errored={errored} />;
 			break;
 		case AppState.VOICE:
 			page = <Voice />;
@@ -72,6 +74,7 @@ function App() {
 		<GameStateContext.Provider value={gameState}>
 			<SettingsContext.Provider value={settings}>
 				<div className="titlebar">
+					<span className="title">CrewLink</span>
 					<svg className="titlebar-button settings" onClick={() => setSettingsOpen(!settingsOpen)} enableBackground="new 0 0 24 24" viewBox="0 0 24 24" fill="#868686" width="20px" height="20px">
 						<g>
 							<path d="M0,0h24v24H0V0z" fill="none" />

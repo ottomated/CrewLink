@@ -1129,6 +1129,11 @@
     "@types/prop-types" "*"
     csstype "^3.0.2"
 
+"@types/semver@^7.3.1":
+  version "7.3.4"
+  resolved "https://registry.yarnpkg.com/@types/semver/-/semver-7.3.4.tgz#43d7168fec6fa0988bb1a513a697b29296721afb"
+  integrity sha512-+nVsLKlcUCeMzD2ufHEYuJ9a2ovstb6Dp52A5VsoKxDXgvE051XgHI/33I1EymwkRGQkwnA0LkhnUzituGs4EQ==
+
 "@types/simple-peer@^9.6.1":
   version "9.6.1"
   resolved "https://registry.yarnpkg.com/@types/simple-peer/-/simple-peer-9.6.1.tgz#461ff4159cfaca861cb2fe695de6e557881a98c8"
@@ -3299,6 +3304,19 @@ electron-to-chromium@^1.3.390:
   version "1.3.397"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.397.tgz#db640c2e67b08d590a504c20b56904537aa2bafa"
   integrity sha512-zcUd1p/7yzTSdWkCTrqGvbnEOASy96d0RJL/lc5BDJoO23Z3G/VHd0yIPbguDU9n8QNUTCigLO7oEdtOb7fp2A==
+
+electron-updater@^4.3.5:
+  version "4.3.5"
+  resolved "https://registry.yarnpkg.com/electron-updater/-/electron-updater-4.3.5.tgz#4fb36f593a031c87ea07ee141c9f064d5deffb15"
+  integrity sha512-5jjN7ebvfj1cLI0VZMdCnJk6aC4bP+dy7ryBf21vArR0JzpRVk0OZHA2QBD+H5rm6ZSeDYHOY6+8PrMEqJ4wlQ==
+  dependencies:
+    "@types/semver" "^7.3.1"
+    builder-util-runtime "8.7.2"
+    fs-extra "^9.0.1"
+    js-yaml "^3.14.0"
+    lazy-val "^1.0.4"
+    lodash.isequal "^4.5.0"
+    semver "^7.3.2"
 
 electron-webpack-js@~2.4.1:
   version "2.4.1"
@@ -5562,6 +5580,11 @@ locate-path@^5.0.0:
   dependencies:
     p-locate "^4.1.0"
 
+lodash.isequal@^4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
+  integrity sha1-QVxEePK8wwEgwizhDtMib30+GOA=
+
 lodash@^4.17.10, lodash@^4.17.12, lodash@^4.17.19:
   version "4.17.20"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
@@ -6908,7 +6931,7 @@ promise-inflight@^1.0.1:
   resolved "https://registry.yarnpkg.com/promise-inflight/-/promise-inflight-1.0.1.tgz#98472870bf228132fcbdd868129bad12c3c029e3"
   integrity sha1-mEcocL8igTL8vdhoEputEsPAKeM=
 
-prop-types@^15.5.4, prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@^15.5.4, prop-types@^15.5.8, prop-types@^15.6.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
@@ -7120,13 +7143,12 @@ react-spinners-kit@^1.9.1:
     react-dom "^16.12.0"
     styled-components "^4.4.1"
 
-react-tooltip@^4.2.10:
-  version "4.2.10"
-  resolved "https://registry.yarnpkg.com/react-tooltip/-/react-tooltip-4.2.10.tgz#ed1a1acd388940c96f4b6309f4fd4dcce5e01bdc"
-  integrity sha512-D7ZLx6/QwpUl0SZRek3IZy/HWpsEEp0v3562tcT8IwZgu8IgV7hY5ZzniTkHyRcuL+IQnljpjj7A7zCgl2+T3w==
+react-tooltip-lite@^1.12.0:
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/react-tooltip-lite/-/react-tooltip-lite-1.12.0.tgz#f6cd1323cdd9f5f80dd0e71a30ef59f401dee9ba"
+  integrity sha512-QjDnmDmjtLNKvLY6bzUOG8W6ZDBTiE4UXugGzClOQEGvMvbkJn2GvZvLwRaxsN/GCx7589RgbGaESMiJAm+zWg==
   dependencies:
-    prop-types "^15.7.2"
-    uuid "^7.0.3"
+    prop-types "^15.5.8"
 
 react@^16.12.0:
   version "16.14.0"
@@ -8923,11 +8945,6 @@ uuid@^3.0.1, uuid@^3.3.2:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
   integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
-
-uuid@^7.0.3:
-  version "7.0.3"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-7.0.3.tgz#c5c9f2c8cf25dc0a372c4df1441c41f5bd0c680b"
-  integrity sha512-DPSke0pXhTZgoF/d+WSt2QaKMCFSfx7QegxEWT+JOuHF5aWrKEn0G+ztjuJg/gG8/ItK+rbPCD/yNv8yyih6Cg==
 
 v8-compile-cache@2.0.3:
   version "2.0.3"

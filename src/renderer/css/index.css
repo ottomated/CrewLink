@@ -82,7 +82,7 @@ body {
 }
 
 .canvas {
-	image-rendering: pixelated;
+	/* image-rendering: pixelated; */
 	width: 100%;
 	/* transform: translateY(30%); */
 }
@@ -121,4 +121,34 @@ hr {
 	margin: 5px 10px;
 	border: 1px solid #313738;
 	border-radius: 2px;
+}
+
+.react-tooltip-lite {
+	background: #23272A;
+	border: 2px solid white;
+	border-radius: 5px;
+}
+
+.rainbow-text {
+	background-image: repeating-linear-gradient(90deg, #FF6663, #FEB144, #FDFD97, #9EE09E, #9EC1CF, #CC99C9);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	animation: rainbow 4s ease infinite;
+	background-size: 400% 400%;
+	animation-direction: normal;
+}
+
+@keyframes rainbow {
+	0% {
+		background-position: 0% 50%;
+	}
+
+	50% {
+		background-position: 100% 50%;
+	}
+
+	100% {
+		background-position: 0% 50%;
+	}
 }

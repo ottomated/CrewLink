@@ -3,7 +3,6 @@ import io, { Socket } from 'socket.io-client';
 import Avatar from './Avatar';
 import { GameStateContext, SettingsContext } from './App';
 import { AmongUsState, GameState, Player } from '../main/GameReader';
-import ReactTooltip from 'react-tooltip';
 import Peer from 'simple-peer';
 import { ipcRenderer, remote } from 'electron';
 import VAD from './vad';
@@ -360,7 +359,6 @@ export default function Voice() {
 				</div>
 			</div>
 			<hr />
-			<ReactTooltip effect="solid" />
 			<div className="otherplayers">
 				{
 					otherPlayers.map(player => {

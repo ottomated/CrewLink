@@ -28,3 +28,36 @@
 	justify-content: start;
 	align-items: center;
 }
+
+.errormessage {
+	margin: 5px;	
+}
+
+.title {
+	width: 100%;
+	text-align: center;
+	display: block;
+	height: 24px;
+	line-height: 24px;
+	color: #9b59b6;
+}
+
+.footer {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+.footer .row {
+	width: 100%;
+	display: flex;
+	justify-content: space-evenly;
+	margin: 5px;
+}
+
+.footer svg {
+	cursor: pointer;
+}

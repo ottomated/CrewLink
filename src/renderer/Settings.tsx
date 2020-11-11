@@ -223,7 +223,7 @@ export default function Settings({ open, onClose }: SettingsProps) {
 			<input spellCheck={false} type="text" value={settings.deafenShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'deafenShortcut')} />
 		</div>
 		<div className="form-control l" style={{ color: '#3498db' }}>
-			<label>Voice Server IP</label>
+			<label>Voice Server</label>
 			<input spellCheck={false} type="text" onChange={(ev) => setSettings({
 				type: 'setOne',
 				action: ['serverIP', ev.target.value]

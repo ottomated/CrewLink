@@ -1,4 +1,4 @@
-import { dialog, ipcMain } from 'electron';
+import { app, dialog, ipcMain } from 'electron';
 import path, { resolve } from 'path';
 import yml from 'js-yaml';
 // import * as Struct from 'structron';
@@ -63,12 +63,19 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 	if (version === offsetStore.version) {
 		data = offsetStore.data;
 	} else {
-		const response = await axios({
-			url: `http://${store.get('serverIP')}/${version}.yml`,
-			method: 'GET',
-			validateStatus: () => true
-		});
-		data = response.data;
+		try {
+			const response = await axios({
+				url: `http://${store.get('serverIP')}/${version}.yml`,
+				method: 'GET',
+				validateStatus: () => true
+			});
+			data = response.data;
+		} catch (e) {
+			console.error(e);
+			event.reply('error', `Couldn't fetch the latest game data from the server ${store.get('serverIP')}.\n${e}`);
+			return;
+
+		}
 	}
 
 	let offsets: IOffsets = yml.safeLoad(data) as any;
@@ -129,7 +136,7 @@ ipcMain.on('start', async (event) => {
 			setTimeout(frame, 1000 / 20);
 		}
 		frame();
-	} else {
+	} else if (gameReader) {
 		gameReader.amongUs = null;
 	}
 	event.reply('started');
@@ -187,3 +194,8 @@ ipcMain.on('openGame', () => {
 		}
 	}
 })
+
+ipcMain.on('relaunch', () => {
+	app.relaunch();
+	app.quit();
+});

@@ -140,7 +140,7 @@ export default class GameReader {
 				if (!/^[A-Z]+$/.test(newGameCode) || newGameCode === 'MENU') {
 					newGameCode = '';
 				}
-				console.log(this.gameCode, newGameCode);
+				// console.log(this.gameCode, newGameCode);
 			}
 			if (newGameCode) this.gameCode = newGameCode;
 
