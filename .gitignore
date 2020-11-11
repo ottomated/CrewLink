@@ -4,4 +4,7 @@ node_modules/
 thumbs.db
 .idea/
 yarn-error.log
+/appveyor.yml
+/electron-builder.yml
 appveyor.yml
+electron-builder.yml
