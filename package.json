@@ -20,7 +20,8 @@
     "postinstall": "electron-builder install-app-deps",
     "dev": "electron-webpack dev",
     "compile": "electron-webpack",
-    "dist": "yarn compile && electron-builder --win --x64"
+    "dist": "yarn compile && electron-builder --win --x64",
+    "publish": "yarn compile && electron-builder --win --x64 --publish always"
   },
   "dependencies": {
     "analyser-frequency-average": "^1.0.0",
