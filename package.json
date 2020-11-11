@@ -1,7 +1,7 @@
 {
   "name": "crewlink",
-  "version": "1.0.0",
-  "license": "GPLV3",
+  "version": "1.0.1",
+  "license": "GPL-3.0-or-later",
   "description": "Free, open, Among Us proximity voice chat",
   "repository": {
     "type": "git",
@@ -46,6 +46,7 @@
     "ts-interface-checker": "^0.1.13"
   },
   "devDependencies": {
+    "@babel/preset-react": "^7.12.1",
     "@types/color": "^3.0.1",
     "@types/cross-spawn": "^6.0.2",
     "@types/js-yaml": "^3.12.5",
@@ -55,7 +56,6 @@
     "@types/simple-peer": "^9.6.1",
     "@types/socket.io-client": "^1.4.34",
     "@types/webpack-env": "^1.15.3",
-    "@babel/preset-react": "^7.12.1",
     "electron": "9.3.3",
     "electron-builder": "^22.9.1",
     "electron-webpack": "^2.8.2",
