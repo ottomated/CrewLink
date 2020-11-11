@@ -6,7 +6,7 @@
     <img src="logo.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">CrewLink Server</h3>
+  <h3 align="center">CrewLink</h3>
 
   <p align="center">
     Free, open, Among Us proximity voice chat.
@@ -39,6 +39,8 @@ This project implements proximity voice chat in Among Us. Everyone in an Among U
 ## Installation
 
 Download the latest version from [releases](https://github.com/ottomated/CrewLink/releases) and run the `CrewLink-Setup-X.X.X.exe` file. You may get antivirus warnings, because this program hooks into the Among Us process to read game data.
+
+If you can, you should use a private server by deploying [this repository](https://github.com/ottomated/CrewLink-server).
 
 ## Development
 
