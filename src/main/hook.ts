@@ -8,7 +8,7 @@ import GameReader from './GameReader';
 import iohook from 'iohook';
 import Store from 'electron-store';
 import { ISettings } from '../renderer/Settings';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { createCheckers } from 'ts-interface-checker';
 
 import TI from './hook-ti';
@@ -54,8 +54,13 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 			let json = JSON.parse(readFileSync(valuesFile, 'utf8'));
 			version = json.app_ver;
 		} catch (e) {
-			console.log(e);
+			console.error(e);
+			event.reply('error', `Couldn't determine the Among Us version - ${e}. Try opening Among Us and then restarting CrewLink.`);
+			return;
 		}
+	} else {
+		event.reply('error', `Couldn't determine the Among Us version - Unity analytics file doesn't exist. Try opening Among Us and then restarting CrewLink.`);
+		return;
 	}
 
 	let data: string;
@@ -65,16 +70,18 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 	} else {
 		try {
 			const response = await axios({
-				url: `http://${store.get('serverIP')}/${version}.yml`,
-				method: 'GET',
-				validateStatus: () => true
+				url: `http://${store.get('serverIP')}/${version}.yml`
 			});
 			data = response.data;
-		} catch (e) {
+		} catch (_e) {
+			let e = _e as AxiosError;
 			console.error(e);
-			event.reply('error', `Couldn't fetch the latest game data from the server ${store.get('serverIP')}.\n${e}`);
+			if (e?.response?.status === 404) {
+				event.reply('error', `Couldn't fetch the latest game offsets from the server: http://${store.get('serverIP')}/${version}.yml.\nThis might be because you are on an unsupported version of Among Us.`);
+			} else {
+				event.reply('error', `Couldn't fetch the latest game offsets from the server: http://${store.get('serverIP')}/${version}.yml.\n${e}`);
+			}
 			return;
-
 		}
 	}
 
@@ -82,7 +89,8 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 	try {
 		IOffsets.check(offsets);
 		if (!version) {
-			event.reply('error', `Couldn't get the current game version. Make sure you have opened Among Us before.`);
+			event.reply('error', `Couldn't determine the Among Us version. Try opening Among Us and then restarting CrewLink.`);
+			return;
 		} else {
 			store.set('offsets', {
 				version,
@@ -92,7 +100,7 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 		return offsets;
 	} catch (e) {
 		console.error(e);
-		event.reply('error', `Couldn't fetch the latest game data from the server ${store.get('serverIP')}.\n${e}`);
+		event.reply('error', `Couldn't parse the latest game offsets from the server: http://${store.get('serverIP')}/${version}.yml.\n${e}`);
 		return;
 	}
 
