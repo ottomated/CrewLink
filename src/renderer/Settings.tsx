@@ -234,21 +234,21 @@ export default function Settings({ open, onClose }: SettingsProps) {
 				<label>Deafen Shortcut</label>
 				<input spellCheck={false} type="text" value={settings.deafenShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'deafenShortcut')} />
 			</div>
-			<div className="form-control l" style={{ color: '#3498db' }}>
+			<div className="form-control l m" style={{ color: '#3498db' }}>
 				<label>Voice Server</label>
 				<input spellCheck={false} type="text" onChange={(ev) => setSettings({
 					type: 'setOne',
 					action: ['serverIP', ev.target.value]
 				})} value={settings.serverIP} />
 			</div>
-			<div className="form-control" style={{ color: '#9b59b6' }} onClick={() => setSettings({
+			<div className="form-control m" style={{ color: '#9b59b6' }} onClick={() => setSettings({
 				type: 'setOne',
 				action: ['hideCode', !settings.hideCode]
 			})}>
 				<input type="checkbox" checked={!settings.hideCode} style={{ color: '#9b59b6' }} readOnly />
 				<label>Show Lobby Code</label>
 			</div>
-			<div className="form-control" style={{ color: '#fd79a8' }} onClick={() => setSettings({
+			<div className="form-control m" style={{ color: '#fd79a8' }} onClick={() => setSettings({
 				type: 'setOne',
 				action: ['stereoInLobby', !settings.stereoInLobby]
 			})}>

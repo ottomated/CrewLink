@@ -6,6 +6,13 @@ import { ipcRenderer, remote } from 'electron';
 import { AmongUsState } from '../main/GameReader';
 import Settings, { ISettings, settingsReducer } from './Settings';
 
+let appVersion = '';
+if (typeof window !== 'undefined' && window.location) {
+	let query = new URLSearchParams(window.location.search.substring(1));
+	appVersion = (' v' + query.get('version')) || '';
+}
+
+
 enum AppState { MENU, VOICE };
 
 export const GameStateContext = createContext<AmongUsState>({} as AmongUsState);
@@ -76,7 +83,7 @@ function App() {
 		<GameStateContext.Provider value={gameState}>
 			<SettingsContext.Provider value={settings}>
 				<div className="titlebar">
-					<span className="title">CrewLink</span>
+					<span className="title">CrewLink{appVersion}</span>
 					<svg className="titlebar-button settings" onClick={() => setSettingsOpen(!settingsOpen)} enableBackground="new 0 0 24 24" viewBox="0 0 24 24" fill="#868686" width="20px" height="20px">
 						<g>
 							<path d="M0,0h24v24H0V0z" fill="none" />
