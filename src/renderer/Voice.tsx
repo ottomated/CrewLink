@@ -368,6 +368,12 @@ export default function Voice() {
 	}, [connect?.connect, gameState?.lobbyCode]);
 
 	useEffect(() => {
+		if (connect?.connect && gameState.lobbyCode && myPlayer?.id !== undefined && gameState.gameState === GameState.LOBBY && (gameState.oldGameState === GameState.DISCUSSION || gameState.oldGameState === GameState.TASKS)) {
+			connect.connect(gameState.lobbyCode, myPlayer.id);
+		}
+	}, [gameState.gameState]);
+
+	useEffect(() => {
 		if (connectionStuff.current.socket && myPlayer && myPlayer.id !== undefined) {
 			connectionStuff.current.socket.emit('id', myPlayer.id);
 		}

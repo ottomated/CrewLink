@@ -5,6 +5,7 @@ import { IOffsets } from "./hook";
 
 export interface AmongUsState {
 	gameState: GameState;
+	oldGameState: GameState;
 	lobbyCode: string;
 	players: Player[];
 }
@@ -36,6 +37,8 @@ export default class GameReader {
 	offsets: IOffsets;
 	PlayerStruct: any;
 
+	menuUpdateTimer = 20;
+	lastPlayerPtr = 0;
 	shouldReadLobby = false;
 	exileCausesEnd = false;
 	oldGameState = GameState.UNKNOWN;
@@ -122,8 +125,14 @@ export default class GameReader {
 					state = GameState.LOBBY;
 				}
 			}
-			this.oldGameState = state;
-
+			if (this.oldGameState === GameState.MENU && state === GameState.LOBBY && this.menuUpdateTimer > 0 &&
+				(this.lastPlayerPtr === allPlayers || players.length === 1 || !players.find(p => p.isLocal))) {
+				state = GameState.MENU;
+				this.menuUpdateTimer--;
+			} else {
+				this.menuUpdateTimer = 20;
+			}
+			this.lastPlayerPtr = allPlayers;
 
 			let inGame = state === GameState.TASKS || state === GameState.DISCUSSION || state === GameState.LOBBY;
 			let newGameCode = 'MENU';
@@ -147,7 +156,8 @@ export default class GameReader {
 			let newState = {
 				lobbyCode: this.gameCode,
 				players,
-				gameState: state
+				gameState: state,
+				oldGameState: this.oldGameState
 			};
 			let patch = patcher.diff(this.lastState, newState);
 			if (patch) {
@@ -158,6 +168,7 @@ export default class GameReader {
 				}
 			}
 			this.lastState = newState;
+			this.oldGameState = state;
 		}
 	}
 
