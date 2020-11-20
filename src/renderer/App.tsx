@@ -30,7 +30,9 @@ function App() {
 		offsets: {
 			version: '',
 			data: ''
-		}
+		},
+		hideCode: false,
+		stereoInLobby: true
 	});
 
 	useEffect(() => {

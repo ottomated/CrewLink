@@ -6,6 +6,7 @@ import { AmongUsState, GameState, Player } from '../main/GameReader';
 import Peer from 'simple-peer';
 import { ipcRenderer, remote } from 'electron';
 import VAD from './vad';
+import { ISettings } from './Settings';
 
 interface PeerConnections {
 	[peer: string]: Peer.Instance;
@@ -39,6 +40,10 @@ interface OtherTalking {
 	[playerId: number]: boolean; // isTalking
 }
 
+interface OtherDead {
+	[playerId: number]: boolean; // isTalking
+}
+
 // function clamp(number: number, min: number, max: number): number {
 // 	if (min > max) {
 // 		let tmp = max;
@@ -52,13 +57,16 @@ interface OtherTalking {
 // 	return clamp((n - oldLow) / (oldHigh - oldLow) * (newHigh - newLow) + newLow, newLow, newHigh);
 // }
 
-function calculateVoiceAudio(state: AmongUsState, me: Player, other: Player, gain: GainNode, pan: PannerNode): void {
+function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Player, other: Player, gain: GainNode, pan: PannerNode): void {
 	const audioContext = pan.context;
 	pan.positionZ.setValueAtTime(-0.5, audioContext.currentTime);
-	const panPos = [
-		other.x - me.x,
-		other.y - me.y
+	let panPos = [
+		(other.x - me.x),
+		(other.y - me.y)
 	];
+	if (state.gameState === GameState.DISCUSSION || (state.gameState === GameState.LOBBY && !settings.stereoInLobby)) {
+		panPos = [0, 0];
+	}
 	if (other.inVent) {
 		gain.gain.value = 0;
 		return;
@@ -86,16 +94,23 @@ function calculateVoiceAudio(state: AmongUsState, me: Player, other: Player, gai
 	} else {
 		gain.gain.value = 0;
 	}
+	if (gain.gain.value === 1 && Math.sqrt(Math.pow(me.x - other.x, 2) + Math.pow(me.y - other.y, 2)) > 7) {
+		gain.gain.value = 0;
+	}
 }
 
 
 export default function Voice() {
 	const [settings] = useContext(SettingsContext);
+	const settingsRef = useRef<ISettings>(settings);
 	const gameState = useContext(GameStateContext);
+	let { lobbyCode: displayedLobbyCode } = gameState;
+	if (displayedLobbyCode !== 'MENU' && settings.hideCode) displayedLobbyCode = 'LOBBY';
 	const [talking, setTalking] = useState(false);
 	const [socketPlayerIds, setSocketPlayerIds] = useState<SocketIdMap>({});
 	const [connect, setConnect] = useState<({ connect: (lobbyCode: string, playerId: number) => void }) | null>(null);
 	const [otherTalking, setOtherTalking] = useState<OtherTalking>({});
+	const [otherDead, setOtherDead] = useState<OtherDead>({});
 	const audioElements = useRef<AudioElements>({});
 
 	const [deafenedState, setDeafened] = useState(false);
@@ -106,6 +121,24 @@ export default function Voice() {
 		connectionStuff.current.stream.getAudioTracks()[0].enabled = !settings.pushToTalk;
 		connectionStuff.current.pushToTalk = settings.pushToTalk;
 	}, [settings.pushToTalk]);
+
+	useEffect(() => {
+		settingsRef.current = settings;
+	}, [settings]);
+
+	useEffect(() => {
+		if (gameState.gameState === GameState.LOBBY) {
+			setOtherDead({});
+		} else if (gameState.gameState !== GameState.TASKS) {
+			if (!gameState.players) return;
+			setOtherDead(old => {
+				for (let player of gameState.players) {
+					old[player.id] = player.isDead || player.disconnected;
+				}
+				return { ...old };
+			});
+		}
+	}, [gameState.gameState]);
 
 	// const [audioContext] = useState<AudioContext>(() => new AudioContext());
 	const connectionStuff = useRef<ConnectionStuff>({ pushToTalk: settings.pushToTalk, deafened: false } as any);
@@ -167,6 +200,7 @@ export default function Voice() {
 			const audioListeners: AudioListeners = {};
 
 			const connect = (lobbyCode: string, playerId: number) => {
+				console.log("Connect called", lobbyCode, playerId);
 				socket.emit('leave');
 				Object.keys(peerConnections).forEach(k => {
 					disconnectPeer(k);
@@ -225,19 +259,21 @@ export default function Voice() {
 					pan.distanceModel = 'linear';
 					pan.maxDistance = 2.66 * 2;
 					pan.rolloffFactor = 1;
-					VAD(context, source, pan, {
+
+					source.connect(pan);
+					pan.connect(gain);
+					// Source -> pan -> gain -> VAD -> destination
+					VAD(context, gain, context.destination, {
 						onVoiceStart: () => setTalking(true),
 						onVoiceStop: () => setTalking(false),
 						// onUpdate: console.log,
 					});
-					pan.connect(gain);
-					gain.connect(context.destination);
 
 					const setTalking = (talking: boolean) => {
 						setSocketPlayerIds(socketPlayerIds => {
 							setOtherTalking(old => ({
 								...old,
-								[socketPlayerIds[peer]]: talking
+								[socketPlayerIds[peer]]: talking && gain.gain.value > 0
 							}));
 							return socketPlayerIds;
 						});
@@ -315,7 +351,7 @@ export default function Voice() {
 		for (let player of otherPlayers) {
 			const audio = audioElements.current[playerSocketIds[player.id]];
 			if (audio) {
-				calculateVoiceAudio(gameState, myPlayer!, player, audio.gain, audio.pan);
+				calculateVoiceAudio(gameState, settingsRef.current, myPlayer!, player, audio.gain, audio.pan);
 				if (connectionStuff.current.deafened) {
 					audio.gain.gain.value = 0;
 				}
@@ -326,7 +362,7 @@ export default function Voice() {
 	}, [gameState]);
 
 	useEffect(() => {
-		if (connect && gameState.lobbyCode && myPlayer?.id !== undefined) {
+		if (connect?.connect && gameState.lobbyCode && myPlayer?.id !== undefined) {
 			connect.connect(gameState.lobbyCode, myPlayer.id);
 		}
 	}, [connect?.connect, gameState?.lobbyCode]);
@@ -353,7 +389,7 @@ export default function Voice() {
 					}
 					{gameState.lobbyCode &&
 						<span className="code" style={{ background: gameState.lobbyCode === 'MENU' ? 'transparent' : '#3e4346' }}>
-							{gameState.lobbyCode}
+							{displayedLobbyCode}
 						</span>
 					}
 				</div>
@@ -364,8 +400,11 @@ export default function Voice() {
 					otherPlayers.map(player => {
 						let connected = Object.values(socketPlayerIds).includes(player.id);
 						return (
-							<Avatar key={player.id}
-								player={player} talking={!connected || otherTalking[player.id]} borderColor={connected ? '#2ecc71' : '#c0392b'} isAlive size={50} />
+							<Avatar key={player.id} player={player}
+								talking={!connected || otherTalking[player.id]}
+								borderColor={connected ? '#2ecc71' : '#c0392b'}
+								isAlive={!otherDead[player.id]}
+								size={50} />
 						);
 					})
 				}
