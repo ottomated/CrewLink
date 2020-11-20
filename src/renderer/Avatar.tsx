@@ -70,44 +70,56 @@ function Canvas({ src, hat, skin, color, shadow, isAlive }: CanvasProps) {
 	const image = useRef<HTMLImageElement>(null);
 
 	useEffect(() => {
-		if (!canvas.current || !image.current || !hatImg.current || !skinImg.current) return;
-		const ctx = canvas.current.getContext('2d')!;
+		(async () => {
+			if (!canvas.current || !image.current || !hatImg.current || !skinImg.current) return;
+			const ctx = canvas.current.getContext('2d')!;
 
-		canvas.current.width = image.current.width;
-		canvas.current.height = image.current.height;
-		ctx.clearRect(0, 0, canvas.current.width, canvas.current.height);
-		ctx.drawImage(image.current, 0, 0);
-
-		function drawHat() {
-			let hatY = 17 - hatOffsets[hat];
-			ctx.drawImage(hatImg.current!, 0, hatY > 0 ? 0 : -hatY, hatImg.current!.width, hatImg.current!.height, canvas.current!.width / 2 - hatImg.current!.width / 2 + 2, Math.max(hatY, 0), hatImg.current!.width, hatImg.current!.height);
-		}
-
-
-		let data = ctx.getImageData(0, 0, image.current.width, image.current.height);
-		for (let i = 0; i < data.data.length; i += 4) {
-			let r = data.data[i],
-				g = data.data[i + 1],
-				b = data.data[i + 2];
-			if (r !== 255 || g !== 255 || b !== 255) {
-				let pixelColor = Color('#000000')
-					.mix(Color(shadow), b / 255)
-					.mix(Color(color), r / 255)
-					.mix(Color('#9acad5'), g / 255);
-				data.data[i] = pixelColor.red();
-				data.data[i + 1] = pixelColor.green();
-				data.data[i + 2] = pixelColor.blue();
+			if (!image.current.complete) {
+				await new Promise(r => image!.current!.onload = r);
 			}
-		}
-		ctx.putImageData(data, 0, 0);
-		if (isAlive) {
-			if (backLayerHats.has(hat))
-				ctx.globalCompositeOperation = 'destination-over';
-			drawHat();
-			ctx.globalCompositeOperation = 'source-over';
+			if (!hatImg.current.complete) {
+				await new Promise(r => hatImg!.current!.onload = r);
+			}
+			if (!skinImg.current.complete) {
+				await new Promise(r => skinImg!.current!.onload = r);
+			}
 
-			ctx.drawImage(skinImg.current, 25, 46);
-		}
+			canvas.current.width = image.current.width;
+			canvas.current.height = image.current.height;
+			ctx.clearRect(0, 0, canvas.current.width, canvas.current.height);
+			ctx.drawImage(image.current, 0, 0);
+
+			function drawHat() {
+				let hatY = 17 - hatOffsets[hat];
+				ctx.drawImage(hatImg.current!, 0, hatY > 0 ? 0 : -hatY, hatImg.current!.width, hatImg.current!.height, canvas.current!.width / 2 - hatImg.current!.width / 2 + 2, Math.max(hatY, 0), hatImg.current!.width, hatImg.current!.height);
+			}
+
+
+			let data = ctx.getImageData(0, 0, image.current.width, image.current.height);
+			for (let i = 0; i < data.data.length; i += 4) {
+				let r = data.data[i],
+					g = data.data[i + 1],
+					b = data.data[i + 2];
+				if (r !== 255 || g !== 255 || b !== 255) {
+					let pixelColor = Color('#000000')
+						.mix(Color(shadow), b / 255)
+						.mix(Color(color), r / 255)
+						.mix(Color('#9acad5'), g / 255);
+					data.data[i] = pixelColor.red();
+					data.data[i + 1] = pixelColor.green();
+					data.data[i + 2] = pixelColor.blue();
+				}
+			}
+			ctx.putImageData(data, 0, 0);
+			if (isAlive) {
+				if (backLayerHats.has(hat))
+					ctx.globalCompositeOperation = 'destination-over';
+				drawHat();
+				ctx.globalCompositeOperation = 'source-over';
+
+				ctx.drawImage(skinImg.current, 25, 46);
+			}
+		})();
 
 	}, [src, color, shadow, hat, skin, isAlive]);
 

@@ -47,6 +47,14 @@ const store = new Store<ISettings>({
 					default: ''
 				}
 			}
+		},
+		hideCode: {
+			type: 'boolean',
+			default: false
+		},
+		stereoInLobby: {
+			type: 'boolean',
+			default: true
 		}
 	}
 });
@@ -67,7 +75,9 @@ export interface ISettings {
 	offsets: {
 		version: string;
 		data: string;
-	}
+	},
+	hideCode: boolean;
+	stereoInLobby: boolean;
 }
 export const settingsReducer = (state: ISettings, action: {
 	type: 'set' | 'setOne', action: [string, any] | ISettings
@@ -169,65 +179,82 @@ export default function Settings({ open, onClose }: SettingsProps) {
 		}}>
 			<input type="checkbox" checked={settings.alwaysOnTop} readOnly />Always on Top
 		</div> */}
-		<div className="form-control m l" style={{ color: '#e74c3c' }}>
-			<label>Microphone</label>
-			<select value={settings.microphone} onChange={(ev) => {
-				setSettings({
-					type: 'setOne',
-					action: ['microphone', microphones[ev.target.selectedIndex].id]
-				});
-			}} onClick={() => updateDevices()}>
-				{
-					microphones.map(d => (
-						<option key={d.id} value={d.id}>{d.label}</option>
-					))
-				}
-			</select>
-		</div>
-		<div className="form-control m l" style={{ color: '#e67e22' }}>
-			<label>Speaker</label>
-			<select value={settings.speaker} onChange={(ev) => {
-				setSettings({
-					type: 'setOne',
-					action: ['speaker', speakers[ev.target.selectedIndex].id]
-				});
-			}} onClick={() => updateDevices()}>
-				{
-					speakers.map(d => (
-						<option key={d.id} value={d.id}>{d.label}</option>
-					))
-				}
-			</select>
-		</div>
-		<div className="form-control" style={{ color: '#f1c40f' }} onClick={() => setSettings({
-			type: 'setOne',
-			action: ['pushToTalk', false]
-		})}>
-			<input type="checkbox" checked={!settings.pushToTalk} style={{ color: '#f1c40f' }} readOnly />
-			<label>Voice Activity</label>
-		</div>
-		<div className={`form-control${settings.pushToTalk ? '' : ' m'}`} style={{ color: '#f1c40f' }} onClick={() => setSettings({
-			type: 'setOne',
-			action: ['pushToTalk', true]
-		})}>
-			<input type="checkbox" checked={settings.pushToTalk} readOnly />
-			<label>Push to Talk</label>
-		</div>
-		{settings.pushToTalk &&
-			<div className="form-control m" style={{ color: '#f1c40f' }}>
-				<input spellCheck={false} type="text" value={settings.pushToTalkShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'pushToTalkShortcut')} />
+		<div className="settings-scroll">
+
+			<div className="form-control m l" style={{ color: '#e74c3c' }}>
+				<label>Microphone</label>
+				<select value={settings.microphone} onChange={(ev) => {
+					setSettings({
+						type: 'setOne',
+						action: ['microphone', microphones[ev.target.selectedIndex].id]
+					});
+				}} onClick={() => updateDevices()}>
+					{
+						microphones.map(d => (
+							<option key={d.id} value={d.id}>{d.label}</option>
+						))
+					}
+				</select>
 			</div>
-		}
-		<div className="form-control l m" style={{ color: '#2ecc71' }}>
-			<label>Deafen Shortcut</label>
-			<input spellCheck={false} type="text" value={settings.deafenShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'deafenShortcut')} />
-		</div>
-		<div className="form-control l" style={{ color: '#3498db' }}>
-			<label>Voice Server</label>
-			<input spellCheck={false} type="text" onChange={(ev) => setSettings({
+			<div className="form-control m l" style={{ color: '#e67e22' }}>
+				<label>Speaker</label>
+				<select value={settings.speaker} onChange={(ev) => {
+					setSettings({
+						type: 'setOne',
+						action: ['speaker', speakers[ev.target.selectedIndex].id]
+					});
+				}} onClick={() => updateDevices()}>
+					{
+						speakers.map(d => (
+							<option key={d.id} value={d.id}>{d.label}</option>
+						))
+					}
+				</select>
+			</div>
+			<div className="form-control" style={{ color: '#f1c40f' }} onClick={() => setSettings({
 				type: 'setOne',
-				action: ['serverIP', ev.target.value]
-			})} value={settings.serverIP} />
+				action: ['pushToTalk', false]
+			})}>
+				<input type="checkbox" checked={!settings.pushToTalk} style={{ color: '#f1c40f' }} readOnly />
+				<label>Voice Activity</label>
+			</div>
+			<div className={`form-control${settings.pushToTalk ? '' : ' m'}`} style={{ color: '#f1c40f' }} onClick={() => setSettings({
+				type: 'setOne',
+				action: ['pushToTalk', true]
+			})}>
+				<input type="checkbox" checked={settings.pushToTalk} readOnly />
+				<label>Push to Talk</label>
+			</div>
+			{settings.pushToTalk &&
+				<div className="form-control m" style={{ color: '#f1c40f' }}>
+					<input spellCheck={false} type="text" value={settings.pushToTalkShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'pushToTalkShortcut')} />
+				</div>
+			}
+			<div className="form-control l m" style={{ color: '#2ecc71' }}>
+				<label>Deafen Shortcut</label>
+				<input spellCheck={false} type="text" value={settings.deafenShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'deafenShortcut')} />
+			</div>
+			<div className="form-control l m" style={{ color: '#3498db' }}>
+				<label>Voice Server</label>
+				<input spellCheck={false} type="text" onChange={(ev) => setSettings({
+					type: 'setOne',
+					action: ['serverIP', ev.target.value]
+				})} value={settings.serverIP} />
+			</div>
+			<div className="form-control m" style={{ color: '#9b59b6' }} onClick={() => setSettings({
+				type: 'setOne',
+				action: ['hideCode', !settings.hideCode]
+			})}>
+				<input type="checkbox" checked={!settings.hideCode} style={{ color: '#9b59b6' }} readOnly />
+				<label>Show Lobby Code</label>
+			</div>
+			<div className="form-control m" style={{ color: '#fd79a8' }} onClick={() => setSettings({
+				type: 'setOne',
+				action: ['stereoInLobby', !settings.stereoInLobby]
+			})}>
+				<input type="checkbox" checked={settings.stereoInLobby} style={{ color: '#fd79a8' }} readOnly />
+				<label>Stereo Audio in Lobbies</label>
+			</div>
 		</div>
 	</div>
 }
