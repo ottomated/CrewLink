@@ -14,6 +14,8 @@
     <a href="https://github.com/ottomated/CrewLink/issues">Report Bug</a>
     ·
     <a href="https://github.com/ottomated/CrewLink/issues">Request Feature</a>
+    ·
+    <a href="https://twitch.tv/ottomated">Watch Live Development</a>
   </p>
 </p>
 
