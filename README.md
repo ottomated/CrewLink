@@ -15,7 +15,7 @@
     ·
     <a href="https://github.com/ottomated/CrewLink/issues">Request Feature</a>
     ·
-    <a href="https://twitch.tv/ottomated">Watch Live Development</a>
+    <a href="#installation"><b>INSTALLATION INSTRUCTIONS</b></a>
   </p>
 </p>
 
@@ -28,7 +28,7 @@
 * [Installation](#installation)
 * [Development](#development)
   * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
+  * [Setup](#setup)
 * [Contributing](#contributing)
 * [License](#license)
 
@@ -64,7 +64,7 @@ This is an example of how to list things you need to use the software and how to
 npm install yarn -g
 ```
 
-### Installation
+### Setup
 
 1. Clone the repo
 ```sh
