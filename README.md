@@ -49,7 +49,7 @@ If you can, you should use a private server by deploying [this repository](https
 
 [![Setup Video](https://img.youtube.com/vi/_8F4f5iQEIc/0.jpg)](https://www.youtube.com/watch?v=_8F4f5iQEIc "CrewLink Setup Instructions")
 
-Also, you may avoid issues by having Among Us set to Windowed Mode.
+Ideally, open the associated app before Among Us. Also, you may avoid issues by having Among Us set to Windowed Mode.
 
 ## Development
 
