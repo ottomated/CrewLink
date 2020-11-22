@@ -136,20 +136,24 @@ export default class GameReader {
 
 			let inGame = state === GameState.TASKS || state === GameState.DISCUSSION || state === GameState.LOBBY;
 			let newGameCode = 'MENU';
-			if (inGame) {
+			if (state === GameState.LOBBY) {
 				newGameCode = this.readString(
 					this.readMemory<number>('int32', this.gameAssembly.modBaseAddr, this.offsets.gameCode)
 				);
 				if (newGameCode) {
-					let split = newGameCode.split('\n');
-					if (split.length === 2) {
+					let split = newGameCode.split('\r\n');
+					if (split.length === 2 && split[0] === 'Code') {
 						newGameCode = split[1];
+					} else {
+						newGameCode = '';
+					}
+					if (!/^[A-Z]{6}$/.test(newGameCode) || newGameCode === 'MENU') {
+						newGameCode = '';
 					}
 				}
-				if (!/^[A-Z]+$/.test(newGameCode) || newGameCode === 'MENU') {
-					newGameCode = '';
-				}
 				// console.log(this.gameCode, newGameCode);
+			} else if (inGame) {
+				newGameCode = '';
 			}
 			if (newGameCode) this.gameCode = newGameCode;
 
