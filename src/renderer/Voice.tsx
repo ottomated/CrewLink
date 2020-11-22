@@ -67,6 +67,10 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 	if (state.gameState === GameState.DISCUSSION || (state.gameState === GameState.LOBBY && !settings.stereoInLobby)) {
 		panPos = [0, 0];
 	}
+	if (isNaN(panPos[0])) panPos[0] = 999;
+	if (isNaN(panPos[1])) panPos[1] = 999;
+	panPos[0] = Math.min(999, Math.max(-999, panPos[0]));
+	panPos[1] = Math.min(999, Math.max(-999, panPos[1]));
 	if (other.inVent) {
 		gain.gain.value = 0;
 		return;
