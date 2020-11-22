@@ -49,6 +49,8 @@ If you can, you should use a private server by deploying [this repository](https
 
 [![Setup Video](https://img.youtube.com/vi/_8F4f5iQEIc/0.jpg)](https://www.youtube.com/watch?v=_8F4f5iQEIc "CrewLink Setup Instructions")
 
+Also, you may avoid issues by having Among Us set to Windowed Mode.
+
 ## Development
 
 You only need to follow the below instructions if you are trying to modify this software. Otherwise, please download the latest version from the [github releases](https://github.com/ottomated/CrewLink/releases).
