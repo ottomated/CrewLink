@@ -23,6 +23,7 @@ export interface Player {
 	taskPtr: number;
 	objectPtr: number;
 	isLocal: boolean;
+	relativeGain: number;
 
 	x: number;
 	y: number;
@@ -251,6 +252,7 @@ export default class GameReader {
 			objectPtr: data.objectPtr,
 			inVent: this.readMemory<number>('byte', data.objectPtr, this.offsets.player.inVent) > 0,
 			isLocal,
+			relativeGain: 1,
 			x, y
 		};
 	}
