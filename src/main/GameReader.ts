@@ -142,7 +142,7 @@ export default class GameReader {
 				);
 				if (newGameCode) {
 					let split = newGameCode.split('\r\n');
-					if (split.length === 2 && split[0] === 'Code') {
+					if (split.length === 2) {
 						newGameCode = split[1];
 					} else {
 						newGameCode = '';
