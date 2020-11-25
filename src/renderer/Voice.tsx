@@ -76,7 +76,7 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 		return;
 	}
 	if (me.isDead && other.isDead) {
-		gain.gain.value = 1;
+		gain.gain.value = 1 * other.relativeGain;
 		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
 		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
 		return;
@@ -86,12 +86,12 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 		return;
 	}
 	if (state.gameState === GameState.LOBBY || state.gameState === GameState.DISCUSSION) {
-		gain.gain.value = 1;
+		gain.gain.value = 1 * other.relativeGain;
 		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
 		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
 	} else if (state.gameState === GameState.TASKS) {
 		// const distance = Math.sqrt(Math.pow(me.x - other.x, 2) + Math.pow(me.y - other.y, 2));
-		gain.gain.value = 1;
+		gain.gain.value = 1 * other.relativeGain;
 		// gain.gain.value = mapNumber(distance, 0, 2.66, 1, 0);
 		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
 		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
