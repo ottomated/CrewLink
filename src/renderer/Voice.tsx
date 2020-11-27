@@ -147,7 +147,6 @@ export default function Voice() {
 	// const [audioContext] = useState<AudioContext>(() => new AudioContext());
 	const connectionStuff = useRef<ConnectionStuff>({ pushToTalk: settings.pushToTalk, deafened: false } as any);
 	useEffect(() => {
-		console.log(gameState);
 		// Connect to voice relay server
 		connectionStuff.current.socket = io(`ws://${settings.serverIP}`, { transports: ['websocket'] });
 		const { socket } = connectionStuff.current;
