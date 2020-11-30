@@ -27,6 +27,10 @@ const store = new Store<ISettings>({
 			type: 'string',
 			default: '54.193.94.35:9736'
 		},
+		secure: {
+			type: 'boolean',
+			default: false
+		},
 		pushToTalkShortcut: {
 			type: 'string',
 			default: 'V'
@@ -78,6 +82,7 @@ export interface ISettings {
 	},
 	hideCode: boolean;
 	stereoInLobby: boolean;
+	secure: boolean;
 }
 export const settingsReducer = (state: ISettings, action: {
 	type: 'set' | 'setOne', action: [string, any] | ISettings
@@ -111,7 +116,7 @@ export default function Settings({ open, onClose }: SettingsProps) {
 
 	useEffect(() => {
 		setUnsavedCount(s => s + 1);
-	}, [settings.microphone, settings.speaker, settings.serverIP]);
+	}, [settings.microphone, settings.speaker, settings.serverIP, settings.secure]);
 
 	const [devices, setDevices] = useState<MediaDevice[]>([]);
 	const [_, updateDevices] = useReducer((state) => state + 1, 0);
@@ -240,6 +245,13 @@ export default function Settings({ open, onClose }: SettingsProps) {
 					type: 'setOne',
 					action: ['serverIP', ev.target.value]
 				})} value={settings.serverIP} />
+			</div>
+			<div className="form-control 1 m" style={{ color: '#3498db' }} onClick={() => setSettings({
+				type: 'setOne',
+				action: ['secure', !settings.secure]
+			})}>
+				<input type="checkbox" checked={settings.secure} style={{ color: '#3498db' }} readOnly />
+				<label>Secure Connection (TLS)</label>
 			</div>
 			<div className="form-control m" style={{ color: '#9b59b6' }} onClick={() => setSettings({
 				type: 'setOne',
