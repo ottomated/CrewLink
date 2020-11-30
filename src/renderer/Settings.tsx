@@ -1,6 +1,7 @@
 import Store from 'electron-store';
 import React, { useContext, useEffect, useReducer, useState } from "react";
 import { SettingsContext } from "./App";
+import { remote } from 'electron';
 import './css/settings.css';
 
 const keys = new Set(['Space', 'Backspace', 'Delete', 'Enter', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown', 'Escape', 'LControl', 'LShift', 'LAlt', 'RControl', 'RShift', 'RAlt']);
@@ -196,6 +197,37 @@ export default function Settings({ open, onClose }: SettingsProps) {
 					}
 				</select>
 			</div>
+
+			<div className="form-control" style={{ color: '#f1c40f' }}>
+				<button onClick={() => {
+					let audio = document.getElementById('mictest') as HTMLAudioElement;
+
+					if(audio && !audio.paused) 
+						return audio.pause();
+
+					if(!audio) {
+						audio = document.createElement('audio');
+						audio.id = 'mictest';
+						document.body.appendChild(audio);
+					}
+
+					let mic: boolean | MediaTrackConstraints = true;
+
+					if (settings.microphone.toLowerCase() !== 'default')
+						mic = { deviceId: settings.microphone };
+
+					navigator.getUserMedia({ video: false, audio: mic }, async stream => {
+						audio.srcObject = stream;
+						audio.play();
+					}, (error) => {
+						console.error(error);
+						remote.dialog.showErrorBox('Error', 'Couldn\'t connect to your microphone:\n' + error);
+					});
+					
+					
+				}}>Test Microphone</button>
+			</div>
+
 			<div className="form-control m l" style={{ color: '#e67e22' }}>
 				<label>Speaker</label>
 				<select value={settings.speaker} onChange={(ev) => {
@@ -211,6 +243,19 @@ export default function Settings({ open, onClose }: SettingsProps) {
 					}
 				</select>
 			</div>
+
+			<div className="form-control" style={{ color: '#f1c40f' }}>
+				<button onClick={() => {
+					let audio = new Audio();
+					audio.src = "https://downloads.derock.dev/chime.mp3"
+					
+					if(settings.speaker.toLowerCase() !== 'default')
+						(audio as any).setSinkId(settings.speaker)
+					
+					audio.play();
+				}}>Test Speaker</button>
+			</div>
+
 			<div className="form-control" style={{ color: '#f1c40f' }} onClick={() => setSettings({
 				type: 'setOne',
 				action: ['pushToTalk', false]

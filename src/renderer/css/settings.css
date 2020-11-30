@@ -46,6 +46,7 @@ input[type="text"] {
 	padding: 5px;
 	border-radius: 5px;
 }
+
 input[type="text"]:focus {
 	border-color: white;
 }
@@ -67,4 +68,15 @@ select {
 	flex-direction: column;
 	justify-content: start;
 	align-items: center;
+}
+
+button {
+	border-radius: 5px;
+	background-color: #4CAF50;
+	color: white;
+	text-align: center;
+	border: none;
+	margin: 5px;
+	margin-top: 2px;
+	font-size: medium;
 }
