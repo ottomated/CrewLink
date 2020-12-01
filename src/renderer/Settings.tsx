@@ -1,11 +1,33 @@
 import Store from 'electron-store';
 import React, { useContext, useEffect, useReducer, useState } from "react";
 import { SettingsContext } from "./App";
+import Ajv from 'ajv';
 import './css/settings.css';
 
 const keys = new Set(['Space', 'Backspace', 'Delete', 'Enter', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown', 'Escape', 'LControl', 'LShift', 'LAlt', 'RControl', 'RShift', 'RAlt']);
 
+const validateURL = new Ajv().compile({
+	type: 'string',
+	format: 'uri'
+});
+
 const store = new Store<ISettings>({
+	migrations: {
+		'1.1.3': store => {
+			const serverIP = store.get('serverIP');
+			if (typeof serverIP === 'string') {
+				const serverURL = `http://${serverIP}`;
+				if (validateURL(serverURL)) {
+					store.set('serverURL', serverURL)
+				} else {
+					console.warn('Error while parsing the old serverIP property. Default URL will be used instead.');
+				}
+
+				// @ts-ignore: Old serverIP property no longer exists in ISettings
+				store.delete('serverIP')
+			}
+		}
+	},
 	schema: {
 		alwaysOnTop: {
 			type: 'boolean',
@@ -23,13 +45,10 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: false,
 		},
-		serverIP: {
+		serverURL: {
 			type: 'string',
-			default: '54.193.94.35:9736'
-		},
-		secure: {
-			type: 'boolean',
-			default: false
+			default: 'http://54.193.94.35:9736',
+			format: 'uri'
 		},
 		pushToTalkShortcut: {
 			type: 'string',
@@ -73,7 +92,7 @@ export interface ISettings {
 	microphone: string;
 	speaker: string;
 	pushToTalk: boolean;
-	serverIP: string;
+	serverURL: string;
 	pushToTalkShortcut: string;
 	deafenShortcut: string;
 	offsets: {
@@ -82,7 +101,6 @@ export interface ISettings {
 	},
 	hideCode: boolean;
 	stereoInLobby: boolean;
-	secure: boolean;
 }
 export const settingsReducer = (state: ISettings, action: {
 	type: 'set' | 'setOne', action: [string, any] | ISettings
@@ -102,8 +120,34 @@ interface MediaDevice {
 	label: string;
 }
 
-export default function Settings({ open, onClose }: SettingsProps) {
+type URLInputProps = {
+	initialURL: string,
+	onValidURL: (url: string) => void
+};
 
+function URLInput({ initialURL, onValidURL }: URLInputProps) {
+	const [isValidURL, setURLValid] = useState(true);
+	const [currentURL, setCurrentURL] = useState(initialURL);
+
+	useEffect(() => {
+		setCurrentURL(initialURL);
+	}, [initialURL]);
+
+	function onChange(event: React.ChangeEvent<HTMLInputElement>) {
+		setCurrentURL(event.target.value);
+
+		if (validateURL(event.target.value)) {
+			setURLValid(true);
+			onValidURL(event.target.value);
+		} else {
+			setURLValid(false);
+		}
+	}
+
+	return <input className={isValidURL ? '' : 'input-error'} spellCheck={false} type="text" value={currentURL} onChange={onChange} />
+}
+
+export default function Settings({ open, onClose }: SettingsProps) {
 	const [settings, setSettings] = useContext(SettingsContext);
 	const [unsavedCount, setUnsavedCount] = useState(0);
 	const unsaved = unsavedCount > 2;
@@ -116,7 +160,7 @@ export default function Settings({ open, onClose }: SettingsProps) {
 
 	useEffect(() => {
 		setUnsavedCount(s => s + 1);
-	}, [settings.microphone, settings.speaker, settings.serverIP, settings.secure]);
+	}, [settings.microphone, settings.speaker, settings.serverURL]);
 
 	const [devices, setDevices] = useState<MediaDevice[]>([]);
 	const [_, updateDevices] = useReducer((state) => state + 1, 0);
@@ -241,17 +285,12 @@ export default function Settings({ open, onClose }: SettingsProps) {
 			</div>
 			<div className="form-control l m" style={{ color: '#3498db' }}>
 				<label>Voice Server</label>
-				<input spellCheck={false} type="text" onChange={(ev) => setSettings({
-					type: 'setOne',
-					action: ['serverIP', ev.target.value]
-				})} value={settings.serverIP} />
-			</div>
-			<div className="form-control 1 m" style={{ color: '#3498db' }} onClick={() => setSettings({
-				type: 'setOne',
-				action: ['secure', !settings.secure]
-			})}>
-				<input type="checkbox" checked={settings.secure} style={{ color: '#3498db' }} readOnly />
-				<label>Secure Connection (TLS)</label>
+				<URLInput initialURL={settings.serverURL} onValidURL={(url: string) => {
+					setSettings({
+						type: 'setOne',
+						action: ['serverURL', url]
+					})
+				}} />
 			</div>
 			<div className="form-control m" style={{ color: '#9b59b6' }} onClick={() => setSettings({
 				type: 'setOne',

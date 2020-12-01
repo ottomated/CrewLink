@@ -31,7 +31,7 @@ function App() {
 		microphone: 'Default',
 		speaker: 'Default',
 		pushToTalk: false,
-		serverIP: '54.193.94.35:9736',
+		serverURL: 'http://54.193.94.35:9736',
 		pushToTalkShortcut: 'V',
 		deafenShortcut: 'RControl',
 		offsets: {
@@ -39,8 +39,7 @@ function App() {
 			data: ''
 		},
 		hideCode: false,
-		stereoInLobby: true,
-		secure: false
+		stereoInLobby: true
 	});
 
 	useEffect(() => {
