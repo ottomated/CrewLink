@@ -6,7 +6,10 @@ import './css/settings.css';
 
 const keys = new Set(['Space', 'Backspace', 'Delete', 'Enter', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown', 'Escape', 'LControl', 'LShift', 'LAlt', 'RControl', 'RShift', 'RAlt']);
 
-const validateURL = new Ajv().compile({
+const validateURL = new Ajv({
+	allErrors: true,
+	format: 'full'
+}).compile({
 	type: 'string',
 	format: 'uri'
 });
