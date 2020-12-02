@@ -60,7 +60,9 @@ Server code is located at [ottomated/CrewLink-server](https://github.com/ottomat
 This is an example of how to list things you need to use the software and how to install them.
 * [Python](https://www.python.org/downloads/)
 * [node.js](https://nodejs.org/en/download/)
+* Visual Studio C++
 * yarn
+
 ```sh
 npm install yarn -g
 ```
@@ -78,9 +80,9 @@ yarn install
 ```
 3. Copy iohook binaries
 ```sh
-mkdir -p node_modules\iohook\builds\electron-v80-win32-x64\build\Release\
-cp iohook\iohook.node node_modules\iohook\builds\electron-v80-win32-x64\build\Release\
-cp iohook\uiohook.dll node_modules\iohook\builds\electron-v80-win32-x64\build\Release\
+mkdir -p node_modules/iohook/builds/electron-v80-win32-x64/build/Release/
+cp iohook/iohook.node node_modules/iohook/builds/electron-v80-win32-x64/build/Release/
+cp iohook/uiohook.dll node_modules/iohook/builds/electron-v80-win32-x64/build/Release/
 ```
 3. Run the project
 ```JS
