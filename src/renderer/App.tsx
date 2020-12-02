@@ -34,6 +34,7 @@ function App() {
 		serverIP: '54.193.94.35:9736',
 		pushToTalkShortcut: 'V',
 		deafenShortcut: 'RControl',
+		muteShortcut: 'RAlt',
 		offsets: {
 			version: '',
 			data: ''

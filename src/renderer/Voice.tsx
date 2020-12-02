@@ -34,6 +34,7 @@ interface ConnectionStuff {
 	stream: MediaStream;
 	pushToTalk: boolean;
 	deafened: boolean;
+	muted: boolean;
 }
 
 interface OtherTalking {
@@ -118,6 +119,7 @@ export default function Voice() {
 	const audioElements = useRef<AudioElements>({});
 
 	const [deafenedState, setDeafened] = useState(false);
+	const [mutedState, setMuted] = useState(false);
 	const [connected, setConnected] = useState(false);
 
 	useEffect(() => {
@@ -145,7 +147,7 @@ export default function Voice() {
 	}, [gameState.gameState]);
 
 	// const [audioContext] = useState<AudioContext>(() => new AudioContext());
-	const connectionStuff = useRef<ConnectionStuff>({ pushToTalk: settings.pushToTalk, deafened: false } as any);
+	const connectionStuff = useRef<ConnectionStuff>({ pushToTalk: settings.pushToTalk, deafened: false, muted: false } as any);
 	useEffect(() => {
 		// Connect to voice relay server
 		connectionStuff.current.socket = io(`ws://${settings.serverIP}`, { transports: ['websocket'] });
@@ -174,8 +176,13 @@ export default function Voice() {
 
 			ipcRenderer.on('toggleDeafen', () => {
 				connectionStuff.current.deafened = !connectionStuff.current.deafened;
-				stream.getAudioTracks()[0].enabled = !connectionStuff.current.deafened;
+				stream.getAudioTracks()[0].enabled = !connectionStuff.current.deafened && !connectionStuff.current.muted;
 				setDeafened(connectionStuff.current.deafened);
+			});
+			ipcRenderer.on('toggleMute', () => {
+				connectionStuff.current.muted = !connectionStuff.current.muted;
+				stream.getAudioTracks()[0].enabled = !connectionStuff.current.muted && !connectionStuff.current.deafened;
+				setMuted(connectionStuff.current.muted);
 			});
 			ipcRenderer.on('pushToTalk', (_: any, pressing: boolean) => {
 				if (!connectionStuff.current.pushToTalk) return;
@@ -385,7 +392,7 @@ export default function Voice() {
 		<div className="root">
 			<div className="top">
 				{myPlayer &&
-					<Avatar deafened={deafenedState} player={myPlayer} borderColor={connected ? '#2ecc71' : '#c0392b'} talking={talking} isAlive={!myPlayer.isDead} size={100} />
+					<Avatar deafened={deafenedState} muted={mutedState} player={myPlayer} borderColor={connected ? '#2ecc71' : '#c0392b'} talking={talking} isAlive={!myPlayer.isDead} size={100} />
 					// <div className="avatar" style={{ borderColor: talking ? '#2ecc71' : 'transparent' }}>
 					// 	<Canvas src={alive} color={playerColors[myPlayer.colorId][0]} shadow={playerColors[myPlayer.colorId][1]} />
 					// </div>
