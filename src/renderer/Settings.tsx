@@ -215,14 +215,14 @@ export default function Settings({ open, onClose }: SettingsProps) {
 				type: 'setOne',
 				action: ['pushToTalk', false]
 			})}>
-				<input type="checkbox" checked={!settings.pushToTalk} style={{ color: '#f1c40f' }} readOnly />
+				<input type="radio" checked={!settings.pushToTalk} style={{ color: '#f1c40f' }} readOnly />
 				<label>Voice Activity</label>
 			</div>
 			<div className={`form-control${settings.pushToTalk ? '' : ' m'}`} style={{ color: '#f1c40f' }} onClick={() => setSettings({
 				type: 'setOne',
 				action: ['pushToTalk', true]
 			})}>
-				<input type="checkbox" checked={settings.pushToTalk} readOnly />
+				<input type="radio" checked={settings.pushToTalk} readOnly />
 				<label>Push to Talk</label>
 			</div>
 			{settings.pushToTalk &&
