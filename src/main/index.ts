@@ -1,7 +1,6 @@
 'use strict'
 
 import { autoUpdater } from 'electron-updater';
-import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path'
 import { format as formatUrl } from 'url'
@@ -82,8 +81,9 @@ if (!gotTheLock) {
     console.log( `Attempting to injecti extensions...` );
 
     // add react devtools
+    const installExtension = await import( 'electron-devtools-installer' );
     try {
-      const name = await installExtension( REACT_DEVELOPER_TOOLS );
+      const name = await installExtension.default( installExtension.REACT_DEVELOPER_TOOLS );
       console.log( `Added Extension:  ${name}` );
     } catch ( error ) {
       console.error( 'An error occurred installing extension(s): ', error );
