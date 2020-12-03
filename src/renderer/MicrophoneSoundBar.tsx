@@ -13,9 +13,18 @@ const TestMicrophoneButton: React.FC = () => {
         const processor = ctx.createScriptProcessor(2048, 1, 1)
         processor.connect(ctx.destination)
 
+        const minUpdateRate = 50;
+        let lastRefreshTime = 0;
+
         const handleProcess = (event: AudioProcessingEvent) => {
-            if (Math.floor(event.timeStamp / 10) % 50 !== 0) return
-    
+            // limit update frequency
+            if ( event.timeStamp - lastRefreshTime < minUpdateRate ) {
+              return;
+            }
+
+            // update last refresh time
+            lastRefreshTime = event.timeStamp;
+
             const input = event.inputBuffer.getChannelData(0)
             const total = input.reduce((acc, val) => acc + Math.abs(val), 0)
             const rms = Math.sqrt(total / input.length)
