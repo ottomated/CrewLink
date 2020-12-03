@@ -141,7 +141,7 @@ ipcMain.on('start', async (event) => {
 		});
 		const frame = () => {
 			gameReader.loop();
-			setTimeout(frame, 1000 / 20);
+			setTimeout(frame, 1000 / 2);
 		}
 		frame();
 	} else if (gameReader) {
