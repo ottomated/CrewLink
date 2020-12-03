@@ -1,6 +1,7 @@
 'use strict'
 
 import { autoUpdater } from 'electron-updater';
+import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path'
 import { format as formatUrl } from 'url'
@@ -44,6 +45,7 @@ if (!gotTheLock) {
 			}
 		});
 
+		// open devtools on launch
 		if (isDevelopment) {
 			window.webContents.openDevTools()
 		}
@@ -76,6 +78,18 @@ if (!gotTheLock) {
 		return window
 	}
 
+	async function injectExtensions () {
+    console.log( `Attempting to injecti extensions...` );
+
+    // add react devtools
+    try {
+      const name = await installExtension( REACT_DEVELOPER_TOOLS );
+      console.log( `Added Extension:  ${name}` );
+    } catch ( error ) {
+      console.error( 'An error occurred installing extension(s): ', error );
+    }
+  }
+
 	// quit application when all windows are closed
 	app.on('window-all-closed', () => {
 		// on macOS it is common for applications to stay open until the user explicitly quits
@@ -92,8 +106,13 @@ if (!gotTheLock) {
 	})
 
 	// create main BrowserWindow when electron is ready
-	app.on('ready', () => {
-		mainWindow = createMainWindow();
+	app.on('ready', async () => {
+
+    mainWindow = createMainWindow();
+
+    if (isDevelopment) {
+      await injectExtensions();
+    }
 	});
 
 	// ipcMain.on('alwaysOnTop', (event, onTop: boolean) => {
