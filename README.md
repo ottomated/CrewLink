@@ -78,10 +78,6 @@ cd CrewLink
 ```sh
 yarn install
 ```
-3. Copy iohook binaries
-```sh
-sh ./copy-io.sh
-```
 3. Run the project
 ```JS
 yarn dev
