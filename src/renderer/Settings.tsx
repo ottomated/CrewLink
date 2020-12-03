@@ -2,6 +2,8 @@ import Store from 'electron-store';
 import React, { useContext, useEffect, useReducer, useState } from "react";
 import { SettingsContext } from "./App";
 import './css/settings.css';
+import MicrophoneSoundBar from './MicrophoneSoundBar';
+import TestSpeakersButton from './TestSpeakersButton';
 
 const keys = new Set(['Space', 'Backspace', 'Delete', 'Enter', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown', 'Escape', 'LControl', 'LShift', 'LAlt', 'RControl', 'RShift', 'RAlt']);
 
@@ -196,6 +198,9 @@ export default function Settings({ open, onClose }: SettingsProps) {
 					}
 				</select>
 			</div>
+
+			<MicrophoneSoundBar/>
+
 			<div className="form-control m l" style={{ color: '#e67e22' }}>
 				<label>Speaker</label>
 				<select value={settings.speaker} onChange={(ev) => {
@@ -211,6 +216,9 @@ export default function Settings({ open, onClose }: SettingsProps) {
 					}
 				</select>
 			</div>
+
+			<TestSpeakersButton/>
+
 			<div className="form-control" style={{ color: '#f1c40f' }} onClick={() => setSettings({
 				type: 'setOne',
 				action: ['pushToTalk', false]
