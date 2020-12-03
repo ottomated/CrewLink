@@ -17,7 +17,7 @@
     "url": "https://ottomated.net"
   },
   "scripts": {
-    "postinstall": "electron-builder install-app-deps",
+    "postinstall": "postinstall.sh",
     "dev": "electron-webpack dev",
     "compile": "electron-webpack",
     "dist": "yarn compile && electron-builder --win --x64",
