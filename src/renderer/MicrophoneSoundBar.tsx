@@ -19,7 +19,6 @@ const TestMicrophoneButton: React.FC = () => {
             const input = event.inputBuffer.getChannelData(0)
             const total = input.reduce((acc, val) => acc + Math.abs(val), 0)
             const rms = Math.sqrt(total / input.length)
-            console.log(microphone)
             setRms(rms)
         }
 
