@@ -1,7 +1,7 @@
 'use strict'
 
 import { autoUpdater } from 'electron-updater';
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import * as path from 'path'
 import { format as formatUrl } from 'url'
 import './hook';
@@ -96,21 +96,4 @@ if (!gotTheLock) {
 		mainWindow = createMainWindow();
 	});
 
-	// ipcMain.on('alwaysOnTop', (event, onTop: boolean) => {
-	// 	if (mainWindow) {
-	// 		mainWindow.setAlwaysOnTop(onTop, 'floating', 1);
-	// 		mainWindow.setVisibleOnAllWorkspaces(true);
-	// 		mainWindow.setFullScreenable(false);
-	// 	}
-	// });
-
-	ipcMain.on('shortcut', (event, val) => {
-		event.returnValue = false;
-		// console.log('register', val);
-		// globalShortcut.unregisterAll();
-		// event.returnValue = globalShortcut.register(val!, () => {
-		// 	console.log("push-to-talk");
-		// })
-
-	});
 }
