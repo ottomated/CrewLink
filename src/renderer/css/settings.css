@@ -46,6 +46,11 @@ input[type="text"] {
 	padding: 5px;
 	border-radius: 5px;
 }
+
+.form-control.m .input-error {
+	border-color: #b00020
+}
+
 input[type="text"]:focus {
 	border-color: white;
 }
