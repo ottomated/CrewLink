@@ -247,7 +247,7 @@ export default function Settings({ open, onClose }: SettingsProps) {
 			<div className="form-control" style={{ color: '#f1c40f' }}>
 				<button onClick={() => {
 					let audio = new Audio();
-					audio.src = "https://downloads.derock.dev/chime.mp3"
+					audio.src = "/sounds/chime.mp3"
 					
 					if(settings.speaker.toLowerCase() !== 'default')
 						(audio as any).setSinkId(settings.speaker)
