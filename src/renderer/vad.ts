@@ -57,7 +57,7 @@ export default function (audioContext: AudioContext, source: AudioNode, destinat
 	analyser.smoothingTimeConstant = options.smoothingTimeConstant;
 	analyser.fftSize = options.fftSize;
 
-	var scriptProcessorNode = audioContext.createScriptProcessor(options.bufferLen, 1, 1);
+	var scriptProcessorNode = audioContext.createScriptProcessor(options.bufferLen, 2, 2);
 	connect();
 	scriptProcessorNode.onaudioprocess = monitor;
 
