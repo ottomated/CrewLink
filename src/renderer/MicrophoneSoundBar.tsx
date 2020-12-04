@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { SettingsContext } from './App';
 
-const TestMicrophoneButton: React.FC = () => {
+const TestMicrophoneButton = function() {
     const [{ microphone }] = useContext(SettingsContext)
     const [error, setError] = useState<boolean>(false)
     const [rms, setRms] = useState<number>(0)
@@ -44,9 +44,9 @@ const TestMicrophoneButton: React.FC = () => {
         }
     }, [microphone])
 
-    if (error) return <p style={{ fontSize: 12, color: 'red' }}>Could not connect to microphone</p>
+    if (error) return <p style={{ fontSize: 14, color: '#e74c3c' }}>Could not connect to microphone</p>
 
-    return <div style={{ width: 200, background: 'red', height: 20 }}><div style={{ background: 'green', width: `${rms * 2 * 100}%`, height: 20 }}></div></div>
+    return <div className="microphone-bar"><div className="microphone-bar-inner" style={{ width: `${rms * 2 * 100}%` }}></div></div>
 }
 
 export default TestMicrophoneButton

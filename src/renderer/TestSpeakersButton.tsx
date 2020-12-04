@@ -1,12 +1,14 @@
 import React, { useContext } from 'react'
 import { SettingsContext } from './App';
+// @ts-ignore
+import chime from '../../static/chime.mp3';
 
 const TestSpeakersButton = () => {
     const [{ speaker }] = useContext(SettingsContext)
 
     const testSpeakers = () => {
         const audio = new Audio();
-        audio.src = "https://downloads.derock.dev/chime.mp3"
+        audio.src = chime;
 
         if (speaker.toLowerCase() !== 'default')
             (audio as any).setSinkId(speaker)
@@ -14,7 +16,7 @@ const TestSpeakersButton = () => {
         audio.play();
     }
 
-    return <button onClick={testSpeakers}>Test Speaker</button>
+    return <button className="test-speakers" onClick={testSpeakers}>Test Speaker</button>
 }
 
 export default TestSpeakersButton

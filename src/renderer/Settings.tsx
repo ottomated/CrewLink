@@ -197,10 +197,8 @@ export default function Settings({ open, onClose }: SettingsProps) {
 						))
 					}
 				</select>
+				{open && <MicrophoneSoundBar />}
 			</div>
-
-			<MicrophoneSoundBar/>
-
 			<div className="form-control m l" style={{ color: '#e67e22' }}>
 				<label>Speaker</label>
 				<select value={settings.speaker} onChange={(ev) => {
@@ -215,9 +213,8 @@ export default function Settings({ open, onClose }: SettingsProps) {
 						))
 					}
 				</select>
+				{open && <TestSpeakersButton />}
 			</div>
-
-			<TestSpeakersButton/>
 
 			<div className="form-control" style={{ color: '#f1c40f' }} onClick={() => setSettings({
 				type: 'setOne',
