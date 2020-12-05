@@ -39,7 +39,11 @@ function App() {
 			data: ''
 		},
 		hideCode: false,
-		stereoInLobby: true
+		stereoInLobby: true,
+		stunServerURL: 'stun:stun.l.google.com:19302',
+		turnServerURL: null,
+		turnUsername: null,
+		turnPassword: null
 	});
 
 	useEffect(() => {

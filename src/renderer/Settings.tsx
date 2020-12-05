@@ -1,5 +1,5 @@
 import Store from 'electron-store';
-import React, { useContext, useEffect, useReducer, useState } from "react";
+import React, { SVGProps, useContext, useEffect, useReducer, useState } from "react";
 import { SettingsContext } from "./App";
 import Ajv from 'ajv';
 import './css/settings.css';
@@ -83,6 +83,24 @@ const store = new Store<ISettings>({
 		stereoInLobby: {
 			type: 'boolean',
 			default: true
+		},
+		stunServerURL: {
+			type: ['string', 'null'],
+			format: 'uri',
+			default: 'stun:stun.l.google.com:19302'
+		},
+		turnServerURL: {
+			type: ['string', 'null'],
+			format: 'uri',
+			default: null
+		},
+		turnUsername: {
+			type: ['string', 'null'],
+			default: null
+		},
+		turnPassword: {
+			type: ['string', 'null'],
+			default: null
 		}
 	}
 });
@@ -106,6 +124,10 @@ export interface ISettings {
 	},
 	hideCode: boolean;
 	stereoInLobby: boolean;
+	stunServerURL: string | null;
+	turnServerURL: string | null;
+	turnUsername: string | null;
+	turnPassword: string | null;
 }
 export const settingsReducer = (state: ISettings, action: {
 	type: 'set' | 'setOne', action: [string, any] | ISettings
@@ -152,6 +174,32 @@ function URLInput({ initialURL, onValidURL }: URLInputProps) {
 	return <input className={isValidURL ? '' : 'input-error'} spellCheck={false} type="text" value={currentURL} onChange={onChange} />
 }
 
+function Arrow(props: SVGProps<SVGSVGElement>) {
+	return <svg viewBox="0 0 24 24" fill="#868686" width="20px" height="20px" {...props}>
+		<path d="M0 0h24v24H0z" fill="none" />
+		<path d="M11.67 3.87L9.9 2.1 0 12l9.9 9.9 1.77-1.77L3.54 12z" />
+	</svg>
+}
+
+type CollapsibleSettingsProps = {
+	entryName: string,
+	collapsibleContent: JSX.Element
+};
+
+function CollapsibleSettings({ collapsibleContent, entryName }: CollapsibleSettingsProps) {
+	const [collapsed, setCollapsed] = useState(true);
+
+	return <div className="collapsible-content-wrapper">
+		<label className="clickable" onClick={() => setCollapsed(!collapsed)}>
+			<Arrow className="inline-icon" transform={collapsed ? 'rotate(180)' : 'rotate(-90)'} width="16" height="16" />
+			{entryName}
+		</label>
+		<div className="collapsible-content">
+			{collapsed ? '' : collapsibleContent}
+		</div>
+	</div>;
+}
+
 export default function Settings({ open, onClose }: SettingsProps) {
 	const [settings, setSettings] = useContext(SettingsContext);
 	const [unsavedCount, setUnsavedCount] = useState(0);
@@ -165,7 +213,15 @@ export default function Settings({ open, onClose }: SettingsProps) {
 
 	useEffect(() => {
 		setUnsavedCount(s => s + 1);
-	}, [settings.microphone, settings.speaker, settings.serverURL]);
+	}, [
+		settings.microphone,
+		settings.speaker,
+		settings.serverURL,
+		settings.stunServerURL,
+		settings.turnServerURL,
+		settings.turnUsername,
+		settings.turnPassword
+	]);
 
 	const [devices, setDevices] = useState<MediaDevice[]>([]);
 	const [_, updateDevices] = useReducer((state) => state + 1, 0);
@@ -213,17 +269,14 @@ export default function Settings({ open, onClose }: SettingsProps) {
 	const speakers = devices.filter(d => d.kind === 'audiooutput');
 
 	return <div id="settings" style={{ transform: open ? 'translateX(0)' : 'translateX(-100%)' }}>
-		<svg className="titlebar-button back" viewBox="0 0 24 24" fill="#868686" width="20px" height="20px" onClick={() => {
+		<Arrow className="titlebar-button back" onClick={() => {
 			if (unsaved) {
 				onClose();
 				location.reload();
-			}
-			else
+			} else {
 				onClose();
-		}}>
-			<path d="M0 0h24v24H0z" fill="none" />
-			<path d="M11.67 3.87L9.9 2.1 0 12l9.9 9.9 1.77-1.77L3.54 12z" />
-		</svg>
+			}
+		}} />
 		{/* <div className="form-control m" style={{ color: '#e74c3c' }} onClick={() => {
 			ipcRenderer.send('alwaysOnTop', !settings.alwaysOnTop);
 			setSettings({
@@ -314,6 +367,46 @@ export default function Settings({ open, onClose }: SettingsProps) {
 				<input type="checkbox" checked={settings.stereoInLobby} style={{ color: '#fd79a8' }} readOnly />
 				<label>Stereo Audio in Lobbies</label>
 			</div>
+			<CollapsibleSettings entryName="Advanced Settings" collapsibleContent={
+				<div>
+					<div className="form-control l m" style={{ color: '#3498db' }}>
+						<label>STUN Server</label>
+						<URLInput initialURL={settings.stunServerURL || ''} onValidURL={(url: string) => {
+							setSettings({
+								type: 'setOne',
+								action: ['stunServerURL', url !== '' ? url : null]
+							})
+						}} />
+					</div>
+					<div className="form-control l m" style={{ color: '#3498db' }}>
+						<label>TURN Server</label>
+						<URLInput initialURL={settings.turnServerURL || ''} onValidURL={(url: string) => {
+							setSettings({
+								type: 'setOne',
+								action: ['turnServerURL', url !== '' ? url : null]
+							})
+						}} />
+					</div>
+					<div className="form-control l m" style={{ color: '#3498db' }}>
+						<label>TURN Username</label>
+						<input spellCheck={false} type="text" value={settings.turnUsername || ''} onChange={(e) => {
+							setSettings({
+								type: 'setOne',
+								action: ['turnUsername', e.target.value !== '' ? e.target.value : null]
+							})
+						}} />
+					</div>
+					<div className="form-control l m" style={{ color: '#3498db' }}>
+						<label>TURN Password</label>
+						<input spellCheck={false} type="password" value={settings.turnPassword || ''} onChange={(e) => {
+							setSettings({
+								type: 'setOne',
+								action: ['turnPassword', e.target.value !== '' ? e.target.value : null]
+							})
+						}} />
+					</div>
+				</div>
+			} />
 		</div>
 	</div>
 }

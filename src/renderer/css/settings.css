@@ -38,7 +38,7 @@
 	transform: translateX(-1px);
 }
 
-input[type="text"] {
+input[type="text"], input[type="password"] {
 	background: #1d1d1d;
 	border: 1px solid rgba(255, 255, 255, 0.5);
 	outline: none;
@@ -91,4 +91,23 @@ select {
 .test-speakers {
 	width: fit-content;
 	margin: 5px auto;
+}
+
+.inline-icon {
+	display: inline;
+	margin-right: 8px;
+	vertical-align: middle;
+}
+
+.clickable, .clickable label {
+	cursor: pointer;
+}
+
+.collapsible-content-wrapper {
+	width: 100%;
+	text-align: center;
+}
+
+.collapsible-content {
+	padding-top: 12px;
 }

@@ -234,15 +234,30 @@ export default function Voice() {
 			setConnect({ connect });
 			function createPeerConnection(peer: string, initiator: boolean) {
 				// console.log("Opening connection to ", peer, "Initiator: ", initiator);
+				const iceServers = [];
+
+				if (settings.stunServerURL) {
+					iceServers.push({
+						urls: settings.stunServerURL
+					})
+				}
+
+				if (settings.turnServerURL && settings.turnUsername && settings.turnPassword) {
+					iceServers.push({
+						urls: settings.turnServerURL,
+						username: settings.turnUsername,
+						credential: settings.turnPassword
+					})
+				}
+
 				const connection = new Peer({
-					stream, initiator, config: {
-						iceServers: [
-							{
-								'urls': 'stun:stun.l.google.com:19302'
-							}
-						]
+					stream,
+					initiator,
+					config: {
+						iceServers
 					}
 				});
+
 				peerConnections[peer] = connection;
 
 				connection.on('stream', (stream: MediaStream) => {
