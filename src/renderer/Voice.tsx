@@ -239,7 +239,7 @@ export default function Voice() {
 				if (settings.stunServerURL) {
 					iceServers.push({
 						urls: settings.stunServerURL
-					})
+					});
 				}
 
 				if (settings.turnServerURL && settings.turnUsername && settings.turnPassword) {
@@ -247,7 +247,7 @@ export default function Voice() {
 						urls: settings.turnServerURL,
 						username: settings.turnUsername,
 						credential: settings.turnPassword
-					})
+					});
 				}
 
 				const connection = new Peer({
