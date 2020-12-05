@@ -1,11 +1,9 @@
-[![GPL-3.0 License][license-shield]][license-url] [![Appveyor Build][appveyor-shield]][appveyor-url]
-
 <br />
 <p align="center">
   <a href="https://github.com/ottomated/CrewLink">
     <img src="logo.png" alt="Logo" width="80" height="80">
   </a>
-
+[![GPL-3.0 License][license-shield]][license-url] [![Appveyor Build][appveyor-shield]][appveyor-url]
   <h3 align="center">CrewLink</h3>
 
   <p align="center">
