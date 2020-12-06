@@ -44,6 +44,14 @@ interface OtherDead {
 	[playerId: number]: boolean; // isTalking
 }
 
+const DEFAULT_ICE_CONFIG: RTCConfiguration = {
+	iceServers: [
+		{
+			urls: 'stun:stun.l.google.com:19302'
+		}
+	]
+}
+
 // function clamp(number: number, min: number, max: number): number {
 // 	if (min > max) {
 // 		let tmp = max;
@@ -154,6 +162,7 @@ export default function Voice() {
 		socket.on('connect', () => {
 			setConnected(true);
 		});
+
 		socket.on('disconnect', () => {
 			setConnected(false);
 		});
@@ -162,6 +171,8 @@ export default function Voice() {
 		let audioListener: any;
 		let audio: boolean | MediaTrackConstraints = true;
 
+		let iceConfig : RTCConfiguration = DEFAULT_ICE_CONFIG;
+		socket.on('iceConfig', (newIceConfig: RTCConfiguration) => iceConfig = newIceConfig)
 
 		// Get microphone settings
 		if (settings.microphone.toLowerCase() !== 'default')
@@ -234,28 +245,10 @@ export default function Voice() {
 			setConnect({ connect });
 			function createPeerConnection(peer: string, initiator: boolean) {
 				// console.log("Opening connection to ", peer, "Initiator: ", initiator);
-				const iceServers = [];
-
-				if (settings.stunServerURL) {
-					iceServers.push({
-						urls: settings.stunServerURL
-					});
-				}
-
-				if (settings.turnServerURL && settings.turnUsername && settings.turnPassword) {
-					iceServers.push({
-						urls: settings.turnServerURL,
-						username: settings.turnUsername,
-						credential: settings.turnPassword
-					});
-				}
-
 				const connection = new Peer({
 					stream,
 					initiator,
-					config: {
-						iceServers
-					}
+					config: iceConfig
 				});
 
 				peerConnections[peer] = connection;

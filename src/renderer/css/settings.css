@@ -38,7 +38,7 @@
 	transform: translateX(-1px);
 }
 
-input[type="text"], input[type="password"] {
+input[type="text"] {
 	background: #1d1d1d;
 	border: 1px solid rgba(255, 255, 255, 0.5);
 	outline: none;
