@@ -1,36 +1,8 @@
 import { DataType, findModule, getProcesses, ModuleObject, openProcess, ProcessObject, readBuffer, readMemory as readMemoryRaw } from "memoryjs";
 import * as Struct from 'structron';
 import patcher from '../patcher';
-import { IOffsets } from "./hook";
-
-export interface AmongUsState {
-	gameState: GameState;
-	oldGameState: GameState;
-	lobbyCode: string;
-	players: Player[];
-}
-export interface Player {
-	ptr: number;
-	id: number;
-	name: string;
-	colorId: number;
-	hatId: number;
-	petId: number;
-	skinId: number;
-	disconnected: boolean;
-	isImpostor: boolean;
-	isDead: boolean;
-	taskPtr: number;
-	objectPtr: number;
-	isLocal: boolean;
-
-	x: number;
-	y: number;
-	inVent: boolean;
-}
-export enum GameState {
-	LOBBY, TASKS, DISCUSSION, MENU, UNKNOWN
-}
+import { GameState, AmongUsState, Player } from "../common/AmongUsState";
+import { IOffsets } from "./IOffsets";
 
 export default class GameReader {
 	reply: Function;

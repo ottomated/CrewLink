@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { SettingsContext } from './App';
+import { SettingsContext } from './contexts';
 // @ts-ignore
 import chime from '../../static/chime.mp3';
 

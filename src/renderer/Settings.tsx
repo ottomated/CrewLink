@@ -1,10 +1,11 @@
 import Store from 'electron-store';
 import React, { useContext, useEffect, useReducer, useState } from "react";
-import { SettingsContext } from "./App";
+import { SettingsContext } from "./contexts";
 import Ajv from 'ajv';
 import './css/settings.css';
 import MicrophoneSoundBar from './MicrophoneSoundBar';
 import TestSpeakersButton from './TestSpeakersButton';
+import { ISettings } from '../common/ISettings';
 
 const keys = new Set(['Space', 'Backspace', 'Delete', 'Enter', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown', 'Escape', 'LControl', 'LShift', 'LAlt', 'RControl', 'RShift', 'RAlt']);
 
@@ -104,21 +105,6 @@ export interface SettingsProps {
 	onClose: any;
 }
 
-export interface ISettings {
-	alwaysOnTop: boolean;
-	microphone: string;
-	speaker: string;
-	pushToTalk: boolean;
-	serverURL: string;
-	pushToTalkShortcut: string;
-	deafenShortcut: string;
-	offsets: {
-		version: string;
-		data: string;
-	},
-	hideCode: boolean;
-	stereoInLobby: boolean;
-}
 export const settingsReducer = (state: ISettings, action: {
 	type: 'set' | 'setOne', action: [string, any] | ISettings
 }): ISettings => {

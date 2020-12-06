@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 import Avatar from './Avatar';
-import { GameStateContext, SettingsContext } from './App';
-import { AmongUsState, GameState, Player } from '../main/GameReader';
+import { GameStateContext, SettingsContext } from "./contexts";
+import { AmongUsState, GameState, Player } from "../common/AmongUsState";
 import Peer from 'simple-peer';
 import { ipcRenderer, remote } from 'electron';
 import VAD from './vad';
-import { ISettings } from './Settings';
+import { ISettings } from "../common/ISettings";
 
 interface PeerConnections {
 	[peer: string]: Peer.Instance;

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import Color from 'color';
-import { Player } from "../main/GameReader";
+import { Player } from "../common/AmongUsState";
 // @ts-ignore
 import alive from '../../static/alive.png';
 // @ts-ignore

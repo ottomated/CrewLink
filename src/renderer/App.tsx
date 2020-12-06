@@ -1,10 +1,11 @@
-import React, { createContext, useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import ReactDOM from 'react-dom';
 import Voice from './Voice';
 import Menu from './Menu';
 import { ipcRenderer, remote } from 'electron';
-import { AmongUsState } from '../main/GameReader';
-import Settings, { ISettings, settingsReducer } from './Settings';
+import { AmongUsState } from "../common/AmongUsState";
+import Settings, { settingsReducer } from './Settings';
+import { GameStateContext, SettingsContext } from './contexts';
 
 let appVersion = '';
 if (typeof window !== 'undefined' && window.location) {
@@ -14,12 +15,6 @@ if (typeof window !== 'undefined' && window.location) {
 
 
 enum AppState { MENU, VOICE };
-
-export const GameStateContext = createContext<AmongUsState>({} as AmongUsState);
-export const SettingsContext = createContext<[ISettings, React.Dispatch<{
-	type: "set" | "setOne";
-	action: ISettings | [string, any];
-}>]>(null as any);
 
 function App() {
 	const [state, setState] = useState<AppState>(AppState.MENU);

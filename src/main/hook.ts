@@ -7,43 +7,16 @@ import spawn from 'cross-spawn';
 import GameReader from './GameReader';
 import iohook from 'iohook';
 import Store from 'electron-store';
-import { ISettings } from '../renderer/Settings';
+import { ISettings } from "../common/ISettings";
 import axios, { AxiosError } from 'axios';
 import { createCheckers } from 'ts-interface-checker';
 
 import TI from './hook-ti';
 import { existsSync, readFileSync } from 'fs';
+import { IOffsets } from './IOffsets';
 const { IOffsets } = createCheckers(TI);
 
 const store = new Store<ISettings>();
-
-export interface IOffsets {
-	meetingHud: number[];
-	meetingHudCachePtr: number[];
-	meetingHudState: number[];
-	gameState: number[];
-	allPlayersPtr: number[];
-	allPlayers: number[];
-	playerCount: number[];
-	playerAddrPtr: number;
-	exiledPlayerId: number[];
-	gameCode: number[];
-	player: {
-		isLocal: number[];
-		localX: number[];
-		localY: number[];
-		remoteX: number[];
-		remoteY: number[];
-		bufferLength: number;
-		offsets: number[];
-		inVent: number[];
-		struct: {
-			type: string;
-			skip?: number;
-			name: string;
-		}[];
-	}
-}
 
 async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | undefined> {
 
