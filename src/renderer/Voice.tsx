@@ -181,6 +181,10 @@ export default function Voice() {
 			});
 			ipcRenderer.on('toggleMute', () => {
 				connectionStuff.current.muted = !connectionStuff.current.muted;
+				if (connectionStuff.current.deafened) {
+					connectionStuff.current.deafened = false;
+					connectionStuff.current.muted = false;
+				}
 				stream.getAudioTracks()[0].enabled = !connectionStuff.current.muted && !connectionStuff.current.deafened;
 				setMuted(connectionStuff.current.muted);
 			});
