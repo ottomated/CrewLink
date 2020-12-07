@@ -71,8 +71,14 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 	if (isNaN(panPos[1])) panPos[1] = 999;
 	panPos[0] = Math.min(999, Math.max(-999, panPos[0]));
 	panPos[1] = Math.min(999, Math.max(-999, panPos[1]));
-	
-	if ((me.isDead && other.isDead) || (me.inVent && other.inVent)) {
+	if (me.inVent && other.inVent) {
+		gain.gain.value = 1;
+		panPos = [0, 0];
+		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
+		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
+		return;
+	}
+	if (me.isDead && other.isDead) {
 		gain.gain.value = 1;
 		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
 		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
