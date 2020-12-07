@@ -83,6 +83,14 @@ const store = new Store<ISettings>({
 		stereoInLobby: {
 			type: 'boolean',
 			default: true
+		},
+		haunt: {
+			type: 'boolean',
+			default: true
+		},
+		earingDistance: {
+			type: 'number',
+			default: 2.5
 		}
 	}
 });
@@ -106,6 +114,8 @@ export interface ISettings {
 	},
 	hideCode: boolean;
 	stereoInLobby: boolean;
+	haunt: boolean;
+	earingDistance: number;
 }
 export const settingsReducer = (state: ISettings, action: {
 	type: 'set' | 'setOne', action: [string, any] | ISettings
@@ -313,6 +323,26 @@ export default function Settings({ open, onClose }: SettingsProps) {
 			})}>
 				<input type="checkbox" checked={settings.stereoInLobby} style={{ color: '#fd79a8' }} readOnly />
 				<label>Stereo Audio in Lobbies</label>
+			</div>
+			<div className="form-control m" style={{ color: '#4166ff' }} onClick={() => setSettings({
+				type: 'setOne',
+				action: ['haunt', !settings.haunt]
+			})}>
+				<input type="checkbox" checked={settings.haunt} style={{ color: '#4166ff' }} readOnly />
+				<label>Allows haunt</label>
+			</div>
+			<div className="form-control m" style={{ color: '#4FF6ff' }}>
+				<label>Earing distance</label>
+				<input type="text" value={settings.earingDistance} style={{ color: '#4FF6ff' }}
+					onChange={(ev: React.ChangeEvent<HTMLInputElement>): void => {
+						let val: number = ev.target.valueAsNumber;
+						if (!(ev.target.valueAsNumber >= 0.0 && ev.target.valueAsNumber <= 10.0))
+							val = 2.5;
+						setSettings({
+							type: 'set',
+							action: ['earingDistance', val]
+						});
+					}} />
 			</div>
 		</div>
 	</div>
