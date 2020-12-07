@@ -182,29 +182,29 @@ export default function Voice() {
 
 		let iceConfig: RTCConfiguration = DEFAULT_ICE_CONFIG;
 		socket.on('peerConfig', (peerConfig: PeerConfig) => {
-			if (validatePeerConfig(peerConfig)) {
-				if (peerConfig.forceRelayOnly && !peerConfig.turnServers) {
-					alert(`Server has forced relay mode enabled but provides no relay servers. Default config will be used.`);
-					return;
-				}
-
-				iceConfig = {
-					iceTransportPolicy: peerConfig.forceRelayOnly ? 'relay' : 'all',
-					iceServers: [...(peerConfig.stunServers || []), ...(peerConfig.turnServers || [])]
-						.map((server) => {
-							return {
-								urls: server.url,
-								username: server.username,
-								credential: server.credential
-							}
-						})
-				};
-			} else {
-				alert(`Server sent a malformed peer config. Default config will be used.${
-					validatePeerConfig.errors ?
-						` See errors below:\n${validatePeerConfig.errors.map(error => error.dataPath + ' ' + error.message).join('\n')}` : ``
-				}`);
+			if (!validatePeerConfig(peerConfig)) {
+				alert(`Server sent a malformed peer config. Default config will be used.${validatePeerConfig.errors ?
+					` See errors below:\n${validatePeerConfig.errors.map(error => error.dataPath + ' ' + error.message).join('\n')}` : ``
+					}`);
+				return;
 			}
+
+			if (peerConfig.forceRelayOnly && !peerConfig.turnServers) {
+				alert(`Server has forced relay mode enabled but provides no relay servers. Default config will be used.`);
+				return;
+			}
+
+			iceConfig = {
+				iceTransportPolicy: peerConfig.forceRelayOnly ? 'relay' : 'all',
+				iceServers: [...(peerConfig.stunServers || []), ...(peerConfig.turnServers || [])]
+					.map((server) => {
+						return {
+							urls: server.url,
+							username: server.username,
+							credential: server.credential
+						}
+					})
+			};
 		})
 
 		// Initialize variables
