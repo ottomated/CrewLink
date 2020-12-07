@@ -40,8 +40,8 @@ function App() {
 		},
 		hideCode: false,
 		stereoInLobby: true,
-		haunt: true,
-		earingDistance: 2.5,
+		haunt: false,
+		earingDistance: 3,
 	});
 
 	useEffect(() => {
