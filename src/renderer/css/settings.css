@@ -92,22 +92,3 @@ select {
 	width: fit-content;
 	margin: 5px auto;
 }
-
-.inline-icon {
-	display: inline;
-	margin-right: 8px;
-	vertical-align: middle;
-}
-
-.clickable, .clickable label {
-	cursor: pointer;
-}
-
-.collapsible-content-wrapper {
-	width: 100%;
-	text-align: center;
-}
-
-.collapsible-content {
-	padding-top: 12px;
-}
