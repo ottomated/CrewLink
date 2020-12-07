@@ -117,7 +117,7 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 	}
 }
 
-function base64ToArrayBuffer(base64) {
+function base64ToArrayBuffer(base64: string) {
     var binaryString = window.atob(base64);
     var len = binaryString.length;
     var bytes = new Uint8Array(len);
@@ -284,7 +284,8 @@ export default function Voice() {
 					let gain = context.createGain();
 					let pan = context.createPanner();					
 					let reverb = context.createConvolver();
-					let reverbGain = context.createGain();
+					let reverbGain = context.createGain();					
+					reverbGain.gain.value = 0;
 					
 					var reverbSoundArrayBuffer = base64ToArrayBuffer(impulseResponse);
 					context.decodeAudioData(reverbSoundArrayBuffer, 
@@ -310,8 +311,6 @@ export default function Voice() {
 					gain.connect(reverbGain);
 					reverbGain.connect(reverb);
 					reverb.connect(compressor);
-															
-					//gain.connect(reverbNode);
 					
 					// Source -> pan -> gain -> VAD -> destination
 					VAD(context, compressor, context.destination, {
