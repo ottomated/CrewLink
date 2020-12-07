@@ -39,7 +39,9 @@ function App() {
 			data: ''
 		},
 		hideCode: false,
-		stereoInLobby: true
+		stereoInLobby: true,
+		haunt: true,
+		earingDistance: 2.5,
 	});
 
 	useEffect(() => {

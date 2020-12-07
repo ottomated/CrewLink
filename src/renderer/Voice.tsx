@@ -81,7 +81,7 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
 		return;
 	}
-	if (!me.isDead && other.isDead) {
+	if ((!me.isDead && other.isDead) && (!settings.haunt)) {
 		gain.gain.value = 0;
 		return;
 	}
@@ -260,7 +260,8 @@ export default function Voice() {
 					pan.refDistance = 0.1;
 					pan.panningModel = 'equalpower';
 					pan.distanceModel = 'linear';
-					pan.maxDistance = 2.66 * 2;
+					// pan.maxDistance = 2.66 * 2;
+					pan.maxDistance = settings.earingDistance;
 					pan.rolloffFactor = 1;
 
 					source.connect(pan);
