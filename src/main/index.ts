@@ -2,6 +2,7 @@
 
 import { autoUpdater } from 'electron-updater';
 import { app, BrowserWindow } from 'electron';
+import * as windowStateKeeper from 'electron-window-state'
 import * as path from 'path'
 import { format as formatUrl } from 'url'
 import './hook';
@@ -27,11 +28,15 @@ if (!gotTheLock) {
 		}
 	})
 
-
 	function createMainWindow() {
+		const mainWindowState = windowStateKeeper({})
+
 		const window = new BrowserWindow({
 			width: 250,
 			height: 350,
+			x: mainWindowState.x,
+			y: mainWindowState.y,
+
 			resizable: false,
 			frame: false,
 			fullscreenable: false,
@@ -43,6 +48,8 @@ if (!gotTheLock) {
 				webSecurity: false
 			}
 		});
+
+		mainWindowState.manage(window)
 
 		if (isDevelopment) {
 			window.webContents.openDevTools()
@@ -95,5 +102,4 @@ if (!gotTheLock) {
 	app.on('ready', () => {
 		mainWindow = createMainWindow();
 	});
-
 }
