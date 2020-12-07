@@ -7,6 +7,7 @@ import Peer from 'simple-peer';
 import { ipcRenderer, remote } from 'electron';
 import VAD from './vad';
 import { ISettings } from './Settings';
+import { validatePeerConfig } from './validatePeerConfig';
 
 interface PeerConnections {
 	[peer: string]: Peer.Instance;
@@ -42,6 +43,18 @@ interface OtherTalking {
 
 interface OtherDead {
 	[playerId: number]: boolean; // isTalking
+}
+
+interface ICEServer {
+	url: string,
+	username: string | undefined,
+	credential: string | undefined,
+}
+
+interface PeerConfig {
+	forceRelayOnly: Boolean,
+	stunServers: ICEServer[],
+	turnServers: ICEServer[]
 }
 
 const DEFAULT_ICE_CONFIG: RTCConfiguration = {
@@ -167,12 +180,36 @@ export default function Voice() {
 			setConnected(false);
 		});
 
+		let iceConfig: RTCConfiguration = DEFAULT_ICE_CONFIG;
+		socket.on('peerConfig', (peerConfig: PeerConfig) => {
+			if (validatePeerConfig(peerConfig)) {
+				if (peerConfig.forceRelayOnly && !peerConfig.turnServers) {
+					alert(`Server has forced relay mode enabled but provides no relay servers. Default config will be used.`);
+					return;
+				}
+
+				iceConfig = {
+					iceTransportPolicy: peerConfig.forceRelayOnly ? 'relay' : 'all',
+					iceServers: [...(peerConfig.stunServers || []), ...(peerConfig.turnServers || [])]
+						.map((server) => {
+							return {
+								urls: server.url,
+								username: server.username,
+								credential: server.credential
+							}
+						})
+				};
+			} else {
+				alert(`Server sent a malformed peer config. Default config will be used.${
+					validatePeerConfig.errors ?
+						` See errors below:\n${validatePeerConfig.errors.map(error => error.dataPath + ' ' + error.message).join('\n')}` : ``
+				}`);
+			}
+		})
+
 		// Initialize variables
 		let audioListener: any;
 		let audio: boolean | MediaTrackConstraints = true;
-
-		let iceConfig : RTCConfiguration = DEFAULT_ICE_CONFIG;
-		socket.on('iceConfig', (newIceConfig: RTCConfiguration) => iceConfig = newIceConfig)
 
 		// Get microphone settings
 		if (settings.microphone.toLowerCase() !== 'default')
