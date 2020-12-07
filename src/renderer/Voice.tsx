@@ -75,7 +75,7 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 		gain.gain.value = 0;
 		return;
 	}
-	if (me.isDead && other.isDead) {
+	if ((me.isDead && other.isDead) || (me.inVent && other.inVent)) {
 		gain.gain.value = 1;
 		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
 		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);

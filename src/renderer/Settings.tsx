@@ -92,11 +92,11 @@ const store = new Store<ISettings>({
 		},
 		haunt: {
 			type: 'boolean',
-			default: true
+			default: false
 		},
 		earingDistance: {
 			type: 'number',
-			default: 2.5
+			default: 3
 		}
 	}
 });
@@ -348,8 +348,8 @@ export default function Settings({ open, onClose }: SettingsProps) {
 				<input type="text" value={settings.earingDistance} style={{ color: '#4FF6ff' }}
 					onChange={(ev: React.ChangeEvent<HTMLInputElement>): void => {
 						let val: number = ev.target.valueAsNumber;
-						if (!(ev.target.valueAsNumber >= 0.0 && ev.target.valueAsNumber <= 10.0))
-							val = 2.5;
+						if (!(ev.target.valueAsNumber >= 0.0 && ev.target.valueAsNumber <= 100.0))
+							val = 3;
 						setSettings({
 							type: 'set',
 							action: ['earingDistance', val]
