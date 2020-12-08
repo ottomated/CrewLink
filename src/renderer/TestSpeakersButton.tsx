@@ -13,10 +13,18 @@ const TestSpeakersButton = () => {
         if (speaker.toLowerCase() !== 'default')
             (audio as any).setSinkId(speaker)
 
-        audio.play();
+        if (!isPlaying(audio)) audio.play();
     }
 
     return <button className="test-speakers" onClick={testSpeakers}>Test Speaker</button>
+}
+
+function isPlaying(audio) {
+    return audio
+        && audio.currentTime > 0
+        && !audio.paused
+        && !audio.ended
+        && audio.readyState > 2;
 }
 
 export default TestSpeakersButton
