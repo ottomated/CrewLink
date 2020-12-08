@@ -27,7 +27,7 @@ function App() {
 	const [settingsOpen, setSettingsOpen] = useState(false);
 	const [errored, setErrored] = useState(false);
 	const settings = useReducer(settingsReducer, {
-		alwaysOnTop: false,
+		alwaysOnTop: true,
 		microphone: 'Default',
 		speaker: 'Default',
 		pushToTalk: false,
