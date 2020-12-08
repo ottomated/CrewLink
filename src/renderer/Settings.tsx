@@ -163,7 +163,9 @@ function EaringInput({ initialDistance, onValidDistance }: EaringInputProps) {
 	function onChange(event: React.ChangeEvent<HTMLInputElement>) {
 		setCurrentDistance(event.target.value);
 
-		if (!isNaN(parseFloat(event.target.value))) {
+		if (!isNaN(parseFloat(event.target.value))
+		&& parseFloat(event.target.value) >= 0
+		&& parseFloat(event.target.value) <= 255) {
 			setDistanceValid(true);
 			onValidDistance(parseFloat(event.target.value));
 		} else {
@@ -171,7 +173,8 @@ function EaringInput({ initialDistance, onValidDistance }: EaringInputProps) {
 		}
 	}
 
-	return <input className={isValidNumber ? '' : 'input-error'} spellCheck={false} type="number" value={currentDistance} onChange={onChange} />
+	return <input className={isValidNumber ? '' : 'input-error'} spellCheck={false} type="number" 
+		min="0" max="255" step="0.1" value={currentDistance} onChange={onChange}/>
 }
 
 type URLInputProps = {
@@ -371,7 +374,7 @@ export default function Settings({ open, onClose }: SettingsProps) {
 				<label>Allows haunt</label>
 			</div>
 			<div className="form-control l m" style={{ color: '#3498db' }}>
-				<label>Earing distance</label>
+				<label>Earing distance (A: {settings.earingDistance.toString()})</label>
 				<EaringInput initialDistance={settings.earingDistance.toString()} onValidDistance={(dist: number) => {
 					setSettings({
 						type: 'setOne',
