@@ -42,7 +42,7 @@ function App() {
 		stereoInLobby: true,
 		haunt: false,
 		globalVentsComm: false,
-		earingDistance: 3,
+		hearingDistance: 2.6,
 	});
 
 	useEffect(() => {

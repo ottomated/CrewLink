@@ -98,9 +98,9 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: false
 		},
-		earingDistance: {
+		hearingDistance: {
 			type: 'number',
-			default: 3
+			default: 2.6
 		}
 	}
 });
@@ -132,7 +132,7 @@ export interface ISettings {
 	stereoInLobby: boolean;
 	haunt: boolean;
 	globalVentsComm: boolean;
-	earingDistance: number;
+	hearingDistance: number;
 }
 export const settingsReducer = (state: ISettings, action: {
 	type: 'set' | 'setOne', action: [string, any] | ISettings
@@ -386,11 +386,11 @@ export default function Settings({ open, onClose }: SettingsProps) {
 				<label>Global vents comms</label>
 			</div>
 			<div className="form-control l m" style={{ color: '#3498db' }}>
-				<label>Earing distance (A: {settings.earingDistance.toString()})</label>
-				<EaringInput initialDistance={settings.earingDistance.toString()} onValidDistance={(dist: number) => {
+				<label>Hearing distance (A: {settings.hearingDistance.toString()})</label>
+				<EaringInput initialDistance={settings.hearingDistance.toString()} onValidDistance={(dist: number) => {
 					setSettings({
 						type: 'setOne',
-						action: ['earingDistance', dist]
+						action: ['hearingDistance', dist]
 					})
 				}} />
 			</div>

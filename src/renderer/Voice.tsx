@@ -270,7 +270,7 @@ export default function Voice() {
 					pan.panningModel = 'equalpower';
 					pan.distanceModel = 'linear';
 					// pan.maxDistance = 2.66 * 2;
-					pan.maxDistance = settings.earingDistance;
+					pan.maxDistance = settings.hearingDistance * 2;
 					pan.rolloffFactor = 1;
 
 					source.connect(pan);
