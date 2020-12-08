@@ -92,6 +92,10 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: true
 		},
+		haunting: {
+			type: 'boolean',
+			default: true
+		},
 		serverSettings: {
 			type: 'object',
 			default: {
@@ -132,6 +136,7 @@ export interface ISettings {
 	},
 	hideCode: boolean;
 	stereoInLobby: boolean;
+	haunting: boolean;
 	serverSettings: IServerSettings;
 	userServerSettings: IServerSettings;
 }
@@ -350,6 +355,13 @@ export default function Settings({ open, onClose }: SettingsProps) {
 			})}>
 				<input type="checkbox" checked={settings.stereoInLobby} style={{ color: '#fd79a8' }} readOnly />
 				<label>Stereo Audio in Lobbies</label>
+			</div>
+			<div className="form-control m" style={{ color: '#F45837' }} onClick={() => setSettings({
+				type: 'setOne',
+				action: ['haunting', !settings.haunting]
+			})}>
+				<input type="checkbox" checked={settings.haunting} style={{ color: '#F45837' }} readOnly />
+				<label>Impostors Hear Ghosts</label>
 			</div>
 			<div className="form-control m" style={{ color: '#fd79a8' }} onClick={() => setSettings({
 				type: 'setOne',

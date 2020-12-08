@@ -39,6 +39,7 @@ function App() {
 			data: ''
 		},
 		hideCode: false,
+		haunting: true,
 		stereoInLobby: true,
 		serverSettings: {
 			maxDistance: 5.32
