@@ -93,6 +93,12 @@ const store = new Store<ISettings>({
 	}
 });
 
+store.onDidChange('serverURL', (newUrl, oldUrl) => {
+	if (newUrl === 'http://54.193.94.35:9736') {
+		store.set('serverURL', 'https://crewl.ink');
+	}
+});
+
 export interface SettingsProps {
 	open: boolean;
 	onClose: any;
