@@ -31,6 +31,12 @@ const store = new Store<ISettings>({
 				// @ts-ignore: Old serverIP property no longer exists in ISettings
 				store.delete('serverIP')
 			}
+		},
+		'1.1.5': store => {
+			const serverURL = store.get('serverURL');
+			if (serverURL === 'http://54.193.94.35:9736') {
+				store.set('serverURL', 'https://crewl.ink');
+			}
 		}
 	},
 	schema: {
@@ -52,7 +58,7 @@ const store = new Store<ISettings>({
 		},
 		serverURL: {
 			type: 'string',
-			default: 'http://54.193.94.35:9736',
+			default: 'https://crewl.ink',
 			format: 'uri'
 		},
 		pushToTalkShortcut: {

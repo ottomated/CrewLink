@@ -31,7 +31,7 @@ function App() {
 		microphone: 'Default',
 		speaker: 'Default',
 		pushToTalk: false,
-		serverURL: 'http://54.193.94.35:9736',
+		serverURL: 'https://crewl.ink',
 		pushToTalkShortcut: 'V',
 		deafenShortcut: 'RControl',
 		offsets: {
