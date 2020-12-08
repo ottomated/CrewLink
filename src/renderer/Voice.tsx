@@ -6,7 +6,7 @@ import { AmongUsState, GameState, Player } from '../main/GameReader';
 import Peer from 'simple-peer';
 import { ipcRenderer, remote } from 'electron';
 import VAD from './vad';
-import { ISettings } from './Settings';
+import { IServerSettings, ISettings } from './Settings';
 
 interface PeerConnections {
 	[peer: string]: Peer.Instance;
@@ -105,7 +105,7 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 
 
 export default function Voice() {
-	const [settings] = useContext(SettingsContext);
+	const [settings, setSettings] = useContext(SettingsContext);
 	const settingsRef = useRef<ISettings>(settings);
 	const gameState = useContext(GameStateContext);
 	let { lobbyCode: displayedLobbyCode } = gameState;
@@ -119,12 +119,25 @@ export default function Voice() {
 
 	const [deafenedState, setDeafened] = useState(false);
 	const [connected, setConnected] = useState(false);
+	const [inRoom, setInRoom] = useState(false);
 
 	useEffect(() => {
 		if (!connectionStuff.current.stream) return;
 		connectionStuff.current.stream.getAudioTracks()[0].enabled = !settings.pushToTalk;
 		connectionStuff.current.pushToTalk = settings.pushToTalk;
 	}, [settings.pushToTalk]);
+
+	useEffect(() => {
+		if (connectionStuff.current.socket && gameState.isHost === true && inRoom === true) {
+			connectionStuff.current.socket.emit('config', settings.userServerSettings);
+		}
+	}, [settings.userServerSettings]);
+
+	useEffect(() => {
+		for (let peer in audioElements.current) {
+			audioElements.current[peer].pan.maxDistance = settings.serverSettings.maxDistance;
+		}
+	}, [settings.serverSettings]);
 
 	useEffect(() => {
 		settingsRef.current = settings;
@@ -156,6 +169,7 @@ export default function Voice() {
 		});
 		socket.on('disconnect', () => {
 			setConnected(false);
+			setInRoom(false);
 		});
 
 		// Initialize variables
@@ -205,6 +219,7 @@ export default function Voice() {
 			const connect = (lobbyCode: string, playerId: number) => {
 				console.log("Connect called", lobbyCode, playerId);
 				socket.emit('leave');
+				setInRoom(false);
 				Object.keys(peerConnections).forEach(k => {
 					disconnectPeer(k);
 				});
@@ -260,7 +275,7 @@ export default function Voice() {
 					pan.refDistance = 0.1;
 					pan.panningModel = 'equalpower';
 					pan.distanceModel = 'linear';
-					pan.maxDistance = 2.66 * 2;
+					pan.maxDistance = settingsRef.current.serverSettings.maxDistance;
 					pan.rolloffFactor = 1;
 
 					source.connect(pan);
@@ -323,7 +338,14 @@ export default function Voice() {
 			})
 			socket.on('setIds', (ids: SocketIdMap) => {
 				setSocketPlayerIds(ids);
+				setInRoom(true);
 			});
+			socket.on('setConfig', (config: IServerSettings) => {
+				setSettings({
+					type: 'setOne',
+					action: ['serverSettings', config]
+				});
+			})
 
 		}, (error) => {
 			console.error(error);
@@ -377,6 +399,18 @@ export default function Voice() {
 	}, [gameState.gameState]);
 
 	useEffect(() => {
+		if (connectionStuff.current.socket && gameState.isHost === true && inRoom === true) {
+			connectionStuff.current.socket.emit('host');
+		}
+	}, [gameState.isHost]);
+
+	useEffect(() => {
+		if (connectionStuff.current.socket && gameState.isHost === true && inRoom === true) {
+			connectionStuff.current.socket.emit('host');
+		}
+	}, [inRoom]);
+
+	useEffect(() => {
 		if (connectionStuff.current.socket && myPlayer && myPlayer.id !== undefined) {
 			connectionStuff.current.socket.emit('id', myPlayer.id);
 		}
@@ -393,6 +427,11 @@ export default function Voice() {
 				<div className="right">
 					{myPlayer && gameState?.gameState !== GameState.MENU &&
 						<span className="username">
+							{gameState.isHost === true &&
+								<svg viewBox="0 0 48 36">
+									<path fill="#fcdb03" d="M39.67,36H8.33a5,5,0,0,1-5-4.34L0,6.63a3,3,0,0,1,5-2.6l5.6,5.19A3,3,0,0,0,15,9l6.7-7.9a3,3,0,0,1,4.6,0L33,9a3,3,0,0,0,4.34.26L42.94,4a3,3,0,0,1,5,2.6l-3.33,25A5,5,0,0,1,39.67,36Z"/>
+								</svg>
+							}
 							{myPlayer.name}
 						</span>
 					}

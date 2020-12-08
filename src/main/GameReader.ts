@@ -8,6 +8,7 @@ export interface AmongUsState {
 	oldGameState: GameState;
 	lobbyCode: string;
 	players: Player[];
+	isHost: boolean;
 }
 export interface Player {
 	ptr: number;
@@ -157,11 +158,16 @@ export default class GameReader {
 			}
 			if (newGameCode) this.gameCode = newGameCode;
 
+			let hostId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, /*this.offsets.hostId*/[0x1BE1074, 0x5C, 0, 0x44]);
+			let clientId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, /*this.offsets.clientId*/[0x1BE1074, 0x5C, 0, 0x48]);
+			let isHost = (hostId === clientId);
+
 			let newState = {
 				lobbyCode: this.gameCode,
 				players,
 				gameState: state,
-				oldGameState: this.oldGameState
+				oldGameState: this.oldGameState,
+				isHost: isHost == null ? false : isHost
 			};
 			let patch = patcher.diff(this.lastState, newState);
 			if (patch) {

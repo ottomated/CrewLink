@@ -1,6 +1,7 @@
 import Store from 'electron-store';
 import React, { useContext, useEffect, useReducer, useState } from "react";
-import { SettingsContext } from "./App";
+import { GameState } from '../main/GameReader';
+import { SettingsContext, GameStateContext } from "./App";
 import './css/settings.css';
 
 const keys = new Set(['Space', 'Backspace', 'Delete', 'Enter', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown', 'Escape', 'LControl', 'LShift', 'LAlt', 'RControl', 'RShift', 'RAlt']);
@@ -55,6 +56,24 @@ const store = new Store<ISettings>({
 		stereoInLobby: {
 			type: 'boolean',
 			default: true
+		},
+		serverSettings: {
+			type: 'object',
+			properties: {
+				maxDistance: {
+					type: 'number',
+					default: 5.32
+				}
+			}
+		},
+		userServerSettings: {
+			type: 'object',
+			properties: {
+				maxDistance: {
+					type: 'number',
+					default: 5.32
+				}
+			}
 		}
 	}
 });
@@ -78,17 +97,31 @@ export interface ISettings {
 	},
 	hideCode: boolean;
 	stereoInLobby: boolean;
+	serverSettings: IServerSettings;
+	userServerSettings: IServerSettings;
 }
 export const settingsReducer = (state: ISettings, action: {
-	type: 'set' | 'setOne', action: [string, any] | ISettings
+	type: 'set' | 'setOne' | 'setServerSetting', action: [string, any] | ISettings
 }): ISettings => {
 	if (action.type === 'set') return action.action as ISettings;
 	let v = (action.action as [string, any]);
+	if (action.type === 'setServerSetting') {
+		let settings = {
+			...state.userServerSettings,
+			[v[0]]: v[1]
+		};
+		v[0] = 'userServerSettings';
+		v[1] = settings;
+	}
 	store.set(v[0], v[1]);
 	return {
 		...state,
 		[v[0]]: v[1]
 	};
+}
+
+export interface IServerSettings {
+	maxDistance: number;
 }
 
 interface MediaDevice {
@@ -100,6 +133,7 @@ interface MediaDevice {
 export default function Settings({ open, onClose }: SettingsProps) {
 
 	const [settings, setSettings] = useContext(SettingsContext);
+	const gameState = useContext(GameStateContext);
 	const [unsavedCount, setUnsavedCount] = useState(0);
 	const unsaved = unsavedCount > 2;
 	useEffect(() => {
@@ -248,13 +282,30 @@ export default function Settings({ open, onClose }: SettingsProps) {
 				<input type="checkbox" checked={!settings.hideCode} style={{ color: '#9b59b6' }} readOnly />
 				<label>Show Lobby Code</label>
 			</div>
-			<div className="form-control m" style={{ color: '#fd79a8' }} onClick={() => setSettings({
+			<div className={gameState.gameState === GameState.MENU ? "form-control m" : "form-control"} style={{ color: '#fd79a8' }} onClick={() => setSettings({
 				type: 'setOne',
 				action: ['stereoInLobby', !settings.stereoInLobby]
 			})}>
 				<input type="checkbox" checked={settings.stereoInLobby} style={{ color: '#fd79a8' }} readOnly />
 				<label>Stereo Audio in Lobbies</label>
 			</div>
+			{gameState.gameState !== GameState.MENU &&
+				<h2 style={{ color: '#e74c3c' }}>Server settings</h2>
+			}
+			{gameState.gameState !== GameState.MENU && gameState.isHost === true ? (
+				<div className="form-control l m" style={{ color: '#3498db' }}>
+					<label>Max Distance</label>
+					<input spellCheck={false} type="range" min="1" max="10" step="0.1" onChange={(ev) => setSettings({
+						type: 'setServerSetting',
+						action: ['maxDistance', parseFloat(ev.target.value)]
+					})} value={settings.userServerSettings.maxDistance} />
+					<span>{settings.userServerSettings.maxDistance}</span>
+				</div>
+			) : gameState.gameState !== GameState.MENU && (
+				<div className="form-control l m" style={{ color: '#3498db' }}>
+					<label>Max Distance: {settings.serverSettings.maxDistance}</label>
+				</div>
+			)}
 		</div>
 	</div>
 }

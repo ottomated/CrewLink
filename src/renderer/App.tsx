@@ -17,7 +17,7 @@ enum AppState { MENU, VOICE };
 
 export const GameStateContext = createContext<AmongUsState>({} as AmongUsState);
 export const SettingsContext = createContext<[ISettings, React.Dispatch<{
-	type: "set" | "setOne";
+	type: "set" | "setOne" | "setServerSetting";
 	action: ISettings | [string, any];
 }>]>(null as any);
 
@@ -39,7 +39,13 @@ function App() {
 			data: ''
 		},
 		hideCode: false,
-		stereoInLobby: true
+		stereoInLobby: true,
+		serverSettings: {
+			maxDistance: 5.32
+		},
+		userServerSettings: {
+			maxDistance: 5.32
+		}
 	});
 
 	useEffect(() => {
