@@ -5,6 +5,7 @@ import Ajv from 'ajv';
 import './css/settings.css';
 import MicrophoneSoundBar from './MicrophoneSoundBar';
 import TestSpeakersButton from './TestSpeakersButton';
+import { remote } from 'electron';
 
 const keys = new Set(['Space', 'Backspace', 'Delete', 'Enter', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown', 'Escape', 'LControl', 'LShift', 'LAlt', 'RControl', 'RShift', 'RAlt']);
 
@@ -167,6 +168,11 @@ export default function Settings({ open, onClose }: SettingsProps) {
 		setUnsavedCount(s => s + 1);
 	}, [settings.microphone, settings.speaker, settings.serverURL]);
 
+	useEffect(() => {
+		remote.getCurrentWindow().setAlwaysOnTop(settings.alwaysOnTop)
+	}, [settings.alwaysOnTop]);
+
+	
 	const [devices, setDevices] = useState<MediaDevice[]>([]);
 	const [_, updateDevices] = useReducer((state) => state + 1, 0);
 	useEffect(() => {
@@ -224,15 +230,6 @@ export default function Settings({ open, onClose }: SettingsProps) {
 			<path d="M0 0h24v24H0z" fill="none" />
 			<path d="M11.67 3.87L9.9 2.1 0 12l9.9 9.9 1.77-1.77L3.54 12z" />
 		</svg>
-		{/* <div className="form-control m" style={{ color: '#e74c3c' }} onClick={() => {
-			ipcRenderer.send('alwaysOnTop', !settings.alwaysOnTop);
-			setSettings({
-				type: 'setOne',
-				action: ['alwaysOnTop', !settings.alwaysOnTop]
-			});
-		}}>
-			<input type="checkbox" checked={settings.alwaysOnTop} readOnly />Always on Top
-		</div> */}
 		<div className="settings-scroll">
 
 			<div className="form-control m l" style={{ color: '#e74c3c' }}>
@@ -313,6 +310,13 @@ export default function Settings({ open, onClose }: SettingsProps) {
 			})}>
 				<input type="checkbox" checked={settings.stereoInLobby} style={{ color: '#fd79a8' }} readOnly />
 				<label>Stereo Audio in Lobbies</label>
+			</div>
+			<div className="form-control m" style={{ color: '#fd79a8' }} onClick={() => setSettings({
+				type: 'setOne',
+				action: ['alwaysOnTop', !settings.alwaysOnTop]
+			})}>
+				<input type="checkbox" checked={settings.alwaysOnTop} style={{ color: '#fd79a8' }} readOnly />
+				<label>Show always on top</label>
 			</div>
 		</div>
 	</div>
