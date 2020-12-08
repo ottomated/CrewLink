@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { SettingsContext } from './App';
 // @ts-ignore
 import chime from '../../static/chime.mp3';
-let audio;
+let audio = "";
 
 const TestSpeakersButton = () => {
     const [{ speaker }] = useContext(SettingsContext)
