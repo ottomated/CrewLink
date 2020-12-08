@@ -189,9 +189,9 @@ export default function Settings({ open, onClose }: SettingsProps) {
 					if (d.deviceId === 'default') {
 						label = "Default";
 					} else {
-						let match = /\((.+?)\)/.exec(d.label);
+						let match = /(.+?)\)/.exec(d.label);
 						if (match && match[1])
-							label = match[1];
+							label = match[1] + ")";
 					}
 					return {
 						id: d.deviceId,
