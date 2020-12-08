@@ -37,7 +37,7 @@ const store = new Store<ISettings>({
 		'1.1.5': store => {
 			const serverURL = store.get('serverURL');
 			if (serverURL === 'http://54.193.94.35:9736') {
-				store.set('serverURL', 'https://crewl.ink');
+				store.set('serverURL', 'https://crewlink.guus.info');
 			}
 		}
 	},
@@ -60,7 +60,7 @@ const store = new Store<ISettings>({
 		},
 		serverURL: {
 			type: 'string',
-			default: 'https://crewl.ink',
+			default: 'https://crewlink.guus.info',
 			format: 'uri'
 		},
 		pushToTalkShortcut: {
@@ -214,7 +214,7 @@ export default function Settings({ open, onClose }: SettingsProps) {
 	}, [settings.microphone, settings.speaker, settings.serverURL]);
 
 	useEffect(() => {
-		remote.getCurrentWindow().setAlwaysOnTop(settings.alwaysOnTop)
+		remote.getCurrentWindow().setAlwaysOnTop(settings.alwaysOnTop, 'screen-saver')
 	}, [settings.alwaysOnTop]);
 
 	
@@ -356,13 +356,6 @@ export default function Settings({ open, onClose }: SettingsProps) {
 				<input type="checkbox" checked={settings.stereoInLobby} style={{ color: '#fd79a8' }} readOnly />
 				<label>Stereo Audio in Lobbies</label>
 			</div>
-			<div className="form-control m" style={{ color: '#F45837' }} onClick={() => setSettings({
-				type: 'setOne',
-				action: ['haunting', !settings.haunting]
-			})}>
-				<input type="checkbox" checked={settings.haunting} style={{ color: '#F45837' }} readOnly />
-				<label>Impostors Hear Ghosts</label>
-			</div>
 			<div className="form-control m" style={{ color: '#fd79a8' }} onClick={() => setSettings({
 				type: 'setOne',
 				action: ['alwaysOnTop', !settings.alwaysOnTop]
@@ -370,21 +363,37 @@ export default function Settings({ open, onClose }: SettingsProps) {
 				<input type="checkbox" checked={settings.alwaysOnTop} style={{ color: '#fd79a8' }} readOnly />
 				<label>Show always on top</label>
 			</div>
+			
+		
 			{gameState.gameState !== undefined && gameState.gameState !== GameState.MENU &&
 				<h2 style={{ color: '#e74c3c' }}>Server settings</h2>
 			}
 			{gameState.gameState !== undefined && gameState.gameState !== GameState.MENU && gameState.isHost === true ? (
+				<div>
 				<div className="form-control l m" style={{ color: '#3498db' }}>
 					<label>Max Distance</label>
-					<input spellCheck={false} type="range" min="1" max="10" step="0.1" onChange={(ev) => setSettings({
+					<input spellCheck={false} type="range" min="1" max="255" step="0.1" onChange={(ev) => setSettings({
 						type: 'setServerSetting',
 						action: ['maxDistance', parseFloat(ev.target.value)]
 					})} value={settings.userServerSettings.maxDistance} />
 					<span>{settings.userServerSettings.maxDistance}</span>
 				</div>
+				<div className="form-control m" style={{ color: '#F45837' }} onClick={() => setSettings({
+				type: 'setOne',
+				action: ['haunting', !settings.haunting]
+			})}>
+				<input type="checkbox" checked={settings.haunting} style={{ color: '#F45837' }} readOnly />
+				<label>Impostors Hear Ghosts</label>
+			</div>
+				</div>
 			) : gameState.gameState !== undefined && gameState.gameState !== GameState.MENU && (
+				<div>
 				<div className="form-control l m" style={{ color: '#3498db' }}>
 					<label>Max Distance: {settings.serverSettings.maxDistance}</label>
+				</div>
+				<div className="form-control l m" style={{ color: '#3498db' }}>
+					<label>Impostors Hear Ghosts: {settings.haunting? 'true' : 'false'}</label>
+				</div>
 				</div>
 			)}
 		</div>

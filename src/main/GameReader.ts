@@ -158,6 +158,7 @@ export default class GameReader {
 			}
 			if (newGameCode) this.gameCode = newGameCode;
 
+			this.gameCode = 'KCTCIF';
 			let isHost = true;
 			if(this.offsets.hostId && this.offsets.clientId){
 			let hostId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, this.offsets.hostId);
