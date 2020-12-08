@@ -79,8 +79,15 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 			if (e?.response?.status === 404) {
 				event.reply('error', `You are on an unsupported version of Among Us: ${version}.\n`);
 			} else {
-				let timedOut = `${e}`.includes('ETIMEDOUT');
-				event.reply('error', `Please use another voice server. ${store.get('serverURL')} ${timedOut ? "has too many active players" : "is not set up properly"}.`);
+				let errorMessage = e.message;
+				if (errorMessage.includes("ETIMEDOUT")) {
+					errorMessage = "has too many active players";
+				} else if (errorMessage.includes("refuesed")) {
+					errorMessage = "is not input correctly";
+				} else {
+					errorMessage = "gave this error: \n" + errorMessage;
+				}
+				event.reply('error', `Please use another voice server. ${store.get('serverURL')} ${errorMessage}.`);
 			}
 			return;
 		}
