@@ -41,6 +41,7 @@ function App() {
 		hideCode: false,
 		stereoInLobby: true,
 		haunt: false,
+		globalVentsComm: false,
 		earingDistance: 3,
 	});
 

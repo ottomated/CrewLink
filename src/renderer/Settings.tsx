@@ -88,6 +88,10 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: false
 		},
+		globalVentsComm: {
+			type: 'boolean',
+			default: false
+		},
 		earingDistance: {
 			type: 'number',
 			default: 3
@@ -115,6 +119,7 @@ export interface ISettings {
 	hideCode: boolean;
 	stereoInLobby: boolean;
 	haunt: boolean;
+	globalVentsComm: boolean;
 	earingDistance: number;
 }
 export const settingsReducer = (state: ISettings, action: {
@@ -357,6 +362,13 @@ export default function Settings({ open, onClose }: SettingsProps) {
 			})}>
 				<input type="checkbox" checked={settings.haunt} style={{ color: '#4166ff' }} readOnly />
 				<label>Allows haunt</label>
+			</div>
+			<div className="form-control m" style={{ color: '##424' }} onClick={() => setSettings({
+				type: 'setOne',
+				action: ['globalVent', !settings.globalVentsComm]
+			})}>
+				<input type="checkbox" checked={settings.globalVentsComm} style={{ color: '#424' }} readOnly />
+				<label>Allows global vents communication</label>
 			</div>
 			<div className="form-control l m" style={{ color: '#3498db' }}>
 				<label>Earing distance</label>
