@@ -147,6 +147,33 @@ interface MediaDevice {
 	label: string;
 }
 
+type EaringInputProps = {
+	initialDistance: string,
+	onValidDistance: (dist: number) => void
+};
+
+function EaringInput({ initialDistance, onValidDistance }: EaringInputProps) {
+	const [isValidNumber, setDistanceValid] = useState(true);
+	const [currentDistance, setCurrentDistance] = useState(initialDistance);
+
+	useEffect(() => {
+		setCurrentDistance(initialDistance);
+	}, [initialDistance]);
+
+	function onChange(event: React.ChangeEvent<HTMLInputElement>) {
+		setCurrentDistance(event.target.value);
+
+		if (!isNaN(parseFloat(event.target.value))) {
+			setDistanceValid(true);
+			onValidDistance(parseFloat(event.target.value));
+		} else {
+			setDistanceValid(false);
+		}
+	}
+
+	return <input className={isValidNumber ? '' : 'input-error'} spellCheck={false} type="number" value={currentDistance} onChange={onChange} />
+}
+
 type URLInputProps = {
 	initialURL: string,
 	onValidURL: (url: string) => void
@@ -343,18 +370,14 @@ export default function Settings({ open, onClose }: SettingsProps) {
 				<input type="checkbox" checked={settings.haunt} style={{ color: '#4166ff' }} readOnly />
 				<label>Allows haunt</label>
 			</div>
-			<div className="form-control m" style={{ color: '#4FF6ff' }}>
+			<div className="form-control l m" style={{ color: '#3498db' }}>
 				<label>Earing distance</label>
-				<input type="text" value={settings.earingDistance} style={{ color: '#4FF6ff' }}
-					onChange={(ev: React.ChangeEvent<HTMLInputElement>): void => {
-						let val: number = ev.target.valueAsNumber;
-						if (!(ev.target.valueAsNumber >= 0.0 && ev.target.valueAsNumber <= 100.0))
-							val = 3;
-						setSettings({
-							type: 'set',
-							action: ['earingDistance', val]
-						});
-					}} />
+				<EaringInput initialDistance={settings.earingDistance.toString()} onValidDistance={(dist: number) => {
+					setSettings({
+						type: 'setOne',
+						action: ['earingDistance', dist]
+					})
+				}} />
 			</div>
 		</div>
 	</div>
