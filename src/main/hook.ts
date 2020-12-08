@@ -72,16 +72,24 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 	} else {
 		try {
 			const response = await axios({
-				url: `http://${store.get('serverIP')}/${version}.yml`
+				url: `${store.get('serverURL')}/${version}.yml`
 			});
 			data = response.data;
 		} catch (_e) {
 			let e = _e as AxiosError;
 			console.error(e);
 			if (e?.response?.status === 404) {
-				event.reply('error', `Couldn't fetch the latest game offsets from the server: http://${store.get('serverIP')}/${version}.yml.\nThis might be because you are on an unsupported version of Among Us.`);
+				event.reply('error', `You are on an unsupported version of Among Us: ${version}.\n`);
 			} else {
-				event.reply('error', `Couldn't fetch the latest game offsets from the server: http://${store.get('serverIP')}/${version}.yml.\n${e}`);
+				let errorMessage = e.message;
+				if (errorMessage.includes("ETIMEDOUT")) {
+					errorMessage = "has too many active players";
+				} else if (errorMessage.includes("refuesed")) {
+					errorMessage = "is not input correctly";
+				} else {
+					errorMessage = "gave this error: \n" + errorMessage;
+				}
+				event.reply('error', `Please use another voice server. ${store.get('serverURL')} ${errorMessage}.`);
 			}
 			return;
 		}
@@ -102,7 +110,7 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 		return offsets;
 	} catch (e) {
 		console.error(e);
-		event.reply('error', `Couldn't parse the latest game offsets from the server: http://${store.get('serverIP')}/${version}.yml.\n${e}`);
+		event.reply('error', `Couldn't parse the latest game offsets from the server: ${store.get('serverURL')}/${version}.yml.\n${e}`);
 		return;
 	}
 

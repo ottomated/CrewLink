@@ -46,6 +46,11 @@ input[type="text"] {
 	padding: 5px;
 	border-radius: 5px;
 }
+
+.form-control.m .input-error {
+	border-color: #b00020
+}
+
 input[type="text"]:focus {
 	border-color: white;
 }
@@ -67,4 +72,23 @@ select {
 	flex-direction: column;
 	justify-content: start;
 	align-items: center;
+}
+
+.microphone-bar {
+	width: 200px;
+	height: 10px;
+	background: #1d1d1d;
+	border: 1px solid rgba(255, 255, 255, 0.5);
+	border-radius: 5px;
+}
+
+.microphone-bar-inner {
+	background: #e74c3c;
+	height: 10px;
+	border-radius: 5px;
+}
+
+.test-speakers {
+	width: fit-content;
+	margin: 5px auto;
 }
