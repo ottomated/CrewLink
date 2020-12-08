@@ -45,6 +45,11 @@ body {
 	font-size: 20px;
 }
 
+.username svg {
+	height: 20px;
+	margin-right: 3px;
+}
+
 .code {
 	font-family: 'Source Code Pro', monospace;
 	display: block;

@@ -15,7 +15,7 @@
 	padding-top: 20px;
 }
 
-.form-control {
+.form-control, h2 {
 	user-select: none;
 }
 
