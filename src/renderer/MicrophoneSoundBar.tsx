@@ -1,8 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { SettingsContext } from './contexts';
+import React, { useEffect, useState } from 'react'
 
-const TestMicrophoneButton = function() {
-    const [{ microphone }] = useContext(SettingsContext)
+interface ITestMicProps {
+    microphone: string
+}
+
+const TestMicrophoneButton: React.FunctionComponent<ITestMicProps> = function({ microphone }) {
     const [error, setError] = useState<boolean>(false)
     const [rms, setRms] = useState<number>(0)
 

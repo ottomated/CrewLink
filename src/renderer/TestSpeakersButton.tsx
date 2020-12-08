@@ -1,11 +1,12 @@
-import React, { useContext } from 'react'
-import { SettingsContext } from './contexts';
+import React from 'react'
 // @ts-ignore
 import chime from '../../static/chime.mp3';
 
-const TestSpeakersButton = () => {
-    const [{ speaker }] = useContext(SettingsContext)
+interface ITestSpeakersProps {
+    speaker: string
+}
 
+const TestSpeakersButton: React.FunctionComponent<ITestSpeakersProps> = ({ speaker }) => {
     const testSpeakers = () => {
         const audio = new Audio();
         audio.src = chime;
