@@ -93,20 +93,14 @@ const store = new Store<ISettings>({
 		},
 		serverSettings: {
 			type: 'object',
-			properties: {
-				maxDistance: {
-					type: 'number',
-					default: 5.32
-				}
+			default: {
+				maxDistance: 5.32
 			}
 		},
 		userServerSettings: {
 			type: 'object',
-			properties: {
-				maxDistance: {
-					type: 'number',
-					default: 5.32
-				}
+			default: {
+				maxDistance: 5.32
 			}
 		}
 	}
@@ -353,17 +347,17 @@ export default function Settings({ open, onClose }: SettingsProps) {
 				<input type="checkbox" checked={!settings.hideCode} style={{ color: '#9b59b6' }} readOnly />
 				<label>Show Lobby Code</label>
 			</div>
-			<div className={gameState.gameState === GameState.MENU ? "form-control m" : "form-control"} style={{ color: '#fd79a8' }} onClick={() => setSettings({
+			<div className={gameState.gameState === GameState.MENU || gameState.gameState === undefined ? "form-control m" : "form-control"} style={{ color: '#fd79a8' }} onClick={() => setSettings({
 				type: 'setOne',
 				action: ['stereoInLobby', !settings.stereoInLobby]
 			})}>
 				<input type="checkbox" checked={settings.stereoInLobby} style={{ color: '#fd79a8' }} readOnly />
 				<label>Stereo Audio in Lobbies</label>
 			</div>
-			{gameState.gameState !== GameState.MENU &&
+			{gameState.gameState !== undefined && gameState.gameState !== GameState.MENU &&
 				<h2 style={{ color: '#e74c3c' }}>Server settings</h2>
 			}
-			{gameState.gameState !== GameState.MENU && gameState.isHost === true ? (
+			{gameState.gameState !== undefined && gameState.gameState !== GameState.MENU && gameState.isHost === true ? (
 				<div className="form-control l m" style={{ color: '#3498db' }}>
 					<label>Max Distance</label>
 					<input spellCheck={false} type="range" min="1" max="10" step="0.1" onChange={(ev) => setSettings({
@@ -372,7 +366,7 @@ export default function Settings({ open, onClose }: SettingsProps) {
 					})} value={settings.userServerSettings.maxDistance} />
 					<span>{settings.userServerSettings.maxDistance}</span>
 				</div>
-			) : gameState.gameState !== GameState.MENU && (
+			) : gameState.gameState !== undefined && gameState.gameState !== GameState.MENU && (
 				<div className="form-control l m" style={{ color: '#3498db' }}>
 					<label>Max Distance: {settings.serverSettings.maxDistance}</label>
 				</div>
