@@ -158,9 +158,12 @@ export default class GameReader {
 			}
 			if (newGameCode) this.gameCode = newGameCode;
 
+			let isHost = true;
+			if(this.offsets.hostId && this.offsets.clientId){
 			let hostId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, this.offsets.hostId);
 			let clientId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, this.offsets.clientId);
-			let isHost = (hostId === clientId);
+			 isHost = (hostId === clientId);
+		}
 
 			let newState = {
 				lobbyCode: this.gameCode,
