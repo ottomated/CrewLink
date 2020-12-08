@@ -42,11 +42,6 @@ function App() {
 		stereoInLobby: true,
 		haunting: true
 	});
-	
-	//const buffer = fs.readFileSync('static/reverb.ogx',null);
-	//console.log("What is this: " + buffer);
-	//console.log(typeof(buffer));
-
 
 	useEffect(() => {
 		const onOpen = (_: Electron.IpcRendererEvent, isOpen: boolean) => {
