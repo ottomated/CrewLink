@@ -6,9 +6,9 @@ import chime from '../../static/chime.mp3';
 const TestSpeakersButton = () => {
     const [{ speaker }] = useContext(SettingsContext)
 
+    const audio = new Audio(chime);
+    
     const testSpeakers = () => {
-        const audio = new Audio();
-        audio.src = chime;
 
         if (speaker.toLowerCase() !== 'default')
             (audio as any).setSinkId(speaker)
