@@ -11,9 +11,6 @@ import { ISettings } from "../common/ISettings";
 interface PeerConnections {
 	[peer: string]: Peer.Instance;
 }
-interface InCall {
-	[peer: string]: boolean;
-}
 interface AudioElements {
 	[peer: string]: {
 		element: HTMLAudioElement;
@@ -31,7 +28,7 @@ interface SocketIdMap {
 
 interface ConnectionStuff {
 	socket: typeof Socket;
-	stream: MediaStream;
+	stream?: MediaStream;
 	pushToTalk: boolean;
 	deafened: boolean;
 }
@@ -43,19 +40,6 @@ interface OtherTalking {
 interface OtherDead {
 	[playerId: number]: boolean; // isTalking
 }
-
-// function clamp(number: number, min: number, max: number): number {
-// 	if (min > max) {
-// 		let tmp = max;
-// 		max = min;
-// 		min = tmp;
-// 	}
-// 	return Math.max(min, Math.min(number, max));
-// }
-
-// function mapNumber(n: number, oldLow: number, oldHigh: number, newLow: number, newHigh: number): number {
-// 	return clamp((n - oldLow) / (oldHigh - oldLow) * (newHigh - newLow) + newLow, newLow, newHigh);
-// }
 
 function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Player, other: Player, gain: GainNode, pan: PannerNode): void {
 	const audioContext = pan.context;
@@ -90,9 +74,7 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
 		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
 	} else if (state.gameState === GameState.TASKS) {
-		// const distance = Math.sqrt(Math.pow(me.x - other.x, 2) + Math.pow(me.y - other.y, 2));
 		gain.gain.value = 1;
-		// gain.gain.value = mapNumber(distance, 0, 2.66, 1, 0);
 		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
 		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
 	} else {
@@ -120,16 +102,19 @@ export default function Voice() {
 	const [deafenedState, setDeafened] = useState(false);
 	const [connected, setConnected] = useState(false);
 
+	// Handle pushToTalk, if set
 	useEffect(() => {
 		if (!connectionStuff.current.stream) return;
 		connectionStuff.current.stream.getAudioTracks()[0].enabled = !settings.pushToTalk;
 		connectionStuff.current.pushToTalk = settings.pushToTalk;
 	}, [settings.pushToTalk]);
 
+	// Add settings to settingsRef
 	useEffect(() => {
 		settingsRef.current = settings;
 	}, [settings]);
 
+	// Set dead player data
 	useEffect(() => {
 		if (gameState.gameState === GameState.LOBBY) {
 			setOtherDead({});
@@ -144,8 +129,12 @@ export default function Voice() {
 		}
 	}, [gameState.gameState]);
 
-	// const [audioContext] = useState<AudioContext>(() => new AudioContext());
-	const connectionStuff = useRef<ConnectionStuff>({ pushToTalk: settings.pushToTalk, deafened: false } as any);
+	const connectionStuff = useRef<Partial<ConnectionStuff>>({
+		pushToTalk: settings.pushToTalk,
+		deafened: false,
+	});
+
+	// BIG ASS BLOB - Handle audio
 	useEffect(() => {
 		// Connect to voice relay server
 		connectionStuff.current.socket = io(settings.serverURL, { transports: ['websocket'] });
@@ -182,7 +171,6 @@ export default function Voice() {
 				if (!connectionStuff.current.deafened) {
 					stream.getAudioTracks()[0].enabled = pressing;
 				}
-				// console.log(stream.getAudioTracks()[0].enabled);
 			});
 
 			const ac = new AudioContext();
@@ -190,15 +178,10 @@ export default function Voice() {
 			audioListener = VAD(ac, ac.createMediaStreamSource(stream), undefined, {
 				onVoiceStart: () => setTalking(true),
 				onVoiceStop: () => setTalking(false),
-				// onUpdate: console.log,
 				noiseCaptureDuration: 1,
 			});
 
-			// audioListener = audioActivity(stream, (level) => {
-			// 	setTalking(level > 0.1);
-			// });
 			const peerConnections: PeerConnections = {};
-			const inCall: InCall = {};
 			audioElements.current = {};
 			const audioListeners: AudioListeners = {};
 
@@ -214,8 +197,9 @@ export default function Voice() {
 
 				function disconnectPeer(peer: string) {
 					const connection = peerConnections[peer];
-					if (!connection) return;
-					delete inCall[peer];
+					if (!connection) {
+						return;
+					}
 					connection.destroy();
 					delete peerConnections[peer];
 					if (audioElements.current[peer]) {
@@ -233,7 +217,6 @@ export default function Voice() {
 			};
 			setConnect({ connect });
 			function createPeerConnection(peer: string, initiator: boolean) {
-				// console.log("Opening connection to ", peer, "Initiator: ", initiator);
 				const connection = new Peer({
 					stream, initiator, config: {
 						iceServers: [
@@ -256,7 +239,6 @@ export default function Voice() {
 					var source = context.createMediaStreamSource(stream);
 					let gain = context.createGain();
 					let pan = context.createPanner();
-					// let compressor = context.createDynamicsCompressor();
 					pan.refDistance = 0.1;
 					pan.panningModel = 'equalpower';
 					pan.distanceModel = 'linear';
@@ -269,7 +251,6 @@ export default function Voice() {
 					VAD(context, gain, context.destination, {
 						onVoiceStart: () => setTalking(true),
 						onVoiceStop: () => setTalking(false),
-						// onUpdate: console.log,
 					});
 
 					const setTalking = (talking: boolean) => {
@@ -281,24 +262,7 @@ export default function Voice() {
 							return socketPlayerIds;
 						});
 					};
-					// gain.connect(compressor);
-					// compressor.connect();
-
-					// console.log(pan, audio);
-					// pan.pan.setValueAtTime(-1, audioContext.currentTime);
-					// source.connect(pan);
-					// pan.connect(audioContext.destination);
 					audioElements.current[peer] = { element: audio, gain, pan };
-
-					// audioListeners[peer] = audioActivity(stream, (level) => {
-					// 	setSocketPlayerIds(socketPlayerIds => {
-					// 		setOtherTalking(old => ({
-					// 			...old,
-					// 			[socketPlayerIds[peer]]: level
-					// 		}));
-					// 		return socketPlayerIds;
-					// 	});
-					// });
 				});
 				connection.on('signal', (data) => {
 					socket.emit('signal', {
@@ -314,8 +278,11 @@ export default function Voice() {
 			});
 			socket.on('signal', ({ data, from }: any) => {
 				let connection: Peer.Instance;
-				if (peerConnections[from]) connection = peerConnections[from];
-				else connection = createPeerConnection(from, false);
+				if (peerConnections[from]) {
+					connection = peerConnections[from];
+				} else {
+					connection = createPeerConnection(from, false);
+				}
 				connection.signal(data);
 			});
 			socket.on('setId', (socketId: string, id: number) => {
@@ -331,16 +298,19 @@ export default function Voice() {
 		});
 
 		return () => {
-			connectionStuff.current.socket.close();
+			connectionStuff.current.socket?.close();
 			audioListener.destroy();
 		}
 	}, []);
 
 
 	const myPlayer = useMemo(() => {
-		if (!gameState || !gameState.players) return undefined;
-		else return gameState.players.find(p => p.isLocal);
-	}, [gameState]);
+		if (!gameState || !gameState.players) {
+			return undefined;
+		} else {
+			return gameState.players.find((p) => p.isLocal);
+		}
+	}, [gameState.players]);
 
 	const otherPlayers = useMemo(() => {
 		let otherPlayers: Player[];
@@ -364,23 +334,27 @@ export default function Voice() {
 		return otherPlayers;
 	}, [gameState]);
 
+	// Connect to P2P negotiator, when lobby and connect code change
 	useEffect(() => {
 		if (connect?.connect && gameState.lobbyCode && myPlayer?.id !== undefined) {
 			connect.connect(gameState.lobbyCode, myPlayer.id);
 		}
 	}, [connect?.connect, gameState?.lobbyCode]);
 
+	// Connect to P2P negotiator, when game mode change
 	useEffect(() => {
 		if (connect?.connect && gameState.lobbyCode && myPlayer?.id !== undefined && gameState.gameState === GameState.LOBBY && (gameState.oldGameState === GameState.DISCUSSION || gameState.oldGameState === GameState.TASKS)) {
 			connect.connect(gameState.lobbyCode, myPlayer.id);
 		}
 	}, [gameState.gameState]);
 
+	// Emit player id to socket
 	useEffect(() => {
 		if (connectionStuff.current.socket && myPlayer && myPlayer.id !== undefined) {
 			connectionStuff.current.socket.emit('id', myPlayer.id);
 		}
 	}, [myPlayer?.id]);
+
 	return (
 		<div className="root">
 			<div className="top">
