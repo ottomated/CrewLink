@@ -154,9 +154,14 @@ export interface ILobbySettings {
 	maxDistance: number;
 }
 export const lobbySettingsReducer = (state: ILobbySettings, action: {
-	type: 'set', action: ILobbySettings
+	type: 'set' | 'setOne', action: [string, any] | ILobbySettings
 }): ILobbySettings => {
-	return action.action;
+	if (action.type === 'set') return action.action as ILobbySettings;
+	let v = (action.action as [string, any]);
+	return {
+		...state,
+		[v[0]]: v[1]
+	};
 }
 
 interface MediaDevice {

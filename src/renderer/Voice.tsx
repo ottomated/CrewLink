@@ -6,7 +6,7 @@ import { AmongUsState, GameState, Player } from '../main/GameReader';
 import Peer from 'simple-peer';
 import { ipcRenderer, remote } from 'electron';
 import VAD from './vad';
-import { ILobbySettings, ISettings } from './Settings';
+import { ISettings } from './Settings';
 
 interface PeerConnections {
 	[peer: string]: Peer.Instance;
@@ -341,10 +341,14 @@ export default function Voice() {
 				setSocketPlayerIds(ids);
 				setInRoom(true);
 			});
-			socket.on('setSettings', (settings: ILobbySettings) => {
-				setLobbySettings({
-					type: 'set',
-					action: settings
+			socket.on('setSettings', (settings: { [key: string]: any }) => {
+				Object.keys(lobbySettings).forEach((field: string) => {
+					if (field in settings) {
+						setLobbySettings({
+							type: 'setOne',
+							action: [field, settings[field]]
+						});
+					}
 				});
 			})
 

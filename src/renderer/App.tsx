@@ -21,8 +21,8 @@ export const SettingsContext = createContext<[ISettings, React.Dispatch<{
 	action: ISettings | [string, any];
 }>]>(null as any);
 export const LobbySettingsContext = createContext<[ILobbySettings, React.Dispatch<{
-	type: "set";
-	action: ILobbySettings;
+	type: "set" | "setOne";
+	action: ILobbySettings | [string, any];
 }>]>(null as any);
 
 function App() {
