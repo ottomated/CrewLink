@@ -1417,7 +1417,7 @@ ajv@^6.1.0, ajv@^6.10.1, ajv@^6.10.2, ajv@^6.12.0:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-ajv@^6.12.2, ajv@^6.12.3, ajv@^6.9.1:
+ajv@^6.12.2, ajv@^6.12.3, ajv@^6.12.6, ajv@^6.9.1:
   version "6.12.6"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.12.6.tgz#baf5a62e802b07d977034586f8c3baf5adf26df4"
   integrity sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==
@@ -4927,9 +4927,10 @@ invert-kv@^2.0.0:
   resolved "https://registry.yarnpkg.com/invert-kv/-/invert-kv-2.0.0.tgz#7393f5afa59ec9ff5f67a27620d11c226e3eec02"
   integrity sha512-wPVv/y/QQ/Uiirj/vh3oP+1Ww+AWehmi1g5fFWGPF6IpCBCDVrhgHRMvrLfdYcwDh3QJbGXDW4JAuzxElLSqKA==
 
-"iohook@git://github.com/ykhwong/iohook":
-  version "0.6.6"
-  resolved "git://github.com/ykhwong/iohook#f92572d0f75fd959d7bf16ad4b3a05a48af21a49"
+iohook@^0.7.1:
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/iohook/-/iohook-0.7.1.tgz#578def071856e4abc8d6d68abfe1976a44da0546"
+  integrity sha512-p9Mxsm2ai852/YRCJ3UlZBSHpQ6veaKHrdhPOMyTvtYlDZBAx+5x8YzlKuHQEUSNd4+Ez5rpRHBp/0PInmLX6g==
   dependencies:
     bindings "^1.3.0"
     node-abi "^2.4.0"
