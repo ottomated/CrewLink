@@ -127,7 +127,7 @@ export default class GameReader {
 				}
 			}
 			if (this.oldGameState === GameState.MENU && state === GameState.LOBBY && this.menuUpdateTimer > 0 &&
-				(this.lastPlayerPtr === allPlayers || players.length === 1 || !players.find(p => p.isLocal))) {
+				(this.lastPlayerPtr === allPlayers || players.length === 1 || !players.find(p => p.isLocal && p.disconnected === false))) {
 				state = GameState.MENU;
 				this.menuUpdateTimer--;
 			} else {

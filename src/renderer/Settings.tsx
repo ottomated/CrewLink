@@ -40,12 +40,7 @@ const store = new Store<ISettings>({
 				store.set('serverURL', 'http://crewlink.guus.info');
 			}
 			
-		},'1.1.9': store => {
-				store.set('serverURL', 'http://crewlink.guus.info');
-		
-		},'1.2.0': store => {
-			store.set('serverURL', 'http://crewlink.guus.info');
-			}
+		}
 	},
 	schema: {
 		alwaysOnTop: {

@@ -34,6 +34,14 @@ interface SocketIdMap {
 	[socketId: string]: number;
 }
 
+interface SocketConfigMap {
+	[socketId: string]: SocketConfig;
+}
+
+export interface SocketConfig{
+volume : number
+}
+
 interface ConnectionStuff {
 	socket: typeof Socket;
 	stream: MediaStream;
@@ -81,7 +89,12 @@ const DEFAULT_ICE_CONFIG: RTCConfiguration = {
 // function mapNumber(n: number, oldLow: number, oldHigh: number, newLow: number, newHigh: number): number {
 // 	return clamp((n - oldLow) / (oldHigh - oldLow) * (newHigh - newLow) + newLow, newLow, newHigh);
 // }
-
+function getByValue(map : any, searchValue: any) {
+	for (let [key, value] of Object.entries(map)) {
+	  if (value === searchValue)
+		return key;
+	}
+  }
 function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Player, other: Player, gain: GainNode, pan: PannerNode, reverbGain: GainNode): void {
 	const audioContext = pan.context;
 	pan.positionZ.setValueAtTime(-0.5, audioContext.currentTime);
@@ -155,6 +168,8 @@ export default function Voice() {
 	if (displayedLobbyCode !== 'MENU' && settings.hideCode) displayedLobbyCode = 'LOBBY';
 	const [talking, setTalking] = useState(false);
 	const [socketPlayerIds, setSocketPlayerIds] = useState<SocketIdMap>({});
+	const [socketConfigs, setSocketConfigs] = useState<SocketConfigMap>({});
+
 	const [connect, setConnect] = useState<({ connect: (lobbyCode: string, playerId: number) => void }) | null>(null);
 	const [otherTalking, setOtherTalking] = useState<OtherTalking>({});
 	const [otherDead, setOtherDead] = useState<OtherDead>({});
@@ -300,6 +315,7 @@ export default function Voice() {
 					disconnectPeer(k);
 				});
 				setSocketPlayerIds({});
+			//	setSocketConfigs({});
 
 				if (lobbyCode === 'MENU') return;
 
@@ -327,7 +343,7 @@ export default function Voice() {
 			};
 			setConnect({ connect });
 			function createPeerConnection(peer: string, initiator: boolean) {
-				// console.log("Opening connection to ", peer, "Initiator: ", initiator);
+			 console.log("Opening connection to ", peer, "Initiator: ", initiator);
 				const connection = new Peer({
 					stream,
 					initiator,
@@ -348,7 +364,9 @@ export default function Voice() {
 					let gain = context.createGain();
 					let pan = context.createPanner();				
 					let compressor = context.createDynamicsCompressor();
-					
+					gain.gain.value = 0.1 // 10 %
+
+
 					pan.refDistance = 0.1;
 					pan.panningModel = 'equalpower';
 					pan.distanceModel = 'linear';
@@ -404,7 +422,6 @@ export default function Voice() {
 					// source.connect(pan);
 					// pan.connect(audioContext.destination);
 					audioElements.current[peer] = { element: audio, gain, pan, reverbGain, reverb, compressor };
-
 					// audioListeners[peer] = audioActivity(stream, (level) => {
 					// 	setSocketPlayerIds(socketPlayerIds => {
 					// 		setOtherTalking(old => ({
@@ -427,6 +444,7 @@ export default function Voice() {
 				createPeerConnection(peer, true);
 				setSocketPlayerIds(old => ({ ...old, [peer]: playerId }));
 			});
+
 			socket.on('signal', ({ data, from }: any) => {
 				let connection: Peer.Instance;
 				if (peerConnections[from]) connection = peerConnections[from];
@@ -438,6 +456,11 @@ export default function Voice() {
 			})
 			socket.on('setIds', (ids: SocketIdMap) => {
 				setSocketPlayerIds(ids);
+			console.log(ids);
+			let test : SocketConfigMap= {};
+			let oof = Object.keys(ids).map(o => { test[o] = {volume: 1} });
+				setSocketConfigs(test);
+				console.log("socketconfig", socketConfigs,test);
 				setInRoom(true);
 			});
 			socket.on('setConfig', (config: IServerSettings) => {
@@ -461,7 +484,7 @@ export default function Voice() {
 
 	const myPlayer = useMemo(() => {
 		if (!gameState || !gameState.players) return undefined;
-		else return gameState.players.find(p => p.isLocal);
+		else return gameState.players.find(p => p.isLocal && p.disconnected === false);
 	}, [gameState]);
 
 	const otherPlayers = useMemo(() => {
@@ -479,6 +502,10 @@ export default function Voice() {
 				calculateVoiceAudio(gameState, settingsRef.current, myPlayer!, player, audio.gain, audio.pan, audio.reverbGain);
 				if (connectionStuff.current.deafened) {
 					audio.gain.gain.value = 0;
+				}
+				if(audio.gain.gain.value > 0){
+					let playerVolume = socketConfigs[playerSocketIds[player.id]]?.volume;
+					audio.gain.gain.value = playerVolume === undefined? audio.gain.gain.value  : audio.gain.gain.value * playerVolume;
 				}
 			}
 		}
@@ -547,12 +574,16 @@ export default function Voice() {
 				{
 					otherPlayers.map(player => {
 						let connected = Object.values(socketPlayerIds).includes(player.id);
+						let socketId = getByValue(socketPlayerIds,player.id)
+						let socketConfig = socketId === undefined? undefined : socketConfigs[socketId]; 
 						return (
+							<div>
 							<Avatar key={player.id} player={player}
 								talking={!connected || otherTalking[player.id]}
 								borderColor={connected ? '#2ecc71' : '#c0392b'}
 								isAlive={!otherDead[player.id]}
-								size={50} />
+								size={50} socketConfig={socketConfig}/>
+								</div>
 						);
 					})
 				}
