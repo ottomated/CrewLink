@@ -1,6 +1,6 @@
 blank_issues_enabled: false
 contact_links:
-  - name: I need help?
+  - name: I need help
     url:  https://discord.gg/9mwuVNA
     about: Please ask and answer questions here.
   - name: Security issue

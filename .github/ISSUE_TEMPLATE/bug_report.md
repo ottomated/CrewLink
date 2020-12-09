@@ -1,22 +1,22 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: ''
-labels: ''
+title: '[BUG REPORT]'
+labels: 'bug'
 assignees: ''
 ---
 
 # Pre-Flight Checklist
 Please use this checklist to avoid spamming:
 
-1. [ ] I am not asking a question => goto the Discord if you are [discord](https://discord.gg/9mwuVNA)
+1. [ ] I am not asking a question => use the [Discord](https://discord.gg/9mwuVNA) if you are
 2. [ ] I am using the Steam version of Among Us
-3. [ ] I have tried to use an [alternative server](https://status.crewl.ink/)
+3. [ ] I have tried to use an [alternative voice server server](https://status.crewl.ink/)
 4. [ ] I have checked everyone in my lobby is on the same CrewLink server
-5. [ ] I have used `Ctrl+r` on the CrewLink app when I can't hear some people (this is a known issue)
-6. [ ] I have checked the CrewLink server I'm using is up to date
+5. [ ] I have used `Ctrl+R` on the CrewLink app when I can't hear some people (this is a known issue)
+6. [ ] I have checked that the CrewLink server I'm using is up to date
 7. [ ] I have a screenshot of any errors
-8. [ ] I checked someone else has not reported this. Meaning the devs don't have to deal with duplicates and have more time to add cool stuff
+8. [ ] I have checked that someone else has not reported this using the [search bar](https://github.com/ottomated/CrewLink/issues?q=is%3Aissue)
 
 **Describe the bug**
 <!-- A clear and concise description of what the bug is. -->
@@ -35,8 +35,8 @@ Steps to reproduce the behaviour:
 <!-- If applicable, add screenshots to help explain your problem. -->
 
 **Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Version: [e.g. 22]
+ - OS: [e.g. Windows 10]
+ - Version: [e.g. 1.1.5]
 
 **Additional context**
 <!-- Add any other context about the problem here. -->
