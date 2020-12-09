@@ -253,6 +253,10 @@ export default function Settings({ open, onClose }: SettingsProps) {
 
 	return <div id="settings" style={{ transform: open ? 'translateX(0)' : 'translateX(-100%)' }}>
 		<svg className="titlebar-button back" viewBox="0 0 24 24" fill="#868686" width="20px" height="20px" onClick={() => {
+			setSettings({
+				type: 'setOne',
+				action: ['localLobbySettings', lobbySettings]
+			});
 			if (unsaved) {
 				onClose();
 				location.reload();

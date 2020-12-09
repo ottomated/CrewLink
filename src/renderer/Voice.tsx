@@ -105,7 +105,7 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 
 
 export default function Voice() {
-	const [settings] = useContext(SettingsContext);
+	const [settings, setSettings] = useContext(SettingsContext);
 	const settingsRef = useRef<ISettings>(settings);
 	const [lobbySettings, setLobbySettings] = useContext(LobbySettingsContext);
 	const gameState = useContext(GameStateContext);
@@ -402,12 +402,17 @@ export default function Voice() {
 	useEffect(() => {
 		if (connectionStuff.current.socket && gameState.isHost === true && inRoom === true) {
 			connectionStuff.current.socket.emit('host');
+			setSettings({
+				type: 'setOne',
+				action: ['localLobbySettings', lobbySettings]
+			});
 		}
 	}, [gameState.isHost]);
 
 	useEffect(() => {
 		if (connectionStuff.current.socket && gameState.isHost === true && inRoom === true) {
 			connectionStuff.current.socket.emit('host');
+			connectionStuff.current.socket.emit('config', settings.localLobbySettings);
 		}
 	}, [inRoom]);
 
