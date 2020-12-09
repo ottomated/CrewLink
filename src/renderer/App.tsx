@@ -9,7 +9,7 @@ import Settings, { ISettings, settingsReducer } from './Settings';
 let appVersion = '';
 if (typeof window !== 'undefined' && window.location) {
 	let query = new URLSearchParams(window.location.search.substring(1));
-	appVersion = (' v' + query.get('version')) || '';
+	appVersion = (' v' + query.get('version')) + " beta" || '';
 }
 
 
@@ -39,13 +39,14 @@ function App() {
 			data: ''
 		},
 		hideCode: false,
-		haunting: true,
 		stereoInLobby: true,
 		serverSettings: {
-			maxDistance: 5.32
+			maxDistance: 5.32,
+			haunting: false
 		},
 		userServerSettings: {
-			maxDistance: 5.32
+			maxDistance: 5.32,
+			haunting: false		
 		}
 	});
 

@@ -92,20 +92,19 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: true
 		},
-		haunting: {
-			type: 'boolean',
-			default: true
-		},
 		serverSettings: {
 			type: 'object',
 			default: {
-				maxDistance: 5.32
+				maxDistance: 5.32,
+				haunting: false
+
 			}
 		},
 		userServerSettings: {
 			type: 'object',
 			default: {
-				maxDistance: 5.32
+				maxDistance: 5.32,
+				haunting: false
 			}
 		}
 	}
@@ -136,7 +135,6 @@ export interface ISettings {
 	},
 	hideCode: boolean;
 	stereoInLobby: boolean;
-	haunting: boolean;
 	serverSettings: IServerSettings;
 	userServerSettings: IServerSettings;
 }
@@ -162,6 +160,7 @@ export const settingsReducer = (state: ISettings, action: {
 
 export interface IServerSettings {
 	maxDistance: number;
+	haunting: boolean;
 }
 
 interface MediaDevice {
@@ -378,12 +377,12 @@ export default function Settings({ open, onClose }: SettingsProps) {
 					})} value={settings.userServerSettings.maxDistance} />
 					<span>{settings.userServerSettings.maxDistance}</span>
 				</div>
-				<div className="form-control m" style={{ color: '#F45837' }} onClick={() => setSettings({
-				type: 'setOne',
-				action: ['haunting', !settings.haunting]
+				<div className="form-control m" style={{ color: '#3498db' }} onClick={() => setSettings({
+				type: 'setServerSetting',
+				action: ['haunting', !settings.userServerSettings.haunting]
 			})}>
-				<input type="checkbox" checked={settings.haunting} style={{ color: '#F45837' }} readOnly />
-				<label>Impostors Hear Ghosts</label>
+				<input type="checkbox" checked={settings.userServerSettings.haunting} style={{ color: '#fd79a8' }} readOnly />
+				<label>Ghost haunt imposters</label>
 			</div>
 				</div>
 			) : gameState.gameState !== undefined && gameState.gameState !== GameState.MENU && (
@@ -392,7 +391,7 @@ export default function Settings({ open, onClose }: SettingsProps) {
 					<label>Max Distance: {settings.serverSettings.maxDistance}</label>
 				</div>
 				<div className="form-control l m" style={{ color: '#3498db' }}>
-					<label>Impostors Hear Ghosts: {settings.haunting? 'true' : 'false'}</label>
+					<label>Impostors Hear Ghosts: {settings.serverSettings.haunting? 'true' : 'false'}</label>
 				</div>
 				</div>
 			)}

@@ -110,7 +110,7 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 		return;
 	}
 	// Living crewmates cannot hear ghosts
-	if (!me.isDead && other.isDead && (!me.isImpostor || !settings.haunting || state.gameState !== GameState.TASKS)) {
+	if (!me.isDead && other.isDead && (!me.isImpostor || !settings.serverSettings.haunting || state.gameState !== GameState.TASKS)) {
 		gain.gain.value = 0;
 		return;
 	}
@@ -131,7 +131,7 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 		gain.gain.value = 0;
 	}
 	// Living impostors hear ghosts at a faint volume
-	if (gain.gain.value > 0 && !me.isDead && me.isImpostor && other.isDead && settings.haunting) {
+	if (gain.gain.value > 0 && !me.isDead && me.isImpostor && other.isDead && settings.serverSettings.haunting) {
 		gain.gain.value = gain.gain.value * 0.015;
 		if (reverbGain != null) reverbGain.gain.value = 1;
 	}
@@ -361,7 +361,7 @@ export default function Voice() {
 					
 					var reverb:any = null;
 					var reverbGain:any = null;
-					if (settings.haunting) {
+					if (settings.serverSettings.haunting) {
 						reverb = context.createConvolver();
 						reverbGain = context.createGain();					
 						reverbGain.gain.value = 0;
