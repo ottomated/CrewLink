@@ -1,7 +1,7 @@
 import Store from 'electron-store';
 import React, { useContext, useEffect, useReducer, useState } from "react";
 import { GameState } from '../main/GameReader';
-import { SettingsContext, GameStateContext } from "./App";
+import { SettingsContext, GameStateContext, LobbySettingsContext } from "./App";
 import Ajv from 'ajv';
 import './css/settings.css';
 import MicrophoneSoundBar from './MicrophoneSoundBar';
@@ -91,12 +91,6 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: true
 		},
-		lobbySettings: {
-			type: 'object',
-			default: {
-				maxDistance: 5.32
-			}
-		},
 		localLobbySettings: {
 			type: 'object',
 			default: {
@@ -131,7 +125,6 @@ export interface ISettings {
 	},
 	hideCode: boolean;
 	stereoInLobby: boolean;
-	lobbySettings: ILobbySettings;
 	localLobbySettings: ILobbySettings;
 }
 export const settingsReducer = (state: ISettings, action: {
@@ -156,6 +149,11 @@ export const settingsReducer = (state: ISettings, action: {
 
 export interface ILobbySettings {
 	maxDistance: number;
+}
+export const lobbySettingsReducer = (state: ILobbySettings, action: {
+	type: 'set', action: ILobbySettings
+}): ILobbySettings => {
+	return action.action;
 }
 
 interface MediaDevice {
@@ -194,6 +192,7 @@ function URLInput({ initialURL, onValidURL }: URLInputProps) {
 export default function Settings({ open, onClose }: SettingsProps) {
 	const [settings, setSettings] = useContext(SettingsContext);
 	const gameState = useContext(GameStateContext);
+	const [lobbySettings] = useContext(LobbySettingsContext);
 	const [unsavedCount, setUnsavedCount] = useState(0);
 	const unsaved = unsavedCount > 2;
 	useEffect(() => {
@@ -368,7 +367,7 @@ export default function Settings({ open, onClose }: SettingsProps) {
 				</div>
 			) : gameState.gameState !== undefined && gameState.gameState !== GameState.MENU && (
 				<div className="form-control l m" style={{ color: '#3498db' }}>
-					<label>Max Distance: {settings.lobbySettings.maxDistance}</label>
+					<label>Max Distance: {lobbySettings.maxDistance}</label>
 				</div>
 			)}
 		</div>

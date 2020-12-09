@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 import Avatar from './Avatar';
-import { GameStateContext, SettingsContext } from './App';
+import { GameStateContext, LobbySettingsContext, SettingsContext } from './App';
 import { AmongUsState, GameState, Player } from '../main/GameReader';
 import Peer from 'simple-peer';
 import { ipcRenderer, remote } from 'electron';
@@ -105,8 +105,9 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 
 
 export default function Voice() {
-	const [settings, setSettings] = useContext(SettingsContext);
+	const [settings] = useContext(SettingsContext);
 	const settingsRef = useRef<ISettings>(settings);
+	const [lobbySettings, setLobbySettings] = useContext(LobbySettingsContext);
 	const gameState = useContext(GameStateContext);
 	let { lobbyCode: displayedLobbyCode } = gameState;
 	if (displayedLobbyCode !== 'MENU' && settings.hideCode) displayedLobbyCode = 'LOBBY';
@@ -135,9 +136,9 @@ export default function Voice() {
 
 	useEffect(() => {
 		for (let peer in audioElements.current) {
-			audioElements.current[peer].pan.maxDistance = settings.lobbySettings.maxDistance;
+			audioElements.current[peer].pan.maxDistance = lobbySettings.maxDistance;
 		}
-	}, [settings.lobbySettings]);
+	}, [lobbySettings.maxDistance]);
 
 	useEffect(() => {
 		settingsRef.current = settings;
@@ -275,7 +276,7 @@ export default function Voice() {
 					pan.refDistance = 0.1;
 					pan.panningModel = 'equalpower';
 					pan.distanceModel = 'linear';
-					pan.maxDistance = settingsRef.current.lobbySettings.maxDistance;
+					pan.maxDistance = lobbySettings.maxDistance;
 					pan.rolloffFactor = 1;
 
 					source.connect(pan);
@@ -341,9 +342,9 @@ export default function Voice() {
 				setInRoom(true);
 			});
 			socket.on('setSettings', (settings: ILobbySettings) => {
-				setSettings({
-					type: 'setOne',
-					action: ['lobbySettings', settings]
+				setLobbySettings({
+					type: 'set',
+					action: settings
 				});
 			})
 
