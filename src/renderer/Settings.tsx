@@ -37,9 +37,15 @@ const store = new Store<ISettings>({
 		'1.1.5': store => {
 			const serverURL = store.get('serverURL');
 			if (serverURL === 'http://54.193.94.35:9736') {
-				store.set('serverURL', 'https://crewlink.guus.info');
+				store.set('serverURL', 'http://crewlink.guus.info');
 			}
-		}
+			
+		},'1.1.9': store => {
+				store.set('serverURL', 'http://crewlink.guus.info');
+		
+		},'1.2.0': store => {
+			store.set('serverURL', 'http://crewlink.guus.info');
+			}
 	},
 	schema: {
 		alwaysOnTop: {
@@ -60,7 +66,7 @@ const store = new Store<ISettings>({
 		},
 		serverURL: {
 			type: 'string',
-			default: 'https://crewlink.guus.info',
+			default: 'http://crewlink.guus.info',
 			format: 'uri'
 		},
 		pushToTalkShortcut: {
@@ -112,7 +118,10 @@ const store = new Store<ISettings>({
 
 store.onDidChange('serverURL', (newUrl, oldUrl) => {
 	if (newUrl === 'http://54.193.94.35:9736') {
-		store.set('serverURL', 'https://crewl.ink');
+		store.set('serverURL', 'http://crewlink.guus.info');
+	}
+	if (newUrl === 'https://crewl.ink') {
+		store.set('serverURL', 'http://crewlink.guus.info');
 	}
 });
 
