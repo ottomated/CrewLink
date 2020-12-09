@@ -91,13 +91,13 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: true
 		},
-		serverSettings: {
+		lobbySettings: {
 			type: 'object',
 			default: {
 				maxDistance: 5.32
 			}
 		},
-		userServerSettings: {
+		localLobbySettings: {
 			type: 'object',
 			default: {
 				maxDistance: 5.32
@@ -131,20 +131,20 @@ export interface ISettings {
 	},
 	hideCode: boolean;
 	stereoInLobby: boolean;
-	serverSettings: IServerSettings;
-	userServerSettings: IServerSettings;
+	lobbySettings: ILobbySettings;
+	localLobbySettings: ILobbySettings;
 }
 export const settingsReducer = (state: ISettings, action: {
-	type: 'set' | 'setOne' | 'setServerSetting', action: [string, any] | ISettings
+	type: 'set' | 'setOne' | 'setLobbySetting', action: [string, any] | ISettings
 }): ISettings => {
 	if (action.type === 'set') return action.action as ISettings;
 	let v = (action.action as [string, any]);
-	if (action.type === 'setServerSetting') {
+	if (action.type === 'setLobbySetting') {
 		let settings = {
-			...state.userServerSettings,
+			...state.localLobbySettings,
 			[v[0]]: v[1]
 		};
-		v[0] = 'userServerSettings';
+		v[0] = 'localLobbySettings';
 		v[1] = settings;
 	}
 	store.set(v[0], v[1]);
@@ -154,7 +154,7 @@ export const settingsReducer = (state: ISettings, action: {
 	};
 }
 
-export interface IServerSettings {
+export interface ILobbySettings {
 	maxDistance: number;
 }
 
@@ -355,20 +355,20 @@ export default function Settings({ open, onClose }: SettingsProps) {
 				<label>Stereo Audio in Lobbies</label>
 			</div>
 			{gameState.gameState !== undefined && gameState.gameState !== GameState.MENU &&
-				<h2 style={{ color: '#e74c3c' }}>Server settings</h2>
+				<h2 style={{ color: '#e74c3c' }}>Lobby settings</h2>
 			}
 			{gameState.gameState !== undefined && gameState.gameState !== GameState.MENU && gameState.isHost === true ? (
 				<div className="form-control l m" style={{ color: '#3498db' }}>
 					<label>Max Distance</label>
 					<input spellCheck={false} type="range" min="1" max="10" step="0.1" onChange={(ev) => setSettings({
-						type: 'setServerSetting',
+						type: 'setLobbySetting',
 						action: ['maxDistance', parseFloat(ev.target.value)]
-					})} value={settings.userServerSettings.maxDistance} />
-					<span>{settings.userServerSettings.maxDistance}</span>
+					})} value={settings.localLobbySettings.maxDistance} />
+					<span>{settings.localLobbySettings.maxDistance}</span>
 				</div>
 			) : gameState.gameState !== undefined && gameState.gameState !== GameState.MENU && (
 				<div className="form-control l m" style={{ color: '#3498db' }}>
-					<label>Max Distance: {settings.serverSettings.maxDistance}</label>
+					<label>Max Distance: {settings.lobbySettings.maxDistance}</label>
 				</div>
 			)}
 		</div>

@@ -6,7 +6,7 @@ import { AmongUsState, GameState, Player } from '../main/GameReader';
 import Peer from 'simple-peer';
 import { ipcRenderer, remote } from 'electron';
 import VAD from './vad';
-import { IServerSettings, ISettings } from './Settings';
+import { ILobbySettings, ISettings } from './Settings';
 
 interface PeerConnections {
 	[peer: string]: Peer.Instance;
@@ -129,15 +129,15 @@ export default function Voice() {
 
 	useEffect(() => {
 		if (connectionStuff.current.socket && gameState.isHost === true && inRoom === true) {
-			connectionStuff.current.socket.emit('config', settings.userServerSettings);
+			connectionStuff.current.socket.emit('config', settings.localLobbySettings);
 		}
-	}, [settings.userServerSettings]);
+	}, [settings.localLobbySettings]);
 
 	useEffect(() => {
 		for (let peer in audioElements.current) {
-			audioElements.current[peer].pan.maxDistance = settings.serverSettings.maxDistance;
+			audioElements.current[peer].pan.maxDistance = settings.lobbySettings.maxDistance;
 		}
-	}, [settings.serverSettings]);
+	}, [settings.lobbySettings]);
 
 	useEffect(() => {
 		settingsRef.current = settings;
@@ -275,7 +275,7 @@ export default function Voice() {
 					pan.refDistance = 0.1;
 					pan.panningModel = 'equalpower';
 					pan.distanceModel = 'linear';
-					pan.maxDistance = settingsRef.current.serverSettings.maxDistance;
+					pan.maxDistance = settingsRef.current.lobbySettings.maxDistance;
 					pan.rolloffFactor = 1;
 
 					source.connect(pan);
@@ -340,10 +340,10 @@ export default function Voice() {
 				setSocketPlayerIds(ids);
 				setInRoom(true);
 			});
-			socket.on('setConfig', (config: IServerSettings) => {
+			socket.on('setSettings', (settings: ILobbySettings) => {
 				setSettings({
 					type: 'setOne',
-					action: ['serverSettings', config]
+					action: ['lobbySettings', settings]
 				});
 			})
 

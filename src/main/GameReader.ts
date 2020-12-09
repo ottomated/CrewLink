@@ -160,14 +160,13 @@ export default class GameReader {
 
 			let hostId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, this.offsets.hostId);
 			let clientId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, this.offsets.clientId);
-			let isHost = (hostId === clientId);
 
 			let newState = {
 				lobbyCode: this.gameCode,
 				players,
 				gameState: state,
 				oldGameState: this.oldGameState,
-				isHost: isHost == null ? false : isHost
+				isHost: (hostId && clientId && hostId === clientId) as boolean
 			};
 			let patch = patcher.diff(this.lastState, newState);
 			if (patch) {
