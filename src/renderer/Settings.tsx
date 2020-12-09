@@ -38,6 +38,9 @@ const store = new Store<ISettings>({
 			if (serverURL === 'http://54.193.94.35:9736') {
 				store.set('serverURL', 'https://crewl.ink');
 			}
+		},
+		'1.1.6': store => {
+			store.delete('offsets');
 		}
 	},
 	schema: {
