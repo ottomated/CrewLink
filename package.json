@@ -21,6 +21,7 @@
     "dev": "electron-webpack dev",
     "compile": "electron-webpack",
     "dist": "yarn compile && electron-builder --win --x64",
+	"dist32": "yarn compile && electron-builder --win --ia32",
     "publish": "yarn compile && electron-builder --win --x64 --publish always"
   },
   "dependencies": {
