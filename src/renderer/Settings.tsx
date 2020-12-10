@@ -1,7 +1,7 @@
 import Store from 'electron-store';
 import React, { useContext, useEffect, useReducer, useState } from "react";
 import { GameState } from '../main/GameReader';
-import { SettingsContext, GameStateContext } from "./App";
+import { SettingsContext, GameStateContext, LobbySettingsContext } from "./App";
 import Ajv from 'ajv';
 import './css/settings.css';
 import MicrophoneSoundBar from './MicrophoneSoundBar';
@@ -39,8 +39,18 @@ const store = new Store<ISettings>({
 			if (serverURL === 'http://54.193.94.35:9736') {
 				store.set('serverURL', 'http://crewlink.guus.info');
 			}
-			
+		},
+		'1.1.6': store => {
+			store.delete('offsets');
+		},
+		'1.1.92': store => {
+			store.delete('offsets');
+		},
+		'1.1.93': store => {
+			store.delete('offsets');
+			console.log("delete offsets");
 		}
+		
 	},
 	schema: {
 		alwaysOnTop: {
@@ -93,19 +103,12 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: true
 		},
-		serverSettings: {
+		localLobbySettings: {
 			type: 'object',
 			default: {
 				maxDistance: 5.32,
 				haunting: false
 
-			}
-		},
-		userServerSettings: {
-			type: 'object',
-			default: {
-				maxDistance: 5.32,
-				haunting: false
 			}
 		}
 	}
@@ -139,20 +142,19 @@ export interface ISettings {
 	},
 	hideCode: boolean;
 	stereoInLobby: boolean;
-	serverSettings: IServerSettings;
-	userServerSettings: IServerSettings;
+	localLobbySettings: ILobbySettings;
 }
 export const settingsReducer = (state: ISettings, action: {
-	type: 'set' | 'setOne' | 'setServerSetting', action: [string, any] | ISettings
+	type: 'set' | 'setOne' | 'setLobbySetting', action: [string, any] | ISettings
 }): ISettings => {
 	if (action.type === 'set') return action.action as ISettings;
 	let v = (action.action as [string, any]);
-	if (action.type === 'setServerSetting') {
+	if (action.type === 'setLobbySetting') {
 		let settings = {
-			...state.userServerSettings,
+			...state.localLobbySettings,
 			[v[0]]: v[1]
 		};
-		v[0] = 'userServerSettings';
+		v[0] = 'localLobbySettings';
 		v[1] = settings;
 	}
 	store.set(v[0], v[1]);
@@ -162,9 +164,19 @@ export const settingsReducer = (state: ISettings, action: {
 	};
 }
 
-export interface IServerSettings {
+export interface ILobbySettings {
 	maxDistance: number;
 	haunting: boolean;
+}
+export const lobbySettingsReducer = (state: ILobbySettings, action: {
+	type: 'set' | 'setOne', action: [string, any] | ILobbySettings
+}): ILobbySettings => {
+	if (action.type === 'set') return action.action as ILobbySettings;
+	let v = (action.action as [string, any]);
+	return {
+		...state,
+		[v[0]]: v[1]
+	};
 }
 
 interface MediaDevice {
@@ -203,6 +215,7 @@ function URLInput({ initialURL, onValidURL }: URLInputProps) {
 export default function Settings({ open, onClose }: SettingsProps) {
 	const [settings, setSettings] = useContext(SettingsContext);
 	const gameState = useContext(GameStateContext);
+	const [lobbySettings] = useContext(LobbySettingsContext);
 	const [unsavedCount, setUnsavedCount] = useState(0);
 	const unsaved = unsavedCount > 2;
 	useEffect(() => {
@@ -268,6 +281,10 @@ export default function Settings({ open, onClose }: SettingsProps) {
 
 	return <div id="settings" style={{ transform: open ? 'translateX(0)' : 'translateX(-100%)' }}>
 		<svg className="titlebar-button back" viewBox="0 0 24 24" fill="#868686" width="20px" height="20px" onClick={() => {
+			setSettings({
+				type: 'setOne',
+				action: ['localLobbySettings', settings.localLobbySettings]
+			});
 			if (unsaved) {
 				onClose();
 				location.reload();
@@ -364,38 +381,38 @@ export default function Settings({ open, onClose }: SettingsProps) {
 				action: ['alwaysOnTop', !settings.alwaysOnTop]
 			})}>
 				<input type="checkbox" checked={settings.alwaysOnTop} style={{ color: '#fd79a8' }} readOnly />
-				<label>Show always on top</label>
+				<label>Show on top of the game</label>
 			</div>
 			
 		
 			{gameState.gameState !== undefined && gameState.gameState !== GameState.MENU &&
-				<h2 style={{ color: '#e74c3c' }}>Server settings</h2>
+				<h2 style={{ color: '#e74c3c' }}>Lobby settings</h2>
 			}
 			{gameState.gameState !== undefined && gameState.gameState !== GameState.MENU && gameState.isHost === true ? (
 				<div>
 				<div className="form-control l m" style={{ color: '#3498db' }}>
 					<label>Max Distance</label>
-					<input spellCheck={false} type="range" min="1" max="255" step="0.1" onChange={(ev) => setSettings({
-						type: 'setServerSetting',
+					<input spellCheck={false} type="range" min="1" max="10" step="0.1" onChange={(ev) => setSettings({
+						type: 'setLobbySetting',
 						action: ['maxDistance', parseFloat(ev.target.value)]
-					})} value={settings.userServerSettings.maxDistance} />
-					<span>{settings.userServerSettings.maxDistance}</span>
+					})} value={settings.localLobbySettings.maxDistance} />
+					<span>{settings.localLobbySettings.maxDistance}</span>
 				</div>
 				<div className="form-control m" style={{ color: '#3498db' }} onClick={() => setSettings({
-				type: 'setServerSetting',
-				action: ['haunting', !settings.userServerSettings.haunting]
+				type: 'setLobbySetting',
+				action: ['haunting', !settings.localLobbySettings.haunting]
 			})}>
-				<input type="checkbox" checked={settings.userServerSettings.haunting} style={{ color: '#fd79a8' }} readOnly />
+				<input type="checkbox" checked={settings.localLobbySettings.haunting} style={{ color: '#fd79a8' }} readOnly />
 				<label>Ghost haunt imposters</label>
 			</div>
 				</div>
 			) : gameState.gameState !== undefined && gameState.gameState !== GameState.MENU && (
 				<div>
 				<div className="form-control l m" style={{ color: '#3498db' }}>
-					<label>Max Distance: {settings.serverSettings.maxDistance}</label>
+					<label>Max Distance: {lobbySettings.maxDistance}</label>
 				</div>
 				<div className="form-control l m" style={{ color: '#3498db' }}>
-					<label>Impostors Hear Ghosts: {settings.serverSettings.haunting? 'true' : 'false'}</label>
+					<label>Impostors Hear Ghosts: {lobbySettings.haunting? 'true' : 'false'}</label>
 				</div>
 				</div>
 			)}

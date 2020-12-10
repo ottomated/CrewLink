@@ -28,6 +28,7 @@ export interface Player {
 	x: number;
 	y: number;
 	inVent: boolean;
+	clientId: number;
 }
 export enum GameState {
 	LOBBY, TASKS, DISCUSSION, MENU, UNKNOWN
@@ -157,19 +158,15 @@ export default class GameReader {
 				newGameCode = '';
 			}
 			if (newGameCode) this.gameCode = newGameCode;
-			let isHost = false;
-			if(this.offsets.hostId && this.offsets.clientId){
 			let hostId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, this.offsets.hostId);
 			let clientId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, this.offsets.clientId);
-			 isHost = (hostId === clientId);
-		}
 
 			let newState = {
 				lobbyCode: this.gameCode,
 				players,
 				gameState: state,
 				oldGameState: this.oldGameState,
-				isHost: isHost == null ? false : isHost
+				isHost: (hostId && clientId && hostId === clientId) as boolean
 			};
 			let patch = patcher.diff(this.lastState, newState);
 			if (patch) {
@@ -244,6 +241,8 @@ export default class GameReader {
 
 		let x = this.readMemory<number>('float', data.objectPtr, positionOffsets[0]);
 		let y = this.readMemory<number>('float', data.objectPtr, positionOffsets[1]);
+		let clientId = this.readMemory<number>('int', data.objectPtr, [0x1C]  ); //playerdata.ownerId
+
 		return {
 			ptr,
 			id: data.id,
@@ -259,6 +258,7 @@ export default class GameReader {
 			objectPtr: data.objectPtr,
 			inVent: this.readMemory<number>('byte', data.objectPtr, this.offsets.player.inVent) > 0,
 			isLocal,
+			clientId,
 			x, y
 		};
 	}

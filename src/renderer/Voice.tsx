@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 import Avatar from './Avatar';
-import { GameStateContext, SettingsContext } from './App';
+import { GameStateContext, LobbySettingsContext, SettingsContext } from './App';
 import { AmongUsState, GameState, Player } from '../main/GameReader';
 import Peer from 'simple-peer';
 import { ipcRenderer, remote } from 'electron';
 import VAD from './vad';
 import fs from 'fs';
-import { IServerSettings, ISettings } from './Settings';
+import { ILobbySettings, ISettings } from './Settings';
 import { validatePeerConfig } from './validatePeerConfig';
 
 interface PeerConnections {
@@ -34,8 +34,8 @@ interface SocketIdMap {
 	[socketId: string]: number;
 }
 
-interface SocketConfigMap {
-	[socketId: string]: SocketConfig;
+interface playerConfigMap {
+	[socketId: number]: SocketConfig;
 }
 
 export interface SocketConfig{
@@ -89,13 +89,8 @@ const DEFAULT_ICE_CONFIG: RTCConfiguration = {
 // function mapNumber(n: number, oldLow: number, oldHigh: number, newLow: number, newHigh: number): number {
 // 	return clamp((n - oldLow) / (oldHigh - oldLow) * (newHigh - newLow) + newLow, newLow, newHigh);
 // }
-function getByValue(map : any, searchValue: any) {
-	for (let [key, value] of Object.entries(map)) {
-	  if (value === searchValue)
-		return key;
-	}
-  }
-function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Player, other: Player, gain: GainNode, pan: PannerNode, reverbGain: GainNode): void {
+
+function calculateVoiceAudio(state: AmongUsState, settings: ISettings, lobbySettings: ILobbySettings,  me: Player, other: Player, gain: GainNode, pan: PannerNode, reverbGain: GainNode): void {
 	const audioContext = pan.context;
 	pan.positionZ.setValueAtTime(-0.5, audioContext.currentTime);
 	if (reverbGain != null) reverbGain.gain.value = 0;
@@ -123,7 +118,7 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 		return;
 	}
 	// Living crewmates cannot hear ghosts
-	if (!me.isDead && other.isDead && (!me.isImpostor || !settings.serverSettings.haunting || state.gameState !== GameState.TASKS)) {
+	if (!me.isDead && other.isDead && (!me.isImpostor || !lobbySettings.haunting || state.gameState !== GameState.TASKS)) {
 		gain.gain.value = 0;
 		return;
 	}
@@ -144,7 +139,7 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 		gain.gain.value = 0;
 	}
 	// Living impostors hear ghosts at a faint volume
-	if (gain.gain.value > 0 && !me.isDead && me.isImpostor && other.isDead && settings.serverSettings.haunting) {
+	if (gain.gain.value > 0 && !me.isDead && me.isImpostor && other.isDead && lobbySettings.haunting) {
 		gain.gain.value = gain.gain.value * 0.015;
 		if (reverbGain != null) reverbGain.gain.value = 1;
 	}
@@ -163,12 +158,15 @@ function toArrayBuffer(buf: Buffer) {
 export default function Voice() {
 	const [settings, setSettings] = useContext(SettingsContext);
 	const settingsRef = useRef<ISettings>(settings);
+	const [lobbySettings, setLobbySettings] = useContext(LobbySettingsContext);
 	const gameState = useContext(GameStateContext);
 	let { lobbyCode: displayedLobbyCode } = gameState;
 	if (displayedLobbyCode !== 'MENU' && settings.hideCode) displayedLobbyCode = 'LOBBY';
 	const [talking, setTalking] = useState(false);
 	const [socketPlayerIds, setSocketPlayerIds] = useState<SocketIdMap>({});
-	const [socketConfigs, setSocketConfigs] = useState<SocketConfigMap>({});
+	const [playerConfigs] = useState<playerConfigMap>({});
+
+
 
 	const [connect, setConnect] = useState<({ connect: (lobbyCode: string, playerId: number) => void }) | null>(null);
 	const [otherTalking, setOtherTalking] = useState<OtherTalking>({});
@@ -193,15 +191,17 @@ export default function Voice() {
 
 	useEffect(() => {
 		if (connectionStuff.current.socket && gameState.isHost === true && inRoom === true) {
-			connectionStuff.current.socket.emit('config', settings.userServerSettings);
+			connectionStuff.current.socket.emit('config', settings.localLobbySettings);
+			console.log("emit shit");
 		}
-	}, [settings.userServerSettings]);
+	}, [settings.localLobbySettings]);
 
 	useEffect(() => {
 		for (let peer in audioElements.current) {
-			audioElements.current[peer].pan.maxDistance = settings.serverSettings.maxDistance;
+			audioElements.current[peer].pan.maxDistance = lobbySettings.maxDistance;
 		}
-	}, [settings.serverSettings]);
+		console.log("Maxdistance change",lobbySettings.maxDistance )
+	}, [lobbySettings.maxDistance]);
 
 	useEffect(() => {
 		settingsRef.current = settings;
@@ -370,7 +370,7 @@ export default function Voice() {
 					pan.refDistance = 0.1;
 					pan.panningModel = 'equalpower';
 					pan.distanceModel = 'linear';
-					pan.maxDistance = settingsRef.current.serverSettings.maxDistance;
+					pan.maxDistance = lobbySettings.maxDistance;
 					pan.rolloffFactor = 1;
 
 					source.connect(pan);
@@ -379,7 +379,7 @@ export default function Voice() {
 					
 					var reverb:any = null;
 					var reverbGain:any = null;
-					if (settings.serverSettings.haunting) {
+					if (lobbySettings.haunting) {
 						reverb = context.createConvolver();
 						reverbGain = context.createGain();					
 						reverbGain.gain.value = 0;
@@ -456,17 +456,16 @@ export default function Voice() {
 			})
 			socket.on('setIds', (ids: SocketIdMap) => {
 				setSocketPlayerIds(ids);
-			console.log(ids);
-			let test : SocketConfigMap= {};
-			let oof = Object.keys(ids).map(o => { test[o] = {volume: 1} });
-				setSocketConfigs(test);
-				console.log("socketconfig", socketConfigs,test);
 				setInRoom(true);
 			});
-			socket.on('setConfig', (config: IServerSettings) => {
-				setSettings({
-					type: 'setOne',
-					action: ['serverSettings', config]
+			socket.on('setSettings', (settings: { [key: string]: any }) => {
+				Object.keys(lobbySettings).forEach((field: string) => {
+					if (field in settings) {
+						setLobbySettings({
+							type: 'setOne',
+							action: [field, settings[field]]
+						});
+					}
 				});
 			})
 
@@ -499,19 +498,30 @@ export default function Voice() {
 		for (let player of otherPlayers) {
 			const audio = audioElements.current[playerSocketIds[player.id]];
 			if (audio) {
-				calculateVoiceAudio(gameState, settingsRef.current, myPlayer!, player, audio.gain, audio.pan, audio.reverbGain);
+				calculateVoiceAudio(gameState, settingsRef.current, lobbySettings, myPlayer!, player, audio.gain, audio.pan, audio.reverbGain);
 				if (connectionStuff.current.deafened) {
 					audio.gain.gain.value = 0;
 				}
 				if(audio.gain.gain.value > 0){
-					let playerVolume = socketConfigs[playerSocketIds[player.id]]?.volume;
+					let playerVolume = playerConfigs[player.clientId]?.volume;
 					audio.gain.gain.value = playerVolume === undefined? audio.gain.gain.value  : audio.gain.gain.value * playerVolume;
+					console.log(audio.gain.gain.value)
 				}
 			}
 		}
 
 		return otherPlayers;
 	}, [gameState]);
+
+	useEffect(() => {
+		if(!gameState.players)
+			return;
+   		 for (let player of gameState.players) {
+     		 if (playerConfigs[player.clientId] === undefined) {
+        		playerConfigs[player.clientId] = { volume: 1 };
+      		}
+ 	 	}
+ 	 }, [gameState?.players]);
 
 	useEffect(() => {
 		if (connect?.connect && gameState.lobbyCode && myPlayer?.id !== undefined) {
@@ -528,12 +538,17 @@ export default function Voice() {
 	useEffect(() => {
 		if (connectionStuff.current.socket && gameState.isHost === true && inRoom === true) {
 			connectionStuff.current.socket.emit('host');
+			setSettings({
+				type: 'setOne',
+				action: ['localLobbySettings', lobbySettings]
+			});
 		}
 	}, [gameState.isHost]);
 
 	useEffect(() => {
 		if (connectionStuff.current.socket && gameState.isHost === true && inRoom === true) {
 			connectionStuff.current.socket.emit('host');
+			connectionStuff.current.socket.emit('config', settings.localLobbySettings);
 		}
 	}, [inRoom]);
 
@@ -573,9 +588,7 @@ export default function Voice() {
 			<div className="otherplayers">
 				{
 					otherPlayers.map(player => {
-						let connected = Object.values(socketPlayerIds).includes(player.id);
-						let socketId = getByValue(socketPlayerIds,player.id)
-						let socketConfig = socketId === undefined? undefined : socketConfigs[socketId]; 
+						let socketConfig = playerConfigs[player.clientId];
 						return (
 							<div>
 							<Avatar key={player.id} player={player}
