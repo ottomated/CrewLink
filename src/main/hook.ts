@@ -16,6 +16,17 @@ import { existsSync, readFileSync } from 'fs';
 import { IOffsets } from './IOffsets';
 const { IOffsets } = createCheckers(TI);
 
+interface IOHookEvent {
+  type: string
+  keychar?: number
+  keycode?: number
+  rawcode?: number
+  button?: number
+  clicks?: number
+  x?: number
+  y?: number
+}
+
 const store = new Store<ISettings>();
 
 async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | undefined> {
@@ -66,7 +77,7 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 		}
 	}
 
-	const offsets: IOffsets = yml.safeLoad(data) as any;
+	const offsets: IOffsets = yml.safeLoad(data) as unknown as IOffsets;
 	try {
 		IOffsets.check(offsets);
 		if (!version) {
@@ -96,13 +107,13 @@ ipcMain.on('start', async (event) => {
 		readingGame = true;
 
 		// Register key events
-		iohook.on('keydown', (ev: any) => {
+		iohook.on('keydown', (ev: IOHookEvent) => {
 			const shortcutKey = store.get('pushToTalkShortcut');
 			if (keyCodeMatches(shortcutKey as K, ev)) {
 				event.reply('pushToTalk', true);
 			}
 		});
-		iohook.on('keyup', (ev: any) => {
+		iohook.on('keyup', (ev: IOHookEvent) => {
 			const shortcutKey = store.get('pushToTalkShortcut');
 			if (keyCodeMatches(shortcutKey as K, ev)) {
 				event.reply('pushToTalk', false);
@@ -115,7 +126,7 @@ ipcMain.on('start', async (event) => {
 		iohook.start();
 
 		// Read game memory
-		gameReader = new GameReader(event.reply, offsets);
+		gameReader = new GameReader(event.reply as (event: string, ...args: unknown[]) => void, offsets);
 
 		ipcMain.on('initState', (event: Electron.IpcMainEvent) => {
 			event.returnValue = gameReader.lastState;
@@ -148,7 +159,7 @@ const keycodeMap = {
 };
 type K = keyof typeof keycodeMap;
 
-function keyCodeMatches(key: K, ev: any): boolean {
+function keyCodeMatches(key: K, ev: IOHookEvent): boolean {
 	if (keycodeMap[key])
 		return keycodeMap[key] === ev.keycode;
 	else if (key.length === 1)

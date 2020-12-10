@@ -27,7 +27,6 @@
   "dependencies": {
     "ajv": "^6.12.6",
     "analyser-frequency-average": "^1.0.0",
-    "audio-activity": "^1.0.0",
     "axios": "^0.21.0",
     "cross-spawn": "^7.0.3",
     "electron-store": "^6.0.1",
@@ -35,7 +34,7 @@
     "electron-window-state": "^5.0.3",
     "iohook": "git://github.com/ykhwong/iohook",
     "jsondiffpatch": "^0.4.1",
-    "memoryjs": "https://github.com/Rob--/memoryjs",
+    "memoryjs": "git://github.com/Rob--/memoryjs",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-spinners-kit": "^1.9.1",

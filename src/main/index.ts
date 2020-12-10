@@ -2,8 +2,8 @@
 
 import { autoUpdater } from 'electron-updater';
 import { app, BrowserWindow } from 'electron';
-import * as windowStateKeeper from 'electron-window-state';
-import * as path from 'path';
+import windowStateKeeper from 'electron-window-state';
+import { join as joinPath } from 'path';
 import { format as formatUrl } from 'url';
 import './hook';
 
@@ -14,13 +14,67 @@ let mainWindow: BrowserWindow | null;
 
 app.commandLine.appendSwitch('disable-pinch');
 
+function createMainWindow() {
+	const mainWindowState = windowStateKeeper({});
+
+	const window = new BrowserWindow({
+		width: 250,
+		height: 350,
+		x: mainWindowState.x,
+		y: mainWindowState.y,
+
+		resizable: false,
+		frame: false,
+		fullscreenable: false,
+		maximizable: false,
+		transparent: true,
+		webPreferences: {
+			nodeIntegration: true,
+			enableRemoteModule: true,
+			webSecurity: false
+		}
+	});
+
+	mainWindowState.manage(window);
+
+	if (isDevelopment) {
+		window.webContents.openDevTools();
+	}
+
+	if (isDevelopment) {
+		window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}`);
+	}
+	else {
+		window.loadURL(formatUrl({
+			pathname: joinPath(__dirname, 'index.html'),
+			protocol: 'file',
+			query: {
+				version: autoUpdater.currentVersion.version
+			},
+			slashes: true
+		}));
+	}
+
+	window.on('closed', () => {
+		mainWindow = null;
+	});
+
+	window.webContents.on('devtools-opened', () => {
+		window.focus();
+		setImmediate(() => {
+			window.focus();
+		});
+	});
+
+	return window;
+}
+
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
 	app.quit();
 } else {
-	// app.disableHardwareAcceleration();
 	autoUpdater.checkForUpdatesAndNotify();
-	app.on('second-instance', (event, commandLine, workingDirectory) => {
+	app.on('second-instance', () => {
 		// Someone tried to run a second instance, we should focus our window.
 		if (mainWindow) {
 			if (mainWindow.isMinimized()) mainWindow.restore();
@@ -28,60 +82,6 @@ if (!gotTheLock) {
 		}
 	});
 
-	function createMainWindow() {
-		const mainWindowState = windowStateKeeper({});
-
-		const window = new BrowserWindow({
-			width: 250,
-			height: 350,
-			x: mainWindowState.x,
-			y: mainWindowState.y,
-
-			resizable: false,
-			frame: false,
-			fullscreenable: false,
-			maximizable: false,
-			transparent: true,
-			webPreferences: {
-				nodeIntegration: true,
-				enableRemoteModule: true,
-				webSecurity: false
-			}
-		});
-
-		mainWindowState.manage(window);
-
-		if (isDevelopment) {
-			window.webContents.openDevTools();
-		}
-
-		if (isDevelopment) {
-			window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}`);
-		}
-		else {
-			window.loadURL(formatUrl({
-				pathname: path.join(__dirname, 'index.html'),
-				protocol: 'file',
-				query: {
-					version: autoUpdater.currentVersion.version
-				},
-				slashes: true
-			}));
-		}
-
-		window.on('closed', () => {
-			mainWindow = null;
-		});
-
-		window.webContents.on('devtools-opened', () => {
-			window.focus();
-			setImmediate(() => {
-				window.focus();
-			});
-		});
-
-		return window;
-	}
 
 	// quit application when all windows are closed
 	app.on('window-all-closed', () => {

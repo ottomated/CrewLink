@@ -1,25 +1,28 @@
 import analyserFrequency from 'analyser-frequency-average';
 
 interface VADOptions {
-	fftSize?: number;
-	bufferLen?: number;
-	smoothingTimeConstant?: number;
-	minCaptureFreq?: number;
-	maxCaptureFreq?: number;
-	noiseCaptureDuration?: number;
-	minNoiseLevel?: number;
-	maxNoiseLevel?: number;
-	avgNoiseMultiplier?: number;
-	onVoiceStart?: () => void;
-	onVoiceStop?: () => void;
-	onUpdate?: (val: number) => void;
+	fftSize: number;
+	bufferLen: number;
+	smoothingTimeConstant: number;
+	minCaptureFreq: number;
+	maxCaptureFreq: number;
+	noiseCaptureDuration: number;
+	minNoiseLevel: number;
+	maxNoiseLevel: number;
+	avgNoiseMultiplier: number;
+	onVoiceStart: () => void;
+	onVoiceStop: () => void;
+	onUpdate: (val: number) => void;
 }
 
-export default function (audioContext: AudioContext, source: AudioNode, destination: AudioNode | undefined, opts: VADOptions) {
+export default function (audioContext: AudioContext, source: AudioNode, destination: AudioNode | undefined, opts: Partial<VADOptions>): {
+	connect: () => void,
+	destroy: () => void
+} {
 
 	opts = opts || {};
 
-	const defaults = {
+	const defaults : VADOptions = {
 		fftSize: 1024,
 		bufferLen: 1024,
 		smoothingTimeConstant: 0.2,
@@ -29,15 +32,12 @@ export default function (audioContext: AudioContext, source: AudioNode, destinat
 		minNoiseLevel: 0.3,         // from 0 to 1
 		maxNoiseLevel: 0.7,         // from 0 to 1
 		avgNoiseMultiplier: 1.2,
-		onVoiceStart: () => { },
-		onVoiceStop: () => { },
-		onUpdate: (_: number) => { }
+		onVoiceStart: function () { /* DO NOTHING */ },
+		onVoiceStop: function () { /* DO NOTHING */ },
+		onUpdate: function () { /* DO NOTHING */ }
 	};
 
-	const options: any = {};
-	for (const key in defaults) {
-		options[key] = opts.hasOwnProperty(key) ? (opts as any)[key] : (defaults as any)[key];
-	}
+	const options: VADOptions = Object.assign({}, defaults, opts);
 
 	let baseLevel = 0;
 	let voiceScale = 1;
@@ -50,7 +50,7 @@ export default function (audioContext: AudioContext, source: AudioNode, destinat
 	let isNoiseCapturing = true;
 	let prevVadState: boolean | undefined = undefined;
 	let vadState = false;
-	let captureTimeout: any = null;
+	let captureTimeout: number | null = null;
 
 	// var source = audioContext.createMediaStreamSource(stream);
 	const analyser = audioContext.createAnalyser();
@@ -63,7 +63,7 @@ export default function (audioContext: AudioContext, source: AudioNode, destinat
 
 	if (isNoiseCapturing) {
 		//console.log('VAD: start noise capturing');
-		captureTimeout = setTimeout(init, options.noiseCaptureDuration);
+		captureTimeout = setTimeout(init, options.noiseCaptureDuration) as unknown as number;
 	}
 
 	function init() {

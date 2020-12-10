@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
-interface ITestMicProps {
-    microphone: string
+interface TestMicProps {
+	microphone: string
 }
 
-const TestMicrophoneButton: React.FunctionComponent<ITestMicProps> = function({ microphone }) {
+const TestMicrophoneButton: React.FC<TestMicProps> = function ({ microphone } : TestMicProps) {
 	const [error, setError] = useState<boolean>(false);
 	const [rms, setRms] = useState<number>(0);
 
@@ -20,7 +20,7 @@ const TestMicrophoneButton: React.FunctionComponent<ITestMicProps> = function({ 
 
 		const handleProcess = (event: AudioProcessingEvent) => {
 			// limit update frequency
-			if ( event.timeStamp - lastRefreshTime < minUpdateRate ) {
+			if (event.timeStamp - lastRefreshTime < minUpdateRate) {
 				return;
 			}
 

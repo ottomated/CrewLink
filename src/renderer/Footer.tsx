@@ -1,7 +1,7 @@
 import { shell } from 'electron';
 import React from 'react';
 
-export default function Footer() {
+const Footer: React.FC = function() {
 	return (
 		<div className="footer">
 			Made by Ottomated
@@ -57,4 +57,6 @@ export default function Footer() {
 			</div>
 		</div>
 	);
-}
+};
+
+export default Footer;

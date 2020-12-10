@@ -1,13 +1,27 @@
 import { DataType, findModule, getProcesses, ModuleObject, openProcess, ProcessObject, readBuffer, readMemory as readMemoryRaw } from 'memoryjs';
-import * as Struct from 'structron';
+import { Struct, ValueType } from 'structron';
 import patcher from '../patcher';
 import { GameState, AmongUsState, Player } from '../common/AmongUsState';
 import { IOffsets } from './IOffsets';
 
+interface PlayerReport {
+	objectPtr: number;
+	id: number;
+	name: number;
+	color: number;
+	hat: number;
+	pet: number;
+	skin: number;
+	disconnected: number;
+	impostor: number;
+	dead: number;
+	taskPtr: number;
+}
+
 export default class GameReader {
-	reply: Function;
+	reply: (event: string, ...args: unknown[]) => void;
 	offsets: IOffsets;
-	PlayerStruct: any;
+	PlayerStruct: Struct;
 
 	menuUpdateTimer = 20;
 	lastPlayerPtr = 0;
@@ -148,36 +162,38 @@ export default class GameReader {
 		}
 	}
 
-	constructor(reply: Function, offsets: IOffsets) {
+	constructor(reply: (event: string, ...args: unknown[]) => void, offsets: IOffsets) {
 		this.reply = reply;
 		this.offsets = offsets;
 
 
 		this.PlayerStruct = new Struct();
 		for (const member of offsets.player.struct) {
-			if (member.type === 'SKIP') {
-				this.PlayerStruct = this.PlayerStruct.addMember(Struct.TYPES.SKIP(member.skip!), member.name);
+			if (member.type === 'SKIP' && member.skip) {
+				this.PlayerStruct = this.PlayerStruct.addMember(Struct.TYPES.SKIP(member.skip), member.name);
 			} else {
-				this.PlayerStruct = this.PlayerStruct.addMember(Struct.TYPES[member.type], member.name);
+				this.PlayerStruct = this.PlayerStruct.addMember<unknown>(Struct.TYPES[member.type] as ValueType<unknown>, member.name);
 			}
 		}
 
 	}
 
 	readMemory<T>(dataType: DataType, address: number, offsets: number[], defaultParam?: T): T {
+		if (!this.amongUs) return defaultParam as T;
 		if (address === 0) return defaultParam as T;
 		const { address: addr, last } = this.offsetAddress(address, offsets);
 		if (addr === 0) return defaultParam as T;
 		return readMemoryRaw<T>(
-			this.amongUs!.handle,
+			this.amongUs.handle,
 			addr + last,
 			dataType
 		);
 	}
 	offsetAddress(address: number, offsets: number[]): { address: number, last: number } {
+		if (!this.amongUs) throw 'Among Us not open? Weird error';
 		address = address & 0xffffffff;
 		for (let i = 0; i < offsets.length - 1; i++) {
-			address = readMemoryRaw<number>(this.amongUs!.handle, address + offsets[i], 'uint32');
+			address = readMemoryRaw<number>(this.amongUs.handle, address + offsets[i], 'uint32');
 
 			if (address == 0) break;
 		}
@@ -185,16 +201,14 @@ export default class GameReader {
 		return { address, last };
 	}
 	readString(address: number): string {
-		if (address === 0) return '';
-		const length = readMemoryRaw<number>(this.amongUs!.handle, address + 0x8, 'int');
-		// console.log(length);
-		// console.log("reading string", length, length << 1);
-		const buffer = readBuffer(this.amongUs!.handle, address + 0xC, length << 1);
+		if (address === 0 || !this.amongUs) return '';
+		const length = readMemoryRaw<number>(this.amongUs.handle, address + 0x8, 'int');
+		const buffer = readBuffer(this.amongUs.handle, address + 0xC, length << 1);
 		return buffer.toString('utf8').replace(/\0/g, '');
 	}
 
 	parsePlayer(ptr: number, buffer: Buffer): Player {
-		const { data } = this.PlayerStruct.report(buffer, 0, {});
+		const { data } = this.PlayerStruct.report<PlayerReport>(buffer, 0, {});
 
 		const isLocal = this.readMemory<number>('int', data.objectPtr, this.offsets.player.isLocal) !== 0;
 

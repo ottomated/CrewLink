@@ -8,18 +8,20 @@ import { ipcRenderer, remote } from 'electron';
 import VAD from './vad';
 import { ISettings } from '../common/ISettings';
 
+export interface ExtendedAudioElement extends HTMLAudioElement {
+	setSinkId: (sinkId: string) => Promise<void>;
+}
+
 interface PeerConnections {
 	[peer: string]: Peer.Instance;
 }
+
 interface AudioElements {
 	[peer: string]: {
 		element: HTMLAudioElement;
 		gain: GainNode;
 		pan: PannerNode;
 	};
-}
-interface AudioListeners {
-	[peer: string]: any;
 }
 
 interface SocketIdMap {
@@ -86,7 +88,7 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 }
 
 
-export default function Voice() {
+const Voice: React.FC = function () {
 	const [settings] = useContext(SettingsContext);
 	const settingsRef = useRef<ISettings>(settings);
 	const gameState = useContext(GameStateContext);
@@ -148,7 +150,10 @@ export default function Voice() {
 		});
 
 		// Initialize variables
-		let audioListener: any;
+		let audioListener: {
+			connect: () => void;
+			destroy: () => void;
+		};
 		const audio: MediaTrackConstraints = {
 			autoGainControl: false,
 			channelCount: 2,
@@ -173,7 +178,7 @@ export default function Voice() {
 				stream.getAudioTracks()[0].enabled = !connectionStuff.current.deafened;
 				setDeafened(connectionStuff.current.deafened);
 			});
-			ipcRenderer.on('pushToTalk', (_: any, pressing: boolean) => {
+			ipcRenderer.on('pushToTalk', (_: unknown, pressing: boolean) => {
 				if (!connectionStuff.current.pushToTalk) return;
 				if (!connectionStuff.current.deafened) {
 					stream.getAudioTracks()[0].enabled = pressing;
@@ -190,7 +195,6 @@ export default function Voice() {
 
 			const peerConnections: PeerConnections = {};
 			audioElements.current = {};
-			const audioListeners: AudioListeners = {};
 
 			const connect = (lobbyCode: string, playerId: number) => {
 				console.log('Connect called', lobbyCode, playerId);
@@ -215,9 +219,6 @@ export default function Voice() {
 						audioElements.current[peer].gain.disconnect();
 						delete audioElements.current[peer];
 					}
-					if (audioListeners[peer]) {
-						audioListeners[peer].destroy();
-					}
 				}
 
 				socket.emit('join', lobbyCode, playerId);
@@ -236,11 +237,11 @@ export default function Voice() {
 				peerConnections[peer] = connection;
 
 				connection.on('stream', (stream: MediaStream) => {
-					const audio = document.createElement('audio');
+					const audio = document.createElement('audio') as ExtendedAudioElement;
 					document.body.appendChild(audio);
 					audio.srcObject = stream;
 					if (settings.speaker.toLowerCase() !== 'default')
-						(audio as any).setSinkId(settings.speaker);
+						audio.setSinkId(settings.speaker);
 
 					const context = new AudioContext();
 					const source = context.createMediaStreamSource(stream);
@@ -283,7 +284,7 @@ export default function Voice() {
 				createPeerConnection(peer, true);
 				setSocketPlayerIds(old => ({ ...old, [peer]: playerId }));
 			});
-			socket.on('signal', ({ data, from }: any) => {
+			socket.on('signal', ({ data, from }: { data: Peer.SignalData, from: string }) => {
 				let connection: Peer.Instance;
 				if (peerConnections[from]) {
 					connection = peerConnections[from];
@@ -321,17 +322,19 @@ export default function Voice() {
 
 	const otherPlayers = useMemo(() => {
 		let otherPlayers: Player[];
-		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) otherPlayers = [];
+		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) return [];
 		else otherPlayers = gameState.players.filter(p => !p.isLocal);
 
-		const playerSocketIds = {} as any;
+		const playerSocketIds: {
+			[index: number]: string
+		} = {};
 		for (const k of Object.keys(socketPlayerIds)) {
 			playerSocketIds[socketPlayerIds[k]] = k;
 		}
 		for (const player of otherPlayers) {
 			const audio = audioElements.current[playerSocketIds[player.id]];
 			if (audio) {
-				calculateVoiceAudio(gameState, settingsRef.current, myPlayer!, player, audio.gain, audio.pan);
+				calculateVoiceAudio(gameState, settingsRef.current, myPlayer, player, audio.gain, audio.pan);
 				if (connectionStuff.current.deafened) {
 					audio.gain.gain.value = 0;
 				}
@@ -401,4 +404,6 @@ export default function Voice() {
 			</div>
 		</div>
 	);
-}
+};
+
+export default Voice;

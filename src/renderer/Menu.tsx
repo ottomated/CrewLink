@@ -4,7 +4,11 @@ import { ipcRenderer } from 'electron';
 import './css/menu.css';
 import Footer from './Footer';
 
-export default function Menu({ errored }: { errored: boolean }) {
+export interface MenuProps {
+	errored: boolean
+}
+
+const Menu : React.FC<MenuProps> = function({ errored }: MenuProps) {
 	return (
 		<div className="root">
 			<div className="menu">
@@ -31,4 +35,6 @@ export default function Menu({ errored }: { errored: boolean }) {
 			</div>
 		</div>
 	);
-}
+};
+
+export default Menu;

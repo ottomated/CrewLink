@@ -138,12 +138,12 @@ import brownDead from '../../static/players/brown-dead.png';// @ts-ignore
 import cyanDead from '../../static/players/cyan-dead.png';// @ts-ignore
 import limeDead from '../../static/players/lime-dead.png';
 
-export interface playersInterface {
-	alive: any[]
-	dead: any[]
+export interface PlayerImageColors {
+	alive: string[];
+	dead: string[];
 }
 
-export const players: playersInterface = {
+export const players: PlayerImageColors = {
 	alive: [redAlive, blueAlive, greenAlive, pinkAlive, orangeAlive, yellowAlive, blackAlive, whiteAlive, purpleAlive, brownAlive, cyanAlive, limeAlive],
 	dead: [redDead, blueDead, greenDead, pinkDead, orangeDead, yellowDead, blackDead, whiteDead, purpleDead, brownDead, cyanDead, limeDead],
 };

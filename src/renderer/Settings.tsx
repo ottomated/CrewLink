@@ -94,7 +94,7 @@ const store = new Store<ISettings>({
 	}
 });
 
-store.onDidChange('serverURL', (newUrl, oldUrl) => {
+store.onDidChange('serverURL', (newUrl) => {
 	if (newUrl === 'http://54.193.94.35:9736') {
 		store.set('serverURL', 'https://crewl.ink');
 	}
@@ -102,14 +102,14 @@ store.onDidChange('serverURL', (newUrl, oldUrl) => {
 
 export interface SettingsProps {
 	open: boolean;
-	onClose: any;
+	onClose: () => void;
 }
 
 export const settingsReducer = (state: ISettings, action: {
-	type: 'set' | 'setOne', action: [string, any] | ISettings
+	type: 'set' | 'setOne', action: [string, unknown] | ISettings
 }): ISettings => {
 	if (action.type === 'set') return action.action as ISettings;
-	const v = (action.action as [string, any]);
+	const v = (action.action as [string, unknown]);
 	store.set(v[0], v[1]);
 	return {
 		...state,
@@ -150,7 +150,7 @@ function URLInput({ initialURL, onValidURL }: URLInputProps) {
 	return <input className={isValidURL ? '' : 'input-error'} spellCheck={false} type="text" value={currentURL} onChange={onChange} />;
 }
 
-export default function Settings({ open, onClose }: SettingsProps) {
+const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsProps) {
 	const [settings, setSettings] = useContext(SettingsContext);
 	const [unsavedCount, setUnsavedCount] = useState(0);
 	const unsaved = unsavedCount > 2;
@@ -314,4 +314,6 @@ export default function Settings({ open, onClose }: SettingsProps) {
 			</div>
 		</div>
 	</div>;
-}
+};
+
+export default Settings;

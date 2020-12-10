@@ -1,6 +1,6 @@
 declare module 'memoryjs' {
 
-	type Callback<T> = (error: any, value: T) => void;
+	type Callback<T> = (error: unknown, value: T) => void;
 
 	// Processes
 
@@ -18,6 +18,7 @@ declare module 'memoryjs' {
 	export function openProcess(identifier: string, callback?: Callback<ProcessObject>): ProcessObject;
 
 	export function getProcesses(callback?: Callback<ProcessObject[]>): ProcessObject[];
+	export function getProcesses(processId: number, callback?: Callback<ModuleObject[]>): ModuleObject[];
 
 	// Modules
 
@@ -30,7 +31,6 @@ declare module 'memoryjs' {
 	}
 
 	export function findModule(identifier: string, processId: number, callback?: Callback<ModuleObject>): ModuleObject;
-	export function getProcesses(processId: number, callback?: Callback<ModuleObject[]>): ModuleObject[];
 
 	// Memory
 
@@ -42,7 +42,7 @@ declare module 'memoryjs' {
 
 	export function readBuffer(handle: number, address: number, size: number, callback?: Callback<Buffer>): Buffer;
 
-	export function writeMemory(handle: number, address: number, value: any, dataType: DataType): void;
+	export function writeMemory<T>(handle: number, address: number, value: T, dataType: DataType): void;
 
 	export function writeBuffer(handle: number, address: number, buffer: Buffer): void;
 
@@ -58,7 +58,7 @@ declare module 'memoryjs' {
 	export const T_FLOAT = 0x6;
 
 
-	export type FunctionArg = { type: number, value: any };
+	export type FunctionArg = { type: number, value: unknown };
 
 	export interface FunctionResult<T> {
 		returnValue: T;
@@ -68,5 +68,3 @@ declare module 'memoryjs' {
 	export function callFunction<T>(handle: number, args: FunctionArg[], returnType: number, address: number): FunctionResult<T>;
 
 }
-
-declare module 'structron';
