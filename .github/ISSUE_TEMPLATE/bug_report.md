@@ -5,6 +5,7 @@ title: '[BUG REPORT]'
 labels: 'bug'
 assignees: ''
 ---
+# You MUST use this template or your issue will be deleted.
 
 # Pre-Flight Checklist
 Please use this checklist to avoid spamming:
