@@ -364,7 +364,6 @@ export default function Voice() {
 					let gain = context.createGain();
 					let pan = context.createPanner();				
 					let compressor = context.createDynamicsCompressor();
-					gain.gain.value = 0.1 // 10 %
 
 
 					pan.refDistance = 0.1;

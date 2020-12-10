@@ -85,6 +85,9 @@ body {
 .settings {
 	left: 2px;
 }
+.refresh {
+	left: 22px;
+}
 
 .canvas {
 	/* image-rendering: pixelated; */
