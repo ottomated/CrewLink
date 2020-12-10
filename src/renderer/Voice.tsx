@@ -160,12 +160,19 @@ export default function Voice() {
 
 		// Initialize variables
 		let audioListener: any;
-		let audio: boolean | MediaTrackConstraints = true;
-
+		let audio: MediaTrackConstraints = {
+			autoGainControl: false,
+			channelCount: 2,
+			echoCancellation: false,
+			latency: 0,
+			noiseSuppression: true,
+			sampleRate: 48000,
+			sampleSize: 16,
+		};
 
 		// Get microphone settings
 		if (settings.microphone.toLowerCase() !== 'default')
-			audio = { deviceId: settings.microphone };
+			audio.deviceId = settings.microphone;
 
 		navigator.getUserMedia({ video: false, audio }, async (stream) => {
 			connectionStuff.current.stream = stream;
