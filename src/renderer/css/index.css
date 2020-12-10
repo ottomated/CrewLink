@@ -88,6 +88,9 @@ body {
 .refresh {
 	left: 22px;
 }
+.title {
+	padding-left: 10px;
+}
 
 .canvas {
 	/* image-rendering: pixelated; */
