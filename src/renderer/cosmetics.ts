@@ -110,6 +110,44 @@ import skin13 from '../../static/skins/13.png';// @ts-ignore
 import skin14 from '../../static/skins/14.png';// @ts-ignore
 import skin15 from '../../static/skins/15.png';
 
+// @ts-ignore
+import redAlive from '../../static/players/red-alive.png';// @ts-ignore
+import blueAlive from '../../static/players/blue-alive.png';// @ts-ignore
+import greenAlive from '../../static/players/green-alive.png';// @ts-ignore
+import pinkAlive from '../../static/players/pink-alive.png';// @ts-ignore
+import orangeAlive from '../../static/players/orange-alive.png';// @ts-ignore
+import yellowAlive from '../../static/players/yellow-alive.png';// @ts-ignore
+import blackAlive from '../../static/players/black-alive.png';// @ts-ignore
+import whiteAlive from '../../static/players/white-alive.png';// @ts-ignore
+import purpleAlive from '../../static/players/purple-alive.png';// @ts-ignore
+import brownAlive from '../../static/players/brown-alive.png';// @ts-ignore
+import cyanAlive from '../../static/players/cyan-alive.png';// @ts-ignore
+import limeAlive from '../../static/players/lime-alive.png';
+
+// @ts-ignore
+import redDead from '../../static/players/red-dead.png';// @ts-ignore
+import blueDead from '../../static/players/blue-dead.png';// @ts-ignore
+import greenDead from '../../static/players/green-dead.png';// @ts-ignore
+import pinkDead from '../../static/players/pink-dead.png';// @ts-ignore
+import orangeDead from '../../static/players/orange-dead.png';// @ts-ignore
+import yellowDead from '../../static/players/yellow-dead.png';// @ts-ignore
+import blackDead from '../../static/players/black-dead.png';// @ts-ignore
+import whiteDead from '../../static/players/white-dead.png';// @ts-ignore
+import purpleDead from '../../static/players/purple-dead.png';// @ts-ignore
+import brownDead from '../../static/players/brown-dead.png';// @ts-ignore
+import cyanDead from '../../static/players/cyan-dead.png';// @ts-ignore
+import limeDead from '../../static/players/lime-dead.png';
+
+export interface playersInterface {
+	alive: any[]
+	dead: any[]
+}
+
+export const players: playersInterface = {
+	alive: [redAlive, blueAlive, greenAlive, pinkAlive, orangeAlive, yellowAlive, blackAlive, whiteAlive, purpleAlive, brownAlive, cyanAlive, limeAlive],
+	dead: [redDead, blueDead, greenDead, pinkDead, orangeDead, yellowDead, blackDead, whiteDead, purpleDead, brownDead, cyanDead, limeDead],
+};
+
 export const skins = [
 	skin1,
 	skin2,
