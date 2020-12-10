@@ -39,7 +39,10 @@ function App() {
 			data: ''
 		},
 		hideCode: false,
-		stereoInLobby: true
+		stereoInLobby: true,
+		haunt: false,
+		globalVentsComm: false,
+		hearingDistance: 2.6,
 	});
 
 	useEffect(() => {

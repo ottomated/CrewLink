@@ -89,6 +89,18 @@ const store = new Store<ISettings>({
 		stereoInLobby: {
 			type: 'boolean',
 			default: true
+		},
+		haunt: {
+			type: 'boolean',
+			default: false
+		},
+		globalVentsComm: {
+			type: 'boolean',
+			default: false
+		},
+		hearingDistance: {
+			type: 'number',
+			default: 2.6
 		}
 	}
 });
@@ -118,6 +130,9 @@ export interface ISettings {
 	},
 	hideCode: boolean;
 	stereoInLobby: boolean;
+	haunt: boolean;
+	globalVentsComm: boolean;
+	hearingDistance: number;
 }
 export const settingsReducer = (state: ISettings, action: {
 	type: 'set' | 'setOne', action: [string, any] | ISettings
@@ -135,6 +150,36 @@ interface MediaDevice {
 	id: string;
 	kind: MediaDeviceKind;
 	label: string;
+}
+
+type EaringInputProps = {
+	initialDistance: string,
+	onValidDistance: (dist: number) => void
+};
+
+function EaringInput({ initialDistance, onValidDistance }: EaringInputProps) {
+	const [isValidNumber, setDistanceValid] = useState(true);
+	const [currentDistance, setCurrentDistance] = useState(initialDistance);
+
+	useEffect(() => {
+		setCurrentDistance(initialDistance);
+	}, [initialDistance]);
+
+	function onChange(event: React.ChangeEvent<HTMLInputElement>) {
+		setCurrentDistance(event.target.value);
+
+		if (!isNaN(parseFloat(event.target.value))
+		&& parseFloat(event.target.value) >= 0
+		&& parseFloat(event.target.value) <= 255) {
+			setDistanceValid(true);
+			onValidDistance(parseFloat(event.target.value));
+		} else {
+			setDistanceValid(false);
+		}
+	}
+
+	return <input className={isValidNumber ? '' : 'input-error'} spellCheck={false} type="number" 
+		min="0" max="255" step="0.1" value={currentDistance} onChange={onChange}/>
 }
 
 type URLInputProps = {
@@ -325,6 +370,29 @@ export default function Settings({ open, onClose }: SettingsProps) {
 			})}>
 				<input type="checkbox" checked={settings.stereoInLobby} style={{ color: '#fd79a8' }} readOnly />
 				<label>Stereo Audio in Lobbies</label>
+			</div>
+			<div className="form-control m" style={{ color: '#4166ff' }} onClick={() => setSettings({
+				type: 'setOne',
+				action: ['haunt', !settings.haunt]
+			})}>
+				<input type="checkbox" checked={settings.haunt} style={{ color: '#4166ff' }} readOnly />
+				<label>Allows haunt</label>
+			</div>
+			<div className="form-control m" style={{ color: '#e60000' }} onClick={() => setSettings({
+				type: 'setOne',
+				action: ['globalVentsComm', !settings.globalVentsComm]
+			})}>
+				<input type="checkbox" checked={settings.globalVentsComm} style={{ color: '#e60000' }} readOnly />
+				<label>Global vents comms</label>
+			</div>
+			<div className="form-control l m" style={{ color: '#3498db' }}>
+				<label>Hearing distance (A: {settings.hearingDistance.toString()})</label>
+				<EaringInput initialDistance={settings.hearingDistance.toString()} onValidDistance={(dist: number) => {
+					setSettings({
+						type: 'setOne',
+						action: ['hearingDistance', dist]
+					})
+				}} />
 			</div>
 		</div>
 	</div>

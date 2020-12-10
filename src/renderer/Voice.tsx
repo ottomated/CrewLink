@@ -71,8 +71,13 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 	if (isNaN(panPos[1])) panPos[1] = 999;
 	panPos[0] = Math.min(999, Math.max(-999, panPos[0]));
 	panPos[1] = Math.min(999, Math.max(-999, panPos[1]));
-	if (other.inVent) {
-		gain.gain.value = 0;
+	if (me.inVent && other.inVent) {
+		gain.gain.value = 1;
+		if (settings.globalVentsComm) {
+			panPos = [0, 0];
+		}
+		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
+		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
 		return;
 	}
 	if (me.isDead && other.isDead) {
@@ -81,7 +86,11 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
 		return;
 	}
-	if (!me.isDead && other.isDead) {
+	if (other.inVent) {
+		gain.gain.value = 0;
+		return;
+	}
+	if ((!me.isDead && other.isDead) && (!settings.haunt)) {
 		gain.gain.value = 0;
 		return;
 	}
@@ -260,7 +269,8 @@ export default function Voice() {
 					pan.refDistance = 0.1;
 					pan.panningModel = 'equalpower';
 					pan.distanceModel = 'linear';
-					pan.maxDistance = 2.66 * 2;
+					// pan.maxDistance = 2.66 * 2;
+					pan.maxDistance = settings.hearingDistance * 2;
 					pan.rolloffFactor = 1;
 
 					source.connect(pan);
