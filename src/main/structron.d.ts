@@ -1,12 +1,21 @@
 declare module 'structron' {
+	type ReportOptions = {
+		monitorUsage: boolean;
+	}
+	
+	class Report<T> {
+		constructor(buffer: BufferSource, options: ReportOptions);
+		toString(): string;
+		getUsage(): number;
+		data: T;
+	}
 	interface ValueType<T> {
 		read(buffer: BufferSource, offset: number): T;
 		SIZE: number;
 	}
 
 	type Rule = (...params: unknown[]) => (dataObj: unknown, buffer: BufferSource) => boolean;
-
-	export class Struct implements ValueType<Struct> {
+	class Struct implements ValueType<Struct> {
 
 		constructor(name?: string);
 
@@ -42,15 +51,5 @@ declare module 'structron' {
 			SKIP(length: number): ValueType<void>;
 		}
 	}
-	export type ReportOptions = {
-		monitorUsage: boolean;
-	}
-
-	export default class Report<T> {
-
-		constructor(buffer: BufferSource, options: ReportOptions);
-		toString(): string;
-		getUsage(): number;
-		data: T;
-	}
+	export = Struct;
 }

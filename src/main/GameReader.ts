@@ -1,8 +1,14 @@
 import { DataType, findModule, getProcesses, ModuleObject, openProcess, ProcessObject, readBuffer, readMemory as readMemoryRaw } from 'memoryjs';
-import { Struct, ValueType } from 'structron';
+import Struct from 'structron';
 import patcher from '../patcher';
 import { GameState, AmongUsState, Player } from '../common/AmongUsState';
 import { IOffsets } from './IOffsets';
+
+
+interface ValueType<T> {
+	read(buffer: BufferSource, offset: number): T;
+	SIZE: number;
+}
 
 interface PlayerReport {
 	objectPtr: number;
