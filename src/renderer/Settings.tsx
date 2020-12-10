@@ -228,15 +228,6 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 			<path d="M0 0h24v24H0z" fill="none" />
 			<path d="M11.67 3.87L9.9 2.1 0 12l9.9 9.9 1.77-1.77L3.54 12z" />
 		</svg>
-		{/* <div className="form-control m" style={{ color: '#e74c3c' }} onClick={() => {
-			ipcRenderer.send('alwaysOnTop', !settings.alwaysOnTop);
-			setSettings({
-				type: 'setOne',
-				action: ['alwaysOnTop', !settings.alwaysOnTop]
-			});
-		}}>
-			<input type="checkbox" checked={settings.alwaysOnTop} readOnly />Always on Top
-		</div> */}
 		<div className="settings-scroll">
 
 			<div className="form-control m l" style={{ color: '#e74c3c' }}>
