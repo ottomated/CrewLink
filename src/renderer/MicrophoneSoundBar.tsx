@@ -29,7 +29,7 @@ const TestMicrophoneButton: React.FunctionComponent<ITestMicProps> = function({ 
 
             const input = event.inputBuffer.getChannelData(0)
             const total = input.reduce((acc, val) => acc + Math.abs(val), 0)
-            const rms = Math.sqrt(total / input.length)
+            const rms = Math.min(50, Math.sqrt(total / input.length));
             setRms(rms)
         }
 
