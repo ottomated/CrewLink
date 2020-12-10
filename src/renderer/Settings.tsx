@@ -89,6 +89,10 @@ const store = new Store<ISettings>({
 		stereoInLobby: {
 			type: 'boolean',
 			default: true
+		},
+		muteLiveOnDead:{
+			type: 'boolean',
+			default: false
 		}
 	}
 });
@@ -118,6 +122,7 @@ export interface ISettings {
 	},
 	hideCode: boolean;
 	stereoInLobby: boolean;
+	muteLiveOnDead: boolean;
 }
 export const settingsReducer = (state: ISettings, action: {
 	type: 'set' | 'setOne', action: [string, any] | ISettings
@@ -296,7 +301,8 @@ export default function Settings({ open, onClose }: SettingsProps) {
 			</div>
 			{settings.pushToTalk &&
 				<div className="form-control m" style={{ color: '#f1c40f' }}>
-					<input spellCheck={false} type="text" value={settings.pushToTalkShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'pushToTalkShortcut')} />
+					<input spellCheck={false} type="text" value={settings.pushToTalkShortcut} readOnly 
+					onKeyDown={(ev) => setShortcut(ev, 'pushToTalkShortcut')} />
 				</div>
 			}
 			<div className="form-control l m" style={{ color: '#2ecc71' }}>
@@ -325,6 +331,13 @@ export default function Settings({ open, onClose }: SettingsProps) {
 			})}>
 				<input type="checkbox" checked={settings.stereoInLobby} style={{ color: '#fd79a8' }} readOnly />
 				<label>Stereo Audio in Lobbies</label>
+			</div>
+			<div className="form-control m" style={{ color: '#fd79a8' }} onClick={() => setSettings({
+				type: 'setOne',
+				action: ['muteLiveOnDead', !settings.muteLiveOnDead]
+			})}>
+				<input type="checkbox" checked={settings.muteLiveOnDead} style={{ color: '#ffa500' }} readOnly />
+				<label>Mute Live on Dead</label>
 			</div>
 		</div>
 	</div>

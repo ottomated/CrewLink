@@ -39,7 +39,8 @@ function App() {
 			data: ''
 		},
 		hideCode: false,
-		stereoInLobby: true
+		stereoInLobby: true,
+		muteLiveOnDead: false
 	});
 
 	useEffect(() => {
