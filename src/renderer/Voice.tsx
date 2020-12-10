@@ -589,6 +589,7 @@ export default function Voice() {
 				{
 					otherPlayers.map(player => {
 						let socketConfig = playerConfigs[player.clientId];
+						let connected = Object.values(socketPlayerIds).includes(player.id);
 						return (
 							<div>
 							<Avatar key={player.id} player={player}
