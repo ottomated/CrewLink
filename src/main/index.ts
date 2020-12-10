@@ -32,6 +32,8 @@ if (!gotTheLock) {
 		const window = new BrowserWindow({
 			width: 250,
 			height: 350,
+			minWidth: 250,
+			minHeight: 350,
 			resizable: false,
 			frame: false,
 			fullscreenable: false,
