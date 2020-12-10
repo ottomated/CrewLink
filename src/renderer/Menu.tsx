@@ -8,7 +8,7 @@ export interface MenuProps {
 	errored: boolean
 }
 
-const Menu : React.FC<MenuProps> = function({ errored }: MenuProps) {
+const Menu: React.FC<MenuProps> = function ({ errored }: MenuProps) {
 	return (
 		<div className="root">
 			<div className="menu">
@@ -16,7 +16,11 @@ const Menu : React.FC<MenuProps> = function({ errored }: MenuProps) {
 					<>
 						<span className="waiting">Error</span>
 						<span className="errormessage">
-							Make sure that the Voice Server is correct in the settings and you are using the latest version of Among Us. If there was a recent update, CrewLink might not work for a few days.
+							<ol>
+								<li>Use a different Voice Server in settings</li>
+								<li>Update Among Us</li>
+								<li>Wait for 24 hours after Among Us updates</li>
+							</ol>
 						</span>
 						<button className="button" onClick={() => {
 							ipcRenderer.send('relaunch');
