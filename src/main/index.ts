@@ -11,9 +11,9 @@ import { overlayWindow } from 'electron-overlay-window';
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
-//let mainWindow: BrowserWindow | null;
-//let overlay: BrowserWindow | null;
+// @ts-ignore
 global.mainWindow = null;
+// @ts-ignore
 global.overlay = null;
 
 app.commandLine.appendSwitch('disable-pinch');
@@ -69,7 +69,7 @@ if (!gotTheLock) {
 		}
 
 		window.on('closed', () => {
-			mainWindow = null
+			global.mainWindow = null
 		})
 
 		window.webContents.on('devtools-opened', () => {
@@ -94,7 +94,19 @@ if (!gotTheLock) {
 			...overlayWindow.WINDOW_OPTS
 		});
 
+		if (isDevelopment) {
 		overlay.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`)
+		} else {
+			window.loadURL(formatUrl({
+				pathname: path.join(__dirname, 'index.html'),
+				protocol: 'file',
+				query: {
+					version: autoUpdater.currentVersion.version,
+					view: "overlay"
+				},
+				slashes: true
+			}))
+		}
 		//overlay.webContents.openDevTools()
 		overlay.setIgnoreMouseEvents(true);
 		overlayWindow.attachTo(overlay, 'Among Us')

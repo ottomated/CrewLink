@@ -224,7 +224,7 @@ export default function Voice() {
 				
 				let overlay = remote.getGlobal("overlay");
 				if (overlay) {
-					overlay.webContents.send('overlayState', (lobbyCode === 'MENU' ? "MENU" : "VOICE: " + lobbyCode));
+					overlay.webContents.send('overlayState', (lobbyCode === 'MENU' ? "MENU" : "VOICE"));
 				}
 				
 				if (lobbyCode === 'MENU') return;

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ipcRenderer, remote } from 'electron';
+import { ipcRenderer } from 'electron';
 import { AmongUsState, GameState, Player } from '../main/GameReader';
 import Avatar from './Avatar';
 
@@ -38,6 +38,13 @@ export default function Overlay() {
 	
 	const [otherDead, setOtherDead] = useState<OtherDead>({});
 
+	const relevantPlayers = useMemo(() => {
+		let relevantPlayers: Player[];
+		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) relevantPlayers = [];
+		else relevantPlayers = gameState.players.filter(p => ((!myPlayer.isDead && !otherDead[p.id]) || myPlayer.isDead));
+		return relevantPlayers;
+	}, [gameState]);
+	
 	useEffect(() => {
 		if (gameState.gameState === GameState.LOBBY) {
 			setOtherDead({});
@@ -61,7 +68,7 @@ export default function Overlay() {
 			setGameState(newState);
 		};
 		
-		const onOverlayTalkingSelf = (_: Electron.IpcRendererEvent, talking: bool) => {
+		const onOverlayTalkingSelf = (_: Electron.IpcRendererEvent, talking: boolean) => {
 			setTalking(talking);
 		};
 		
@@ -94,52 +101,69 @@ export default function Overlay() {
 		}
 	}, []);
 	
-	var extra:string = "";
-	var myPlayerDisplay:string = ""
+	// TODO: access settings and read settings.compactOverlay
+	var compact = false;
+	
+	var extra:JSX.Element = <></>;
 	if (gameState.gameState == GameState.LOBBY) {
 		extra = <p>"State is Lobby."</p>		
 	}
 	
 	if (myPlayer != undefined) {
-		var connected = true;
-		var deafenedState = false;
-		//extra = "(" + myPlayer.name + ") " + extra;
-		extra = "";
+		extra = <></>;
 
 	}
 
 	document.body.style.backgroundColor = "rgba(255, 255, 255, 0)";
-	const mystyle = {
+	document.body.style.paddingTop = "0";
+	var baseCSS:any = {
       backgroundColor: "rgba(0, 0, 0, 0.85)",
-      margin: "10px",
-	  paddingLeft: "8px",
 	  width: "100px",
-	  borderRadius: "8px"
+	  borderRadius: "8px",
+	  position: "relative",
+	  marginTop: "-16px",
+	  paddingLeft: "8px",
     };
+	var topArea = <p><b style={{color:"#9b59b6"}}>CrewLink</b> ({status})</p>
+	var playerList:Player[] = [];
+	if (gameState.players && gameState.gameState != GameState.MENU) playerList = relevantPlayers;//gameState.players;
 	
-	var topArea = <p><b>CrewLink</b> ({status})</p>
-	var playerList = [];
-	if (gameState.players) playerList = gameState.players;
-	if (gameState.gameState != GameState.MENU &&  gameState.gameState != GameState.LOBBY) {
-		topArea = "";
-		playerList = talkingPlayers;
+	if (gameState.gameState == GameState.UNKNOWN || gameState.gameState == GameState.MENU) {
+		baseCSS["left"] = "8px";
+		baseCSS["top"] = "60px";
+	} else {
+		baseCSS["marginLeft"] = "auto";
+		baseCSS["marginRight"] = "auto";
+		baseCSS["marginTop"] = "0px";
+		baseCSS["paddingTop"] = "8px";
+		baseCSS["paddingLeft"] = "0px";
+		baseCSS["width"] = "800px";
+		baseCSS["backgroundColor"] = "rgba(0, 0, 0, 0.5)"; //0.25
+		topArea = <></>;
+		if ((compact || gameState.gameState == GameState.TASKS) && playerList) {
+			playerList = talkingPlayers;
+			baseCSS["backgroundColor"] = "rgba(0, 0, 0, 0)";
+		}
 	}
 
-	var playerArea = "";
-	if (gameState.players) {
-			playerArea = <div className="otherplayers-left">
+	var playerArea:JSX.Element = <></>;
+	if (playerList) {
+			playerArea = <div className="otherplayers">
 				{
 							playerList.map(player => {
 								let connected = true;
+								let name = compact ? "" : <span><small>{player.name}</small></span>
 								return (
-									<div style={{width:"100px"}}>
-									<Avatar key={player.id} player={player}
-										talking={!connected || otherTalking[player.id] || (player.isLocal && talking)}
-										borderColor={connected ? '#2ecc71' : '#c0392b'}
-										isAlive={!otherDead[player.id]}
-										size={50} />
-											<span>{player.name}</span>
+									<div style={{width:"60px", textAlign:"center"}}>
+										<div style={{paddingLeft:"5px"}}>
+											<Avatar key={player.id} player={player}
+												talking={!connected || otherTalking[player.id] || (player.isLocal && talking)}
+												borderColor={connected ? '#2ecc71' : '#c0392b'}
+												isAlive={!otherDead[player.id]}
+												size={50} />
 										</div>
+										{name}
+									</div>
 								);
 							})
 				}
@@ -149,7 +173,7 @@ export default function Overlay() {
 	
 	
 	return (
-	<div style={mystyle}>
+	<div style={baseCSS}>
 		{topArea}
 		{extra}
 		<div className="otherplayers-left">

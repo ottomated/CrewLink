@@ -39,7 +39,8 @@ export default function App() {
 			data: ''
 		},
 		hideCode: false,
-		stereoInLobby: true
+		stereoInLobby: true,
+		compactOverlay: false
 	});
 		
 
