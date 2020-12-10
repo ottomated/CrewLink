@@ -50,7 +50,7 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 		(other.x - me.x),
 		(other.y - me.y)
 	];
-	if (state.gameState === GameState.DISCUSSION || (state.gameState === GameState.LOBBY && !settings.stereoInLobby)) {
+	if (state.gameState === GameState.DISCUSSION || (state.gameState === GameState.LOBBY && !settings.enableSpatialAudio)) {
 		panPos = [0, 0];
 	}
 	if (isNaN(panPos[0])) panPos[0] = 999;
@@ -191,6 +191,7 @@ const Voice: React.FC = function () {
 				onVoiceStart: () => setTalking(true),
 				onVoiceStop: () => setTalking(false),
 				noiseCaptureDuration: 1,
+				stereo: false
 			});
 
 			const peerConnections: PeerConnections = {};
@@ -259,6 +260,7 @@ const Voice: React.FC = function () {
 					VAD(context, gain, context.destination, {
 						onVoiceStart: () => setTalking(true),
 						onVoiceStop: () => setTalking(false),
+						stereo: settingsRef.current.enableSpatialAudio
 					});
 
 					const setTalking = (talking: boolean) => {

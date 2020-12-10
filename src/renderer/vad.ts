@@ -13,6 +13,7 @@ interface VADOptions {
 	onVoiceStart: () => void;
 	onVoiceStop: () => void;
 	onUpdate: (val: number) => void;
+	stereo: boolean;
 }
 
 export default function (audioContext: AudioContext, source: AudioNode, destination: AudioNode | undefined, opts: Partial<VADOptions>): {
@@ -22,7 +23,7 @@ export default function (audioContext: AudioContext, source: AudioNode, destinat
 
 	opts = opts || {};
 
-	const defaults : VADOptions = {
+	const defaults: VADOptions = {
 		fftSize: 1024,
 		bufferLen: 1024,
 		smoothingTimeConstant: 0.2,
@@ -34,7 +35,8 @@ export default function (audioContext: AudioContext, source: AudioNode, destinat
 		avgNoiseMultiplier: 1.2,
 		onVoiceStart: function () { /* DO NOTHING */ },
 		onVoiceStop: function () { /* DO NOTHING */ },
-		onUpdate: function () { /* DO NOTHING */ }
+		onUpdate: function () { /* DO NOTHING */ },
+		stereo: true
 	};
 
 	const options: VADOptions = Object.assign({}, defaults, opts);
@@ -57,7 +59,8 @@ export default function (audioContext: AudioContext, source: AudioNode, destinat
 	analyser.smoothingTimeConstant = options.smoothingTimeConstant;
 	analyser.fftSize = options.fftSize;
 
-	const scriptProcessorNode = audioContext.createScriptProcessor(options.bufferLen, 2, 2);
+	const channels = options.stereo ? 2 : 1;
+	const scriptProcessorNode = audioContext.createScriptProcessor(options.bufferLen, channels, channels);
 	connect();
 	scriptProcessorNode.onaudioprocess = monitor;
 

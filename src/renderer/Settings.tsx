@@ -38,6 +38,12 @@ const store = new Store<ISettings>({
 			if (serverURL === 'http://54.193.94.35:9736') {
 				store.set('serverURL', 'https://crewl.ink');
 			}
+		},
+		'1.1.6': store => {
+			const enableSpatialAudio = store.get('stereoInLobby');
+			store.set('enableSpatialAudio', enableSpatialAudio);
+			// @ts-ignore
+			store.delete('stereoInLobby');
 		}
 	},
 	schema: {
@@ -87,7 +93,7 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: false
 		},
-		stereoInLobby: {
+		enableSpatialAudio: {
 			type: 'boolean',
 			default: true
 		}
@@ -163,7 +169,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 
 	useEffect(() => {
 		setUnsavedCount(s => s + 1);
-	}, [settings.microphone, settings.speaker, settings.serverURL]);
+	}, [settings.microphone, settings.speaker, settings.serverURL, settings.enableSpatialAudio]);
 
 	const [devices, setDevices] = useState<MediaDevice[]>([]);
 	const [_, updateDevices] = useReducer((state) => state + 1, 0);
@@ -307,10 +313,15 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 			</div>
 			<div className="form-control m" style={{ color: '#fd79a8' }} onClick={() => setSettings({
 				type: 'setOne',
-				action: ['stereoInLobby', !settings.stereoInLobby]
+				action: ['enableSpatialAudio', !settings.enableSpatialAudio]
 			})}>
-				<input type="checkbox" checked={settings.stereoInLobby} style={{ color: '#fd79a8' }} readOnly />
-				<label>Stereo Audio in Lobbies</label>
+				<input type="checkbox" checked={settings.enableSpatialAudio} style={{ color: '#fd79a8' }} readOnly />
+				<label>Enable Spatial Audio</label>
+			</div>
+			<div className='settings-alert' style={{ display: unsaved ? 'flex' : 'none' }}>
+				<span>
+					Exit to apply changes
+				</span>
 			</div>
 		</div>
 	</div>;

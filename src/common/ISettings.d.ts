@@ -12,5 +12,5 @@ export interface ISettings {
 		data: string;
 	},
 	hideCode: boolean;
-	stereoInLobby: boolean;
+	enableSpatialAudio: boolean;
 }

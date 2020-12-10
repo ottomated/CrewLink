@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Varela&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@500&display=swap');
-
 body {
 	background-color: #23272A;
 	color: white;
@@ -13,6 +12,7 @@ body {
 	width: 100vw;
 	height: 100vh;
 }
+
 .root {
 	padding-top: 24px;
 }
@@ -77,6 +77,7 @@ body {
 .close {
 	right: 2px;
 }
+
 .settings {
 	left: 2px;
 }
@@ -143,11 +144,9 @@ hr {
 	0% {
 		background-position: 0% 50%;
 	}
-
 	50% {
 		background-position: 100% 50%;
 	}
-
 	100% {
 		background-position: 0% 50%;
 	}
@@ -155,7 +154,7 @@ hr {
 
 ::-webkit-scrollbar {
 	width: 8px;
-	margin-left:2px;
+	margin-left: 2px;
 }
 
 ::-webkit-scrollbar-track {
