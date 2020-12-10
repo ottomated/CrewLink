@@ -70,10 +70,10 @@ export default class GameReader {
 		this.checkProcessOpen();
 		if (this.amongUs !== null && this.gameAssembly !== null) {
 			let state = GameState.UNKNOWN;
-			let meetingHud = this.readMemory<number>('pointer', this.gameAssembly.modBaseAddr, this.offsets.meetingHud);
-			let meetingHud_cachePtr = meetingHud === 0 ? 0 : this.readMemory<number>('uint32', meetingHud, this.offsets.meetingHudCachePtr);
-			let meetingHudState = meetingHud_cachePtr === 0 ? 4 : this.readMemory('int', meetingHud, this.offsets.meetingHudState, 4);
-			let gameState = this.readMemory<number>('int', this.gameAssembly.modBaseAddr, this.offsets.gameState);
+			let meetingHud = this.readMemory<number>(DataType.POINTER, this.gameAssembly.modBaseAddr, this.offsets.meetingHud);
+			let meetingHud_cachePtr = meetingHud === 0 ? 0 : this.readMemory<number>(DataType.UINT32, meetingHud, this.offsets.meetingHudCachePtr);
+			let meetingHudState = meetingHud_cachePtr === 0 ? 4 : this.readMemory(DataType.INT, meetingHud, this.offsets.meetingHudState, 4);
+			let gameState = this.readMemory<number>(DataType.INT, this.gameAssembly.modBaseAddr, this.offsets.gameState);
 
 			switch (gameState) {
 				case 0:
@@ -95,13 +95,13 @@ export default class GameReader {
 					break;
 			}
 
-			let allPlayersPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.allPlayersPtr) & 0xffffffff;
-			let allPlayers = this.readMemory<number>('ptr', allPlayersPtr, this.offsets.allPlayers);
-			let playerCount = this.readMemory<number>('int' as 'int', allPlayersPtr, this.offsets.playerCount);
+			let allPlayersPtr = this.readMemory<number>(DataType.POINTER, this.gameAssembly.modBaseAddr, this.offsets.allPlayersPtr) & 0xffffffff;
+			let allPlayers = this.readMemory<number>(DataType.POINTER, allPlayersPtr, this.offsets.allPlayers);
+			let playerCount = this.readMemory<number>(DataType.INT as DataType.INT, allPlayersPtr, this.offsets.playerCount);
 			let playerAddrPtr = allPlayers + this.offsets.playerAddrPtr;
 			let players = [];
 
-			let exiledPlayerId = this.readMemory<number>('byte', this.gameAssembly.modBaseAddr, this.offsets.exiledPlayerId);
+			let exiledPlayerId = this.readMemory<number>(DataType.BYTE, this.gameAssembly.modBaseAddr, this.offsets.exiledPlayerId);
 			let impostors = 0, crewmates = 0;
 
 			for (let i = 0; i < Math.min(playerCount, 10); i++) {
@@ -138,7 +138,7 @@ export default class GameReader {
 			let newGameCode = 'MENU';
 			if (state === GameState.LOBBY) {
 				newGameCode = this.readString(
-					this.readMemory<number>('int32', this.gameAssembly.modBaseAddr, this.offsets.gameCode)
+					this.readMemory<number>(DataType.INT32, this.gameAssembly.modBaseAddr, this.offsets.gameCode)
 				);
 				if (newGameCode) {
 					let split = newGameCode.split('\r\n');
@@ -205,7 +205,7 @@ export default class GameReader {
 	offsetAddress(address: number, offsets: number[]): { address: number, last: number } {
 		address = address & 0xffffffff;
 		for (let i = 0; i < offsets.length - 1; i++) {
-			address = readMemoryRaw<number>(this.amongUs!.handle, address + offsets[i], 'uint32');
+			address = readMemoryRaw<number>(this.amongUs!.handle, address + offsets[i], DataType.UINT32);
 
 			if (address == 0) break;
 		}
@@ -214,7 +214,7 @@ export default class GameReader {
 	}
 	readString(address: number): string {
 		if (address === 0) return '';
-		let length = readMemoryRaw<number>(this.amongUs!.handle, address + 0x8, 'int');
+		let length = readMemoryRaw<number>(this.amongUs!.handle, address + 0x8, DataType.INT);
 		// console.log(length);
 		// console.log("reading string", length, length << 1);
 		let buffer = readBuffer(this.amongUs!.handle, address + 0xC, length << 1);
@@ -224,7 +224,7 @@ export default class GameReader {
 	parsePlayer(ptr: number, buffer: Buffer): Player {
 		let { data } = this.PlayerStruct.report(buffer, 0, {});
 
-		let isLocal = this.readMemory<number>('int', data.objectPtr, this.offsets.player.isLocal) !== 0;
+		let isLocal = this.readMemory<number>(DataType.INT, data.objectPtr, this.offsets.player.isLocal) !== 0;
 
 		let positionOffsets = isLocal ? [
 			this.offsets.player.localX,
@@ -234,8 +234,8 @@ export default class GameReader {
 				this.offsets.player.remoteY
 			];
 
-		let x = this.readMemory<number>('float', data.objectPtr, positionOffsets[0]);
-		let y = this.readMemory<number>('float', data.objectPtr, positionOffsets[1]);
+		let x = this.readMemory<number>(DataType.FLOAT, data.objectPtr, positionOffsets[0]);
+		let y = this.readMemory<number>(DataType.FLOAT, data.objectPtr, positionOffsets[1]);
 		return {
 			ptr,
 			id: data.id,
@@ -249,7 +249,7 @@ export default class GameReader {
 			isDead: data.dead > 0,
 			taskPtr: data.taskPtr,
 			objectPtr: data.objectPtr,
-			inVent: this.readMemory<number>('byte', data.objectPtr, this.offsets.player.inVent) > 0,
+			inVent: this.readMemory<number>(DataType.BYTE, data.objectPtr, this.offsets.player.inVent) > 0,
 			isLocal,
 			x, y
 		};

@@ -33,10 +33,33 @@ declare module 'memoryjs' {
 	export function getProcesses(processId: number, callback?: Callback<ModuleObject[]>): ModuleObject[];
 
 	// Memory
-
 	export type Vector3 = { x: number, y: number, z: number };
 	export type Vector4 = { x: number, y: number, z: number, w: number };
-	export type DataType = "byte" | "int" | "int32" | "uint32" | "int64" | "uint64" | "dword" | "short" | "long" | "float" | "double" | "bool" | "boolean" | "ptr" | "pointer" | "str" | "string" | "vec3" | "vector3" | "vec4" | "vector4";
+
+	// Data type constants
+	export enum DataType {
+		BYTE = 'byte',
+		INT = 'int',
+		INT32 = 'int32',
+		UINT32 = 'uint32',
+		INT64 = 'int64',
+		UINT64 = 'uint64',
+		DWORD = 'dword',
+		SHORT = 'short',
+		LONG = 'long',
+		FLOAT = 'float',
+		DOUBLE = 'double',
+		BOOL = 'bool',
+		BOOLEAN = 'boolean',
+		PTR = 'ptr',
+		POINTER = 'pointer',
+		STR = 'str',
+		STRING = 'string',
+		VEC3 = 'vec3',
+		VECTOR3 = 'vector3',
+		VEC4 = 'vec4',
+		VECTOR4 = 'vector4',
+	}
 
 	export function readMemory<T>(handle: number, address: number, dataType: DataType, callback?: Callback<T>): T;
 
