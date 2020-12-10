@@ -188,8 +188,20 @@ export default function Voice() {
 			const ac = new AudioContext();
 			ac.createMediaStreamSource(stream)
 			audioListener = VAD(ac, ac.createMediaStreamSource(stream), undefined, {
-				onVoiceStart: () => setTalking(true),
-				onVoiceStop: () => setTalking(false),
+				onVoiceStart: () => {
+					setTalking(true)
+					let overlay = remote.getGlobal("overlay");
+					if (overlay) {
+						overlay.webContents.send('overlayTalkingSelf', true);
+					}
+				},
+				onVoiceStop: () => {
+					setTalking(false)
+					let overlay = remote.getGlobal("overlay");
+					if (overlay) {
+						overlay.webContents.send('overlayTalkingSelf', false);
+					}
+				},
 				// onUpdate: console.log,
 				noiseCaptureDuration: 1,
 			});
@@ -209,7 +221,12 @@ export default function Voice() {
 					disconnectPeer(k);
 				});
 				setSocketPlayerIds({});
-
+				
+				let overlay = remote.getGlobal("overlay");
+				if (overlay) {
+					overlay.webContents.send('overlayState', (lobbyCode === 'MENU' ? "MENU" : "VOICE: " + lobbyCode));
+				}
+				
 				if (lobbyCode === 'MENU') return;
 
 				function disconnectPeer(peer: string) {
@@ -278,6 +295,13 @@ export default function Voice() {
 								...old,
 								[socketPlayerIds[peer]]: talking && gain.gain.value > 0
 							}));
+							
+							let overlay = remote.getGlobal("overlay");
+							if (overlay) {
+								var reallyTalking = talking && gain.gain.value > 0;
+								overlay.webContents.send(reallyTalking ? 'overlayTalking' : 'overlayNotTalking', socketPlayerIds[peer]);
+							}
+							
 							return socketPlayerIds;
 						});
 					};

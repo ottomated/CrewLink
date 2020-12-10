@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useReducer, useState } from 'react';
-import ReactDOM from 'react-dom';
+//import ReactDOM from 'react-dom';
 import Voice from './Voice';
 import Menu from './Menu';
 import { ipcRenderer, remote } from 'electron';
@@ -21,7 +21,7 @@ export const SettingsContext = createContext<[ISettings, React.Dispatch<{
 	action: ISettings | [string, any];
 }>]>(null as any);
 
-function App() {
+export default function App() {
 	const [state, setState] = useState<AppState>(AppState.MENU);
 	const [gameState, setGameState] = useState<AmongUsState>({} as AmongUsState);
 	const [settingsOpen, setSettingsOpen] = useState(false);
@@ -41,13 +41,23 @@ function App() {
 		hideCode: false,
 		stereoInLobby: true
 	});
+		
 
-	useEffect(() => {
+	useEffect(() => {			
 		const onOpen = (_: Electron.IpcRendererEvent, isOpen: boolean) => {
 			setState(isOpen ? AppState.VOICE : AppState.MENU);
+			let overlay = remote.getGlobal('overlay');
+			if (overlay) {
+				overlay.webContents.send('overlayState', 'MENU');
+			}
+	
 		};
 		const onState = (_: Electron.IpcRendererEvent, newState: AmongUsState) => {
 			setGameState(newState);
+			let overlay = remote.getGlobal('overlay');
+			if (overlay) {
+				overlay.webContents.send('overlayGameState', newState);
+			}
 		};
 		let shouldInit = true;
 		const onError = (_: Electron.IpcRendererEvent, error: string) => {
@@ -104,4 +114,4 @@ function App() {
 	)
 }
 
-ReactDOM.render(<App />, document.getElementById('app'));
+//ReactDOM.render(<App />, document.getElementById('app'));

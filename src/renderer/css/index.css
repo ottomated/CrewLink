@@ -100,6 +100,20 @@ body {
 	margin: 5px;
 }
 
+.otherplayers-overlay {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: left;
+	width: '100%';
+	flex-wrap: wrap;
+	text-align: center;
+}
+
+.otherplayers-overlay>* {
+	margin: 5px;
+}
+
 .top {
 	display: flex;
 	justify-content: center;

@@ -1,5 +1,6 @@
 import { ipcRenderer } from 'electron';
-import './App';
+//import './App';
+import './ViewManager';
 import './css/index.css';
 
-ipcRenderer.send('start');
+//ipcRenderer.send('start');
