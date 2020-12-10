@@ -26,7 +26,6 @@ class ViewManager extends Component {
 		console.log("View type: " + name);
 		let view = ViewManager.Views()[name];
 		if(view == null) 
-		
 			throw new Error("View '" + name + "' is undefined");
 		//console.log("View is not null");
 		if (name == "app") {

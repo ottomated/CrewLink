@@ -94,12 +94,15 @@ body {
 	align-items: center;
 	width: '100%';
 	flex-wrap: wrap;
+	
+	white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .otherplayers>* {
 	margin: 5px;
 }
-
 
 .top {
 	display: flex;

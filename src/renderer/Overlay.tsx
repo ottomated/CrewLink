@@ -4,11 +4,11 @@ import { AmongUsState, GameState, Player } from '../main/GameReader';
 import Avatar from './Avatar';
 
 interface OtherTalking {
-	[playerId: number]: boolean; // isTalking
+	[playerId: number]: boolean;
 }
 
 interface OtherDead {
-	[playerId: number]: boolean; // isTalking
+	[playerId: number]: boolean;
 }
 
 export default function Overlay() {
@@ -21,13 +21,13 @@ export default function Overlay() {
 			else return gameState.players.find(p => p.isLocal);
 		}, [gameState]);
 	
-	const otherPlayers = useMemo(() => {
+	/*const otherPlayers = useMemo(() => {
 		let otherPlayers: Player[];
 		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) otherPlayers = [];
 		else otherPlayers = gameState.players.filter(p => !p.isLocal);
 
 		return otherPlayers;
-	}, [gameState]);
+	}, [gameState]);*/
 	
 	const talkingPlayers = useMemo(() => {
 		let talkingPlayers: Player[];

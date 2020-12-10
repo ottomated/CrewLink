@@ -7,13 +7,18 @@ import { format as formatUrl } from 'url'
 import './hook';
 import { overlayWindow } from 'electron-overlay-window';
 
-
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
+declare global {
+  namespace NodeJS {
+    interface Global {
+       mainWindow: BrowserWindow|null;
+       overlay: BrowserWindow|null;
+    } 
+  }
+}
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
-// @ts-ignore
 global.mainWindow = null;
-// @ts-ignore
 global.overlay = null;
 
 app.commandLine.appendSwitch('disable-pinch');
@@ -95,9 +100,10 @@ if (!gotTheLock) {
 		});
 
 		if (isDevelopment) {
-		overlay.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`)
+			overlay.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`)
 		} else {
-			window.loadURL(formatUrl({
+
+			overlay.loadURL(formatUrl({
 				pathname: path.join(__dirname, 'index.html'),
 				protocol: 'file',
 				query: {
