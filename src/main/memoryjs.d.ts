@@ -36,7 +36,7 @@ declare module 'memoryjs' {
 
 	export type Vector3 = { x: number, y: number, z: number };
 	export type Vector4 = { x: number, y: number, z: number, w: number };
-	export type DataType = "byte" | "int" | "int32" | "uint32" | "int64" | "uint64" | "dword" | "short" | "long" | "float" | "double" | "bool" | "boolean" | "ptr" | "pointer" | "str" | "string" | "vec3" | "vector3" | "vec4" | "vector4";
+	export type DataType = 'byte' | 'int' | 'int32' | 'uint32' | 'int64' | 'uint64' | 'dword' | 'short' | 'long' | 'float' | 'double' | 'bool' | 'boolean' | 'ptr' | 'pointer' | 'str' | 'string' | 'vec3' | 'vector3' | 'vec4' | 'vector4';
 
 	export function readMemory<T>(handle: number, address: number, dataType: DataType, callback?: Callback<T>): T;
 

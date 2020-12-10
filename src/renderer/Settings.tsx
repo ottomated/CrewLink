@@ -1,6 +1,6 @@
 import Store from 'electron-store';
-import React, { useContext, useEffect, useReducer, useState } from "react";
-import { SettingsContext } from "./contexts";
+import React, { useContext, useEffect, useReducer, useState } from 'react';
+import { SettingsContext } from './contexts';
 import Ajv from 'ajv';
 import './css/settings.css';
 import MicrophoneSoundBar from './MicrophoneSoundBar';
@@ -24,13 +24,13 @@ const store = new Store<ISettings>({
 			if (typeof serverIP === 'string') {
 				const serverURL = `http://${serverIP}`;
 				if (validateURL(serverURL)) {
-					store.set('serverURL', serverURL)
+					store.set('serverURL', serverURL);
 				} else {
 					console.warn('Error while parsing the old serverIP property. Default URL will be used instead.');
 				}
 
 				// @ts-ignore: Old serverIP property no longer exists in ISettings
-				store.delete('serverIP')
+				store.delete('serverIP');
 			}
 		},
 		'1.1.5': store => {
@@ -109,13 +109,13 @@ export const settingsReducer = (state: ISettings, action: {
 	type: 'set' | 'setOne', action: [string, any] | ISettings
 }): ISettings => {
 	if (action.type === 'set') return action.action as ISettings;
-	let v = (action.action as [string, any]);
+	const v = (action.action as [string, any]);
 	store.set(v[0], v[1]);
 	return {
 		...state,
 		[v[0]]: v[1]
 	};
-}
+};
 
 interface MediaDevice {
 	id: string;
@@ -147,7 +147,7 @@ function URLInput({ initialURL, onValidURL }: URLInputProps) {
 		}
 	}
 
-	return <input className={isValidURL ? '' : 'input-error'} spellCheck={false} type="text" value={currentURL} onChange={onChange} />
+	return <input className={isValidURL ? '' : 'input-error'} spellCheck={false} type="text" value={currentURL} onChange={onChange} />;
 }
 
 export default function Settings({ open, onClose }: SettingsProps) {
@@ -173,11 +173,11 @@ export default function Settings({ open, onClose }: SettingsProps) {
 				.map(d => {
 					let label = d.label;
 					if (d.deviceId === 'default') {
-						label = "Default";
+						label = 'Default';
 					} else {
-						let match = /(.+?)\)/.exec(d.label);
+						const match = /(.+?)\)/.exec(d.label);
 						if (match && match[1])
-							label = match[1] + ")";
+							label = match[1] + ')';
 					}
 					return {
 						id: d.deviceId,
@@ -295,7 +295,7 @@ export default function Settings({ open, onClose }: SettingsProps) {
 					setSettings({
 						type: 'setOne',
 						action: ['serverURL', url]
-					})
+					});
 				}} />
 			</div>
 			<div className="form-control m" style={{ color: '#9b59b6' }} onClick={() => setSettings({
@@ -313,5 +313,5 @@ export default function Settings({ open, onClose }: SettingsProps) {
 				<label>Stereo Audio in Lobbies</label>
 			</div>
 		</div>
-	</div>
+	</div>;
 }

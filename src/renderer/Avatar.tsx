@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from "react";
-import { Player } from "../common/AmongUsState";
-import { backLayerHats, hatOffsets, hats, skins, players } from "./cosmetics";
-import Tooltip from "react-tooltip-lite";
+import React, { useEffect, useRef } from 'react';
+import { Player } from '../common/AmongUsState';
+import { backLayerHats, hatOffsets, hats, skins, players } from './cosmetics';
+import Tooltip from 'react-tooltip-lite';
 
 export interface CanvasProps {
 	src: string;
@@ -69,7 +69,7 @@ function Canvas({ src, hat, skin, isAlive }: CanvasProps) {
 			ctx.drawImage(image.current, 0, 0);
 
 			function drawHat() {
-				let hatY = 17 - hatOffsets[hat];
+				const hatY = 17 - hatOffsets[hat];
 				ctx.drawImage(hatImg.current!, 0, hatY > 0 ? 0 : -hatY, hatImg.current!.width, hatImg.current!.height, canvas.current!.width / 2 - hatImg.current!.width / 2 + 2, Math.max(hatY, 0), hatImg.current!.width, hatImg.current!.height);
 			}
 
@@ -92,5 +92,5 @@ function Canvas({ src, hat, skin, isAlive }: CanvasProps) {
 			<img src={skins[skin]} ref={skinImg} style={{ display: 'none' }} />
 			<canvas className='canvas' ref={canvas} />
 		</>
-	)
+	);
 }

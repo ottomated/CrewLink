@@ -1,8 +1,8 @@
-import React from "react";
-import { ImpulseSpinner as Spinner } from "react-spinners-kit";
+import React from 'react';
+import { ImpulseSpinner as Spinner } from 'react-spinners-kit';
 import { ipcRenderer } from 'electron';
 import './css/menu.css';
-import Footer from "./Footer";
+import Footer from './Footer';
 
 export default function Menu({ errored }: { errored: boolean }) {
 	return (

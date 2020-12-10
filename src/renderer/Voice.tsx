@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 import Avatar from './Avatar';
-import { GameStateContext, SettingsContext } from "./contexts";
-import { AmongUsState, GameState, Player } from "../common/AmongUsState";
+import { GameStateContext, SettingsContext } from './contexts';
+import { AmongUsState, GameState, Player } from '../common/AmongUsState';
 import Peer from 'simple-peer';
 import { ipcRenderer, remote } from 'electron';
 import VAD from './vad';
-import { ISettings } from "../common/ISettings";
+import { ISettings } from '../common/ISettings';
 
 interface PeerConnections {
 	[peer: string]: Peer.Instance;
@@ -121,7 +121,7 @@ export default function Voice() {
 		} else if (gameState.gameState !== GameState.TASKS) {
 			if (!gameState.players) return;
 			setOtherDead(old => {
-				for (let player of gameState.players) {
+				for (const player of gameState.players) {
 					old[player.id] = player.isDead || player.disconnected;
 				}
 				return { ...old };
@@ -149,7 +149,7 @@ export default function Voice() {
 
 		// Initialize variables
 		let audioListener: any;
-		let audio: MediaTrackConstraints = {
+		const audio: MediaTrackConstraints = {
 			autoGainControl: false,
 			channelCount: 2,
 			echoCancellation: false,
@@ -181,7 +181,7 @@ export default function Voice() {
 			});
 
 			const ac = new AudioContext();
-			ac.createMediaStreamSource(stream)
+			ac.createMediaStreamSource(stream);
 			audioListener = VAD(ac, ac.createMediaStreamSource(stream), undefined, {
 				onVoiceStart: () => setTalking(true),
 				onVoiceStop: () => setTalking(false),
@@ -193,7 +193,7 @@ export default function Voice() {
 			const audioListeners: AudioListeners = {};
 
 			const connect = (lobbyCode: string, playerId: number) => {
-				console.log("Connect called", lobbyCode, playerId);
+				console.log('Connect called', lobbyCode, playerId);
 				socket.emit('leave');
 				Object.keys(peerConnections).forEach(k => {
 					disconnectPeer(k);
@@ -236,16 +236,16 @@ export default function Voice() {
 				peerConnections[peer] = connection;
 
 				connection.on('stream', (stream: MediaStream) => {
-					let audio = document.createElement('audio');
+					const audio = document.createElement('audio');
 					document.body.appendChild(audio);
 					audio.srcObject = stream;
 					if (settings.speaker.toLowerCase() !== 'default')
 						(audio as any).setSinkId(settings.speaker);
 
 					const context = new AudioContext();
-					var source = context.createMediaStreamSource(stream);
-					let gain = context.createGain();
-					let pan = context.createPanner();
+					const source = context.createMediaStreamSource(stream);
+					const gain = context.createGain();
+					const pan = context.createPanner();
 					pan.refDistance = 0.1;
 					pan.panningModel = 'equalpower';
 					pan.distanceModel = 'linear';
@@ -294,7 +294,7 @@ export default function Voice() {
 			});
 			socket.on('setId', (socketId: string, id: number) => {
 				setSocketPlayerIds(old => ({ ...old, [socketId]: id }));
-			})
+			});
 			socket.on('setIds', (ids: SocketIdMap) => {
 				setSocketPlayerIds(ids);
 			});
@@ -307,7 +307,7 @@ export default function Voice() {
 		return () => {
 			connectionStuff.current.socket?.close();
 			audioListener.destroy();
-		}
+		};
 	}, []);
 
 
@@ -324,11 +324,11 @@ export default function Voice() {
 		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) otherPlayers = [];
 		else otherPlayers = gameState.players.filter(p => !p.isLocal);
 
-		let playerSocketIds = {} as any;
-		for (let k of Object.keys(socketPlayerIds)) {
+		const playerSocketIds = {} as any;
+		for (const k of Object.keys(socketPlayerIds)) {
 			playerSocketIds[socketPlayerIds[k]] = k;
 		}
-		for (let player of otherPlayers) {
+		for (const player of otherPlayers) {
 			const audio = audioElements.current[playerSocketIds[player.id]];
 			if (audio) {
 				calculateVoiceAudio(gameState, settingsRef.current, myPlayer!, player, audio.gain, audio.pan);
@@ -388,7 +388,7 @@ export default function Voice() {
 			<div className="otherplayers">
 				{
 					otherPlayers.map(player => {
-						let connected = Object.values(socketPlayerIds).includes(player.id);
+						const connected = Object.values(socketPlayerIds).includes(player.id);
 						return (
 							<Avatar key={player.id} player={player}
 								talking={!connected || otherTalking[player.id]}
@@ -400,5 +400,5 @@ export default function Voice() {
 				}
 			</div>
 		</div>
-	)
+	);
 }

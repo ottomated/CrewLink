@@ -1,5 +1,5 @@
-import { shell } from "electron";
-import React from "react";
+import { shell } from 'electron';
+import React from 'react';
 
 export default function Footer() {
 	return (
@@ -56,5 +56,5 @@ export default function Footer() {
 				</svg>
 			</div>
 		</div>
-	)
+	);
 }

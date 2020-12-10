@@ -1,8 +1,8 @@
-import { DataType, findModule, getProcesses, ModuleObject, openProcess, ProcessObject, readBuffer, readMemory as readMemoryRaw } from "memoryjs";
+import { DataType, findModule, getProcesses, ModuleObject, openProcess, ProcessObject, readBuffer, readMemory as readMemoryRaw } from 'memoryjs';
 import * as Struct from 'structron';
 import patcher from '../patcher';
-import { GameState, AmongUsState, Player } from "../common/AmongUsState";
-import { IOffsets } from "./IOffsets";
+import { GameState, AmongUsState, Player } from '../common/AmongUsState';
+import { IOffsets } from './IOffsets';
 
 export default class GameReader {
 	reply: Function;
@@ -19,10 +19,10 @@ export default class GameReader {
 	amongUs: ProcessObject | null = null;
 	gameAssembly: ModuleObject | null = null;
 
-	gameCode: string = 'MENU';
+	gameCode = 'MENU';
 
 	checkProcessOpen(): void {
-		let processOpen = getProcesses().find(p => p.szExeFile === 'Among Us.exe');
+		const processOpen = getProcesses().find(p => p.szExeFile === 'Among Us.exe');
 		if (!this.amongUs && processOpen) { // If process just opened
 			try {
 				this.amongUs = openProcess('Among Us.exe');
@@ -42,44 +42,44 @@ export default class GameReader {
 		this.checkProcessOpen();
 		if (this.amongUs !== null && this.gameAssembly !== null) {
 			let state = GameState.UNKNOWN;
-			let meetingHud = this.readMemory<number>('pointer', this.gameAssembly.modBaseAddr, this.offsets.meetingHud);
-			let meetingHud_cachePtr = meetingHud === 0 ? 0 : this.readMemory<number>('uint32', meetingHud, this.offsets.meetingHudCachePtr);
-			let meetingHudState = meetingHud_cachePtr === 0 ? 4 : this.readMemory('int', meetingHud, this.offsets.meetingHudState, 4);
-			let gameState = this.readMemory<number>('int', this.gameAssembly.modBaseAddr, this.offsets.gameState);
+			const meetingHud = this.readMemory<number>('pointer', this.gameAssembly.modBaseAddr, this.offsets.meetingHud);
+			const meetingHud_cachePtr = meetingHud === 0 ? 0 : this.readMemory<number>('uint32', meetingHud, this.offsets.meetingHudCachePtr);
+			const meetingHudState = meetingHud_cachePtr === 0 ? 4 : this.readMemory('int', meetingHud, this.offsets.meetingHudState, 4);
+			const gameState = this.readMemory<number>('int', this.gameAssembly.modBaseAddr, this.offsets.gameState);
 
 			switch (gameState) {
-				case 0:
-					state = GameState.MENU;
-					this.exileCausesEnd = false;
-					break;
-				case 1:
-				case 3:
+			case 0:
+				state = GameState.MENU;
+				this.exileCausesEnd = false;
+				break;
+			case 1:
+			case 3:
+				state = GameState.LOBBY;
+				this.exileCausesEnd = false;
+				break;
+			default:
+				if (this.exileCausesEnd)
 					state = GameState.LOBBY;
-					this.exileCausesEnd = false;
-					break;
-				default:
-					if (this.exileCausesEnd)
-						state = GameState.LOBBY;
-					else if (meetingHudState < 4)
-						state = GameState.DISCUSSION;
-					else
-						state = GameState.TASKS;
-					break;
+				else if (meetingHudState < 4)
+					state = GameState.DISCUSSION;
+				else
+					state = GameState.TASKS;
+				break;
 			}
 
-			let allPlayersPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.allPlayersPtr) & 0xffffffff;
-			let allPlayers = this.readMemory<number>('ptr', allPlayersPtr, this.offsets.allPlayers);
-			let playerCount = this.readMemory<number>('int' as 'int', allPlayersPtr, this.offsets.playerCount);
+			const allPlayersPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.allPlayersPtr) & 0xffffffff;
+			const allPlayers = this.readMemory<number>('ptr', allPlayersPtr, this.offsets.allPlayers);
+			const playerCount = this.readMemory<number>('int' as const, allPlayersPtr, this.offsets.playerCount);
 			let playerAddrPtr = allPlayers + this.offsets.playerAddrPtr;
-			let players = [];
+			const players = [];
 
-			let exiledPlayerId = this.readMemory<number>('byte', this.gameAssembly.modBaseAddr, this.offsets.exiledPlayerId);
+			const exiledPlayerId = this.readMemory<number>('byte', this.gameAssembly.modBaseAddr, this.offsets.exiledPlayerId);
 			let impostors = 0, crewmates = 0;
 
 			for (let i = 0; i < Math.min(playerCount, 10); i++) {
-				let { address, last } = this.offsetAddress(playerAddrPtr, this.offsets.player.offsets);
-				let playerData = readBuffer(this.amongUs.handle, address + last, this.offsets.player.bufferLength);
-				let player = this.parsePlayer(address + last, playerData);
+				const { address, last } = this.offsetAddress(playerAddrPtr, this.offsets.player.offsets);
+				const playerData = readBuffer(this.amongUs.handle, address + last, this.offsets.player.bufferLength);
+				const player = this.parsePlayer(address + last, playerData);
 				playerAddrPtr += 4;
 				players.push(player);
 
@@ -106,14 +106,14 @@ export default class GameReader {
 			}
 			this.lastPlayerPtr = allPlayers;
 
-			let inGame = state === GameState.TASKS || state === GameState.DISCUSSION || state === GameState.LOBBY;
+			const inGame = state === GameState.TASKS || state === GameState.DISCUSSION || state === GameState.LOBBY;
 			let newGameCode = 'MENU';
 			if (state === GameState.LOBBY) {
 				newGameCode = this.readString(
 					this.readMemory<number>('int32', this.gameAssembly.modBaseAddr, this.offsets.gameCode)
 				);
 				if (newGameCode) {
-					let split = newGameCode.split('\r\n');
+					const split = newGameCode.split('\r\n');
 					if (split.length === 2) {
 						newGameCode = split[1];
 					} else {
@@ -129,13 +129,13 @@ export default class GameReader {
 			}
 			if (newGameCode) this.gameCode = newGameCode;
 
-			let newState = {
+			const newState = {
 				lobbyCode: this.gameCode,
 				players,
 				gameState: state,
 				oldGameState: this.oldGameState
 			};
-			let patch = patcher.diff(this.lastState, newState);
+			const patch = patcher.diff(this.lastState, newState);
 			if (patch) {
 				try {
 					this.reply('gameState', newState);
@@ -154,7 +154,7 @@ export default class GameReader {
 
 
 		this.PlayerStruct = new Struct();
-		for (let member of offsets.player.struct) {
+		for (const member of offsets.player.struct) {
 			if (member.type === 'SKIP') {
 				this.PlayerStruct = this.PlayerStruct.addMember(Struct.TYPES.SKIP(member.skip!), member.name);
 			} else {
@@ -166,7 +166,7 @@ export default class GameReader {
 
 	readMemory<T>(dataType: DataType, address: number, offsets: number[], defaultParam?: T): T {
 		if (address === 0) return defaultParam as T;
-		let { address: addr, last } = this.offsetAddress(address, offsets);
+		const { address: addr, last } = this.offsetAddress(address, offsets);
 		if (addr === 0) return defaultParam as T;
 		return readMemoryRaw<T>(
 			this.amongUs!.handle,
@@ -181,33 +181,33 @@ export default class GameReader {
 
 			if (address == 0) break;
 		}
-		let last = offsets.length > 0 ? offsets[offsets.length - 1] : 0;
+		const last = offsets.length > 0 ? offsets[offsets.length - 1] : 0;
 		return { address, last };
 	}
 	readString(address: number): string {
 		if (address === 0) return '';
-		let length = readMemoryRaw<number>(this.amongUs!.handle, address + 0x8, 'int');
+		const length = readMemoryRaw<number>(this.amongUs!.handle, address + 0x8, 'int');
 		// console.log(length);
 		// console.log("reading string", length, length << 1);
-		let buffer = readBuffer(this.amongUs!.handle, address + 0xC, length << 1);
+		const buffer = readBuffer(this.amongUs!.handle, address + 0xC, length << 1);
 		return buffer.toString('utf8').replace(/\0/g, '');
 	}
 
 	parsePlayer(ptr: number, buffer: Buffer): Player {
-		let { data } = this.PlayerStruct.report(buffer, 0, {});
+		const { data } = this.PlayerStruct.report(buffer, 0, {});
 
-		let isLocal = this.readMemory<number>('int', data.objectPtr, this.offsets.player.isLocal) !== 0;
+		const isLocal = this.readMemory<number>('int', data.objectPtr, this.offsets.player.isLocal) !== 0;
 
-		let positionOffsets = isLocal ? [
+		const positionOffsets = isLocal ? [
 			this.offsets.player.localX,
 			this.offsets.player.localY
 		] : [
-				this.offsets.player.remoteX,
-				this.offsets.player.remoteY
-			];
+			this.offsets.player.remoteX,
+			this.offsets.player.remoteY
+		];
 
-		let x = this.readMemory<number>('float', data.objectPtr, positionOffsets[0]);
-		let y = this.readMemory<number>('float', data.objectPtr, positionOffsets[1]);
+		const x = this.readMemory<number>('float', data.objectPtr, positionOffsets[0]);
+		const y = this.readMemory<number>('float', data.objectPtr, positionOffsets[1]);
 		return {
 			ptr,
 			id: data.id,
