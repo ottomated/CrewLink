@@ -1,24 +1,20 @@
 import React, { createContext, useEffect, useReducer, useState } from 'react';
+import ReactDOM from 'react-dom';        
 import Voice from './Voice';
 import Menu from './Menu';
 import { ipcRenderer, remote } from 'electron';
-import { AmongUsState } from '../main/GameReader';
-import Settings, { ISettings, settingsReducer } from './Settings';
+import { AmongUsState } from '../common/AmongUsState';
+import Settings, { settingsReducer } from './Settings';
+import { GameStateContext, SettingsContext } from './contexts';
 
 let appVersion = '';
 if (typeof window !== 'undefined' && window.location) {
-	let query = new URLSearchParams(window.location.search.substring(1));
+	const query = new URLSearchParams(window.location.search.substring(1));
 	appVersion = (' v' + query.get('version')) || '';
 }
 
 
-enum AppState { MENU, VOICE };
-
-export const GameStateContext = createContext<AmongUsState>({} as AmongUsState);
-export const SettingsContext = createContext<[ISettings, React.Dispatch<{
-	type: "set" | "setOne";
-	action: ISettings | [string, any];
-}>]>(null as any);
+enum AppState { MENU, VOICE }
 
 export default function App() {
 	const [state, setState] = useState<AppState>(AppState.MENU);
@@ -38,7 +34,7 @@ export default function App() {
 			data: ''
 		},
 		hideCode: false,
-		stereoInLobby: true,
+		enableSpatialAudio: true,
 		compactOverlay: false
 	});
 		
@@ -71,23 +67,23 @@ export default function App() {
 		ipcRenderer.once('started', () => {
 			if (shouldInit)
 				setGameState(ipcRenderer.sendSync('initState'));
-		})
+		});
 		return () => {
 			ipcRenderer.off('gameOpen', onOpen);
 			ipcRenderer.off('error', onError);
 			ipcRenderer.off('gameState', onState);
-		}
+		};
 	}, []);
 
 
 	let page;
 	switch (state) {
-		case AppState.MENU:
-			page = <Menu errored={errored} />;
-			break;
-		case AppState.VOICE:
-			page = <Voice />;
-			break;
+	case AppState.MENU:
+		page = <Menu errored={errored} />;
+		break;
+	case AppState.VOICE:
+		page = <Voice />;
+		break;
 	}
 	return (
 		<GameStateContext.Provider value={gameState}>
@@ -111,7 +107,7 @@ export default function App() {
 				{page}
 			</SettingsContext.Provider>
 		</GameStateContext.Provider>
-	)
+	);
 }
 
 //ReactDOM.render(<App />, document.getElementById('app'));
