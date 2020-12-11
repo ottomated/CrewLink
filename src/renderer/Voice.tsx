@@ -154,14 +154,21 @@ const Voice: React.FC = function () {
 			connect: () => void;
 			destroy: () => void;
 		};
-		const audio: MediaTrackConstraints = {
+		const audio = {
+			deviceId: undefined as unknown as string,
 			autoGainControl: false,
 			channelCount: 2,
 			echoCancellation: false,
 			latency: 0,
-			noiseSuppression: true,
+			noiseSuppression: false,
 			sampleRate: 48000,
 			sampleSize: 16,
+			googEchoCancellation: false,
+			googAutoGainControl: false,
+			googAutoGainControl2: false,
+			googNoiseSuppression: false,
+			googHighpassFilter: false,
+			googTypingNoiseDetection: false
 		};
 
 		// Get microphone settings
