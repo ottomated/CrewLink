@@ -7,51 +7,35 @@ import spawn from 'cross-spawn';
 import GameReader from './GameReader';
 import iohook from 'iohook';
 import Store from 'electron-store';
-import { ISettings } from '../renderer/Settings';
+import { ISettings } from '../common/ISettings';
 import axios, { AxiosError } from 'axios';
 import { createCheckers } from 'ts-interface-checker';
 
 import TI from './hook-ti';
 import { existsSync, readFileSync } from 'fs';
+import { IOffsets } from './IOffsets';
 const { IOffsets } = createCheckers(TI);
+
+interface IOHookEvent {
+  type: string
+  keychar?: number
+  keycode?: number
+  rawcode?: number
+  button?: number
+  clicks?: number
+  x?: number
+  y?: number
+}
 
 const store = new Store<ISettings>();
 
-export interface IOffsets {
-	meetingHud: number[];
-	meetingHudCachePtr: number[];
-	meetingHudState: number[];
-	gameState: number[];
-	allPlayersPtr: number[];
-	allPlayers: number[];
-	playerCount: number[];
-	playerAddrPtr: number;
-	exiledPlayerId: number[];
-	gameCode: number[];
-	player: {
-		isLocal: number[];
-		localX: number[];
-		localY: number[];
-		remoteX: number[];
-		remoteY: number[];
-		bufferLength: number;
-		offsets: number[];
-		inVent: number[];
-		struct: {
-			type: string;
-			skip?: number;
-			name: string;
-		}[];
-	}
-}
-
 async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | undefined> {
 
-	const valuesFile = resolve((process.env.LOCALAPPDATA || '') + "Low", 'Innersloth/Among Us/Unity/6b8b0d91-4a20-4a00-a3e4-4da4a883a5f0/Analytics/values');
-	let version: string = '';
+	const valuesFile = resolve((process.env.LOCALAPPDATA || '') + 'Low', 'Innersloth/Among Us/Unity/6b8b0d91-4a20-4a00-a3e4-4da4a883a5f0/Analytics/values');
+	let version = '';
 	if (existsSync(valuesFile)) {
 		try {
-			let json = JSON.parse(readFileSync(valuesFile, 'utf8'));
+			const json = JSON.parse(readFileSync(valuesFile, 'utf8'));
 			version = json.app_ver;
 		} catch (e) {
 			console.error(e);
@@ -59,14 +43,13 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 			return;
 		}
 	} else {
-		event.reply('error', `Couldn't determine the Among Us version - Unity analytics file doesn't exist. Try opening Among Us and then restarting CrewLink.`);
+		event.reply('error', 'Couldn\'t determine the Among Us version - Unity analytics file doesn\'t exist. Try opening Among Us and then restarting CrewLink.');
 		return;
 	}
 
 	let data: string;
-	let offsetStore = store.get('offsets') || {};
-	// TEMPORARILY DISABLING OFFSET CACHING
-	if (false /*version === offsetStore.version*/ ) {
+	const offsetStore = store.get('offsets') || {};
+	if (version === offsetStore.version) {
 		data = offsetStore.data;
 	} else {
 		try {
@@ -75,28 +58,36 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 			});
 			data = response.data;
 		} catch (_e) {
-			let e = _e as AxiosError;
+			const e = _e as AxiosError;
 			console.error(e);
 			if (e?.response?.status === 404) {
-				event.reply('error', `You are on an unsupported version of Among Us: ${version}.`);
+				event.reply('error', `You are on an unsupported version of Among Us: ${version}.\n`);
 			} else {
-				event.reply('error', `Couldn't fetch the latest game offsets from the server: ${store.get('serverURL')}/${version}.yml.\n${e}`);
+				let errorMessage = e.message;
+				if (errorMessage.includes('ETIMEDOUT')) {
+					errorMessage = 'has too many active players';
+				} else if (errorMessage.includes('refuesed')) {
+					errorMessage = 'is not input correctly';
+				} else {
+					errorMessage = 'gave this error: \n' + errorMessage;
+				}
+				event.reply('error', `Please use another voice server. ${store.get('serverURL')} ${errorMessage}.`);
 			}
 			return;
 		}
 	}
 
-	let offsets: IOffsets = yml.safeLoad(data) as any;
+	const offsets: IOffsets = yml.safeLoad(data) as unknown as IOffsets;
 	try {
 		IOffsets.check(offsets);
 		if (!version) {
-			event.reply('error', `Couldn't determine the Among Us version. Try opening Among Us and then restarting CrewLink.`);
+			event.reply('error', 'Couldn\'t determine the Among Us version. Try opening Among Us and then restarting CrewLink.');
 			return;
 		} else {
 			store.set('offsets', {
 				version,
 				data
-			})
+			});
 		}
 		return offsets;
 	} catch (e) {
@@ -116,14 +107,14 @@ ipcMain.on('start', async (event) => {
 		readingGame = true;
 
 		// Register key events
-		iohook.on('keydown', (ev: any) => {
-			let shortcutKey = store.get('pushToTalkShortcut');
+		iohook.on('keydown', (ev: IOHookEvent) => {
+			const shortcutKey = store.get('pushToTalkShortcut');
 			if (keyCodeMatches(shortcutKey as K, ev)) {
 				event.reply('pushToTalk', true);
 			}
 		});
-		iohook.on('keyup', (ev: any) => {
-			let shortcutKey = store.get('pushToTalkShortcut');
+		iohook.on('keyup', (ev: IOHookEvent) => {
+			const shortcutKey = store.get('pushToTalkShortcut');
 			if (keyCodeMatches(shortcutKey as K, ev)) {
 				event.reply('pushToTalk', false);
 			}
@@ -135,7 +126,7 @@ ipcMain.on('start', async (event) => {
 		iohook.start();
 
 		// Read game memory
-		gameReader = new GameReader(event.reply, offsets);
+		gameReader = new GameReader(event.reply as (event: string, ...args: unknown[]) => void, offsets);
 
 		ipcMain.on('initState', (event: Electron.IpcMainEvent) => {
 			event.returnValue = gameReader.lastState;
@@ -143,7 +134,7 @@ ipcMain.on('start', async (event) => {
 		const frame = () => {
 			gameReader.loop();
 			setTimeout(frame, 1000 / 20);
-		}
+		};
 		frame();
 	} else if (gameReader) {
 		gameReader.amongUs = null;
@@ -168,7 +159,7 @@ const keycodeMap = {
 };
 type K = keyof typeof keycodeMap;
 
-function keyCodeMatches(key: K, ev: any): boolean {
+function keyCodeMatches(key: K, ev: IOHookEvent): boolean {
 	if (keycodeMap[key])
 		return keycodeMap[key] === ev.keycode;
 	else if (key.length === 1)
@@ -202,7 +193,7 @@ ipcMain.on('openGame', () => {
 			dialog.showErrorBox('Error', 'Please launch the game through Steam.');
 		}
 	}
-})
+});
 
 ipcMain.on('relaunch', () => {
 	app.relaunch();

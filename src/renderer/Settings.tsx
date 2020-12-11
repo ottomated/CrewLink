@@ -1,10 +1,11 @@
 import Store from 'electron-store';
-import React, { useContext, useEffect, useReducer, useState } from "react";
-import { SettingsContext } from "./App";
+import React, { useContext, useEffect, useReducer, useState } from 'react';
+import { SettingsContext } from './contexts';
 import Ajv from 'ajv';
 import './css/settings.css';
 import MicrophoneSoundBar from './MicrophoneSoundBar';
 import TestSpeakersButton from './TestSpeakersButton';
+import { ISettings } from '../common/ISettings';
 
 const keys = new Set(['Space', 'Backspace', 'Delete', 'Enter', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown', 'Escape', 'LControl', 'LShift', 'LAlt', 'RControl', 'RShift', 'RAlt']);
 
@@ -23,14 +24,28 @@ const store = new Store<ISettings>({
 			if (typeof serverIP === 'string') {
 				const serverURL = `http://${serverIP}`;
 				if (validateURL(serverURL)) {
-					store.set('serverURL', serverURL)
+					store.set('serverURL', serverURL);
 				} else {
 					console.warn('Error while parsing the old serverIP property. Default URL will be used instead.');
 				}
 
 				// @ts-ignore: Old serverIP property no longer exists in ISettings
-				store.delete('serverIP')
+				store.delete('serverIP');
 			}
+		},
+		'1.1.5': store => {
+			const serverURL = store.get('serverURL');
+			if (serverURL === 'http://54.193.94.35:9736') {
+				store.set('serverURL', 'https://crewl.ink');
+			}
+		},
+		'1.1.6': store => {
+			const enableSpatialAudio = store.get('stereoInLobby');
+			if (typeof enableSpatialAudio === 'boolean') {
+				store.set('enableSpatialAudio', enableSpatialAudio);
+			}
+			// @ts-ignore
+			store.delete('stereoInLobby');
 		}
 	},
 	schema: {
@@ -52,7 +67,7 @@ const store = new Store<ISettings>({
 		},
 		serverURL: {
 			type: 'string',
-			default: 'http://54.193.94.35:9736',
+			default: 'https://crewl.ink',
 			format: 'uri'
 		},
 		pushToTalkShortcut: {
@@ -80,44 +95,35 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: false
 		},
-		stereoInLobby: {
+		enableSpatialAudio: {
 			type: 'boolean',
 			default: true
 		}
 	}
 });
 
+store.onDidChange('serverURL', (newUrl) => {
+	if (newUrl === 'http://54.193.94.35:9736') {
+		store.set('serverURL', 'https://crewl.ink');
+	}
+});
+
 export interface SettingsProps {
 	open: boolean;
-	onClose: any;
+	onClose: () => void;
 }
 
-export interface ISettings {
-	alwaysOnTop: boolean;
-	microphone: string;
-	speaker: string;
-	pushToTalk: boolean;
-	serverURL: string;
-	pushToTalkShortcut: string;
-	deafenShortcut: string;
-	offsets: {
-		version: string;
-		data: string;
-	},
-	hideCode: boolean;
-	stereoInLobby: boolean;
-}
 export const settingsReducer = (state: ISettings, action: {
-	type: 'set' | 'setOne', action: [string, any] | ISettings
+	type: 'set' | 'setOne', action: [string, unknown] | ISettings
 }): ISettings => {
 	if (action.type === 'set') return action.action as ISettings;
-	let v = (action.action as [string, any]);
+	const v = (action.action as [string, unknown]);
 	store.set(v[0], v[1]);
 	return {
 		...state,
 		[v[0]]: v[1]
 	};
-}
+};
 
 interface MediaDevice {
 	id: string;
@@ -149,10 +155,10 @@ function URLInput({ initialURL, onValidURL }: URLInputProps) {
 		}
 	}
 
-	return <input className={isValidURL ? '' : 'input-error'} spellCheck={false} type="text" value={currentURL} onChange={onChange} />
+	return <input className={isValidURL ? '' : 'input-error'} spellCheck={false} type="text" value={currentURL} onChange={onChange} />;
 }
 
-export default function Settings({ open, onClose }: SettingsProps) {
+const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsProps) {
 	const [settings, setSettings] = useContext(SettingsContext);
 	const [unsavedCount, setUnsavedCount] = useState(0);
 	const unsaved = unsavedCount > 2;
@@ -165,7 +171,7 @@ export default function Settings({ open, onClose }: SettingsProps) {
 
 	useEffect(() => {
 		setUnsavedCount(s => s + 1);
-	}, [settings.microphone, settings.speaker, settings.serverURL]);
+	}, [settings.microphone, settings.speaker, settings.serverURL, settings.enableSpatialAudio]);
 
 	const [devices, setDevices] = useState<MediaDevice[]>([]);
 	const [_, updateDevices] = useReducer((state) => state + 1, 0);
@@ -175,11 +181,11 @@ export default function Settings({ open, onClose }: SettingsProps) {
 				.map(d => {
 					let label = d.label;
 					if (d.deviceId === 'default') {
-						label = "Default";
+						label = 'Default';
 					} else {
-						let match = /\((.+?)\)/.exec(d.label);
+						const match = /(.+?)\)/.exec(d.label);
 						if (match && match[1])
-							label = match[1];
+							label = match[1] + ')';
 					}
 					return {
 						id: d.deviceId,
@@ -224,15 +230,6 @@ export default function Settings({ open, onClose }: SettingsProps) {
 			<path d="M0 0h24v24H0z" fill="none" />
 			<path d="M11.67 3.87L9.9 2.1 0 12l9.9 9.9 1.77-1.77L3.54 12z" />
 		</svg>
-		{/* <div className="form-control m" style={{ color: '#e74c3c' }} onClick={() => {
-			ipcRenderer.send('alwaysOnTop', !settings.alwaysOnTop);
-			setSettings({
-				type: 'setOne',
-				action: ['alwaysOnTop', !settings.alwaysOnTop]
-			});
-		}}>
-			<input type="checkbox" checked={settings.alwaysOnTop} readOnly />Always on Top
-		</div> */}
 		<div className="settings-scroll">
 
 			<div className="form-control m l" style={{ color: '#e74c3c' }}>
@@ -249,7 +246,7 @@ export default function Settings({ open, onClose }: SettingsProps) {
 						))
 					}
 				</select>
-				{open && <MicrophoneSoundBar />}
+				{open && <MicrophoneSoundBar microphone={settings.microphone} />}
 			</div>
 			<div className="form-control m l" style={{ color: '#e67e22' }}>
 				<label>Speaker</label>
@@ -265,7 +262,7 @@ export default function Settings({ open, onClose }: SettingsProps) {
 						))
 					}
 				</select>
-				{open && <TestSpeakersButton />}
+				{open && <TestSpeakersButton speaker={settings.speaker} />}
 			</div>
 
 			<div className="form-control" style={{ color: '#f1c40f' }} onClick={() => setSettings({
@@ -297,7 +294,7 @@ export default function Settings({ open, onClose }: SettingsProps) {
 					setSettings({
 						type: 'setOne',
 						action: ['serverURL', url]
-					})
+					});
 				}} />
 			</div>
 			<div className="form-control m" style={{ color: '#9b59b6' }} onClick={() => setSettings({
@@ -309,11 +306,18 @@ export default function Settings({ open, onClose }: SettingsProps) {
 			</div>
 			<div className="form-control m" style={{ color: '#fd79a8' }} onClick={() => setSettings({
 				type: 'setOne',
-				action: ['stereoInLobby', !settings.stereoInLobby]
+				action: ['enableSpatialAudio', !settings.enableSpatialAudio]
 			})}>
-				<input type="checkbox" checked={settings.stereoInLobby} style={{ color: '#fd79a8' }} readOnly />
-				<label>Stereo Audio in Lobbies</label>
+				<input type="checkbox" checked={settings.enableSpatialAudio} style={{ color: '#fd79a8' }} readOnly />
+				<label>Enable Spatial Audio</label>
+			</div>
+			<div className='settings-alert' style={{ display: unsaved ? 'flex' : 'none' }}>
+				<span>
+					Exit to apply changes
+				</span>
 			</div>
 		</div>
-	</div>
-}
+	</div>;
+};
+
+export default Settings;

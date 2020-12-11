@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: YOU MUST USE ONE OF THE ABOVE TEMPLATES OR YOUR ISSUE WILL BE DELETED!
+    url: https://github.com/ottomated/CrewLink/issues/new/choose
+    about: This is to prevent duplicate issues and spam.
+  - name: I need help
+    url:  https://discord.gg/9mwuVNA
+    about: Please ask and answer questions here.
+  - name: Security issue
+    url: https://discord.gg/9mwuVNA
+    about: Please report security vulnerabilities directly to Ottomated#9999.
