@@ -1,10 +1,14 @@
-import React from "react";
-import { ImpulseSpinner as Spinner } from "react-spinners-kit";
+import React from 'react';
+import { ImpulseSpinner as Spinner } from 'react-spinners-kit';
 import { ipcRenderer } from 'electron';
 import './css/menu.css';
-import Footer from "./Footer";
+import Footer from './Footer';
 
-export default function Menu({ errored }: { errored: boolean }) {
+export interface MenuProps {
+	errored: boolean
+}
+
+const Menu: React.FC<MenuProps> = function ({ errored }: MenuProps) {
 	return (
 		<div className="root">
 			<div className="menu">
@@ -12,7 +16,11 @@ export default function Menu({ errored }: { errored: boolean }) {
 					<>
 						<span className="waiting">Error</span>
 						<span className="errormessage">
-							Make sure that the Voice Server is correct in the settings and you are using the latest version of Among Us. If there was a recent update, CrewLink might not work for a few days.
+							<ol>
+								<li>Use a different Voice Server in settings</li>
+								<li>Update Among Us</li>
+								<li>Wait for 24 hours after Among Us updates</li>
+							</ol>
 						</span>
 						<button className="button" onClick={() => {
 							ipcRenderer.send('relaunch');
@@ -31,4 +39,6 @@ export default function Menu({ errored }: { errored: boolean }) {
 			</div>
 		</div>
 	);
-}
+};
+
+export default Menu;
