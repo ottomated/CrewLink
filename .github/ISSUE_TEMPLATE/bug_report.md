@@ -12,7 +12,7 @@ Please use this checklist to avoid spamming:
 
 1. [ ] I am not asking a question => use the [Discord](https://discord.gg/9mwuVNA) if you are
 2. [ ] I am using the Steam version of Among Us
-3. [ ] I have tried to use an [alternative voice server server](https://status.crewl.ink/)
+3. [ ] I have tried to use an [alternative voice server](https://status.crewl.ink/)
 4. [ ] I have checked everyone in my lobby is on the same CrewLink server
 5. [ ] I have used `Ctrl+R` on the CrewLink app when I can't hear some people (this is a known issue)
 6. [ ] I have checked that the CrewLink server I'm using is up to date
