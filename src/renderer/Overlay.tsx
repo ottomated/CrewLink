@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useContext } from 'react';
 import { ipcRenderer } from 'electron';
 import { AmongUsState, GameState, Player } from '../main/GameReader';
 import Avatar from './Avatar';
+//import { SettingsContext } from "./App";
 
 interface OtherTalking {
 	[playerId: number]: boolean;
@@ -20,6 +21,7 @@ export default function Overlay() {
 			if (!gameState || !gameState.players) return undefined;
 			else return gameState.players.find(p => p.isLocal);
 		}, [gameState]);
+	//const [settings] = useContext(SettingsContext);
 	
 	/*const otherPlayers = useMemo(() => {
 		let otherPlayers: Player[];
