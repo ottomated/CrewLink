@@ -1,5 +1,5 @@
-import { create } from "jsondiffpatch";
-import { Player } from "./main/GameReader";
+import { create } from 'jsondiffpatch';
+import { Player } from './common/AmongUsState';
 
 export default create({
 	objectHash: (obj: Player) => obj.ptr,
