@@ -18,7 +18,7 @@
     <a href="#installation"><b>INSTALLATION INSTRUCTIONS</b></a>
   </p>
   <p align="center">
-  <b><a href="paypal.me/ottomated">DONATE TO THE PROJECT</a></b>
+  <b><a href="https://paypal.me/ottomated">DONATE TO THE PROJECT</a></b>
   (all donations will be used for server costs or paying for college)
   </p>
 </p>
