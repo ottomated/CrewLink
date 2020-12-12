@@ -95,6 +95,10 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: false
 		},
+		hideVoiceServer: {
+			type: 'boolean',
+			default: false
+		},
 		enableSpatialAudio: {
 			type: 'boolean',
 			default: true
@@ -304,6 +308,13 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 				<input type="checkbox" checked={!settings.hideCode} style={{ color: '#9b59b6' }} readOnly />
 				<label>Show Lobby Code</label>
 			</div>
+			<div className="form-control m" style={{ color: '#9b59b6' }} onClick={() => setSettings({
+				type: 'setOne',
+				action: ['hideVoiceServer', !settings.hideVoiceServer]
+			})}>
+				<input type="checkbox" checked={!settings.hideVoiceServer} style={{ color: '#9b59b6' }} readOnly />
+				<label>Show Voice Server</label>
+			</div>
 			<div className="form-control m" style={{ color: '#fd79a8' }} onClick={() => setSettings({
 				type: 'setOne',
 				action: ['enableSpatialAudio', !settings.enableSpatialAudio]
@@ -313,7 +324,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 			</div>
 			<div className='settings-alert' style={{ display: unsaved ? 'flex' : 'none' }}>
 				<span>
-					Exit to apply changes
+					Close Settings to apply changes
 				</span>
 			</div>
 		</div>

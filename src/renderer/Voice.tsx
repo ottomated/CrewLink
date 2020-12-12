@@ -94,6 +94,8 @@ const Voice: React.FC = function () {
 	const gameState = useContext(GameStateContext);
 	let { lobbyCode: displayedLobbyCode } = gameState;
 	if (displayedLobbyCode !== 'MENU' && settings.hideCode) displayedLobbyCode = 'LOBBY';
+	let displayedVoiceServer = settings.serverURL;
+	if (settings.hideVoiceServer) displayedVoiceServer = '';
 	const [talking, setTalking] = useState(false);
 	const [socketPlayerIds, setSocketPlayerIds] = useState<SocketIdMap>({});
 	const [connect, setConnect] = useState<({ connect: (lobbyCode: string, playerId: number) => void }) | null>(null);
@@ -410,6 +412,10 @@ const Voice: React.FC = function () {
 						);
 					})
 				}
+			</div>
+			<div className="footer">
+				<hr />
+				{displayedVoiceServer}
 			</div>
 		</div>
 	);

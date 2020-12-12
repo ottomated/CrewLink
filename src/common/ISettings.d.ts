@@ -12,5 +12,6 @@ export interface ISettings {
 		data: string;
 	},
 	hideCode: boolean;
+	hideVoiceServer: boolean;
 	enableSpatialAudio: boolean;
 }

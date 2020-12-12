@@ -17,13 +17,16 @@ app.commandLine.appendSwitch('disable-pinch');
 function createMainWindow() {
 	const mainWindowState = windowStateKeeper({});
 
+	const height = 370
+	const width = 250
+
 	const window = new BrowserWindow({
-		width: 250,
-		height: 350,
-		maxWidth: 250,
-		minWidth: 250,
-		maxHeight: 350,
-		minHeight: 350,
+		width: width,
+		height: height,
+		maxWidth: width,
+		minWidth: width,
+		maxHeight: height,
+		minHeight: height,
 		x: mainWindowState.x,
 		y: mainWindowState.y,
 
