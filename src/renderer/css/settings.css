@@ -12,11 +12,11 @@
 	flex-direction: column;
 	justify-content: start;
 	align-items: center;
-	padding-top: 20px;
 }
 
 .form-control {
 	user-select: none;
+	width: 100%;
 }
 
 .form-control.l {
@@ -26,11 +26,12 @@
 }
 
 .form-control.m {
-	margin-bottom: 10px;
+	margin-bottom: 15px;
 }
 
 .titlebar-button.back {
-	right: 2px;
+	top: 4px;
+	right: 4px;
 	transition: transform .1s linear;
 }
 
@@ -45,6 +46,9 @@ input[type="text"] {
 	color: white;
 	padding: 5px;
 	border-radius: 5px;
+	width: 100%;
+	box-sizing: border-box;
+}
 }
 
 .form-control.m .input-error {
@@ -55,6 +59,10 @@ input[type="text"]:focus {
 	border-color: white;
 }
 
+label {
+	margin-bottom: 0.5rem;
+}
+
 select {
 	background: #1d1d1d;
 	border: 1px solid rgba(255, 255, 255, 0.5);
@@ -62,22 +70,23 @@ select {
 	color: white;
 	padding: 5px;
 	border-radius: 5px;
-	max-width: 240px;
+	width: 100%;
 }
 
 .settings-scroll {
 	overflow-y: auto;
-	height: calc(100vh - 50px);
 	display: flex;
 	flex-direction: column;
 	justify-content: start;
 	align-items: center;
-	margin-bottom: 30px;
 	width: 100%;
+	padding: 1rem 1rem 0;
+	box-sizing: border-box;
 }
 
 .microphone-bar {
-	width: 200px;
+	width: 100%;
+	box-sizing: border-box;
 	height: 10px;
 	background: #1d1d1d;
 	border: 1px solid rgba(255, 255, 255, 0.5);
