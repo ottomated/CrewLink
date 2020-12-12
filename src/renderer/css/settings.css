@@ -49,6 +49,9 @@ input[type="text"] {
 	width: 100%;
 	box-sizing: border-box;
 }
+
+input[type="radio"] {
+	margin: 0 4px 0 0;
 }
 
 .form-control.m .input-error {
@@ -57,6 +60,11 @@ input[type="text"] {
 
 input[type="text"]:focus {
 	border-color: white;
+}
+
+input[disabled] {
+	border-color: #444;
+	color: #444;
 }
 
 label {

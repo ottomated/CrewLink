@@ -269,21 +269,18 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 				type: 'setOne',
 				action: ['pushToTalk', false]
 			})}>
-				<input type="checkbox" checked={!settings.pushToTalk} style={{ color: '#f1c40f' }} readOnly />
+				<input type="radio" name="push-to-talk" checked={!settings.pushToTalk} style={{ color: '#f1c40f' }} readOnly />
 				<label>Voice Activity</label>
 			</div>
-			<div className={`form-control${settings.pushToTalk ? '' : ' m'}`} style={{ color: '#f1c40f' }} onClick={() => setSettings({
+			<div className="form-control m" style={{ color: '#f1c40f' }} onClick={() => setSettings({
 				type: 'setOne',
 				action: ['pushToTalk', true]
 			})}>
-				<input type="checkbox" checked={settings.pushToTalk} readOnly />
+				<input type="radio" name="push-to-talk" checked={settings.pushToTalk} readOnly />
 				<label>Push to Talk</label>
+				<input style={{marginTop: 4}} disabled={!settings.pushToTalk} spellCheck={false} type="text" value={settings.pushToTalkShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'pushToTalkShortcut')} />
 			</div>
-			{settings.pushToTalk &&
-				<div className="form-control m" style={{ color: '#f1c40f' }}>
-					<input spellCheck={false} type="text" value={settings.pushToTalkShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'pushToTalkShortcut')} />
-				</div>
-			}
+
 			<div className="form-control l m" style={{ color: '#2ecc71' }}>
 				<label>Deafen Shortcut</label>
 				<input spellCheck={false} type="text" value={settings.deafenShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'deafenShortcut')} />
