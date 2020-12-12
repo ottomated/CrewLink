@@ -295,13 +295,12 @@ const Voice: React.FC = function () {
 							}));
 							
 							let overlay = remote.getGlobal("overlay");
-							if (overlay) {
-								var reallyTalking = talking && gain.gain.value > 0;
-								overlay.webContents.send(reallyTalking ? 'overlayTalking' : 'overlayNotTalking', socketPlayerIds[peer]);
-							}
+							if (overlay) overlay.webContents.send('overlaySocketIds', socketPlayerIds);
 							
 							return socketPlayerIds;
 						});
+						let overlay = remote.getGlobal("overlay");
+						if (overlay) overlay.webContents.send('overlaySocketIds', socketPlayerIds);
 					};
 					audioElements.current[peer] = { element: audio, gain, pan };
 				});
@@ -315,7 +314,8 @@ const Voice: React.FC = function () {
 			}
 			socket.on('join', async (peer: string, playerId: number) => {
 				createPeerConnection(peer, true);
-				setSocketPlayerIds(old => ({ ...old, [peer]: playerId }));
+				setSocketPlayerIds(old => ({ ...old, [peer]: playerId }));				
+				
 			});
 			socket.on('signal', ({ data, from }: { data: Peer.SignalData, from: string }) => {
 				let connection: Peer.Instance;
@@ -364,6 +364,8 @@ const Voice: React.FC = function () {
 		for (const k of Object.keys(socketPlayerIds)) {
 			playerSocketIds[socketPlayerIds[k]] = k;
 		}
+		let overlay = remote.getGlobal("overlay");
+		if (overlay) overlay.webContents.send('overlaySocketIds', socketPlayerIds);
 		for (const player of otherPlayers) {
 			const audio = audioElements.current[playerSocketIds[player.id]];
 			if (audio) {

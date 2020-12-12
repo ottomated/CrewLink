@@ -12,17 +12,23 @@ interface OtherDead {
 	[playerId: number]: boolean;
 }
 
+interface SocketIdMap {
+	[socketId: string]: number;
+}
+
 export default function Overlay() {
 	const [status, setStatus] = useState("WAITING");
 	const [gameState, setGameState] = useState<AmongUsState>({} as AmongUsState);
+	const [settings, setSettings] = useState<ISettings>({} as ISettings);
+	const [socketPlayerIds, setSocketPlayerIds] = useState<SocketIdMap>({});
 	const [talking, setTalking] = useState(false);
 	const [otherTalking, setOtherTalking] = useState<OtherTalking>({});
+	const [otherDead, setOtherDead] = useState<OtherDead>({});
 	const myPlayer = useMemo(() => {
 			if (!gameState || !gameState.players) return undefined;
 			else return gameState.players.find(p => p.isLocal);
 		}, [gameState]);
-	const [settings, setSettings] = useState<ISettings>({} as ISettings);
-	const [otherDead, setOtherDead] = useState<OtherDead>({});
+
 	/*const otherPlayers = useMemo(() => {
 		let otherPlayers: Player[];
 		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) otherPlayers = [];
@@ -35,7 +41,10 @@ export default function Overlay() {
 	const relevantPlayers = useMemo(() => {
 		let relevantPlayers: Player[];
 		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) relevantPlayers = [];
-		else relevantPlayers = gameState.players.filter(p => ((!myPlayer.isDead && !otherDead[p.id]) || myPlayer.isDead));
+		else relevantPlayers = gameState.players.filter(p => (
+				(Object.values(socketPlayerIds).includes(p.id) || p.isLocal) && 
+				((!myPlayer.isDead && !otherDead[p.id]) || myPlayer.isDead)
+			));
 		return relevantPlayers;
 	}, [gameState]);
 	
@@ -70,6 +79,10 @@ export default function Overlay() {
 			setGameState(newState);
 		};
 		
+		const onOverlaySocketIds = (_: Electron.IpcRendererEvent, ids: SocketIdMap) => {
+			setSocketPlayerIds(ids);
+		};
+		
 		
 		const onOverlayTalkingSelf = (_: Electron.IpcRendererEvent, talking: boolean) => {
 			setTalking(talking);
@@ -93,6 +106,7 @@ export default function Overlay() {
 		ipcRenderer.on('overlaySettings', onOverlaySettings);
 		ipcRenderer.on('overlayState', onOverlayState);
 		ipcRenderer.on('overlayGameState', onOverlayGameState);
+		ipcRenderer.on('overlaySocketIds', onOverlaySocketIds);
 		ipcRenderer.on('overlayTalkingSelf', onOverlayTalkingSelf);
 		ipcRenderer.on('overlayTalking', onOverlayTalking);
 		ipcRenderer.on('overlayNotTalking', onOverlayNotTalking);
@@ -100,6 +114,7 @@ export default function Overlay() {
 			ipcRenderer.off('overlaySettings', onOverlaySettings);
 			ipcRenderer.off('overlayState', onOverlayState);
 			ipcRenderer.off('overlayGameState', onOverlayGameState);
+			ipcRenderer.off('overlaySocketIds', onOverlaySocketIds);
 			ipcRenderer.off('overlayTalkingSelf', onOverlayTalkingSelf);
 			ipcRenderer.off('overlayTalking', onOverlayTalking);
 			ipcRenderer.off('overlayNotTalking', onOverlayNotTalking);
@@ -143,10 +158,10 @@ export default function Overlay() {
 			playerArea = <div className="otherplayers">
 						{
 							playerList.map(player => {
-								let connected = true;
+								const connected = Object.values(socketPlayerIds).includes(player.id) || player.isLocal;
 								let name = settings.compactOverlay ? "" : <span><small>{player.name}</small></span>
 								return (
-									<div style={{width:"60px", textAlign:"center"}}>
+									<div key={player.id} style={{width:"60px", textAlign:"center"}}>
 										<div style={{paddingLeft:"5px"}}>
 											<Avatar key={player.id} player={player}
 												talking={!connected || otherTalking[player.id] || (player.isLocal && talking)}
