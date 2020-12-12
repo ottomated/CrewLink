@@ -41,7 +41,9 @@ const store = new Store<ISettings>({
 		},
 		'1.1.6': store => {
 			const enableSpatialAudio = store.get('stereoInLobby');
-			store.set('enableSpatialAudio', enableSpatialAudio);
+			if (typeof enableSpatialAudio === 'boolean') {
+				store.set('enableSpatialAudio', enableSpatialAudio);
+			}
 			// @ts-ignore
 			store.delete('stereoInLobby');
 		}
