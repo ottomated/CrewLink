@@ -1,5 +1,4 @@
-import React, { createContext, useEffect, useReducer, useState } from 'react';
-import ReactDOM from 'react-dom';        
+import React, { useEffect, useReducer, useState } from 'react';
 import Voice from './Voice';
 import Menu from './Menu';
 import { ipcRenderer, remote } from 'electron';

@@ -52,7 +52,7 @@ function createMainWindow() {
 	}
 
 	if (isDevelopment) {
-		window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}`);
+		window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=app`);
 	}
 	else {
 		window.loadURL(formatUrl({
@@ -66,7 +66,7 @@ function createMainWindow() {
 	}
 
 	window.on('closed', () => {
-		mainWindow = null;
+		global.mainWindow = null;
 	});
 
 	window.webContents.on('devtools-opened', () => {
@@ -109,7 +109,7 @@ if (!gotTheLock) {
 		} else {
 
 			overlay.loadURL(formatUrl({
-				pathname: path.join(__dirname, 'index.html'),
+				pathname: joinPath(__dirname, 'index.html'),
 				protocol: 'file',
 				query: {
 					version: autoUpdater.currentVersion.version,
@@ -119,9 +119,9 @@ if (!gotTheLock) {
 			}))
 		}
 		//overlay.webContents.openDevTools()
+		//overlayWindow.attachTo(overlay, 'Untitled - Notepad')
 		overlay.setIgnoreMouseEvents(true);
 		overlayWindow.attachTo(overlay, 'Among Us')
-		//overlayWindow.attachTo(overlay, 'Untitled - Notepad')
 		  
 		return overlay;
 	}

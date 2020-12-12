@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState, useContext } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ipcRenderer } from 'electron';
-import { AmongUsState, GameState, Player } from '../main/GameReader';
+import { GameState, AmongUsState, Player } from '../common/AmongUsState';
 import Avatar from './Avatar';
-//import { SettingsContext } from "./App";
+import { ISettings } from '../common/ISettings';
 
 interface OtherTalking {
 	[playerId: number]: boolean;
@@ -21,31 +21,27 @@ export default function Overlay() {
 			if (!gameState || !gameState.players) return undefined;
 			else return gameState.players.find(p => p.isLocal);
 		}, [gameState]);
-	//const [settings] = useContext(SettingsContext);
-	
+	const [settings, setSettings] = useState<ISettings>({} as ISettings);
+	const [otherDead, setOtherDead] = useState<OtherDead>({});
 	/*const otherPlayers = useMemo(() => {
 		let otherPlayers: Player[];
 		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) otherPlayers = [];
 		else otherPlayers = gameState.players.filter(p => !p.isLocal);
 
 		return otherPlayers;
-	}, [gameState]);*/
+	}, [gameState]);*/	
 	
-	const talkingPlayers = useMemo(() => {
-		let talkingPlayers: Player[];
-		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) talkingPlayers = [];
-		else talkingPlayers = gameState.players.filter(p => (otherTalking[p.id] || (p.isLocal && talking)));
-		return talkingPlayers;
-	}, [gameState]);
 	
-	const [otherDead, setOtherDead] = useState<OtherDead>({});
-
 	const relevantPlayers = useMemo(() => {
 		let relevantPlayers: Player[];
 		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) relevantPlayers = [];
 		else relevantPlayers = gameState.players.filter(p => ((!myPlayer.isDead && !otherDead[p.id]) || myPlayer.isDead));
 		return relevantPlayers;
 	}, [gameState]);
+	
+	let talkingPlayers: Player[];
+	if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) talkingPlayers = [];
+	else talkingPlayers = gameState.players.filter(p => (otherTalking[p.id] || (p.isLocal && talking)));
 	
 	useEffect(() => {
 		if (gameState.gameState === GameState.LOBBY) {
@@ -61,7 +57,11 @@ export default function Overlay() {
 		}
 	}, [gameState.gameState]);
 	
-	useEffect(() => {			
+	useEffect(() => {		
+		const onOverlaySettings = (_: Electron.IpcRendererEvent, newSettings: any) => {
+			setSettings(newSettings);
+		};
+		
 		const onOverlayState = (_: Electron.IpcRendererEvent, state: string) => {
 			setStatus(state);
 		};
@@ -69,6 +69,7 @@ export default function Overlay() {
 		const onOverlayGameState = (_: Electron.IpcRendererEvent, newState: AmongUsState) => {
 			setGameState(newState);
 		};
+		
 		
 		const onOverlayTalkingSelf = (_: Electron.IpcRendererEvent, talking: boolean) => {
 			setTalking(talking);
@@ -89,12 +90,14 @@ export default function Overlay() {
 			
 		};
 
+		ipcRenderer.on('overlaySettings', onOverlaySettings);
 		ipcRenderer.on('overlayState', onOverlayState);
 		ipcRenderer.on('overlayGameState', onOverlayGameState);
 		ipcRenderer.on('overlayTalkingSelf', onOverlayTalkingSelf);
 		ipcRenderer.on('overlayTalking', onOverlayTalking);
 		ipcRenderer.on('overlayNotTalking', onOverlayNotTalking);
 		return () => {
+			ipcRenderer.off('overlaySettings', onOverlaySettings);
 			ipcRenderer.off('overlayState', onOverlayState);
 			ipcRenderer.off('overlayGameState', onOverlayGameState);
 			ipcRenderer.off('overlayTalkingSelf', onOverlayTalkingSelf);
@@ -103,8 +106,7 @@ export default function Overlay() {
 		}
 	}, []);
 	
-	// TODO: access settings and read settings.compactOverlay
-	var compact = false;
+	var compact = settings.compactOverlay;
 	
 	var extra:JSX.Element = <></>;
 	if (gameState.gameState == GameState.LOBBY) {

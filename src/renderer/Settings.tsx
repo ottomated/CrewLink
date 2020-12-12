@@ -6,6 +6,7 @@ import './css/settings.css';
 import MicrophoneSoundBar from './MicrophoneSoundBar';
 import TestSpeakersButton from './TestSpeakersButton';
 import { ISettings } from '../common/ISettings';
+import { remote } from 'electron';
 
 const keys = new Set(['Space', 'Backspace', 'Delete', 'Enter', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown', 'Escape', 'LControl', 'LShift', 'LAlt', 'RControl', 'RShift', 'RAlt']);
 
@@ -172,6 +173,11 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 			action: store.store
 		});
 	}, []);
+	
+	let overlay = remote.getGlobal('overlay');
+	if (overlay) {
+		overlay.webContents.send('overlaySettings', settings);
+	}
 
 	useEffect(() => {
 		setUnsavedCount(s => s + 1);
