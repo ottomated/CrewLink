@@ -7,6 +7,7 @@ import MicrophoneSoundBar from './MicrophoneSoundBar';
 import TestSpeakersButton from './TestSpeakersButton';
 import { ISettings, ILobbySettings } from '../common/ISettings';
 import { GameState } from '../common/AmongUsState';
+import { remote } from 'electron';
 
 const keys = new Set(['Space', 'Backspace', 'Delete', 'Enter', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown', 'Escape', 'LControl', 'LShift', 'LAlt', 'RControl', 'RShift', 'RAlt']);
 

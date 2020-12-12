@@ -26,6 +26,7 @@ export interface Player {
 	x: number;
 	y: number;
 	inVent: boolean;
+	clientId: number;
 }
 export enum GameState {
 	LOBBY, TASKS, DISCUSSION, MENU, UNKNOWN

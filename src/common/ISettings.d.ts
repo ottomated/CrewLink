@@ -15,9 +15,11 @@ export interface ISettings {
 	enableSpatialAudio: boolean;
 	localLobbySettings: {
 		maxDistance: number;
+		haunting: boolean;
 	}
 }
 
 export interface ILobbySettings {
 	maxDistance: number;
+	haunting: boolean;
 }

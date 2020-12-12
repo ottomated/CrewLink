@@ -6,9 +6,9 @@ import { AmongUsState, GameState, Player } from '../common/AmongUsState';
 import Peer from 'simple-peer';
 import { ipcRenderer, remote } from 'electron';
 import VAD from './vad';
-import { ISettings } from '../common/ISettings';
-import { validatePeerConfig } from './validatePeerConfig';
 import fs from 'fs';
+import { ILobbySettings, ISettings } from '../common/ISettings';
+import { validatePeerConfig } from './validatePeerConfig';
 
 export interface ExtendedAudioElement extends HTMLAudioElement {
 	setSinkId: (sinkId: string) => Promise<void>;
@@ -160,6 +160,13 @@ const Voice: React.FC = function () {
 	const [deafenedState, setDeafened] = useState(false);
 	const [connected, setConnected] = useState(false);
 	const [inRoom, setInRoom] = useState(false);
+
+	var reverbFile:any = null;
+	if (fs.existsSync("static/reverb.ogx"))
+		reverbFile = fs.readFileSync('static/reverb.ogx');
+	else if (fs.existsSync("resources/static/reverb.ogx"))
+		reverbFile = fs.readFileSync('resources/static/reverb.ogx');
+	
 
 	// Handle pushToTalk, if set
 	useEffect(() => {
@@ -407,7 +414,7 @@ const Voice: React.FC = function () {
 							return socketPlayerIds;
 						});
 					};
-					audioElements.current[peer] = { element: audio, gain, pan };
+					audioElements.current[peer] = { element: audio, gain, pan, reverbGain, reverb, compressor };
 				});
 				connection.on('signal', (data) => {
 					socket.emit('signal', {
