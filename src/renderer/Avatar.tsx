@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from "react";
-import { Player } from "../main/GameReader";
-import { backLayerHats, hatOffsets, hats, skins, players } from "./cosmetics";
-import Tooltip from "react-tooltip-lite";
+import React, { useEffect, useRef } from 'react';
+import { Player } from '../common/AmongUsState';
+import { backLayerHats, hatOffsets, hats, skins, players } from './cosmetics';
+import Tooltip from 'react-tooltip-lite';
 import { SocketConfig } from "./Voice";
 
 export interface CanvasProps {
@@ -21,7 +21,7 @@ export interface AvatarProps {
 	socketConfig? : SocketConfig
 }
 
-export default function Avatar({ talking, deafened, borderColor, isAlive, player, size, socketConfig }: AvatarProps) {
+const Avatar: React.FC<AvatarProps> = function ({ talking, deafened, borderColor, isAlive, player, size, socketConfig}: AvatarProps) {
 	const status = isAlive ? 'alive' : 'dead';
 	let image = players[status][player.colorId];
 	if (!image) image = players[status][0];
@@ -48,7 +48,7 @@ export default function Avatar({ talking, deafened, borderColor, isAlive, player
 			
 		</Tooltip>
 	);
-}
+};
 
 function Canvas({ src, hat, skin, isAlive }: CanvasProps) {
 	const canvas = useRef<HTMLCanvasElement>(null);
@@ -59,16 +59,26 @@ function Canvas({ src, hat, skin, isAlive }: CanvasProps) {
 	useEffect(() => {
 		(async () => {
 			if (!canvas.current || !image.current || !hatImg.current || !skinImg.current) return;
-			const ctx = canvas.current.getContext('2d')!;
+			const ctx = canvas.current.getContext('2d');
+			if (!ctx) return;
 
 			if (!image.current.complete) {
-				await new Promise(r => image!.current!.onload = r);
+				await new Promise(r => {
+					if (image?.current)
+						image.current.onload = r;
+				});
 			}
 			if (!hatImg.current.complete) {
-				await new Promise(r => hatImg!.current!.onload = r);
+				await new Promise(r => {
+					if (hatImg?.current)
+						hatImg.current.onload = r;
+				});
 			}
 			if (!skinImg.current.complete) {
-				await new Promise(r => skinImg!.current!.onload = r);
+				await new Promise(r => {
+					if (skinImg?.current)
+						skinImg.current.onload = r;
+				});
 			}
 
 			canvas.current.width = image.current.width;
@@ -77,8 +87,14 @@ function Canvas({ src, hat, skin, isAlive }: CanvasProps) {
 			ctx.drawImage(image.current, 0, 0);
 
 			function drawHat() {
-				let hatY = 17 - hatOffsets[hat];
-				ctx.drawImage(hatImg.current!, 0, hatY > 0 ? 0 : -hatY, hatImg.current!.width, hatImg.current!.height, canvas.current!.width / 2 - hatImg.current!.width / 2 + 2, Math.max(hatY, 0), hatImg.current!.width, hatImg.current!.height);
+				if (!ctx || !hatImg.current || !canvas.current) return;
+				const hatY = 17 - hatOffsets[hat];
+				ctx.drawImage(hatImg.current,
+					0, hatY > 0 ? 0 : -hatY,
+					hatImg.current.width, hatImg.current.height,
+					canvas.current.width / 2 - hatImg.current.width / 2 + 2, Math.max(hatY, 0),
+					hatImg.current.width, hatImg.current.height
+				);
 			}
 
 			if (isAlive) {
@@ -100,5 +116,7 @@ function Canvas({ src, hat, skin, isAlive }: CanvasProps) {
 			<img src={skins[skin]} ref={skinImg} style={{ display: 'none' }} />
 			<canvas className='canvas' ref={canvas} />
 		</>
-	)
+	);
 }
+
+export default Avatar;

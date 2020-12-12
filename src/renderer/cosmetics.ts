@@ -138,12 +138,12 @@ import brownDead from '../../static/players/brown-dead.png';// @ts-ignore
 import cyanDead from '../../static/players/cyan-dead.png';// @ts-ignore
 import limeDead from '../../static/players/lime-dead.png';
 
-export interface playersInterface {
-	alive: any[]
-	dead: any[]
+export interface PlayerImageColors {
+	alive: string[];
+	dead: string[];
 }
 
-export const players: playersInterface = {
+export const players: PlayerImageColors = {
 	alive: [redAlive, blueAlive, greenAlive, pinkAlive, orangeAlive, yellowAlive, blackAlive, whiteAlive, purpleAlive, brownAlive, cyanAlive, limeAlive],
 	dead: [redDead, blueDead, greenDead, pinkDead, orangeDead, yellowDead, blackDead, whiteDead, purpleDead, brownDead, cyanDead, limeDead],
 };
@@ -167,7 +167,7 @@ export const skins = [
 ];
 export const hatOffsets = [
 	45, 25, 50, 37/*T*/, 33, 60/*T*/, 70, 20, 27, 35, 41, 52, 35, 29, 40, 49, 34, 40, 25, 52, 55, 46, 41, 49, 46, 36, 44, 59, 44, 39, 30, 32, 37, 26, 61, 40, 43, 26, 50/*T*/, 51, 37, 44/*T*/, 30, 22, 40, 42, 8, 29, 32, 36, 28, 22, 39, 42, 24, 30, 47, 27, 52, 44, 26, 44, 48, 47, 42, 48, 50, 32, 44, 38, 56, 19, 27, 30, 42/*T*/, 43, 60, 34, 10, 45, 50, 33, 13, 2, 40/*T*/, 32, 32, 55, 22, 999, 26, 29, 43
-]
+];
 
 export const backLayerHats = new Set([38, 3, 5, 14, 28]);
 
