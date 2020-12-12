@@ -295,7 +295,11 @@ const Voice: React.FC = function () {
 							}));
 							
 							let overlay = remote.getGlobal("overlay");
-							if (overlay) overlay.webContents.send('overlaySocketIds', socketPlayerIds);
+							if (overlay) {
+								var reallyTalking = talking && gain.gain.value > 0;
+								overlay.webContents.send(reallyTalking ? 'overlayTalking' : 'overlayNotTalking', socketPlayerIds[peer]);
+								overlay.webContents.send('overlaySocketIds', socketPlayerIds);
+							}
 							
 							return socketPlayerIds;
 						});
@@ -314,8 +318,7 @@ const Voice: React.FC = function () {
 			}
 			socket.on('join', async (peer: string, playerId: number) => {
 				createPeerConnection(peer, true);
-				setSocketPlayerIds(old => ({ ...old, [peer]: playerId }));				
-				
+				setSocketPlayerIds(old => ({ ...old, [peer]: playerId }));								
 			});
 			socket.on('signal', ({ data, from }: { data: Peer.SignalData, from: string }) => {
 				let connection: Peer.Instance;
