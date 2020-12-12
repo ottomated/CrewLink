@@ -209,7 +209,6 @@ const Voice: React.FC = function () {
 						overlay.webContents.send('overlayTalkingSelf', false);
 					}
 				},
-				// onUpdate: console.log,
 				noiseCaptureDuration: 1,
 				stereo: false
 			});

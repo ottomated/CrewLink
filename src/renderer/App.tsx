@@ -38,7 +38,7 @@ export default function App() {
 	});
 		
 
-	useEffect(() => {			
+	useEffect(() => {
 		const onOpen = (_: Electron.IpcRendererEvent, isOpen: boolean) => {
 			setState(isOpen ? AppState.VOICE : AppState.MENU);
 			let overlay = remote.getGlobal('overlay');
@@ -108,5 +108,3 @@ export default function App() {
 		</GameStateContext.Provider>
 	);
 }
-
-//ReactDOM.render(<App />, document.getElementById('app'));

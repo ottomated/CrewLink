@@ -105,19 +105,7 @@ export default function Overlay() {
 			ipcRenderer.off('overlayNotTalking', onOverlayNotTalking);
 		}
 	}, []);
-	
-	var compact = settings.compactOverlay;
-	
-	var extra:JSX.Element = <></>;
-	if (gameState.gameState == GameState.LOBBY) {
-		extra = <p>"State is Lobby."</p>		
-	}
-	
-	if (myPlayer != undefined) {
-		extra = <></>;
-
-	}
-
+		
 	document.body.style.backgroundColor = "rgba(255, 255, 255, 0)";
 	document.body.style.paddingTop = "0";
 	var baseCSS:any = {
@@ -144,7 +132,7 @@ export default function Overlay() {
 		baseCSS["width"] = "800px";
 		baseCSS["backgroundColor"] = "rgba(0, 0, 0, 0.5)"; //0.25
 		topArea = <></>;
-		if ((compact || gameState.gameState == GameState.TASKS) && playerList) {
+		if ((settings.compactOverlay || gameState.gameState == GameState.TASKS) && playerList) {
 			playerList = talkingPlayers;
 			baseCSS["backgroundColor"] = "rgba(0, 0, 0, 0)";
 		}
@@ -153,24 +141,24 @@ export default function Overlay() {
 	var playerArea:JSX.Element = <></>;
 	if (playerList) {
 			playerArea = <div className="otherplayers">
-				{
+						{
 							playerList.map(player => {
 								let connected = true;
-								let name = compact ? "" : <span><small>{player.name}</small></span>
+								let name = settings.compactOverlay ? "" : <span><small>{player.name}</small></span>
 								return (
 									<div style={{width:"60px", textAlign:"center"}}>
 										<div style={{paddingLeft:"5px"}}>
 											<Avatar key={player.id} player={player}
 												talking={!connected || otherTalking[player.id] || (player.isLocal && talking)}
 												borderColor={connected ? '#2ecc71' : '#c0392b'}
-												isAlive={!otherDead[player.id]}
+												isAlive={!otherDead[player.id] || (player.isLocal && !player.isDead)}
 												size={50} />
 										</div>
 										{name}
 									</div>
 								);
 							})
-				}
+						}
 			</div>
 	}
 		
@@ -179,10 +167,7 @@ export default function Overlay() {
 	return (
 	<div style={baseCSS}>
 		{topArea}
-		{extra}
-		<div className="otherplayers-left">
 		{playerArea}
-		</div>
 	</div>
 	)
 }
