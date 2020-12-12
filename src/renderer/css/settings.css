@@ -6,7 +6,7 @@
 	backdrop-filter: blur(4px);
 	position: absolute;
 	top: 0;
-	left:0;
+	left: 0;
 	z-index: 10;
 	display: flex;
 	flex-direction: column;
@@ -67,11 +67,13 @@ select {
 
 .settings-scroll {
 	overflow-y: auto;
-	height: calc(100vh - 20px);
+	height: calc(100vh - 50px);
 	display: flex;
 	flex-direction: column;
 	justify-content: start;
 	align-items: center;
+	margin-bottom: 30px;
+	width: 100%;
 }
 
 .microphone-bar {
@@ -80,6 +82,8 @@ select {
 	background: #1d1d1d;
 	border: 1px solid rgba(255, 255, 255, 0.5);
 	border-radius: 5px;
+	margin: 5px auto;
+	overflow: hidden;
 }
 
 .microphone-bar-inner {
@@ -91,4 +95,16 @@ select {
 .test-speakers {
 	width: fit-content;
 	margin: 5px auto;
+}
+
+.settings-alert {
+	background: #f1c40f;
+	color: black;
+	position: absolute;
+	bottom: 20px;
+	left: 0;
+	height: 30px;
+	justify-content: center;
+	align-items: center;
+	width: 100vw;
 }
