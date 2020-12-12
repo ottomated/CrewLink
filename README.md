@@ -88,12 +88,13 @@ mkdir -p node_modules\iohook\builds\electron-v80-win32-x64\build\Release\
 cp iohook\iohook.node node_modules\iohook\builds\electron-v80-win32-x64\build\Release\
 cp iohook\uiohook.dll node_modules\iohook\builds\electron-v80-win32-x64\build\Release\
 ```
-Windows:
+Windows (CMD):
 ```sh
-mkdir -p node_modules/iohook/builds/electron-v80-win32-x64/build/Release/
-cp iohook/iohook.node node_modules/iohook/builds/electron-v80-win32-x64/build/Release/
-cp iohook/uiohook.dll node_modules/iohook/builds/electron-v80-win32-x64/build/Release/
+mkdir node_modules\iohook\builds\electron-v80-win32-x64\build\Release
+copy iohook\iohook.node node_modules\iohook\builds\electron-v80-win32-x64\build\Release
+copy iohook\uiohook.dll node_modules\iohook\builds\electron-v80-win32-x64\build\Release
 ```
+- Note: If using `bash` on Windows, use the Linux commands above with the `\` replaced with `/`
 3. Run the project
 ```JS
 yarn dev
