@@ -13,6 +13,7 @@ export interface ISettings {
 	},
 	hideCode: boolean;
 	enableSpatialAudio: boolean;
+	compactOverlay: boolean;
 	localLobbySettings: {
 		maxDistance: number;
 		haunting: boolean;

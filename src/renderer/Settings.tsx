@@ -113,6 +113,10 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: true
 		},
+		compactOverlay: {
+			type: 'boolean',
+			default: false
+		},
 		localLobbySettings: {
 			type: 'object',
 			default: {
@@ -214,6 +218,11 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 			action: store.store
 		});
 	}, []);
+	
+	let overlay = remote.getGlobal('overlay');
+	if (overlay) {
+		overlay.webContents.send('overlaySettings', settings);
+	}
 
 	useEffect(() => {
 		setUnsavedCount(s => s + 1);
@@ -374,12 +383,19 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 				<label>Show on top of the game</label>
 			</div>
 			
-		
+					<div className="form-control m" style={{ color: '#F45837' }} onClick={() => setSettings({
+				type: 'setOne',
+				action: ['compactOverlay', !settings.compactOverlay]
+			})}>
+				<input type="checkbox" checked={settings.compactOverlay} style={{ color: '#F45837' }} readOnly />
+				<label>Compact Overlay</label>
+			</div>
 			<div className='settings-alert' style={{ display: unsaved ? 'flex' : 'none' }}>
 				<span>
 					Exit to apply changes
 				</span>
 			</div>
+
 			{gameState.gameState !== undefined && gameState.gameState !== GameState.MENU &&
 				<h2 style={{ color: '#e74c3c' }}>Lobby settings</h2>
 			}
