@@ -47,7 +47,6 @@ function App() {
 		};
 		let shouldInit = true;
 		ipcRenderer.invoke(IpcHandlerMessages.START_HOOK).then((error: { error: string } | null) => {
-			console.log({ result: error })
 			if (shouldInit) {
 				if (error) {
 					alert(error.error + '\n\nRestart the app after you fix this.');
@@ -70,7 +69,7 @@ function App() {
 			ipcRenderer.off(IpcRendererMessages.NOTIFY_GAME_OPENED, onOpen);
 			ipcRenderer.off(IpcRendererMessages.NOTIFY_GAME_STATE_CHANGED, onState);
 			shouldInit = false;
-		}
+		};
 	}, []);
 
 

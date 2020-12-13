@@ -1,6 +1,6 @@
 import { DataType, findModule, getProcesses, ModuleObject, openProcess, ProcessObject, readBuffer, readMemory as readMemoryRaw } from 'memoryjs';
 import Struct from 'structron';
-import { IpcRendererMessages } from "../common/ipc-messages";
+import { IpcRendererMessages } from '../common/ipc-messages';
 import patcher from '../patcher';
 import { GameState, AmongUsState, Player } from '../common/AmongUsState';
 import { IOffsets } from './IOffsets';

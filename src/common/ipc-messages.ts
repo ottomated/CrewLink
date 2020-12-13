@@ -4,7 +4,7 @@ export enum IpcMessages {
   OPEN_AMONG_US_GAME = 'OPEN_AMONG_US_GAME',
   RESTART_CREWLINK = 'RESTART_CREWLINK',
   QUIT_CREWLINK = 'QUIT_CREWLINK',
-};
+}
 
 // Renderer --> Main (sendSync/on)
 export enum IpcSyncMessages {

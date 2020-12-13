@@ -2,8 +2,8 @@ import React from 'react';
 import { ImpulseSpinner as Spinner } from 'react-spinners-kit';
 import { ipcRenderer } from 'electron';
 import './css/menu.css';
-import Footer from "./Footer";
-import { IpcMessages } from "../common/ipc-messages";
+import Footer from './Footer';
+import { IpcMessages } from '../common/ipc-messages';
 
 export interface MenuProps {
 	errored: boolean
