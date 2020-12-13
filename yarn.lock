@@ -1844,11 +1844,6 @@ atomically@^1.3.1:
   resolved "https://registry.yarnpkg.com/atomically/-/atomically-1.6.0.tgz#d8d47f99834dbb88bd6266cc69a1447e2f3675ec"
   integrity sha512-mu394MH+yY2TSKMyH+978PcGMZ8sRNks2PuVeH6c2ED4mimR2LEE039MVcIGVhtmG54cKEMh4gKhxKL/CLaX/w==
 
-audio-activity@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/audio-activity/-/audio-activity-1.0.0.tgz#f653b9668582e7fd6a4c9b9997abe26607bcc456"
-  integrity sha1-9lO5ZoWC5/1qTJuZl6viZge8xFY=
-
 audio-frequency-to-index@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/audio-frequency-to-index/-/audio-frequency-to-index-2.0.0.tgz#4c4bca9f3bfec38c773aa6b5604c117adc982d45"
@@ -5277,9 +5272,10 @@ invert-kv@^2.0.0:
   resolved "https://registry.yarnpkg.com/invert-kv/-/invert-kv-2.0.0.tgz#7393f5afa59ec9ff5f67a27620d11c226e3eec02"
   integrity sha512-wPVv/y/QQ/Uiirj/vh3oP+1Ww+AWehmi1g5fFWGPF6IpCBCDVrhgHRMvrLfdYcwDh3QJbGXDW4JAuzxElLSqKA==
 
-"iohook@git://github.com/ykhwong/iohook":
-  version "0.6.6"
-  resolved "git://github.com/ykhwong/iohook#f92572d0f75fd959d7bf16ad4b3a05a48af21a49"
+iohook@^0.7.2:
+  version "0.7.2"
+  resolved "https://registry.yarnpkg.com/iohook/-/iohook-0.7.2.tgz#e4f4db4a096b33d8975b248adc84de3402b52c1f"
+  integrity sha512-PObMWA3Cx+y1s6Xu6EssuzzfW4bP2HgPsss73ELOSLCH1HEW1RnY/pkrqqVwZIu17uKKqtA6IACBtiTHFT/xXw==
   dependencies:
     bindings "^1.3.0"
     node-abi "^2.4.0"
