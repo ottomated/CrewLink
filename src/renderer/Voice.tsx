@@ -414,7 +414,6 @@ const Voice: React.FC = function () {
 				}
 			</div>
 			<div className="footer">
-				<hr />
 				{displayedVoiceServer}
 			</div>
 		</div>
