@@ -116,17 +116,17 @@ export default function Overlay() {
 	document.body.style.paddingTop = "0";
 	
 	var baseCSS:any = {
-      backgroundColor: "rgba(0, 0, 0, 0.85)",
-	  width: "100px",
-	  borderRadius: "8px",
-	  position: "relative",
-	  marginTop: "-16px",
-	  paddingLeft: "8px",
-    };
-	var playersCSS:any = {}
+		backgroundColor: "rgba(0, 0, 0, 0.85)",
+		width: "100px",
+		borderRadius: "8px",
+		position: "relative",
+		marginTop: "-16px",
+		paddingLeft: "8px",
+	};
 	var topArea = <p><b style={{color:"#9b59b6"}}>CrewLink</b> ({status})</p>
+	var playersCSS:any = {}
 	var playerList:Player[] = [];
-	if (gameState.players && gameState.gameState != GameState.MENU) playerList = relevantPlayers;//gameState.players;
+	if (gameState.players && gameState.gameState != GameState.MENU) playerList = relevantPlayers;
 	
 	if (gameState.gameState == GameState.UNKNOWN || gameState.gameState == GameState.MENU) {
 		baseCSS["left"] = "8px";
@@ -158,26 +158,26 @@ export default function Overlay() {
 
 	var playerArea:JSX.Element = <></>;
 	if (playerList) {
-			playerArea = <div className="otherplayers" style={playersCSS}>
-						{
-							playerList.map(player => {
-								const connected = Object.values(socketPlayerIds).includes(player.id) || player.isLocal;
-								let name = settings.compactOverlay ? "" : <span><small>{player.name}</small></span>
-								return (
-									<div key={player.id} style={{width:"60px", textAlign:"center"}}>
-										<div style={{paddingLeft:"5px"}}>
-											<Avatar key={player.id} player={player}
-												talking={!connected || otherTalking[player.id] || (player.isLocal && talking)}
-												borderColor={connected ? '#2ecc71' : '#c0392b'}
-												isAlive={!otherDead[player.id] || (player.isLocal && !player.isDead)}
-												size={50} />
-										</div>
-										{name}
+		playerArea = <div className="otherplayers" style={playersCSS}>
+					{
+						playerList.map(player => {
+							const connected = Object.values(socketPlayerIds).includes(player.id) || player.isLocal;
+							let name = settings.compactOverlay ? "" : <span><small>{player.name}</small></span>
+							return (
+								<div key={player.id} style={{width:"60px", textAlign:"center"}}>
+									<div style={{paddingLeft:"5px"}}>
+										<Avatar key={player.id} player={player}
+											talking={!connected || otherTalking[player.id] || (player.isLocal && talking)}
+											borderColor={connected ? '#2ecc71' : '#c0392b'}
+											isAlive={!otherDead[player.id] || (player.isLocal && !player.isDead)}
+											size={50} />
 									</div>
-								);
-							})
-						}
-			</div>
+									{name}
+								</div>
+							);
+						})
+					}
+					</div>
 	}
 		
 	
