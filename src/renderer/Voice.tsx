@@ -73,16 +73,6 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 		return;
 	}
 
-	if (me.inVent) {
-		// Enable muffle
-		muffle.frequency.value = 400;
-		muffle.Q.value = 20;
-	} else {
-		// Disable muffle
-		muffle.frequency.value = 20000;
-		muffle.Q.value = 0;
-	}
-
 	if (state.gameState === GameState.LOBBY || state.gameState === GameState.DISCUSSION) {
 		gain.gain.value = 1;
 		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
@@ -96,6 +86,18 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 	}
 	if (gain.gain.value === 1 && Math.sqrt(Math.pow(panPos[0], 2) + Math.pow(panPos[1], 2)) > 7) {
 		gain.gain.value = 0;
+	}
+
+	if (me.inVent) {
+		// Enable muffle
+		muffle.frequency.value = 400;
+		muffle.Q.value = 20;
+		if (gain.gain.value === 1)
+			gain.gain.value = 0.7; // Too loud at 1
+	} else {
+		// Disable muffle
+		muffle.frequency.value = 20000;
+		muffle.Q.value = 0;
 	}
 }
 
@@ -264,10 +266,10 @@ const Voice: React.FC = function () {
 						audio.setSinkId(settings.speaker);
 
 					const context = new AudioContext();
-					var source = context.createMediaStreamSource(stream);
-					let gain = context.createGain();
-					let pan = context.createPanner();
-					let muffle = context.createBiquadFilter();
+					const source = context.createMediaStreamSource(stream);
+					const gain = context.createGain();
+					const pan = context.createPanner();
+					const muffle = context.createBiquadFilter();
 					muffle.type = 'lowpass';
 
 					// let compressor = context.createDynamicsCompressor();
@@ -297,7 +299,7 @@ const Voice: React.FC = function () {
 							return socketPlayerIds;
 						});
 					};
-					audioElements.current[peer] = { element: audio, gain, pan };
+					audioElements.current[peer] = { element: audio, gain, pan, muffle };
 				});
 				connection.on('signal', (data) => {
 					socket.emit('signal', {

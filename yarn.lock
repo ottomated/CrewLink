@@ -1534,11 +1534,7 @@ ajv@^6.1.0, ajv@^6.10.1, ajv@^6.10.2, ajv@^6.12.0:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-<<<<<<< HEAD
 ajv@^6.10.0, ajv@^6.12.2, ajv@^6.12.3, ajv@^6.12.4, ajv@^6.12.6, ajv@^6.9.1:
-=======
-ajv@^6.12.2, ajv@^6.12.3, ajv@^6.12.6, ajv@^6.9.1:
->>>>>>> Basic muffling (needs slight value adjustments)
   version "6.12.6"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.12.6.tgz#baf5a62e802b07d977034586f8c3baf5adf26df4"
   integrity sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==
@@ -1847,11 +1843,6 @@ atomically@^1.3.1:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/atomically/-/atomically-1.6.0.tgz#d8d47f99834dbb88bd6266cc69a1447e2f3675ec"
   integrity sha512-mu394MH+yY2TSKMyH+978PcGMZ8sRNks2PuVeH6c2ED4mimR2LEE039MVcIGVhtmG54cKEMh4gKhxKL/CLaX/w==
-
-audio-activity@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/audio-activity/-/audio-activity-1.0.0.tgz#f653b9668582e7fd6a4c9b9997abe26607bcc456"
-  integrity sha1-9lO5ZoWC5/1qTJuZl6viZge8xFY=
 
 audio-frequency-to-index@^2.0.0:
   version "2.0.0"
