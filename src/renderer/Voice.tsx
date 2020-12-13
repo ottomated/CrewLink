@@ -86,9 +86,8 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 		return;
 	}
 	
-	if((me.isDead && !other.isDead) && settings.muteLiveOnDead){
-		console.log("Muted");
-		gain.gain.value = 0;
+	if((me.isDead && !other.isDead)){
+		gain.gain.value = settings.adjustLiveOnDead;
 		return;
 	}
 

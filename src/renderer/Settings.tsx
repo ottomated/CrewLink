@@ -90,9 +90,9 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: true
 		},
-		muteLiveOnDead:{
-			type: 'boolean',
-			default: false
+		adjustLiveOnDead:{
+			type: 'number',
+			default: 1,
 		}
 	}
 });
@@ -122,7 +122,7 @@ export interface ISettings {
 	},
 	hideCode: boolean;
 	stereoInLobby: boolean;
-	muteLiveOnDead: boolean;
+	adjustLiveOnDead: number;
 }
 export const settingsReducer = (state: ISettings, action: {
 	type: 'set' | 'setOne', action: [string, any] | ISettings
@@ -332,13 +332,18 @@ export default function Settings({ open, onClose }: SettingsProps) {
 				<input type="checkbox" checked={settings.stereoInLobby} style={{ color: '#fd79a8' }} readOnly />
 				<label>Stereo Audio in Lobbies</label>
 			</div>
-			<div className="form-control m" style={{ color: '#fd79a8' }} onClick={() => setSettings({
-				type: 'setOne',
-				action: ['muteLiveOnDead', !settings.muteLiveOnDead]
-			})}>
-				<input type="checkbox" checked={settings.muteLiveOnDead} style={{ color: '#ffa500' }} readOnly />
-				<label>Mute Live on Dead</label>
-			</div>
+			<div className="form-control m" style={{ color: '#ffa500', textAlign:"center"}} >
+				<label>Live Players Vol. when Dead</label>
+				<br/>
+				<input type="range" value={(settings.adjustLiveOnDead*100)}
+				onChange={(ev: React.FormEvent<HTMLInputElement>) => 
+					setSettings({
+					type: 'setOne',
+					action: ['adjustLiveOnDead', (ev.currentTarget.valueAsNumber/100)]
+					})
+				}
+				readOnly />
+			</div> 
 		</div>
 	</div>
 }

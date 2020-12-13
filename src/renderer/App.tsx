@@ -40,7 +40,7 @@ function App() {
 		},
 		hideCode: false,
 		stereoInLobby: true,
-		muteLiveOnDead: false
+		adjustLiveOnDead: 1,
 	});
 
 	useEffect(() => {
