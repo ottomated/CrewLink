@@ -118,8 +118,6 @@ if (!gotTheLock) {
 				slashes: true
 			}))
 		}
-		//overlay.webContents.openDevTools()
-		//overlayWindow.attachTo(overlay, 'Untitled - Notepad')
 		overlay.setIgnoreMouseEvents(true);
 		overlayWindow.attachTo(overlay, 'Among Us')
 		  
