@@ -4,7 +4,8 @@ import Voice from './Voice';
 import Menu from './Menu';
 import { ipcRenderer, remote } from 'electron';
 import { AmongUsState } from '../common/AmongUsState';
-import Settings, { settingsReducer } from './Settings';
+import Settings from './Settings';
+import { settingsReducer } from './settingsStore';
 import { GameStateContext, SettingsContext } from './contexts';
 
 let appVersion = '';
