@@ -24,8 +24,8 @@ interface AudioElements {
 	};
 }
 
-interface SocketIdMap {
-	[socketId: string]: number;
+interface SocketClientMap {
+	[socketId: string]: Client;
 }
 
 interface ConnectionStuff {
@@ -41,6 +41,11 @@ interface OtherTalking {
 
 interface OtherDead {
 	[playerId: number]: boolean; // isTalking
+}
+
+interface Client {
+	playerId: number;
+	clientId: number;
 }
 
 function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Player, other: Player, gain: GainNode, pan: PannerNode): void {
@@ -96,15 +101,16 @@ const Voice: React.FC = function () {
 	let { lobbyCode: displayedLobbyCode } = gameState;
 	if (displayedLobbyCode !== 'MENU' && settings.hideCode) displayedLobbyCode = 'LOBBY';
 	const [talking, setTalking] = useState(false);
-	const [socketPlayerIds, setSocketPlayerIds] = useState<SocketIdMap>({});
-	const [connect, setConnect] = useState<({ connect: (lobbyCode: string, playerId: number) => void }) | null>(null);
+	const [socketClients, setSocketClients] = useState<SocketClientMap>({});
+	const socketClientsRef = useRef(socketClients);
+	const [peerConnections, setPeerConnections] = useState<PeerConnections>({});
+	const [connect, setConnect] = useState<({ connect: (lobbyCode: string, playerId: number, clientId: number) => void }) | null>(null);
 	const [otherTalking, setOtherTalking] = useState<OtherTalking>({});
 	const [otherDead, setOtherDead] = useState<OtherDead>({});
 	const audioElements = useRef<AudioElements>({});
 
 	const [deafenedState, setDeafened] = useState(false);
 	const [connected, setConnected] = useState(false);
-	const [inRoom, setInRoom] = useState(false);
 
 	// Handle pushToTalk, if set
 	useEffect(() => {
@@ -113,11 +119,10 @@ const Voice: React.FC = function () {
 		connectionStuff.current.pushToTalk = settings.pushToTalk;
 	}, [settings.pushToTalk]);
 
-	// Add settings to settingsRef
+	// Emit lobby settings to connected peers
 	useEffect(() => {
-		if (connectionStuff.current.socket && gameState.isHost === true && inRoom === true) {
-			connectionStuff.current.socket.emit('config', settings.localLobbySettings);
-		}
+		if (gameState.isHost !== true) return;
+		Object.values(peerConnections).forEach(peer => peer.send(JSON.stringify(settings.localLobbySettings)));
 	}, [settings.localLobbySettings]);
 
 	useEffect(() => {
@@ -126,9 +131,15 @@ const Voice: React.FC = function () {
 		}
 	}, [lobbySettings.maxDistance]);
 
+	// Add settings to settingsRef
 	useEffect(() => {
 		settingsRef.current = settings;
 	}, [settings]);
+
+	// Add socketClients to socketClientsRef
+	useEffect(() => {
+		socketClientsRef.current = socketClients;
+	}, [socketClients]);
 
 	// Set dead player data
 	useEffect(() => {
@@ -161,7 +172,6 @@ const Voice: React.FC = function () {
 		});
 		socket.on('disconnect', () => {
 			setConnected(false);
-			setInRoom(false);
 		});
 
 		// Initialize variables
@@ -216,17 +226,15 @@ const Voice: React.FC = function () {
 				stereo: false
 			});
 
-			const peerConnections: PeerConnections = {};
 			audioElements.current = {};
 
-			const connect = (lobbyCode: string, playerId: number) => {
-				console.log('Connect called', lobbyCode, playerId);
+			const connect = (lobbyCode: string, playerId: number, clientId: number) => {
+				console.log("Connect called", lobbyCode, playerId, clientId);
 				socket.emit('leave');
-				setInRoom(false);
 				Object.keys(peerConnections).forEach(k => {
 					disconnectPeer(k);
 				});
-				setSocketPlayerIds({});
+				setSocketClients({});
 
 				if (lobbyCode === 'MENU') return;
 
@@ -236,7 +244,10 @@ const Voice: React.FC = function () {
 						return;
 					}
 					connection.destroy();
-					delete peerConnections[peer];
+					setPeerConnections(connections => {
+						delete connections[peer];
+						return connections;
+					});
 					if (audioElements.current[peer]) {
 						document.body.removeChild(audioElements.current[peer].element);
 						audioElements.current[peer].pan.disconnect();
@@ -245,7 +256,7 @@ const Voice: React.FC = function () {
 					}
 				}
 
-				socket.emit('join', lobbyCode, playerId);
+				socket.emit('join', lobbyCode, playerId, clientId);
 			};
 			setConnect({ connect });
 			function createPeerConnection(peer: string, initiator: boolean) {
@@ -258,7 +269,10 @@ const Voice: React.FC = function () {
 						]
 					}
 				});
-				peerConnections[peer] = connection;
+				setPeerConnections(connections => {
+					connections[peer] = connection;
+					return connections;
+				});
 
 				connection.on('stream', (stream: MediaStream) => {
 					const audio = document.createElement('audio') as ExtendedAudioElement;
@@ -287,13 +301,10 @@ const Voice: React.FC = function () {
 					});
 
 					const setTalking = (talking: boolean) => {
-						setSocketPlayerIds(socketPlayerIds => {
-							setOtherTalking(old => ({
-								...old,
-								[socketPlayerIds[peer]]: talking && gain.gain.value > 0
-							}));
-							return socketPlayerIds;
-						});
+						setOtherTalking(old => ({
+							...old,
+							[socketClientsRef.current[peer].playerId]: talking && gain.gain.value > 0
+						}));
 					};
 					audioElements.current[peer] = { element: audio, gain, pan };
 				});
@@ -303,11 +314,23 @@ const Voice: React.FC = function () {
 						to: peer
 					});
 				});
+				connection.on('data', data => {
+					if (gameState.hostId !== socketClientsRef.current[peer].clientId) return;
+					const settings = JSON.parse(data);
+					Object.keys(lobbySettings).forEach((field: string) => {
+						if (field in settings) {
+							setLobbySettings({
+								type: 'setOne',
+								action: [field, settings[field]]
+							});
+						}
+					});
+				});
 				return connection;
 			}
-			socket.on('join', async (peer: string, playerId: number) => {
+			socket.on('join', async (peer: string, client: Client) => {
 				createPeerConnection(peer, true);
-				setSocketPlayerIds(old => ({ ...old, [peer]: playerId }));
+				setSocketClients(old => ({ ...old, [peer]: client }));
 			});
 			socket.on('signal', ({ data, from }: { data: Peer.SignalData, from: string }) => {
 				let connection: Peer.Instance;
@@ -318,23 +341,12 @@ const Voice: React.FC = function () {
 				}
 				connection.signal(data);
 			});
-			socket.on('setId', (socketId: string, id: number) => {
-				setSocketPlayerIds(old => ({ ...old, [socketId]: id }));
-			});
-			socket.on('setIds', (ids: SocketIdMap) => {
-				setSocketPlayerIds(ids);
-				setInRoom(true);
-			});
-			socket.on('setSettings', (settings: { [key: string]: any }) => {
-				Object.keys(lobbySettings).forEach((field: string) => {
-					if (field in settings) {
-						setLobbySettings({
-							type: 'setOne',
-							action: [field, settings[field]]
-						});
-					}
-				});
+			socket.on('setClient', (socketId: string, client: Client) => {
+				setSocketClients(old => ({ ...old, [socketId]: client }));
 			})
+			socket.on('setClients', (clients: SocketClientMap) => {
+				setSocketClients(clients);
+			});
 
 		}, (error) => {
 			console.error(error);
@@ -364,8 +376,8 @@ const Voice: React.FC = function () {
 		const playerSocketIds: {
 			[index: number]: string
 		} = {};
-		for (const k of Object.keys(socketPlayerIds)) {
-			playerSocketIds[socketPlayerIds[k]] = k;
+		for (const k of Object.keys(socketClients)) {
+			playerSocketIds[socketClients[k].playerId] = k;
 		}
 		for (const player of otherPlayers) {
 			const audio = audioElements.current[playerSocketIds[player.id]];
@@ -383,21 +395,19 @@ const Voice: React.FC = function () {
 	// Connect to P2P negotiator, when lobby and connect code change
 	useEffect(() => {
 		if (connect?.connect && gameState.lobbyCode && myPlayer?.id !== undefined) {
-			connect.connect(gameState.lobbyCode, myPlayer.id);
+			connect.connect(gameState.lobbyCode, myPlayer.id, gameState.clientId);
 		}
 	}, [connect?.connect, gameState?.lobbyCode]);
 
 	// Connect to P2P negotiator, when game mode change
 	useEffect(() => {
 		if (connect?.connect && gameState.lobbyCode && myPlayer?.id !== undefined && gameState.gameState === GameState.LOBBY && (gameState.oldGameState === GameState.DISCUSSION || gameState.oldGameState === GameState.TASKS)) {
-			connect.connect(gameState.lobbyCode, myPlayer.id);
+			connect.connect(gameState.lobbyCode, myPlayer.id, gameState.clientId);
 		}
 	}, [gameState.gameState]);
 
-	// Emit player id to socket
 	useEffect(() => {
-		if (connectionStuff.current.socket && gameState.isHost === true && inRoom === true) {
-			connectionStuff.current.socket.emit('host');
+		if (gameState.isHost === true) {
 			setSettings({
 				type: 'setOne',
 				action: ['localLobbySettings', lobbySettings]
@@ -405,16 +415,10 @@ const Voice: React.FC = function () {
 		}
 	}, [gameState.isHost]);
 
-	useEffect(() => {
-		if (connectionStuff.current.socket && gameState.isHost === true && inRoom === true) {
-			connectionStuff.current.socket.emit('host');
-			connectionStuff.current.socket.emit('config', settings.localLobbySettings);
-		}
-	}, [inRoom]);
-
+	// Emit player id to socket
 	useEffect(() => {
 		if (connectionStuff.current.socket && myPlayer && myPlayer.id !== undefined) {
-			connectionStuff.current.socket.emit('id', myPlayer.id);
+			connectionStuff.current.socket.emit('id', myPlayer.id, gameState.clientId);
 		}
 	}, [myPlayer?.id]);
 
@@ -449,7 +453,7 @@ const Voice: React.FC = function () {
 			<div className="otherplayers">
 				{
 					otherPlayers.map(player => {
-						const connected = Object.values(socketPlayerIds).includes(player.id);
+						const connected = Object.values(socketClients).map(({playerId}) => playerId).includes(player.id);
 						return (
 							<Avatar key={player.id} player={player}
 								talking={!connected || otherTalking[player.id]}
