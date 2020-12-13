@@ -21,7 +21,7 @@
     "lint": "eslint src",
     "dev": "electron-webpack dev",
     "compile": "electron-webpack",
-    "dist": "yarn compile && electron-builder --win --x64",
+    "dist": "yarn compile && electron-builder --win --x64 --publish never",
     "publish": "yarn compile && electron-builder --win --x64 --publish always"
   },
   "dependencies": {
