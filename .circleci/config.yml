@@ -12,16 +12,33 @@ jobs:
       CI: "true"
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ arch }}-{{ checksum "yarn.lock" }}
+            - v1-dependencies-{{ arch }}
       - run:
           name: Install Dependencies
           command: yarn --frozen-lockfile
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ arch }}-{{ checksum "yarn.lock" }}
       - run:
           name: Set Up IOHook
           command: |
-            if not exist "node_modules\iohook\builds\electron-v80-win32-x64\build\Release\" mkdir -p node_modules\iohook\builds\electron-v80-win32-x64\build\Release\
+            mkdir -p node_modules\iohook\builds\electron-v80-win32-x64\build\Release\
             cp iohook\iohook.node node_modules\iohook\builds\electron-v80-win32-x64\build\Release\
             cp iohook\uiohook.dll node_modules\iohook\builds\electron-v80-win32-x64\build\Release\
-      - run: yarn run publish
+      - run:
+          name: Generate Dist
+          shell: bash.exe
+          command: |
+            yarn run dist
+            rm -rf dist/*.yaml
+            rm -rf dist/main
+            rm -rf dist/renderer
+            rm -rf dist/win-unpacked
+            rm -rf dist/.*
       - store_artifacts:
-          path: dist/win-unpacked
+          path: dist
           destination: dist
