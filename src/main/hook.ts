@@ -99,6 +99,7 @@ ipcMain.on(IpcSyncMessages.GET_INITIAL_STATE, (event) => {
 	if (!readingGame) {
 		console.error('Recieved GET_INITIAL_STATE message before the START_HOOK message was received');
 		event.returnValue = null;
+		return;
 	}
 	event.returnValue = gameReader.lastState;
 });
