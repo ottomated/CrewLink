@@ -169,7 +169,7 @@ export default function Overlay() {
 										<Avatar key={player.id} player={player}
 											talking={!connected || otherTalking[player.id] || (player.isLocal && talking)}
 											borderColor={connected ? '#2ecc71' : '#c0392b'}
-											isAlive={!otherDead[player.id] || (player.isLocal && !player.isDead)}
+											isAlive={(!player.isLocal && !otherDead[player.id]) || (player.isLocal && !player.isDead)}
 											size={50} />
 									</div>
 									{name}

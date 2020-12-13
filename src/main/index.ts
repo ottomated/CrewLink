@@ -59,7 +59,8 @@ function createMainWindow() {
 			pathname: joinPath(__dirname, 'index.html'),
 			protocol: 'file',
 			query: {
-				version: autoUpdater.currentVersion.version
+				version: autoUpdater.currentVersion.version,
+				view: "app"
 			},
 			slashes: true
 		}));
@@ -107,7 +108,6 @@ if (!gotTheLock) {
 		if (isDevelopment) {
 			overlay.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`)
 		} else {
-
 			overlay.loadURL(formatUrl({
 				pathname: joinPath(__dirname, 'index.html'),
 				protocol: 'file',
