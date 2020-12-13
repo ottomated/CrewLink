@@ -6,6 +6,7 @@ import windowStateKeeper from 'electron-window-state';
 import { join as joinPath } from 'path';
 import { format as formatUrl } from 'url';
 import './hook';
+import { initializeIpcHandlers, initializeIpcListeners } from './ipc-handlers';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -34,7 +35,6 @@ function createMainWindow() {
 		transparent: true,
 		webPreferences: {
 			nodeIntegration: true,
-			enableRemoteModule: true,
 			webSecurity: false
 		}
 	});
@@ -42,7 +42,10 @@ function createMainWindow() {
 	mainWindowState.manage(window);
 
 	if (isDevelopment) {
-		window.webContents.openDevTools();
+		// Force devtools into detached mode otherwise they are unusable
+		window.webContents.openDevTools({
+			mode: 'detach'
+		});
 	}
 
 	if (isDevelopment) {
@@ -103,7 +106,9 @@ if (!gotTheLock) {
 	});
 
 	// create main BrowserWindow when electron is ready
-	app.on('ready', () => {
+	app.whenReady().then(() => {
+		initializeIpcListeners();
+		initializeIpcHandlers();
 		mainWindow = createMainWindow();
 	});
 }

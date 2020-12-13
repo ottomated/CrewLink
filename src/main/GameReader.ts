@@ -1,5 +1,6 @@
 import { DataType, findModule, getProcesses, ModuleObject, openProcess, ProcessObject, readBuffer, readMemory as readMemoryRaw } from 'memoryjs';
 import Struct from 'structron';
+import { IpcRendererMessages } from "../common/ipc-messages";
 import patcher from '../patcher';
 import { GameState, AmongUsState, Player } from '../common/AmongUsState';
 import { IOffsets } from './IOffsets';
@@ -25,7 +26,7 @@ interface PlayerReport {
 }
 
 export default class GameReader {
-	reply: (event: string, ...args: unknown[]) => void;
+	sendIPC: Electron.WebContents['send'];
 	offsets: IOffsets;
 	PlayerStruct: Struct;
 
@@ -47,13 +48,13 @@ export default class GameReader {
 			try {
 				this.amongUs = openProcess('Among Us.exe');
 				this.gameAssembly = findModule('GameAssembly.dll', this.amongUs.th32ProcessID);
-				this.reply('gameOpen', true);
+				this.sendIPC(IpcRendererMessages.NOTIFY_GAME_OPENED, true);
 			} catch (e) {
 				this.amongUs = null;
 			}
 		} else if (this.amongUs && !processOpen) {
 			this.amongUs = null;
-			this.reply('gameOpen', false);
+			this.sendIPC(IpcRendererMessages.NOTIFY_GAME_OPENED, false);
 		}
 		return;
 	}
@@ -158,7 +159,7 @@ export default class GameReader {
 			const patch = patcher.diff(this.lastState, newState);
 			if (patch) {
 				try {
-					this.reply('gameState', newState);
+					this.sendIPC(IpcRendererMessages.NOTIFY_GAME_STATE_CHANGED, newState);
 				} catch (e) {
 					process.exit(0);
 				}
@@ -168,8 +169,8 @@ export default class GameReader {
 		}
 	}
 
-	constructor(reply: (event: string, ...args: unknown[]) => void, offsets: IOffsets) {
-		this.reply = reply;
+	constructor(sendIPC: Electron.WebContents['send'], offsets: IOffsets) {
+		this.sendIPC = sendIPC;
 		this.offsets = offsets;
 
 

@@ -1,9 +1,7 @@
-import { app, dialog, ipcMain } from 'electron';
-import path, { resolve } from 'path';
+import { ipcMain } from 'electron';
+import { resolve } from 'path';
 import yml from 'js-yaml';
 // import * as Struct from 'structron';
-import { HKEY, enumerateValues } from 'registry-js';
-import spawn from 'cross-spawn';
 import GameReader from './GameReader';
 import iohook from 'iohook';
 import Store from 'electron-store';
@@ -14,6 +12,7 @@ import { createCheckers } from 'ts-interface-checker';
 import TI from './hook-ti';
 import { existsSync, readFileSync } from 'fs';
 import { IOffsets } from './IOffsets';
+import { IpcHandlerMessages, IpcRendererMessages, IpcSyncMessages } from '../common/ipc-messages';
 const { IOffsets } = createCheckers(TI);
 
 interface IOHookEvent {
@@ -29,9 +28,9 @@ interface IOHookEvent {
 
 const store = new Store<ISettings>();
 
-async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | undefined> {
-
+async function loadOffsets(): Promise<{ success: true; offsets: IOffsets } | { success: false; error: string }> {
 	const valuesFile = resolve((process.env.LOCALAPPDATA || '') + 'Low', 'Innersloth/Among Us/Unity/6b8b0d91-4a20-4a00-a3e4-4da4a883a5f0/Analytics/values');
+
 	let version = '';
 	if (existsSync(valuesFile)) {
 		try {
@@ -39,12 +38,10 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 			version = json.app_ver;
 		} catch (e) {
 			console.error(e);
-			event.reply('error', `Couldn't determine the Among Us version - ${e}. Try opening Among Us and then restarting CrewLink.`);
-			return;
+			return { success: false, error: `Couldn't determine the Among Us version - ${e}. Try opening Among Us and then restarting CrewLink.` };
 		}
 	} else {
-		event.reply('error', 'Couldn\'t determine the Among Us version - Unity analytics file doesn\'t exist. Try opening Among Us and then restarting CrewLink.');
-		return;
+		return { success: false, error: 'Couldn\'t determine the Among Us version - Unity analytics file doesn\'t exist. Try opening Among Us and then restarting CrewLink.' };
 	}
 
 	let data: string;
@@ -61,7 +58,7 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 			const e = _e as AxiosError;
 			console.error(e);
 			if (e?.response?.status === 404) {
-				event.reply('error', `You are on an unsupported version of Among Us: ${version}.\n`);
+				return { success: false, error: `You are on an unsupported version of Among Us: ${version}.\n` };
 			} else {
 				let errorMessage = e.message;
 				if (errorMessage.includes('ETIMEDOUT')) {
@@ -71,9 +68,8 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 				} else {
 					errorMessage = 'gave this error: \n' + errorMessage;
 				}
-				event.reply('error', `Please use another voice server. ${store.get('serverURL')} ${errorMessage}.`);
+				return { success: false, error: `Please use another voice server. ${store.get('serverURL')} ${errorMessage}.` };
 			}
-			return;
 		}
 	}
 
@@ -81,19 +77,17 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 	try {
 		IOffsets.check(offsets);
 		if (!version) {
-			event.reply('error', 'Couldn\'t determine the Among Us version. Try opening Among Us and then restarting CrewLink.');
-			return;
+			return { success: false, error: 'Couldn\'t determine the Among Us version. Try opening Among Us and then restarting CrewLink.' };
 		} else {
 			store.set('offsets', {
 				version,
 				data
 			});
 		}
-		return offsets;
+		return { success: true, offsets };
 	} catch (e) {
 		console.error(e);
-		event.reply('error', `Couldn't parse the latest game offsets from the server: ${store.get('serverURL')}/${version}.yml.\n${e}`);
-		return;
+		return { success: false, error: `Couldn't parse the latest game offsets from the server: ${store.get('serverURL')}/${version}.yml.\n${e}` };
 	}
 
 }
@@ -101,36 +95,47 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 let readingGame = false;
 let gameReader: GameReader;
 
-ipcMain.on('start', async (event) => {
-	const offsets = await loadOffsets(event);
-	if (!readingGame && offsets) {
+ipcMain.on(IpcSyncMessages.GET_INITIAL_STATE, (event) => {
+	if (!readingGame) {
+		console.error('Recieved GET_INITIAL_STATE message before the START_HOOK message was received');
+		event.returnValue = null;
+	}
+	event.returnValue = gameReader.lastState;
+});
+
+/**
+ * null indicates success, failures should return an error string
+ */
+ipcMain.handle(IpcHandlerMessages.START_HOOK, async (event): Promise<{ error: string } | null> => {
+	const offsetsResults = await loadOffsets();
+	if (!offsetsResults.success) {
+		return { error: offsetsResults.error };
+	}
+	if (!readingGame) {
 		readingGame = true;
 
 		// Register key events
 		iohook.on('keydown', (ev: IOHookEvent) => {
 			const shortcutKey = store.get('pushToTalkShortcut');
 			if (keyCodeMatches(shortcutKey as K, ev)) {
-				event.reply('pushToTalk', true);
+				event.sender.send(IpcRendererMessages.PUSH_TO_TALK, true);
 			}
 		});
 		iohook.on('keyup', (ev: IOHookEvent) => {
 			const shortcutKey = store.get('pushToTalkShortcut');
 			if (keyCodeMatches(shortcutKey as K, ev)) {
-				event.reply('pushToTalk', false);
+				event.sender.send(IpcRendererMessages.PUSH_TO_TALK, false);
 			}
 			if (keyCodeMatches(store.get('deafenShortcut') as K, ev)) {
-				event.reply('toggleDeafen');
+				event.sender.send(IpcRendererMessages.TOGGLE_DEAFEN);
 			}
 		});
 
 		iohook.start();
 
 		// Read game memory
-		gameReader = new GameReader(event.reply as (event: string, ...args: unknown[]) => void, offsets);
+		gameReader = new GameReader(event.sender.send.bind(event.sender), offsetsResults.offsets);
 
-		ipcMain.on('initState', (event: Electron.IpcMainEvent) => {
-			event.returnValue = gameReader.lastState;
-		});
 		const frame = () => {
 			gameReader.loop();
 			setTimeout(frame, 1000 / 20);
@@ -139,7 +144,7 @@ ipcMain.on('start', async (event) => {
 	} else if (gameReader) {
 		gameReader.amongUs = null;
 	}
-	event.reply('started');
+	return null;
 });
 
 const keycodeMap = {
@@ -169,33 +174,3 @@ function keyCodeMatches(key: K, ev: IOHookEvent): boolean {
 		return false;
 	}
 }
-
-
-
-ipcMain.on('openGame', () => {
-	// Get steam path from registry
-	const steamPath = enumerateValues(HKEY.HKEY_LOCAL_MACHINE,
-		'SOFTWARE\\WOW6432Node\\Valve\\Steam')
-		.find(v => v.name === 'InstallPath');
-	// Check if Steam is installed
-	if (!steamPath) {
-		dialog.showErrorBox('Error', 'Could not find your Steam install path.');
-	} else {
-		try {
-			const process = spawn(path.join(steamPath.data as string, 'steam.exe'), [
-				'-applaunch',
-				'945360'
-			]);
-			process.on('error', () => {
-				dialog.showErrorBox('Error', 'Please launch the game through Steam.');
-			});
-		} catch (e) {
-			dialog.showErrorBox('Error', 'Please launch the game through Steam.');
-		}
-	}
-});
-
-ipcMain.on('relaunch', () => {
-	app.relaunch();
-	app.quit();
-});

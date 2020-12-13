@@ -4,9 +4,10 @@ import Avatar from './Avatar';
 import { GameStateContext, SettingsContext } from './contexts';
 import { AmongUsState, GameState, Player } from '../common/AmongUsState';
 import Peer from 'simple-peer';
-import { ipcRenderer, remote } from 'electron';
+import { ipcRenderer } from 'electron';
 import VAD from './vad';
 import { ISettings } from '../common/ISettings';
+import { IpcMessages, IpcRendererMessages } from '../common/ipc-messages';
 
 export interface ExtendedAudioElement extends HTMLAudioElement {
 	setSinkId: (sinkId: string) => Promise<void>;
@@ -180,12 +181,12 @@ const Voice: React.FC = function () {
 
 			stream.getAudioTracks()[0].enabled = !settings.pushToTalk;
 
-			ipcRenderer.on('toggleDeafen', () => {
+			ipcRenderer.on(IpcRendererMessages.TOGGLE_DEAFEN, () => {
 				connectionStuff.current.deafened = !connectionStuff.current.deafened;
 				stream.getAudioTracks()[0].enabled = !connectionStuff.current.deafened;
 				setDeafened(connectionStuff.current.deafened);
 			});
-			ipcRenderer.on('pushToTalk', (_: unknown, pressing: boolean) => {
+			ipcRenderer.on(IpcRendererMessages.PUSH_TO_TALK, (_: unknown, pressing: boolean) => {
 				if (!connectionStuff.current.pushToTalk) return;
 				if (!connectionStuff.current.deafened) {
 					stream.getAudioTracks()[0].enabled = pressing;
@@ -311,7 +312,10 @@ const Voice: React.FC = function () {
 
 		}, (error) => {
 			console.error(error);
-			remote.dialog.showErrorBox('Error', 'Couldn\'t connect to your microphone:\n' + error);
+			ipcRenderer.send(IpcMessages.SHOW_ERROR_DIALOG, {
+				title: 'Error',
+				content: 'Couldn\'t connect to your microphone:\n' + error
+			});
 		});
 
 		return () => {
