@@ -34,7 +34,8 @@ export default function App() {
 		},
 		hideCode: false,
 		enableSpatialAudio: true,
-		compactOverlay: false
+		compactOverlay: false,
+		overlayPosition: 'top'
 	});
 		
 

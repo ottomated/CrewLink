@@ -103,7 +103,11 @@ const store = new Store<ISettings>({
 		compactOverlay: {
 			type: 'boolean',
 			default: false
-		}
+		},
+		overlayPosition: {
+			type: 'string',
+			default: 'top'
+		},
 	}
 });
 
@@ -321,17 +325,29 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 				<input type="checkbox" checked={settings.enableSpatialAudio} style={{ color: '#fd79a8' }} readOnly />
 				<label>Enable Spatial Audio</label>
 			</div>
+			<div className="form-control l" style={{ color: '#f72f5e' }}>
+				<label>Overlay Position</label>
+				<select onChange={(ev) => {
+					setSettings({
+						type: 'setOne',
+						action: ['overlayPosition', ev.target.value]
+					});
+				}}>
+				  <option value="top" selected={settings.overlayPosition == "top"}>Top Center</option>
+				  <option value="bottom_left" selected={settings.overlayPosition == "bottom_left"}>Bottom Left</option>
+				</select>			
+			</div>
+			<div className="form-control m" style={{ color: '#f72f5e', paddingTop: "10px" }} onClick={() => setSettings({
+				type: 'setOne',
+				action: ['compactOverlay', !settings.compactOverlay]
+			})}>
+				<input type="checkbox" checked={settings.compactOverlay} style={{ color: '#f72f5e' }} readOnly />
+				<label>Compact Overlay</label>
+			</div>
 			<div className='settings-alert' style={{ display: unsaved ? 'flex' : 'none' }}>
 				<span>
 					Exit to apply changes
 				</span>
-			</div>
-			<div className="form-control m" style={{ color: '#F45837' }} onClick={() => setSettings({
-				type: 'setOne',
-				action: ['compactOverlay', !settings.compactOverlay]
-			})}>
-				<input type="checkbox" checked={settings.compactOverlay} style={{ color: '#F45837' }} readOnly />
-				<label>Compact Overlay</label>
 			</div>
 		</div>
 	</div>;

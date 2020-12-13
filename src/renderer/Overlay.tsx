@@ -28,15 +28,6 @@ export default function Overlay() {
 			if (!gameState || !gameState.players) return undefined;
 			else return gameState.players.find(p => p.isLocal);
 		}, [gameState]);
-
-	/*const otherPlayers = useMemo(() => {
-		let otherPlayers: Player[];
-		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) otherPlayers = [];
-		else otherPlayers = gameState.players.filter(p => !p.isLocal);
-
-		return otherPlayers;
-	}, [gameState]);*/	
-	
 	
 	const relevantPlayers = useMemo(() => {
 		let relevantPlayers: Player[];
@@ -123,6 +114,7 @@ export default function Overlay() {
 		
 	document.body.style.backgroundColor = "rgba(255, 255, 255, 0)";
 	document.body.style.paddingTop = "0";
+	
 	var baseCSS:any = {
       backgroundColor: "rgba(0, 0, 0, 0.85)",
 	  width: "100px",
@@ -131,6 +123,7 @@ export default function Overlay() {
 	  marginTop: "-16px",
 	  paddingLeft: "8px",
     };
+	var playersCSS:any = {}
 	var topArea = <p><b style={{color:"#9b59b6"}}>CrewLink</b> ({status})</p>
 	var playerList:Player[] = [];
 	if (gameState.players && gameState.gameState != GameState.MENU) playerList = relevantPlayers;//gameState.players;
@@ -139,13 +132,23 @@ export default function Overlay() {
 		baseCSS["left"] = "8px";
 		baseCSS["top"] = "60px";
 	} else {
-		baseCSS["marginLeft"] = "auto";
-		baseCSS["marginRight"] = "auto";
-		baseCSS["marginTop"] = "0px";
 		baseCSS["paddingTop"] = "8px";
 		baseCSS["paddingLeft"] = "0px";
 		baseCSS["width"] = "800px";
-		baseCSS["backgroundColor"] = "rgba(0, 0, 0, 0.5)"; //0.25
+		baseCSS["backgroundColor"] = "rgba(0, 0, 0, 0.5)";
+		if (settings.overlayPosition == 'top') {
+			baseCSS["marginLeft"] = "auto";
+			baseCSS["marginRight"] = "auto";
+			baseCSS["marginTop"] = "0px";
+		} else if (settings.overlayPosition == 'bottom_left') {
+			baseCSS["position"] = "absolute";
+			baseCSS["bottom"] = "0px";
+			baseCSS["backgroundColor"] = "rgba(0, 0, 0, 0.35)";
+			baseCSS["width"] = null;
+			
+			playersCSS["justifyContent"] = "left"
+			playersCSS["alignItems"] = "left"
+		}
 		topArea = <></>;
 		if ((settings.compactOverlay || gameState.gameState == GameState.TASKS) && playerList) {
 			playerList = talkingPlayers;
@@ -155,7 +158,7 @@ export default function Overlay() {
 
 	var playerArea:JSX.Element = <></>;
 	if (playerList) {
-			playerArea = <div className="otherplayers">
+			playerArea = <div className="otherplayers" style={playersCSS}>
 						{
 							playerList.map(player => {
 								const connected = Object.values(socketPlayerIds).includes(player.id) || player.isLocal;
