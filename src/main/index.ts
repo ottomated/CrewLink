@@ -5,9 +5,8 @@ import { app, BrowserWindow } from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import { join as joinPath } from 'path';
 import { format as formatUrl } from 'url';
+import { isDevelopment } from '../common/Version';
 import './hook';
-
-const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
 let mainWindow: BrowserWindow | null;

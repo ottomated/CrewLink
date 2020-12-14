@@ -8,6 +8,7 @@ import Peer from 'simple-peer';
 import { ipcRenderer, remote } from 'electron';
 import VAD from './vad';
 import { ISettings } from '../common/ISettings';
+import { appVersion, isDevelopment} from '../common/Version';
 
 export interface ExtendedAudioElement extends HTMLAudioElement {
 	setSinkId: (sinkId: string) => Promise<void>;
@@ -86,14 +87,6 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 	if (gain.gain.value === 1 && Math.sqrt(Math.pow(panPos[0], 2) + Math.pow(panPos[1], 2)) > 7) {
 		gain.gain.value = 0;
 	}
-}
-
-let appVersion = '';
-const isDevelopment = process.env.NODE_ENV !== 'production';
-
-if (typeof window !== 'undefined' && window.location) {
-	const query = new URLSearchParams(window.location.search.substring(1));
-	appVersion = query.get('version')|| '';
 }
 
 const Voice: React.FC = function () {
