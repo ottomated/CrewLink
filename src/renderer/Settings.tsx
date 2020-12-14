@@ -145,7 +145,7 @@ function URLInput({ initialURL, onValidURL }: URLInputProps) {
 	}, [initialURL]);
 
 	function onChange(event: React.ChangeEvent<HTMLInputElement>) {
-		var eventValue = event.target.value.trim();
+		let eventValue = event.target.value.trim();
 
 		setCurrentURL(eventValue);
 
