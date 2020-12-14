@@ -16,6 +16,12 @@ interface PeerConnections {
 	[peer: string]: Peer.Instance;
 }
 
+type PeerErrorCode = 'ERR_WEBRTC_SUPPORT' | 'ERR_CREATE_OFFER' | 'ERR_CREATE_ANSWER' | 'ERR_SET_LOCAL_DESCRIPTION' | 'ERR_SET_REMOTE_DESCRIPTION' | 'ERR_ADD_ICE_CANDIDATE' | 'ERR_ICE_CONNECTION_FAILURE' | 'ERR_SIGNALING' | 'ERR_DATA_CHANNEL' | 'ERR_CONNECTION_FAILURE';
+
+interface PeerError extends Error {
+	code: PeerErrorCode;
+}
+
 interface AudioElements {
 	[peer: string]: {
 		element: HTMLAudioElement;
@@ -41,6 +47,10 @@ interface OtherTalking {
 
 interface OtherDead {
 	[playerId: number]: boolean; // isTalking
+}
+
+interface AudioConnected {
+	[peer: string]: boolean; // isConnected
 }
 
 function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Player, other: Player, gain: GainNode, pan: PannerNode): void {
@@ -100,9 +110,13 @@ const Voice: React.FC = function () {
 	const [otherTalking, setOtherTalking] = useState<OtherTalking>({});
 	const [otherDead, setOtherDead] = useState<OtherDead>({});
 	const audioElements = useRef<AudioElements>({});
+	const peerConnections = useRef<PeerConnections>({});
+	const [audioConnected, setAudioConnected] = useState<AudioConnected>({});
 
 	const [deafenedState, setDeafened] = useState(false);
 	const [connected, setConnected] = useState(false);
+
+	let joinedLobby = '';
 
 	// Handle pushToTalk, if set
 	useEffect(() => {
@@ -135,6 +149,29 @@ const Voice: React.FC = function () {
 		pushToTalk: settings.pushToTalk,
 		deafened: false,
 	});
+
+	function disconnectPeers() {
+		Object.keys(peerConnections.current).forEach(k => {
+			disconnectPeer(k);
+		});
+	}
+
+	function disconnectPeer(peer: string) {
+		const connection = peerConnections.current[peer];
+		if (!connection) {
+			return;
+		}
+		connection.destroy();
+		delete peerConnections.current[peer];
+		if (audioElements.current[peer]) {
+			document.body.removeChild(audioElements.current[peer].element);
+			audioElements.current[peer].pan.disconnect();
+			audioElements.current[peer].gain.disconnect();
+			delete audioElements.current[peer];
+		}
+
+		setAudioConnected(old => ({ ...old, [peer]: false }));
+	}
 
 	// BIG ASS BLOB - Handle audio
 	useEffect(() => {
@@ -201,35 +238,22 @@ const Voice: React.FC = function () {
 				stereo: false
 			});
 
-			const peerConnections: PeerConnections = {};
 			audioElements.current = {};
 
 			const connect = (lobbyCode: string, playerId: number) => {
 				console.log('Connect called', lobbyCode, playerId);
-				socket.emit('leave');
-				Object.keys(peerConnections).forEach(k => {
-					disconnectPeer(k);
-				});
-				setSocketPlayerIds({});
-
-				if (lobbyCode === 'MENU') return;
-
-				function disconnectPeer(peer: string) {
-					const connection = peerConnections[peer];
-					if (!connection) {
-						return;
-					}
-					connection.destroy();
-					delete peerConnections[peer];
-					if (audioElements.current[peer]) {
-						document.body.removeChild(audioElements.current[peer].element);
-						audioElements.current[peer].pan.disconnect();
-						audioElements.current[peer].gain.disconnect();
-						delete audioElements.current[peer];
-					}
+				if (lobbyCode === 'MENU') {
+					disconnectPeers();
+					setSocketPlayerIds({});
+					joinedLobby = lobbyCode;
+					return;
 				}
 
-				socket.emit('join', lobbyCode, playerId);
+				// Only emit join on lobby change, this will keep the current connections alive at the end of the current game
+				if (joinedLobby != lobbyCode) {
+					socket.emit('join', lobbyCode, playerId);
+					joinedLobby = lobbyCode;
+				}
 			};
 			setConnect({ connect });
 			function createPeerConnection(peer: string, initiator: boolean) {
@@ -242,9 +266,15 @@ const Voice: React.FC = function () {
 						]
 					}
 				});
-				peerConnections[peer] = connection;
+
+				let retries = 0;
+				let errCode: PeerErrorCode;
+
+				peerConnections.current[peer] = connection;
 
 				connection.on('stream', (stream: MediaStream) => {
+					setAudioConnected(old => ({ ...old, [peer]: true }));
+
 					const audio = document.createElement('audio') as ExtendedAudioElement;
 					document.body.appendChild(audio);
 					audio.srcObject = stream;
@@ -287,6 +317,22 @@ const Voice: React.FC = function () {
 						to: peer
 					});
 				});
+
+				connection.on('close', () => {
+					console.log('Disconnected from', peer, 'Initiator:', initiator);
+					disconnectPeer(peer);
+
+					// Auto reconnect on connection error
+					if (initiator && errCode && retries < 10 && (errCode == 'ERR_CONNECTION_FAILURE' || errCode == 'ERR_DATA_CHANNEL')) {
+						createPeerConnection(peer, initiator);
+						retries++;
+					}
+				});
+
+				connection.on('error', (err: PeerError) => {
+					errCode = err.code;
+				});
+
 				return connection;
 			}
 			socket.on('join', async (peer: string, playerId: number) => {
@@ -295,8 +341,8 @@ const Voice: React.FC = function () {
 			});
 			socket.on('signal', ({ data, from }: { data: Peer.SignalData, from: string }) => {
 				let connection: Peer.Instance;
-				if (peerConnections[from]) {
-					connection = peerConnections[from];
+				if (peerConnections.current[from]) {
+					connection = peerConnections.current[from];
 				} else {
 					connection = createPeerConnection(from, false);
 				}
@@ -315,6 +361,8 @@ const Voice: React.FC = function () {
 		});
 
 		return () => {
+			socket.emit('leave');
+			disconnectPeers();
 			connectionStuff.current.socket?.close();
 			audioListener.destroy();
 		};
@@ -365,6 +413,14 @@ const Voice: React.FC = function () {
 		if (connect?.connect && gameState.lobbyCode && myPlayer?.id !== undefined && gameState.gameState === GameState.LOBBY && (gameState.oldGameState === GameState.DISCUSSION || gameState.oldGameState === GameState.TASKS)) {
 			connect.connect(gameState.lobbyCode, myPlayer.id);
 		}
+		else if (gameState.oldGameState != GameState.UNKNOWN && gameState.gameState == GameState.MENU) {
+			// On change from a game to menu (e.g.: disconnected by the game) exit from the current game properly
+			const { socket } = connectionStuff.current;
+			socket?.emit('leave');
+			disconnectPeers();
+			setOtherDead({});
+		}
+
 	}, [gameState.gameState]);
 
 	// Emit player id to socket
@@ -373,6 +429,13 @@ const Voice: React.FC = function () {
 			connectionStuff.current.socket.emit('id', myPlayer.id);
 		}
 	}, [myPlayer?.id]);
+
+	const playerSocketIds: {
+		[index: number]: string
+	} = {};
+	for (const k of Object.keys(socketPlayerIds)) {
+		playerSocketIds[socketPlayerIds[k]] = k;
+	}
 
 	return (
 		<div className="root">
@@ -400,11 +463,13 @@ const Voice: React.FC = function () {
 			<div className="otherplayers">
 				{
 					otherPlayers.map(player => {
+						const peer = playerSocketIds[player.id];
 						const connected = Object.values(socketPlayerIds).includes(player.id);
+						const audio = audioConnected[peer];
 						return (
 							<Avatar key={player.id} player={player}
-								talking={!connected || otherTalking[player.id]}
-								borderColor={connected ? '#2ecc71' : '#c0392b'}
+								talking={!connected || !audio || otherTalking[player.id]}
+								borderColor={connected ? (audio ? '#2ECC71' : '#4fd9e0') : '#C0392B'}
 								isAlive={!otherDead[player.id]}
 								size={50} />
 						);
