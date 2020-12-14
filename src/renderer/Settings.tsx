@@ -145,11 +145,13 @@ function URLInput({ initialURL, onValidURL }: URLInputProps) {
 	}, [initialURL]);
 
 	function onChange(event: React.ChangeEvent<HTMLInputElement>) {
-		setCurrentURL(event.target.value);
+		let eventValue = event.target.value.trim();
 
-		if (validateURL(event.target.value)) {
+		setCurrentURL(eventValue);
+
+		if (validateURL(eventValue)) {
 			setURLValid(true);
-			onValidURL(event.target.value);
+			onValidURL(eventValue);
 		} else {
 			setURLValid(false);
 		}
