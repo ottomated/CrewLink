@@ -1844,11 +1844,6 @@ atomically@^1.3.1:
   resolved "https://registry.yarnpkg.com/atomically/-/atomically-1.6.0.tgz#d8d47f99834dbb88bd6266cc69a1447e2f3675ec"
   integrity sha512-mu394MH+yY2TSKMyH+978PcGMZ8sRNks2PuVeH6c2ED4mimR2LEE039MVcIGVhtmG54cKEMh4gKhxKL/CLaX/w==
 
-audio-activity@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/audio-activity/-/audio-activity-1.0.0.tgz#f653b9668582e7fd6a4c9b9997abe26607bcc456"
-  integrity sha1-9lO5ZoWC5/1qTJuZl6viZge8xFY=
-
 audio-frequency-to-index@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/audio-frequency-to-index/-/audio-frequency-to-index-2.0.0.tgz#4c4bca9f3bfec38c773aa6b5604c117adc982d45"
@@ -2635,6 +2630,11 @@ commondir@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/commondir/-/commondir-1.0.1.tgz#ddd800da0c66127393cca5950ea968a3aaf1253b"
   integrity sha1-3dgA2gxmEnOTzKWVDqloo6rxJTs=
+
+compare-versions@^3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/compare-versions/-/compare-versions-3.6.0.tgz#1a5689913685e5a87637b8d3ffca75514ec41d62"
+  integrity sha512-W6Af2Iw1z4CB7q4uU4hv646dW9GQuBM+YpC0UvUCWSD8w90SJjp+ujJuXaEMtAXBtSqGfMPuFOVn4/+FlaqfBA==
 
 component-bind@1.0.0:
   version "1.0.0"

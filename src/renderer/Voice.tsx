@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 import Avatar from './Avatar';
+import compareVersions from 'compare-versions';
 import { GameStateContext, SettingsContext } from './contexts';
 import { AmongUsState, GameState, Player } from '../common/AmongUsState';
 import Peer from 'simple-peer';
@@ -87,6 +88,13 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 	}
 }
 
+let appVersion = '';
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
+if (typeof window !== 'undefined' && window.location) {
+	const query = new URLSearchParams(window.location.search.substring(1));
+	appVersion = query.get('version')|| '';
+}
 
 const Voice: React.FC = function () {
 	const [settings] = useContext(SettingsContext);
@@ -147,6 +155,14 @@ const Voice: React.FC = function () {
 		});
 		socket.on('disconnect', () => {
 			setConnected(false);
+		});
+		socket.on('version', (serverVersion: string) => {
+			if (!isDevelopment && compareVersions(serverVersion, appVersion) < 0) {
+				let content = 'The specified server is out of date. This may cause issues with certain features and game compatibility.';
+				content += '\nPlease try using a different server.';
+				content += '\nServer Version: v' + serverVersion + ', Client Version: v' + appVersion;
+				remote.dialog.showErrorBox('Error', content);
+			}
 		});
 
 		// Initialize variables
