@@ -34,6 +34,7 @@ function App() {
 			data: ''
 		},
 		hideCode: false,
+		adjustLiveOnDead: 1,
 		enableSpatialAudio: true
 	});
 
