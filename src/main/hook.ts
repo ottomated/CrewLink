@@ -109,17 +109,31 @@ ipcMain.on('start', async (event) => {
 		// Register key events
 		iohook.on('keydown', (ev: IOHookEvent) => {
 			const shortcutKey = store.get('pushToTalkShortcut');
-			if (keyCodeMatches(shortcutKey as K, ev)) {
+			if (!isMouseButton(shortcutKey) && keyCodeMatches(shortcutKey as K, ev)) {
 				event.reply('pushToTalk', true);
 			}
 		});
 		iohook.on('keyup', (ev: IOHookEvent) => {
 			const shortcutKey = store.get('pushToTalkShortcut');
-			if (keyCodeMatches(shortcutKey as K, ev)) {
+			if (!isMouseButton(shortcutKey) && keyCodeMatches(shortcutKey as K, ev)) {
 				event.reply('pushToTalk', false);
 			}
-			if (keyCodeMatches(store.get('deafenShortcut') as K, ev)) {
+			if (!isMouseButton(shortcutKey) && keyCodeMatches(store.get('deafenShortcut') as K, ev)) {
 				event.reply('toggleDeafen');
+			}
+		});
+
+		// Register mouse events
+		iohook.on('mousedown', (ev: IOHookEvent) => {
+			const shortcutMouse = store.get('pushToTalkShortcut');
+			if (isMouseButton(shortcutMouse) && mouseClickMatches(shortcutMouse as M, ev)) {
+				event.reply('pushToTalk', true);
+			}
+		});
+		iohook.on('mouseup', (ev: IOHookEvent) => {
+			const shortcutMouse = store.get('pushToTalkShortcut');
+			if (isMouseButton(shortcutMouse) && mouseClickMatches(shortcutMouse as M, ev)) {
+				event.reply('pushToTalk', false);
 			}
 		});
 
@@ -160,6 +174,7 @@ const keycodeMap = {
 type K = keyof typeof keycodeMap;
 
 function keyCodeMatches(key: K, ev: IOHookEvent): boolean {
+
 	if (keycodeMap[key])
 		return keycodeMap[key] === ev.keycode;
 	else if (key.length === 1)
@@ -170,7 +185,24 @@ function keyCodeMatches(key: K, ev: IOHookEvent): boolean {
 	}
 }
 
+const mouseClickMap = {
+	'MouseButton4': 4,
+	'MouseButton5': 5,
+	'MouseButton6': 6,
+	'MouseButton7': 7
+}
 
+type M = keyof typeof mouseClickMap;
+
+function mouseClickMatches(key: M, ev: IOHookEvent): boolean {
+	if (mouseClickMap[key])
+		return mouseClickMap[key] === ev.button;
+	return false;
+}
+
+function isMouseButton(shortcutKey:string): boolean {
+	return !!shortcutKey.match("MouseButton");
+}
 
 ipcMain.on('openGame', () => {
 	// Get steam path from registry
