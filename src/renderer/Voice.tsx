@@ -466,10 +466,17 @@ const Voice: React.FC = function () {
 						const peer = playerSocketIds[player.id];
 						const connected = Object.values(socketPlayerIds).includes(player.id);
 						const audio = audioConnected[peer];
+						let borderColor = '#C0392B';
+						if (connected) {
+							if (audio)
+								borderColor = '#2ECC71';
+							else
+								borderColor = '#FFFF00';
+						}
 						return (
 							<Avatar key={player.id} player={player}
 								talking={!connected || !audio || otherTalking[player.id]}
-								borderColor={connected ? (audio ? '#2ECC71' : '#FFFF00') : '#C0392B'}
+								borderColor={borderColor}
 								isAlive={!otherDead[player.id]}
 								size={50} />
 						);
