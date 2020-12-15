@@ -29,6 +29,58 @@ interface IOHookEvent {
 
 const store = new Store<ISettings>();
 
+async function validateServer(serverURL: string, gameVersion: string): Promise<string | undefined> {
+	try {
+		const response = await axios({
+			url: `${serverURL}/health`
+		});
+
+		const json = response.data;
+
+		if (typeof json !== 'object') {
+			return 'The server did not respond to our health check in a way we expected. Please use a different server.';
+		}
+
+		if (!('supportedVersions' in json)) {
+			return;
+		}
+
+		if (!json.supportedVersions.includes(gameVersion)) {
+			return `This server does not support this game version: ${gameVersion}`;
+		}
+
+		return;
+	} catch (_healthE) {
+		const healthE = _healthE as AxiosError;
+
+		const status = healthE?.response?.status;
+
+		if (status) {
+			// When we get a valid response, we need to validate the status of it.
+			if (status === 404) {
+				// When the URL 404s, it's an unsupported crewlink version, or not a crewlink server at all.
+				return 'The specified server url is not a valid CrewLink server.\nThis usually means either the server is out of date, or not a CrewLink server at all.';
+			} else if (status >= 500 && status <= 504 || status >= 520 && status <= 524) {
+				return 'This server is currently experiencing an outage. Please try a different server.';
+			}
+		}
+
+		let errorMessage = healthE.message;
+
+		if (errorMessage.includes('ETIMEDOUT')) {
+			// Case occurs when the server does not respond, and has no information. This happens mostly with incorrect servers/ports/port forwarding.
+			errorMessage = 'Server connection timed out.\nIf this is your server, this usually means the server did not respond to a connection. This usually happens with port forwarding issues.';
+		} else if (errorMessage.includes('refused')) {
+			// Case occurs when the server responds, but denies the connection. Usually firewall on the server.
+			errorMessage = 'Server is not accepting connections, either due to a firewall or rate limit.';
+		} else {
+			errorMessage = 'Server gave this error: \n' + errorMessage;
+		}
+
+		return errorMessage;
+	}
+}
+
 async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | undefined> {
 
 	const valuesFile = resolve((process.env.LOCALAPPDATA || '') + 'Low', 'Innersloth/Among Us/Unity/6b8b0d91-4a20-4a00-a3e4-4da4a883a5f0/Analytics/values');
@@ -52,9 +104,18 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 	if (version === offsetStore.version) {
 		data = offsetStore.data;
 	} else {
+		const serverURL = store.get('serverURL');
+
+		let errorMessage = await validateServer(serverURL, version);
+
+		if (errorMessage) {
+			event.reply('error', errorMessage);
+			return;
+		}
+
 		try {
 			const response = await axios({
-				url: `${store.get('serverURL')}/${version}.yml`
+				url: `${serverURL}/${version}.yml`
 			});
 			data = response.data;
 		} catch (_e) {
@@ -71,7 +132,7 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 				} else {
 					errorMessage = 'gave this error: \n' + errorMessage;
 				}
-				event.reply('error', `Please use another voice server. ${store.get('serverURL')} ${errorMessage}.`);
+				event.reply('error', `Please use another voice server. ${serverURL} ${errorMessage}.`);
 			}
 			return;
 		}
