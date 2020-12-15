@@ -238,6 +238,7 @@ const Voice: React.FC = function () {
 					if (audioElements.current[peer]) {
 						document.body.removeChild(audioElements.current[peer].element);
 						audioElements.current[peer].pan.disconnect();
+						audioElements.current[peer].muffle.disconnect();
 						audioElements.current[peer].gain.disconnect();
 						delete audioElements.current[peer];
 					}
