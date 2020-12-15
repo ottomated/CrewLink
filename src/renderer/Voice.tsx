@@ -469,7 +469,7 @@ const Voice: React.FC = function () {
 						return (
 							<Avatar key={player.id} player={player}
 								talking={!connected || !audio || otherTalking[player.id]}
-								borderColor={connected ? (audio ? '#2ECC71' : '#4fd9e0') : '#C0392B'}
+								borderColor={connected ? (audio ? '#2ECC71' : '#FFFF00') : '#C0392B'}
 								isAlive={!otherDead[player.id]}
 								size={50} />
 						);
