@@ -394,6 +394,9 @@ const Voice: React.FC = function () {
 							{displayedLobbyCode}
 						</span>
 					}
+					<button className="button" onClick={() => {
+							remote.getCurrentWindow().reload();
+						}}>Refresh</button>
 				</div>
 			</div>
 			<hr />
