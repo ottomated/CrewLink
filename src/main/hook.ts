@@ -190,7 +190,7 @@ const mouseClickMap = {
 	'MouseButton5': 5,
 	'MouseButton6': 6,
 	'MouseButton7': 7
-}
+};
 
 type M = keyof typeof mouseClickMap;
 
@@ -201,7 +201,7 @@ function mouseClickMatches(key: M, ev: IOHookEvent): boolean {
 }
 
 function isMouseButton(shortcutKey:string): boolean {
-	return !!shortcutKey.match("MouseButton");
+	return !!shortcutKey.match('MouseButton');
 }
 
 ipcMain.on('openGame', () => {

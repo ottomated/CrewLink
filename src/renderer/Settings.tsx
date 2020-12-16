@@ -220,7 +220,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 		if(ev.button > 2){
 			// this makes our button start at 1 instead of 0
 			// React Mouse event starts at 0, but IOHooks starts at 1
-			let k = `MouseButton${ev.button+1}`;
+			const k = `MouseButton${ev.button+1}`;
 			setSettings({
 				type: 'setOne',
 				action: [shortcut, k]
@@ -295,8 +295,8 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 			{settings.pushToTalk &&
 				<div className="form-control m" style={{ color: '#f1c40f' }}>
 					<input spellCheck={false} type="text" value={settings.pushToTalkShortcut} readOnly 
-					onMouseDown={(ev)=> setMouseShortcut(ev, 'pushToTalkShortcut')} 
-					onKeyDown={(ev) => setShortcut(ev, 'pushToTalkShortcut')} />
+						onMouseDown={(ev)=> setMouseShortcut(ev, 'pushToTalkShortcut')} 
+						onKeyDown={(ev) => setShortcut(ev, 'pushToTalkShortcut')} />
 				</div>
 			}
 			<div className="form-control l m" style={{ color: '#2ecc71' }}>
