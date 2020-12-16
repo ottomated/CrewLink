@@ -78,7 +78,10 @@ function App() {
 		<GameStateContext.Provider value={gameState}>
 			<SettingsContext.Provider value={settings}>
 				<div className="titlebar">
-					<span className="title">CrewLink{appVersion}</span>
+                    <img width="20px" height="20px" className="titlebar-button refresh" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pjxzdmcgdmlld0JveD0iMCAwIDI0IDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjx0aXRsZS8+PHBhdGggZD0iTTIxLjkxLDQuMDlhMSwxLDAsMCwwLTEuMDcuMTZMMTkuNDgsNS40NkE5LjgxLDkuODEsMCwwLDAsMTIsMmExMCwxMCwwLDEsMCw5LjQyLDEzLjMzLDEsMSwwLDAsMC0xLjg5LS42NkE4LDgsMCwxLDEsMTIsNGE3Ljg2LDcuODYsMCwwLDEsNiwyLjc4TDE2LjM0LDguMjVhMSwxLDAsMCwwLS4yNywxLjExQTEsMSwwLDAsMCwxNywxMGg0LjVhMSwxLDAsMCwwLDEtMVY1QTEsMSwwLDAsMCwyMS45MSw0LjA5WiIgZmlsbD0iIzQ2NDY0NiIvPjwvc3ZnPg==" onClick={() => {
+                            remote.getCurrentWindow().reload();
+                        }}></img>
+                    <span className="title">CrewLink{appVersion}</span>
 					<svg className="titlebar-button settings" onClick={() => setSettingsOpen(!settingsOpen)} enableBackground="new 0 0 24 24" viewBox="0 0 24 24" fill="#868686" width="20px" height="20px">
 						<g>
 							<path d="M0,0h24v24H0V0z" fill="none" />
