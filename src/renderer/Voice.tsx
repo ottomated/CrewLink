@@ -71,11 +71,6 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 		gain.gain.value = 0;
 		return;
 	}
-	
-	if((me.isDead && !other.isDead)){
-		gain.gain.value = settings.adjustLiveOnDead;
-		return;
-	}
 
 	if (state.gameState === GameState.LOBBY || state.gameState === GameState.DISCUSSION) {
 		gain.gain.value = 1;

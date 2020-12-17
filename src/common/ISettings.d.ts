@@ -13,5 +13,4 @@ export interface ISettings {
 	},
 	hideCode: boolean;
 	enableSpatialAudio: boolean;
-	adjustLiveOnDead: number;
 }
