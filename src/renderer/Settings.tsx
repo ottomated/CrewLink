@@ -98,6 +98,10 @@ const store = new Store<ISettings>({
 		enableSpatialAudio: {
 			type: 'boolean',
 			default: true
+		},
+		adjustLiveOnDead:{
+			type: 'number',
+			default: 1,
 		}
 	}
 });
@@ -281,7 +285,8 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 			</div>
 			{settings.pushToTalk &&
 				<div className="form-control m" style={{ color: '#f1c40f' }}>
-					<input spellCheck={false} type="text" value={settings.pushToTalkShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'pushToTalkShortcut')} />
+					<input spellCheck={false} type="text" value={settings.pushToTalkShortcut} readOnly 
+					onKeyDown={(ev) => setShortcut(ev, 'pushToTalkShortcut')} />
 				</div>
 			}
 			<div className="form-control l m" style={{ color: '#2ecc71' }}>
@@ -316,6 +321,18 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					Exit to apply changes
 				</span>
 			</div>
+			<div className="form-control m" style={{ color: '#ffa500', textAlign:"center"}} >
+				<label>Live Players Vol. when Dead</label>
+				<br/>
+				<input type="range" value={(settings.adjustLiveOnDead*100)}
+				onChange={(ev: React.FormEvent<HTMLInputElement>) => 
+					setSettings({
+					type: 'setOne',
+					action: ['adjustLiveOnDead', (ev.currentTarget.valueAsNumber/100)]
+					})
+				}
+				readOnly />
+			</div> 
 		</div>
 	</div>;
 };
