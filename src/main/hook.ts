@@ -118,7 +118,7 @@ ipcMain.on('start', async (event) => {
 			if (!isMouseButton(shortcutKey) && keyCodeMatches(shortcutKey as K, ev)) {
 				event.reply('pushToTalk', false);
 			}
-			if (!isMouseButton(shortcutKey) && keyCodeMatches(store.get('deafenShortcut') as K, ev)) {
+			if (!isMouseButton(store.get('deafenShortcut')) && keyCodeMatches(store.get('deafenShortcut') as K, ev)) {
 				event.reply('toggleDeafen');
 			}
 		});
