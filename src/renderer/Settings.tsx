@@ -5,6 +5,7 @@ import MicrophoneSoundBar from './MicrophoneSoundBar';
 import TestSpeakersButton from './TestSpeakersButton';
 import { store, validateURL } from './settingsStore';
 import { ISettings } from '../common/ISettings';
+import { CircleSpinner } from 'react-spinners-kit';
 
 const keys = new Set(['Space', 'Backspace', 'Delete', 'Enter', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown', 'Escape', 'LControl', 'LShift', 'LAlt', 'RControl', 'RShift', 'RAlt']);
 
@@ -19,31 +20,48 @@ interface MediaDevice {
 	label: string;
 }
 
-type URLInputProps = {
-	initialURL: string,
-	onValidURL: (url: string) => void
-};
+interface URLInputProps {
+	initialURL: string;
+	onValidURL: (url: string) => void;
+}
 
+/** Allows the user to input a URL */
 function URLInput({ initialURL, onValidURL }: URLInputProps) {
 	const [isValidURL, setURLValid] = useState(true);
 	const [currentURL, setCurrentURL] = useState(initialURL);
-
-	useEffect(() => {
-		setCurrentURL(initialURL);
-	}, [initialURL]);
+	const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout>();
+	const [showSpinner, setShowSpinner] = useState(false);
 
 	function onChange(event: React.ChangeEvent<HTMLInputElement>) {
 		setCurrentURL(event.target.value);
 
-		if (validateURL(event.target.value)) {
-			setURLValid(true);
-			onValidURL(event.target.value);
-		} else {
-			setURLValid(false);
-		}
+		setShowSpinner(true);
+		// NOTE: Disabling because typing is being overzealous
+		//       and clearTimout is acutally very permissive
+		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+		clearTimeout(debounceTimer!);
+		setDebounceTimer(setTimeout(() => {
+			setShowSpinner(false);
+			if (validateURL(event.target.value)) {
+				setURLValid(true);
+				onValidURL(event.target.value);
+			} else {
+				setURLValid(false);
+			}
+		}, 2.5 * 1000));
 	}
 
-	return <input className={isValidURL ? '' : 'input-error'} spellCheck={false} type="text" value={currentURL} onChange={onChange} />;
+	return <>
+		<input
+			className={isValidURL ? '' : 'input-error'}
+			spellCheck={false}
+			type="text"
+			value={currentURL}
+			onChange={onChange} />
+		<div style={{ display: 'inline-block' }}>
+			{showSpinner || <CircleSpinner size={10} />}
+		</div>
+	</>;
 }
 
 const SettingsPage: React.FC<SettingsPageProps> = function (props: SettingsPageProps) {
