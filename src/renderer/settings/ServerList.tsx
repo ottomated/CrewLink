@@ -55,7 +55,6 @@ export const ServerList: React.FC<ServerListProps> = function (
 			<option value="custom url">-- Custom Server --</option>
 		</select>
 		{isCustom &&
-			// true &&
 			<URLInput
 				initialURL={currentURL}
 				onValidURL={url => onSelect(url)}
@@ -103,7 +102,7 @@ function URLInput({ initialURL, onValidURL }: URLInputProps) {
 			value={currentURL}
 			onChange={onChange} />
 		<div style={{ display: 'inline-block' }}>
-			{showSpinner || <CircleSpinner size={10} />}
+			{showSpinner && <CircleSpinner size={10} />}
 		</div>
 	</>;
 }
