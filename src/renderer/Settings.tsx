@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useReducer, useState } from 'react';
 import { SettingsDispatchValues, SettingsContext } from './contexts';
 import './css/settings.css';
-import MicrophoneSoundBar from './MicrophoneSoundBar';
-import TestSpeakersButton from './TestSpeakersButton';
+import MicrophoneSoundBar from './settings/MicrophoneSoundBar';
+import TestSpeakersButton from './settings/TestSpeakersButton';
 import { store } from './settingsStore';
 import { ISettings } from '../common/ISettings';
 import { ServerList } from './settings/ServerList';
