@@ -82,11 +82,6 @@ body {
 	left: 2px;
 }
 
-.refresh {
-    left: 27px;
-    filter: brightness(2);
-}
-
 .canvas {
 	/* image-rendering: pixelated; */
 	width: 100%;
