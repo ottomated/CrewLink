@@ -8,7 +8,7 @@ import { ISettings } from '../common/ISettings';
 
 const keys = new Set(['Space', 'Backspace', 'Delete', 'Enter', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown', 'Escape', 'LControl', 'LShift', 'LAlt', 'RControl', 'RShift', 'RAlt']);
 
-export interface SettingsProps {
+interface SettingsPageProps {
 	open: boolean;
 	onClose: () => void;
 }
@@ -46,16 +46,61 @@ function URLInput({ initialURL, onValidURL }: URLInputProps) {
 	return <input className={isValidURL ? '' : 'input-error'} spellCheck={false} type="text" value={currentURL} onChange={onChange} />;
 }
 
-const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsProps) {
+const SettingsPage: React.FC<SettingsPageProps> = function (props: SettingsPageProps) {
 	const [settings, setSettings] = useContext(SettingsContext);
 	const [unsavedCount, setUnsavedCount] = useState(0);
-	const unsaved = unsavedCount > 2;
+	const isUnsaved = unsavedCount > 2;
+
+	useEffect(() => {
+		setUnsavedCount(s => s + 1);
+	}, [settings.microphone, settings.speaker, settings.serverURL, settings.enableSpatialAudio]);
+
 	useEffect(() => {
 		setSettings({
 			type: 'set',
 			action: store.store
 		});
 	}, []);
+
+	// HACK: Workaround default values being loaded into child components
+	//       and react state keeping default values instead of user values.
+	//       This shouldn't be user visable as settings is hidden by default.
+	const [delay, endDelay] = useState(true);
+	setTimeout(() => endDelay(false), 2 * 1000);
+
+	return <div id="settings" style={{ transform: props.open ? 'translateX(0)' : 'translateX(-100%)' }}>
+		<svg className="titlebar-button back" viewBox="0 0 24 24" fill="#868686" width="20px" height="20px" onClick={() => {
+			if (isUnsaved) {
+				props.onClose();
+				location.reload();
+			} else{
+				props.onClose();
+			}
+		}}>
+			<path d="M0 0h24v24H0z" fill="none" />
+			<path d="M11.67 3.87L9.9 2.1 0 12l9.9 9.9 1.77-1.77L3.54 12z" />
+		</svg>
+		{delay 
+			? 'Loading Settings' 
+			:  <Settings
+				{...props}
+				settings={settings}
+				setSettings={setSettings}
+			/>
+		}
+	</div>;
+};
+
+interface SettingsProps extends SettingsPageProps {
+	settings: ISettings,
+	setSettings: React.Dispatch<SettingsDispatchValues>
+}
+
+const Settings: React.FC<SettingsProps> = function (
+	{ settings, setSettings, open }: SettingsProps
+) {
+	const [unsavedCount, setUnsavedCount] = useState(0);
+	const unsaved = unsavedCount > 2;
 
 	useEffect(() => {
 		setUnsavedCount(s => s + 1);
@@ -114,106 +159,92 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 	const microphones = devices.filter(d => d.kind === 'audioinput');
 	const speakers = devices.filter(d => d.kind === 'audiooutput');
 
-	return <div id="settings" style={{ transform: open ? 'translateX(0)' : 'translateX(-100%)' }}>
-		<svg className="titlebar-button back" viewBox="0 0 24 24" fill="#868686" width="20px" height="20px" onClick={() => {
-			if (unsaved) {
-				onClose();
-				location.reload();
-			}
-			else
-				onClose();
-		}}>
-			<path d="M0 0h24v24H0z" fill="none" />
-			<path d="M11.67 3.87L9.9 2.1 0 12l9.9 9.9 1.77-1.77L3.54 12z" />
-		</svg>
-		<div className="settings-scroll">
+	return <div className="settings-scroll">
+		<div className="form-control m l" style={{ color: '#e74c3c' }}>
+			<label>Microphone</label>
+			<select value={settings.microphone} onChange={(ev) => {
+				setSettings({
+					type: 'setOne',
+					action: ['microphone', microphones[ev.target.selectedIndex].id]
+				});
+			}} onClick={() => updateDevices()}>
+				{
+					microphones.map(d => (
+						<option key={d.id} value={d.id}>{d.label}</option>
+					))
+				}
+			</select>
+			{open && <MicrophoneSoundBar microphone={settings.microphone} />}
+		</div>
+		<div className="form-control m l" style={{ color: '#e67e22' }}>
+			<label>Speaker</label>
+			<select value={settings.speaker} onChange={(ev) => {
+				setSettings({
+					type: 'setOne',
+					action: ['speaker', speakers[ev.target.selectedIndex].id]
+				});
+			}} onClick={() => updateDevices()}>
+				{
+					speakers.map(d => (
+						<option key={d.id} value={d.id}>{d.label}</option>
+					))
+				}
+			</select>
+			{open && <TestSpeakersButton speaker={settings.speaker} />}
+		</div>
 
-			<div className="form-control m l" style={{ color: '#e74c3c' }}>
-				<label>Microphone</label>
-				<select value={settings.microphone} onChange={(ev) => {
-					setSettings({
-						type: 'setOne',
-						action: ['microphone', microphones[ev.target.selectedIndex].id]
-					});
-				}} onClick={() => updateDevices()}>
-					{
-						microphones.map(d => (
-							<option key={d.id} value={d.id}>{d.label}</option>
-						))
-					}
-				</select>
-				{open && <MicrophoneSoundBar microphone={settings.microphone} />}
+		<div className="form-control" style={{ color: '#f1c40f' }} onClick={() => setSettings({
+			type: 'setOne',
+			action: ['pushToTalk', false]
+		})}>
+			<input type="checkbox" checked={!settings.pushToTalk} style={{ color: '#f1c40f' }} readOnly />
+			<label>Voice Activity</label>
+		</div>
+		<div className={`form-control${settings.pushToTalk ? '' : ' m'}`} style={{ color: '#f1c40f' }} onClick={() => setSettings({
+			type: 'setOne',
+			action: ['pushToTalk', true]
+		})}>
+			<input type="checkbox" checked={settings.pushToTalk} readOnly />
+			<label>Push to Talk</label>
+		</div>
+		{settings.pushToTalk &&
+			<div className="form-control m" style={{ color: '#f1c40f' }}>
+				<input spellCheck={false} type="text" value={settings.pushToTalkShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'pushToTalkShortcut')} />
 			</div>
-			<div className="form-control m l" style={{ color: '#e67e22' }}>
-				<label>Speaker</label>
-				<select value={settings.speaker} onChange={(ev) => {
-					setSettings({
-						type: 'setOne',
-						action: ['speaker', speakers[ev.target.selectedIndex].id]
-					});
-				}} onClick={() => updateDevices()}>
-					{
-						speakers.map(d => (
-							<option key={d.id} value={d.id}>{d.label}</option>
-						))
-					}
-				</select>
-				{open && <TestSpeakersButton speaker={settings.speaker} />}
-			</div>
-
-			<div className="form-control" style={{ color: '#f1c40f' }} onClick={() => setSettings({
-				type: 'setOne',
-				action: ['pushToTalk', false]
-			})}>
-				<input type="checkbox" checked={!settings.pushToTalk} style={{ color: '#f1c40f' }} readOnly />
-				<label>Voice Activity</label>
-			</div>
-			<div className={`form-control${settings.pushToTalk ? '' : ' m'}`} style={{ color: '#f1c40f' }} onClick={() => setSettings({
-				type: 'setOne',
-				action: ['pushToTalk', true]
-			})}>
-				<input type="checkbox" checked={settings.pushToTalk} readOnly />
-				<label>Push to Talk</label>
-			</div>
-			{settings.pushToTalk &&
-				<div className="form-control m" style={{ color: '#f1c40f' }}>
-					<input spellCheck={false} type="text" value={settings.pushToTalkShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'pushToTalkShortcut')} />
-				</div>
-			}
-			<div className="form-control l m" style={{ color: '#2ecc71' }}>
-				<label>Deafen Shortcut</label>
-				<input spellCheck={false} type="text" value={settings.deafenShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'deafenShortcut')} />
-			</div>
-			<div className="form-control l m" style={{ color: '#3498db' }}>
-				<label>Voice Server</label>
-				<URLInput initialURL={settings.serverURL} onValidURL={(url: string) => {
-					setSettings({
-						type: 'setOne',
-						action: ['serverURL', url]
-					});
-				}} />
-			</div>
-			<div className="form-control m" style={{ color: '#9b59b6' }} onClick={() => setSettings({
-				type: 'setOne',
-				action: ['hideCode', !settings.hideCode]
-			})}>
-				<input type="checkbox" checked={!settings.hideCode} style={{ color: '#9b59b6' }} readOnly />
-				<label>Show Lobby Code</label>
-			</div>
-			<div className="form-control m" style={{ color: '#fd79a8' }} onClick={() => setSettings({
-				type: 'setOne',
-				action: ['enableSpatialAudio', !settings.enableSpatialAudio]
-			})}>
-				<input type="checkbox" checked={settings.enableSpatialAudio} style={{ color: '#fd79a8' }} readOnly />
-				<label>Enable Spatial Audio</label>
-			</div>
-			<div className='settings-alert' style={{ display: unsaved ? 'flex' : 'none' }}>
-				<span>
-					Exit to apply changes
-				</span>
-			</div>
+		}
+		<div className="form-control l m" style={{ color: '#2ecc71' }}>
+			<label>Deafen Shortcut</label>
+			<input spellCheck={false} type="text" value={settings.deafenShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'deafenShortcut')} />
+		</div>
+		<div className="form-control l m" style={{ color: '#3498db' }}>
+			<label>Voice Server</label>
+			<URLInput initialURL={settings.serverURL} onValidURL={(url: string) => {
+				setSettings({
+					type: 'setOne',
+					action: ['serverURL', url]
+				});
+			}} />
+		</div>
+		<div className="form-control m" style={{ color: '#9b59b6' }} onClick={() => setSettings({
+			type: 'setOne',
+			action: ['hideCode', !settings.hideCode]
+		})}>
+			<input type="checkbox" checked={!settings.hideCode} style={{ color: '#9b59b6' }} readOnly />
+			<label>Show Lobby Code</label>
+		</div>
+		<div className="form-control m" style={{ color: '#fd79a8' }} onClick={() => setSettings({
+			type: 'setOne',
+			action: ['enableSpatialAudio', !settings.enableSpatialAudio]
+		})}>
+			<input type="checkbox" checked={settings.enableSpatialAudio} style={{ color: '#fd79a8' }} readOnly />
+			<label>Enable Spatial Audio</label>
+		</div>
+		<div className='settings-alert' style={{ display: unsaved ? 'flex' : 'none' }}>
+			<span>
+				Exit to apply changes
+			</span>
 		</div>
 	</div>;
 };
 
-export default Settings;
+export default SettingsPage;
