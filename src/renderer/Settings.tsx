@@ -3,9 +3,10 @@ import { SettingsDispatchValues, SettingsContext } from './contexts';
 import './css/settings.css';
 import MicrophoneSoundBar from './MicrophoneSoundBar';
 import TestSpeakersButton from './TestSpeakersButton';
-import { store, validateURL } from './settingsStore';
+import { store } from './settingsStore';
 import { ISettings } from '../common/ISettings';
-import { CircleSpinner } from 'react-spinners-kit';
+import { ServerList } from './settings/ServerList';
+import { publicHostedServers } from './settings/publicHostedServers';
 
 const keys = new Set(['Space', 'Backspace', 'Delete', 'Enter', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown', 'Escape', 'LControl', 'LShift', 'LAlt', 'RControl', 'RShift', 'RAlt']);
 
@@ -18,50 +19,6 @@ interface MediaDevice {
 	id: string;
 	kind: MediaDeviceKind;
 	label: string;
-}
-
-interface URLInputProps {
-	initialURL: string;
-	onValidURL: (url: string) => void;
-}
-
-/** Allows the user to input a URL */
-function URLInput({ initialURL, onValidURL }: URLInputProps) {
-	const [isValidURL, setURLValid] = useState(true);
-	const [currentURL, setCurrentURL] = useState(initialURL);
-	const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout>();
-	const [showSpinner, setShowSpinner] = useState(false);
-
-	function onChange(event: React.ChangeEvent<HTMLInputElement>) {
-		setCurrentURL(event.target.value);
-
-		setShowSpinner(true);
-		// NOTE: Disabling because typing is being overzealous
-		//       and clearTimout is acutally very permissive
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		clearTimeout(debounceTimer!);
-		setDebounceTimer(setTimeout(() => {
-			setShowSpinner(false);
-			if (validateURL(event.target.value)) {
-				setURLValid(true);
-				onValidURL(event.target.value);
-			} else {
-				setURLValid(false);
-			}
-		}, 2.5 * 1000));
-	}
-
-	return <>
-		<input
-			className={isValidURL ? '' : 'input-error'}
-			spellCheck={false}
-			type="text"
-			value={currentURL}
-			onChange={onChange} />
-		<div style={{ display: 'inline-block' }}>
-			{showSpinner || <CircleSpinner size={10} />}
-		</div>
-	</>;
 }
 
 const SettingsPage: React.FC<SettingsPageProps> = function (props: SettingsPageProps) {
@@ -236,12 +193,17 @@ const Settings: React.FC<SettingsProps> = function (
 		</div>
 		<div className="form-control l m" style={{ color: '#3498db' }}>
 			<label>Voice Server</label>
-			<URLInput initialURL={settings.serverURL} onValidURL={(url: string) => {
-				setSettings({
-					type: 'setOne',
-					action: ['serverURL', url]
-				});
-			}} />
+			<ServerList
+				serverKeyName='url picker'
+				currentURL={settings.serverURL}
+				onSelect={url => {
+					setSettings({
+						type: 'setOne',
+						action: ['serverURL', url]
+					});
+				}}
+				servers={publicHostedServers}
+			/>
 		</div>
 		<div className="form-control m" style={{ color: '#9b59b6' }} onClick={() => setSettings({
 			type: 'setOne',
