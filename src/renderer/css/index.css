@@ -83,6 +83,7 @@ body {
 }
 
 .refresh {
+<<<<<<< HEAD
     left: 21px;
     filter: brightness(2);
     transition: all 0.2s;
@@ -98,6 +99,10 @@ body {
     left: 6px;
     background-color: red;
     font-size: 12px;
+=======
+    left: 27px;
+    filter: brightness(2);
+>>>>>>> 44d4cdffe3f1e85639268432cf0760ffdc27de63
 }
 
 .canvas {
