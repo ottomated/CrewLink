@@ -83,8 +83,21 @@ body {
 }
 
 .refresh {
-    left: 27px;
+    left: 21px;
     filter: brightness(2);
+    transition: all 0.2s;
+}
+
+.refresh:hover{
+    filter: brightness(3);
+    transform: scale(1.08,1.08)
+}
+
+.target {
+    /*cursor: pointer;*/
+    left: 6px;
+    background-color: red;
+    font-size: 12px;
 }
 
 .canvas {
