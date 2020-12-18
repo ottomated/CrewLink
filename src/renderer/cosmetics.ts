@@ -91,7 +91,8 @@ import hat89 from '../../static/hats/89.png';// @ts-ignore
 import hat90 from '../../static/hats/90.png';// @ts-ignore
 import hat91 from '../../static/hats/91.png';// @ts-ignore
 import hat92 from '../../static/hats/92.png';// @ts-ignore
-import hat93 from '../../static/hats/93.png';
+import hat93 from '../../static/hats/93.png';// @ts-ignore
+import hat94 from '../../static/hats/94.png';
 
 // @ts-ignore
 import skin1 from '../../static/skins/1.png';// @ts-ignore
@@ -166,7 +167,7 @@ export const skins = [
 	skin15
 ];
 export const hatOffsets = [
-	45, 25, 50, 37/*T*/, 33, 60/*T*/, 70, 20, 27, 35, 41, 52, 35, 29, 40, 49, 34, 40, 25, 52, 55, 46, 41, 49, 46, 36, 44, 59, 44, 39, 30, 32, 37, 26, 61, 40, 43, 26, 50/*T*/, 51, 37, 44/*T*/, 30, 22, 40, 42, 8, 29, 32, 36, 28, 22, 39, 42, 24, 30, 47, 27, 52, 44, 26, 44, 48, 47, 42, 48, 50, 32, 44, 38, 56, 19, 27, 30, 42/*T*/, 43, 60, 34, 10, 45, 50, 33, 13, 2, 40/*T*/, 32, 32, 55, 22, 999, 26, 29, 43
+	45, 25, 50, 37/*T*/, 33, 60/*T*/, 70, 20, 27, 35, 41, 52, 35, 29, 40, 49, 34, 40, 25, 52, 55, 46, 41, 49, 46, 36, 44, 59, 44, 39, 30, 32, 37, 26, 61, 40, 43, 26, 50/*T*/, 51, 37, 44/*T*/, 30, 22, 40, 42, 8, 29, 32, 36, 28, 22, 39, 42, 24, 30, 47, 27, 52, 44, 26, 44, 48, 47, 42, 48, 50, 32, 44, 38, 56, 19, 27, 30, 42/*T*/, 43, 60, 34, 10, 45, 50, 33, 13, 2, 40/*T*/, 32, 32, 55, 22, 999, 26, 29, 43, 36
 ];
 
 export const backLayerHats = new Set([38, 3, 5, 14, 28]);
@@ -264,5 +265,6 @@ export const hats = [
 	hat90,
 	hat91,
 	hat92,
-	hat93
+	hat93,
+	hat94
 ];
