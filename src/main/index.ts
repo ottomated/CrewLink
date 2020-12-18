@@ -68,6 +68,10 @@ function createMainWindow() {
 
 	window.on('closed', () => {
 		global.mainWindow = null;
+		if (global.overlay != null) {
+			global.overlay.close()
+			global.overlay = null;
+		}
 	});
 
 	window.webContents.on('devtools-opened', () => {
@@ -128,6 +132,10 @@ if (!gotTheLock) {
 	app.on('window-all-closed', () => {
 		// on macOS it is common for applications to stay open until the user explicitly quits
 		if (process.platform !== 'darwin') {
+			if (global.overlay != null) {
+				global.overlay.close()
+				global.overlay = null;
+			}
 			app.quit();
 		}
 	});
