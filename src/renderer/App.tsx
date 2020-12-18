@@ -7,6 +7,7 @@ import { ipcRenderer, remote } from 'electron';
 import { AmongUsState } from '../common/AmongUsState';
 import Settings, { settingsReducer } from './Settings';
 import { GameStateContext, SettingsContext } from './contexts';
+import RefreshIcon from '@material-ui/icons/Refresh';
 
 let appVersion = '';
 if (typeof window !== 'undefined' && window.location) {
@@ -81,9 +82,9 @@ function App() {
 				<div className="titlebar">
 
                     <Tooltip content="Restart the application (CTRL+R)" className="target" direction="down-start" distance={30} arrow={false}>
-                        <img width="20px" height="20px" className="titlebar-button refresh" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pjxzdmcgdmlld0JveD0iMCAwIDI0IDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjx0aXRsZS8+PHBhdGggZD0iTTIxLjkxLDQuMDlhMSwxLDAsMCwwLTEuMDcuMTZMMTkuNDgsNS40NkE5LjgxLDkuODEsMCwwLDAsMTIsMmExMCwxMCwwLDEsMCw5LjQyLDEzLjMzLDEsMSwwLDAsMC0xLjg5LS42NkE4LDgsMCwxLDEsMTIsNGE3Ljg2LDcuODYsMCwwLDEsNiwyLjc4TDE2LjM0LDguMjVhMSwxLDAsMCwwLS4yNywxLjExQTEsMSwwLDAsMCwxNywxMGg0LjVhMSwxLDAsMCwwLDEtMVY1QTEsMSwwLDAsMCwyMS45MSw0LjA5WiIgZmlsbD0iIzQ2NDY0NiIvPjwvc3ZnPg==" onClick={() => {
+                        <RefreshIcon width="20px" height="20px" preserveAspectRatio="none" className="titlebar-button refresh" onClick={() => {
                             remote.getCurrentWindow().reload();
-                        }}></img>
+                        }}></RefreshIcon>
                     </Tooltip>
                     
                     <span className="title">CrewLink{appVersion}</span>

@@ -25,6 +25,8 @@
     "publish": "yarn compile && electron-builder --win --x64 --publish always"
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.2",
+    "@material-ui/icons": "^4.11.2",
     "ajv": "^6.12.6",
     "analyser-frequency-average": "^1.0.0",
     "axios": "^0.21.0",
