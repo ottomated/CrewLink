@@ -220,7 +220,7 @@ export default class GameReader {
 		if (address === 0 || !this.amongUs) return '';
 		const length = readMemoryRaw<number>(this.amongUs.handle, address + 0x8, 'int');
 		const buffer = readBuffer(this.amongUs.handle, address + 0xC, length << 1);
-		return buffer.toString('utf8').replace(/\0/g, '');
+		return buffer.toString('binary').replace(/\0/g, '');
 	}
 	
 	IntToGameCode(input: number) {
