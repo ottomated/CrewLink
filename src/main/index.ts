@@ -104,6 +104,8 @@ if (!gotTheLock) {
 		const overlay = new BrowserWindow({
 			width: 400,
 			height: 300,
+		//	alwaysOnTop:true,
+			focusable: false,
 			webPreferences: {
 				nodeIntegration: true,
 				enableRemoteModule: true,

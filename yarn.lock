@@ -3455,7 +3455,7 @@ electron-devtools-installer@^2.2.4:
 
 "electron-overlay-window@git://github.com/OhMyGuus/electron-overlay-window":
   version "1.0.4"
-  resolved "git://github.com/OhMyGuus/electron-overlay-window#6fd45119ffda80713c44831cb5360b3fd64ee7a4"
+  resolved "git://github.com/OhMyGuus/electron-overlay-window#eb3771575e59bc5a196fc2c2df12a21c6be6d3b6"
   dependencies:
     "@types/throttle-debounce" "2.x.x"
     node-gyp-build "4.x.x"
