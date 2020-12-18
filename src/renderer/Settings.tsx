@@ -117,6 +117,10 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: false
 		},
+		overlayPosition: {
+			type: 'string',
+			default: 'top'
+		},
 		enableOverlay: {
 			type: 'boolean',
 			default: false
@@ -126,7 +130,6 @@ const store = new Store<ISettings>({
 			default: {
 				maxDistance: 5.32,
 				haunting: false
-
 			}
 		}
 	}
@@ -382,14 +385,16 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 				<input type="checkbox" checked={settings.enableSpatialAudio} style={{ color: '#fd79a8' }} readOnly />
 				<label>Enable Spatial Audio</label>
 			</div>
+
 			<div className="form-control m" style={{ color: '#fd79a8' }} onClick={() => setSettings({
 				type: 'setOne',
 				action: ['alwaysOnTop', !settings.alwaysOnTop]
 			})}>
 				<input type="checkbox" checked={settings.alwaysOnTop} style={{ color: '#fd79a8' }} readOnly />
 				<label>Show on top of the game</label>
-			</div>
-			<div className="form-control m" style={{ color: '#F45837' }} onClick={() => setSettings({
+            </div>
+	
+			<div className="form-control m" style={{ color: '#f72f5e', paddingTop: "10px" }} onClick={() => setSettings({
 				type: 'setOne',
 				action: ['enableOverlay', !settings.enableOverlay]
 			})}>
@@ -400,9 +405,23 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 				type: 'setOne',
 				action: ['compactOverlay', !settings.compactOverlay]
 			})}>
-				<input type="checkbox" checked={settings.compactOverlay} style={{ color: '#F45837' }} readOnly />
+				<input type="checkbox" checked={settings.compactOverlay} style={{ color: '#f72f5e' }} readOnly />
 				<label>Compact Overlay</label>
 			</div>
+			{settings.enableOverlay && 
+           <div className="form-control l" style={{ color: '#f72f5e' }} >
+				<label>Overlay Position</label>
+				<select onChange={(ev) => {
+					setSettings({
+						type: 'setOne',
+						action: ['overlayPosition', ev.target.value]
+					});
+				}}>
+				  <option value="top" selected={settings.overlayPosition == "top"}>Top Center</option>
+				  <option value="bottom_left" selected={settings.overlayPosition == "bottom_left"}>Bottom Left</option>
+				</select>		
+			 </div>	
+			}
 			<div className='settings-alert' style={{ display: unsaved ? 'flex' : 'none' }}>
 				<span>
 					Exit to apply changes
@@ -413,7 +432,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 				<h2 style={{ color: '#e74c3c' }}>Lobby settings</h2>
 			}
 			{gameState.gameState !== undefined && gameState.gameState !== GameState.MENU && gameState.isHost === true ? (
-				<div>
+				<>
 				<div className="form-control l m" style={{ color: '#3498db' }}>
 					<label>Max Distance</label>
 					<input spellCheck={false} type="range" min="1" max="10" step="0.1" onChange={(ev) => setSettings({
@@ -429,19 +448,19 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 				<input type="checkbox" checked={settings.localLobbySettings.haunting} style={{ color: '#fd79a8' }} readOnly />
 				<label>Ghost haunt imposters</label>
 			</div>
-				</div>
+				</>
 			) : gameState.gameState !== undefined && gameState.gameState !== GameState.MENU && (
-				<div>
+				<>
 				<div className="form-control l m" style={{ color: '#3498db' }}>
 					<label>Max Distance: {lobbySettings.maxDistance}</label>
 				</div>
 				<div className="form-control l m" style={{ color: '#3498db' }}>
 					<label>Impostors Hear Ghosts: {lobbySettings.haunting? 'true' : 'false'}</label>
 				</div>
-				</div>
+				</>
 			)}
 		</div>
-	</div>;
+	</div>
 };
 
 export default Settings;

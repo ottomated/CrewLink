@@ -63,7 +63,8 @@ function createMainWindow() {
 			pathname: joinPath(__dirname, 'index.html'),
 			protocol: 'file',
 			query: {
-				version: autoUpdater.currentVersion.version
+				version: autoUpdater.currentVersion.version,
+				view: "app"
 			},
 			slashes: true
 		}));
@@ -114,7 +115,6 @@ if (!gotTheLock) {
 		if (isDevelopment) {
 			overlay.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`)
 		} else {
-
 			overlay.loadURL(formatUrl({
 				pathname: joinPath(__dirname, 'index.html'),
 				protocol: 'file',
@@ -125,8 +125,6 @@ if (!gotTheLock) {
 				slashes: true
 			}))
 		}
-		//overlay.webContents.openDevTools()
-		//overlayWindow.attachTo(overlay, 'Untitled - Notepad')
 		overlay.setIgnoreMouseEvents(true);
 		overlayWindow.attachTo(overlay, 'Among Us');
 		return overlay;
@@ -136,6 +134,10 @@ if (!gotTheLock) {
 	app.on('window-all-closed', () => {
 		// on macOS it is common for applications to stay open until the user explicitly quits
 		if (process.platform !== 'darwin') {
+			if (global.overlay != null) {
+				global.overlay.close()
+				global.overlay = null;
+			}
 			app.quit();
 		}
 	});

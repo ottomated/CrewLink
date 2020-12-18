@@ -34,6 +34,7 @@ export default function App() {
 		},
 		hideCode: false,
 		enableSpatialAudio: true,
+		overlayPosition: 'top',
 		compactOverlay: false,
 		enableOverlay: false,
 		localLobbySettings: {

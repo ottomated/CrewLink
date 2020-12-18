@@ -14,6 +14,7 @@ export interface ISettings {
 	hideCode: boolean;
 	enableSpatialAudio: boolean;
 	compactOverlay: boolean;
+	overlayPosition: string;
 	enableOverlay: boolean;
 	localLobbySettings: {
 		maxDistance: number;
