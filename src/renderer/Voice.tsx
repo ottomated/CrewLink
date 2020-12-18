@@ -66,7 +66,6 @@ interface AudioConnected {
 	[peer: string]: boolean; // isConnected
 }
 
-function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Player, other: Player, gain: GainNode, pan: PannerNode): void {
 interface ICEServer {
 	url: string,
 	username: string | undefined,
