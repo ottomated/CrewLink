@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 // @ts-ignore
 import { BrowserRouter as Router, Route } from 'react-router-dom'
-import { ipcRenderer } from 'electron';
 import ReactDOM from 'react-dom';
 import App from './App';
 import Overlay from './Overlay';
@@ -27,12 +26,8 @@ class ViewManager extends Component {
 		let view = ViewManager.Views()[name];
 		if(view == null) 
 			throw new Error("View '" + name + "' is undefined");
-		//console.log("View is not null");
-		if (name == "app") {
-			ipcRenderer.send('start');
-			console.log("Sent ipcRenderer start");
-		}
-		return view;
+
+			return view;
 	}
 	 
 	render() {

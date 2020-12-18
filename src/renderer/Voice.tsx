@@ -270,11 +270,11 @@ const Voice: React.FC = function () {
 			noiseSuppression: false,
 			sampleRate: 48000,
 			sampleSize: 16,
-			googEchoCancellation: false,
+			googEchoCancellation: true,
 			googAutoGainControl: false,
 			googAutoGainControl2: false,
-			googNoiseSuppression: false,
-			googHighpassFilter: false,
+			googNoiseSuppression: true,
+			googHighpassFilter: true,
 			googTypingNoiseDetection: false
 		};
 
@@ -524,7 +524,6 @@ const Voice: React.FC = function () {
 				if(audio.gain.gain.value > 0){
 					let playerVolume = playerConfigs[player.clientId]?.volume;
 					audio.gain.gain.value = playerVolume === undefined? audio.gain.gain.value  : audio.gain.gain.value * playerVolume;
-					console.log(audio.gain.gain.value)
 				}
 			}
 		}

@@ -1,7 +1,7 @@
 'use strict';
 
 import { autoUpdater } from 'electron-updater';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import { join as joinPath } from 'path';
 import { format as formatUrl } from 'url';
@@ -14,7 +14,7 @@ declare global {
   namespace NodeJS {
     interface Global {
        mainWindow: BrowserWindow|null;
-       overlay: BrowserWindow|null;
+	   overlay: BrowserWindow|null;
     } 
   }
 }
@@ -56,7 +56,7 @@ function createMainWindow() {
 	}
 
 	if (isDevelopment) {
-		window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=app`);
+		window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=1.1.97&view=app`);
 	}
 	else {
 		window.loadURL(formatUrl({
@@ -71,6 +71,9 @@ function createMainWindow() {
 
 	window.on('closed', () => {
 		global.mainWindow = null;
+		global.overlay?.close();
+		global.overlay = null;
+		app.exit(0);
 	});
 
 	window.webContents.on('devtools-opened', () => {
@@ -125,8 +128,7 @@ if (!gotTheLock) {
 		//overlay.webContents.openDevTools()
 		//overlayWindow.attachTo(overlay, 'Untitled - Notepad')
 		overlay.setIgnoreMouseEvents(true);
-		overlayWindow.attachTo(overlay, 'Among Us')
-		  
+		overlayWindow.attachTo(overlay, 'Among Us');
 		return overlay;
 	}
 
@@ -150,4 +152,12 @@ if (!gotTheLock) {
 		global.mainWindow = createMainWindow();
 		global.overlay = createOverlay();
 	});
+
+	ipcMain.on('enableOverlay', async (_event,enable)=> {
+		if(enable)
+		overlayWindow.show();
+		else
+		overlayWindow.hide();
+	});
+	
 }

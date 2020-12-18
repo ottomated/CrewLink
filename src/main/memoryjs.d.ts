@@ -46,6 +46,8 @@ declare module 'memoryjs' {
 
 	export function writeBuffer(handle: number, address: number, buffer: Buffer): void;
 
+	export function findPattern(handle: number, moduleName: string, signature: string, signatureType: number , patternOffset: number, addressOffset: number): number;
+
 	// Functions
 
 	// export enum ArgType { T_VOID, T_STRING, T_CHAR, T_BOOL, T_INT, T_DOUBLE, T_FLOAT }

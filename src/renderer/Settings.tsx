@@ -7,7 +7,7 @@ import MicrophoneSoundBar from './MicrophoneSoundBar';
 import TestSpeakersButton from './TestSpeakersButton';
 import { ISettings, ILobbySettings } from '../common/ISettings';
 import { GameState } from '../common/AmongUsState';
-import { remote } from 'electron';
+import { ipcRenderer, remote } from 'electron';
 
 const keys = new Set(['Space', 'Backspace', 'Delete', 'Enter', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown', 'Escape', 'LControl', 'LShift', 'LAlt', 'RControl', 'RShift', 'RAlt']);
 
@@ -114,6 +114,10 @@ const store = new Store<ISettings>({
 			default: true
 		},
 		compactOverlay: {
+			type: 'boolean',
+			default: false
+		},
+		enableOverlay: {
 			type: 'boolean',
 			default: false
 		},
@@ -232,6 +236,9 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 		remote.getCurrentWindow().setAlwaysOnTop(settings.alwaysOnTop, 'screen-saver')
 	}, [settings.alwaysOnTop]);
 
+	useEffect(() => {
+		ipcRenderer.send('enableOverlay',settings.enableOverlay);
+	}, [settings.enableOverlay]);
 	
 	const [devices, setDevices] = useState<MediaDevice[]>([]);
 	const [_, updateDevices] = useReducer((state) => state + 1, 0);
@@ -382,8 +389,14 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 				<input type="checkbox" checked={settings.alwaysOnTop} style={{ color: '#fd79a8' }} readOnly />
 				<label>Show on top of the game</label>
 			</div>
-			
-					<div className="form-control m" style={{ color: '#F45837' }} onClick={() => setSettings({
+			<div className="form-control m" style={{ color: '#F45837' }} onClick={() => setSettings({
+				type: 'setOne',
+				action: ['enableOverlay', !settings.enableOverlay]
+			})}>
+				<input type="checkbox" checked={settings.enableOverlay} style={{ color: '#F45837' }} readOnly />
+				<label>Enable Overlay</label>
+			</div>
+			<div className="form-control m" style={{ color: '#F45837' }} onClick={() => setSettings({
 				type: 'setOne',
 				action: ['compactOverlay', !settings.compactOverlay]
 			})}>

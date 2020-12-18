@@ -142,6 +142,10 @@ ipcMain.on('start', async (event) => {
 	event.reply('started');
 });
 
+ipcMain.on('reload', async => {
+	global.mainWindow?.reload();
+});
+
 const keycodeMap = {
 	'Space': 57, 'Backspace': 14, 'Delete': 61011, 'Enter': 28, 'Up': 61000, 'Down': 61008, 'Left': 61003, 'Right': 61005, 'Home': 60999, 'End': 61007, 'PageUp': 61001, 'PageDown': 61009, 'Escape': 1, 'LControl': 29, 'LShift': 42, 'LAlt': 56, 'RControl': 3613, 'RShift': 54, 'RAlt': 3640,
 	'F1': 59,
