@@ -22,8 +22,8 @@
     "dev": "electron-webpack dev",
     "compile": "electron-webpack",
     "dist": "yarn compile && electron-builder --win --x64 --ia32",
-    "dist32": "yarn compile && electron-builder --win --ia32",
-    "dist64": "yarn compile && electron-builder --win --x64",
+    "dist:32": "yarn compile && electron-builder --win --ia32",
+    "dist:64": "yarn compile && electron-builder --win --x64",
     "publish": "yarn compile && electron-builder --win --x64 --ia32 --publish always"
   },
   "iohook": {
@@ -43,11 +43,11 @@
     "analyser-frequency-average": "^1.0.0",
     "axios": "^0.21.0",
     "cross-spawn": "^7.0.3",
+    "deep-equal": "^2.0.5",
     "electron-store": "^6.0.1",
     "electron-updater": "^4.3.5",
     "electron-window-state": "^5.0.3",
     "iohook": "^0.7.1",
-    "jsondiffpatch": "^0.4.1",
     "memoryjs": "git://github.com/Rob--/memoryjs",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -61,9 +61,11 @@
     "ts-interface-checker": "^0.1.13"
   },
   "devDependencies": {
+    "@babel/core": "^7.12.10",
     "@babel/preset-react": "^7.12.1",
     "@types/color": "^3.0.1",
     "@types/cross-spawn": "^6.0.2",
+    "@types/deep-equal": "^1.0.1",
     "@types/js-yaml": "^3.12.5",
     "@types/node": "12",
     "@types/react": "^16.9.53",

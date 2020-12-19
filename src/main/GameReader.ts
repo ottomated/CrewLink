@@ -1,9 +1,8 @@
 import { DataType, findModule, getProcesses, ModuleObject, openProcess, ProcessObject, readBuffer, readMemory as readMemoryRaw } from 'memoryjs';
 import Struct from 'structron';
-import patcher from '../patcher';
 import { GameState, AmongUsState, Player } from '../common/AmongUsState';
 import { IOffsets } from './IOffsets';
-
+import equal from 'deep-equal';
 
 interface ValueType<T> {
 	read(buffer: BufferSource, offset: number): T;
@@ -155,8 +154,8 @@ export default class GameReader {
 				gameState: state,
 				oldGameState: this.oldGameState
 			};
-			const patch = patcher.diff(this.lastState, newState);
-			if (patch) {
+			const stateHasChanged = equal(this.lastState, newState);
+			if (stateHasChanged) {
 				try {
 					this.reply('gameState', newState);
 				} catch (e) {
