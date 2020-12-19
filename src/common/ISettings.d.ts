@@ -7,6 +7,7 @@ export interface ISettings {
 	serverURL: string;
 	pushToTalkShortcut: string;
 	deafenShortcut: string;
+	muteShortcut: string;
 	offsets: {
 		version: string;
 		data: string;
