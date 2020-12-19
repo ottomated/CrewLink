@@ -288,11 +288,10 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					<input spellCheck={false} type="text" value={settings.pushToTalkShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'pushToTalkShortcut')} />
 				</div>
 			}
-			{!settings.pushToTalk && <div className="form-control l m" style={{ color: '#2ecc71' }}>
+			<div className="form-control l m" style={{ color: '#2ecc71' }}>
 				<label>Mute Shortcut</label>
 				<input spellCheck={false} type="text" value={settings.muteShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'muteShortcut')} />
 			</div>
-			}
 			<div className="form-control l m" style={{ color: '#2ecc71' }}>
 				<label>Deafen Shortcut</label>
 				<input spellCheck={false} type="text" value={settings.deafenShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'deafenShortcut')} />
