@@ -14,20 +14,22 @@ import { createCheckers } from 'ts-interface-checker';
 import TI from './hook-ti';
 import { existsSync, readFileSync } from 'fs';
 import { IOffsets } from './IOffsets';
+import { offsets_2020_12_9 } from './baked-offsets';
 const { IOffsets } = createCheckers(TI);
 
 interface IOHookEvent {
-  type: string
-  keychar?: number
-  keycode?: number
-  rawcode?: number
-  button?: number
-  clicks?: number
-  x?: number
-  y?: number
+	type: string
+	keychar?: number
+	keycode?: number
+	rawcode?: number
+	button?: number
+	clicks?: number
+	x?: number
+	y?: number
 }
 
 const store = new Store<ISettings>();
+let edition: 'steam' | 'windowsstore' = 'steam';
 
 async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | undefined> {
 
@@ -43,11 +45,37 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 			return;
 		}
 	} else {
-		event.reply('error', 'Couldn\'t determine the Among Us version - Unity analytics file doesn\'t exist. Try opening Among Us and then restarting CrewLink.');
-		return;
+		// Try to get Windows Store install location via Windows Powershell cmdlet
+		const process = spawn.sync('powershell.exe', [
+			'-nologo',
+			'-executionpolicy', 'remotesigned',
+			'-noprofile',
+			'-command', 'Get-AppxPackage -Name InnerSloth.AmongUs | ConvertTo-Json'
+		], {
+			stdio: ['ignore', 'pipe', 'ignore'],
+			encoding: 'utf8'
+		});
+		if (process.status === 0) {
+			try {
+				const appxManifest = JSON.parse(process.output[1]);
+				version = appxManifest.Version;
+				edition = 'windowsstore';
+			} catch (e) {
+				console.error(e);
+				event.reply('error', `Couldn't determine the Among Us version - ${e}. Try opening Among Us and then restarting CrewLink.`);
+				return;
+			}
+		} else {
+			event.reply('error', 'Couldn\'t determine the Among Us version - Unity analytics file or Windows Store installation doesn\'t exist. Try opening Among Us and then restarting CrewLink.');
+		}
 	}
 
 	let data: string;
+	store.set('offsets', {
+		version: '2020.12.4.0',
+		data: offsets_2020_12_9
+	});
+
 	const offsetStore = store.get('offsets') || {};
 	if (version === offsetStore.version) {
 		data = offsetStore.data;
@@ -173,6 +201,9 @@ function keyCodeMatches(key: K, ev: IOHookEvent): boolean {
 
 
 ipcMain.on('openGame', () => {
+	if(edition === 'windowsstore') {
+		dialog.showErrorBox('Error', 'CrewLink thinks you are using the Windows Store / XBox edition of Among Us.  You must launch Among Us manually.');
+	}
 	// Get steam path from registry
 	const steamPath = enumerateValues(HKEY.HKEY_LOCAL_MACHINE,
 		'SOFTWARE\\WOW6432Node\\Valve\\Steam')
