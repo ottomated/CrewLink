@@ -315,7 +315,7 @@ const Voice: React.FC = function () {
 			googAutoGainControl2: false,
 			googNoiseSuppression: true,
 			googHighpassFilter: true,
-			googTypingNoiseDetection: false
+			googTypingNoiseDetection: true
 		};
 
 		// Get microphone settings

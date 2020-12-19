@@ -14,9 +14,9 @@ export const IOffsets = t.iface([], {
 	'playerCount': t.array('number'),
 	'playerAddrPtr': 'number',
 	'exiledPlayerId': t.array('number'),
-  'gameCode': t.array('number'),
-  'hostId': t.array('number'),
-  'clientId': t.array('number'),
+ 	'gameCode': t.array('number'),
+ 	'hostId': t.array('number'),
+  	'clientId': t.array('number'),
 	'player': t.iface([], {
 		'isLocal': t.array('number'),
 		'localX': t.array('number'),
