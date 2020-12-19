@@ -127,6 +127,11 @@ if (!gotTheLock) {
 				slashes: true
 			}))
 		}
+		
+		if (isDevelopment) {
+			overlay.webContents.openDevTools();
+		}
+		
 		overlay.setIgnoreMouseEvents(true);
 		overlayWindow.attachTo(overlay, 'Among Us');
 		return overlay;

@@ -310,12 +310,12 @@ const Voice: React.FC = function () {
 			noiseSuppression: false,
 			sampleRate: 48000,
 			sampleSize: 16,
-			googEchoCancellation: true,
+			googEchoCancellation: false,
 			googAutoGainControl: false,
 			googAutoGainControl2: false,
-			googNoiseSuppression: true,
-			googHighpassFilter: true,
-			googTypingNoiseDetection: true
+			googNoiseSuppression: false,
+			googHighpassFilter: false,
+			googTypingNoiseDetection: false
 		};
 
 		// Get microphone settings
@@ -458,13 +458,15 @@ const Voice: React.FC = function () {
 							if (overlay) {
 								var reallyTalking = talking && gain.gain.value > 0;
 								overlay.webContents.send(reallyTalking ? 'overlayTalking' : 'overlayNotTalking', socketPlayerIds[peer]);
-								overlay.webContents.send('overlaySocketIds', socketPlayerIds);
+						
 							}
 							
 							return socketPlayerIds;
 						});
-						let overlay = remote.getGlobal("overlay");
-						if (overlay) overlay.webContents.send('overlaySocketIds', socketPlayerIds);
+						// let overlay = remote.getGlobal("overlay");
+						// if (overlay) overlay.webContents.send('overlaySocketIds', socketPlayerIds);
+						// console.log("socketPlayerIds2", socketPlayerIds);
+
 					};
 					audioElements.current[peer] = { element: audio, gain, pan, reverbGain, reverb, compressor };
 				});
@@ -558,6 +560,8 @@ const Voice: React.FC = function () {
 		}
 		let overlay = remote.getGlobal("overlay");
 		if (overlay) overlay.webContents.send('overlaySocketIds', socketPlayerIds);
+		console.log("socketPlayerIds3", socketPlayerIds);
+
 		for (const player of otherPlayers) {
 			const audio = audioElements.current[playerSocketIds[player.id]];
 			if (audio) {

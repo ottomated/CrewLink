@@ -14,6 +14,7 @@ import { createCheckers } from 'ts-interface-checker';
 import TI from './hook-ti';
 import { existsSync, readFileSync } from 'fs';
 import { IOffsets } from './IOffsets';
+import { overlayWindow } from 'electron-overlay-window';
 const { IOffsets } = createCheckers(TI);
 
 interface IOHookEvent {
@@ -144,6 +145,9 @@ ipcMain.on('start', async (event) => {
 
 ipcMain.on('reload', async => {
 	global.mainWindow?.reload();
+	overlayWindow?.hide();
+	global.overlay?.reload();
+	setTimeout(function() {	overlayWindow?.show(); }.bind(this), 1000); // let it load fr a second
 });
 
 const keycodeMap = {

@@ -72,6 +72,7 @@ export default function Overlay() {
 		
 		const onOverlaySocketIds = (_: Electron.IpcRendererEvent, ids: SocketIdMap) => {
 			setSocketPlayerIds(ids);
+			console.log(ids);
 		};
 		
 		
