@@ -17,8 +17,11 @@
     ·
     <a href="#installation"><b>INSTALLATION INSTRUCTIONS</b></a>
   </p>
+  <p align="center">
+  <b><a href="https://paypal.me/ottomated">DONATE TO THE PROJECT</a></b>
+  (all donations will be used for server costs or paying for college)
+  </p>
 </p>
-
 
 
 <!-- TABLE OF CONTENTS -->
@@ -75,12 +78,6 @@ cd CrewLink
 2. Install NPM packages
 ```sh
 yarn install
-```
-3. Copy iohook binaries
-```sh
-mkdir -p node_modules\iohook\builds\electron-v80-win32-x64\build\Release\
-cp iohook\iohook.node node_modules\iohook\builds\electron-v80-win32-x64\build\Release\
-cp iohook\uiohook.dll node_modules\iohook\builds\electron-v80-win32-x64\build\Release\
 ```
 3. Run the project
 ```JS
