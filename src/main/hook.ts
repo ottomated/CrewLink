@@ -14,7 +14,7 @@ import { createCheckers } from 'ts-interface-checker';
 import TI from './hook-ti';
 import { existsSync, readFileSync } from 'fs';
 import { IOffsets } from './IOffsets';
-import { offsets_2020_12_9 } from './baked-offsets';
+import { bundledOffsets } from './baked-offsets';
 const { IOffsets } = createCheckers(TI);
 
 interface IOHookEvent {
@@ -71,14 +71,12 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 	}
 
 	let data: string;
-	store.set('offsets', {
-		version: '2020.12.4.0',
-		data: offsets_2020_12_9
-	});
 
 	const offsetStore = store.get('offsets') || {};
 	if (version === offsetStore.version) {
 		data = offsetStore.data;
+	} else if(bundledOffsets[version]) {
+			data = bundledOffsets[version];
 	} else {
 		try {
 			const response = await axios({

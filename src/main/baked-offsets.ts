@@ -1,25 +1,25 @@
-export const offset_2020_12_5 = `
-meetingHud: [0x1BE0CB4, 0x5c, 0]
+export const bundledOffsets: Record<string, string> = {
+  // Windows Store UWP 2020.12.4.0
+  '2020.12.4.0': `
+is64Bit: true
+meetingHud: [0x21D03E0, 0xB8, 0]
 meetingHudCachePtr: [0x8]
-meetingHudState: [0x84]
-gameState: [0x1BE1074, 0x5C, 0, 0x64]
-
-allPlayersPtr: [0x1BE0BB8, 0x5c, 0, 0x24]
+meetingHudState: [0xC0]
+gameState: [0x21D0EA0, 0xB8, 0, 0xAC]
+allPlayersPtr: [0x1BE0BB8, 0xB8, 0, 0x30]
 allPlayers: [0x08]
 playerCount: [0x0c]
 playerAddrPtr: 0x10
-exiledPlayerId: [0xff, 0x1BE0CB4, 0x5c, 0, 0x94, 0x08]
-
-gameCode: [0x1B5AB00, 0x5c, 0, 0x20, 0x28]
-
+exiledPlayerId: [0xff, 0x21D03E0, 0xB8, 0, 0xE0, 0x10]
+gameCode: [0x1D50138, 0xB8, 0, 0x40, 0x48]
 player:
   struct:
   - type: SKIP
-    skip: 8
+    skip: 10
     name: unused
   - type: UINT
     name: id
-  - type: UINT
+  - type: UINT64
     name: name
   - type: UINT
     name: color
@@ -31,7 +31,7 @@ player:
     name: skin
   - type: UINT
     name: disconnected
-  - type: UINT
+  - type: UINT64
     name: taskPtr
   - type: BYTE
     name: impostor
@@ -40,68 +40,15 @@ player:
   - type: SKIP
     skip: 2
     name: unused
-  - type: UINT
+  - type: UINT64
     name: objectPtr
-  isLocal: [0x54]
-  localX: [0x60, 0x50]
-  localY: [0x60, 0x54]
-  remoteX: [0x60, 0x3C]
-  remoteY: [0x60, 0x40]
-  bufferLength: 56
+  isLocal: [0x78]
+  localX: [0x90, 0x6C]
+  localY: [0x90, 0x70]
+  remoteX: [0x90, 0x58]
+  remoteY: [0x90, 0x5C]
+  bufferLength: 64
   offsets: [0, 0]
-  inVent: [0x31]
+  inVent: [0x3D]
 `
-export const offsets_2020_12_9 = `
-meetingHud: [0x1C573A4, 0x5c, 0]
-meetingHudCachePtr: [0x8]
-meetingHudState: [0x84]
-gameState: [0x1C57F54, 0x5C, 0, 0x64]
-
-allPlayersPtr: [0x1C57BE8, 0x5c, 0, 0x24]
-allPlayers: [0x08]
-playerCount: [0x0c]
-playerAddrPtr: 0x10
-exiledPlayerId: [0xff, 0x1C573A4, 0x5c, 0, 0x94, 0x08]
-
-gameCode: [0x1AF20FC, 0x5c, 0, 0x20, 0x28]
-
-player:
-  struct:
-  - type: SKIP
-    skip: 8
-    name: unused
-  - type: UINT
-    name: id
-  - type: UINT
-    name: name
-  - type: UINT
-    name: color
-  - type: UINT
-    name: hat
-  - type: UINT
-    name: pet
-  - type: UINT
-    name: skin
-  - type: UINT
-    name: disconnected
-  - type: UINT
-    name: taskPtr
-  - type: BYTE
-    name: impostor
-  - type: BYTE
-    name: dead
-  - type: SKIP
-    skip: 2
-    name: unused
-  - type: UINT
-    name: objectPtr
-  isLocal: [0x54]
-  localX: [0x60, 0x50]
-  localY: [0x60, 0x54]
-  remoteX: [0x60, 0x3C]
-  remoteY: [0x60, 0x40]
-  bufferLength: 56
-  offsets: [0, 0]
-  inVent: [0x31]
-
-`
+};
