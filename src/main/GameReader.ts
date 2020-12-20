@@ -145,9 +145,9 @@ export default class GameReader {
 			}
 			this.lastPlayerPtr = allPlayers;
 
-			this.gameCode  = this.IntToGameCode(this.readMemory<number>('int32', this.gameAssembly.modBaseAddr, [this.gameClient,0x5C, 0x0, 0x40]))
-			const hostId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, [this.gameClient,0x5C, 0x0, 0x44]);
-			const clientId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, [this.gameClient,0x5C, 0x0, 0x48]);
+			this.gameCode  = this.IntToGameCode(this.readMemory<number>('int32', this.gameAssembly.modBaseAddr, [this.gameClient, 0x5C, 0x0, 0x40]))
+			const hostId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, [this.gameClient, 0x5C, 0x0, 0x44]);
+			const clientId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, [this.gameClient, 0x5C, 0x0, 0x48]);
 
 			const newState = {
 				lobbyCode: this.gameCode || 'MENU',

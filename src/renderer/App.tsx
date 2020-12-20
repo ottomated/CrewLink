@@ -9,7 +9,7 @@ import { GameStateContext, SettingsContext, LobbySettingsContext } from './conte
 let appVersion = '';
 if (typeof window !== 'undefined' && window.location) {
 	let query = new URLSearchParams(window.location.search.substring(1));
-	appVersion = (' v' + query.get('version')) + " beta" || '';
+	appVersion = (' v' + query.get('version')) || '';
 }
 
 
