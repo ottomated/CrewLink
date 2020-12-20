@@ -1,5 +1,6 @@
 
 export interface IOffsets {
+	is64Bit?: boolean;
 	meetingHud: number[];
 	meetingHudCachePtr: number[];
 	meetingHudState: number[];

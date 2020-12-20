@@ -4,6 +4,19 @@ import patcher from '../patcher';
 import { GameState, AmongUsState, Player } from '../common/AmongUsState';
 import { IOffsets } from './IOffsets';
 
+const extraStructronTypes = {
+	__proto__: null,
+	// HACK assuming the value in a 64bit uint is never too large
+	'UINT64': {
+		read(buffer: Buffer, offset: number) {
+			return Number(buffer.readBigUInt64LE(offset));
+		  },
+		  write(value: number, buffer: Buffer, offset: number) {
+			buffer.writeBigUInt64LE(BigInt(value), offset);
+		  },
+		  SIZE: 8
+	}
+};
 
 interface ValueType<T> {
 	read(buffer: BufferSource, offset: number): T;
@@ -87,7 +100,9 @@ export default class GameReader {
 				break;
 			}
 
+			// TODO pretty sure this does not read 64bit ptrs correctly
 			const allPlayersPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.allPlayersPtr) & 0xffffffff;
+			// TODO pretty sure this does not read 64bit ptrs correctly
 			const allPlayers = this.readMemory<number>('ptr', allPlayersPtr, this.offsets.allPlayers);
 			const playerCount = this.readMemory<number>('int' as const, allPlayersPtr, this.offsets.playerCount);
 			let playerAddrPtr = allPlayers + this.offsets.playerAddrPtr;
@@ -178,7 +193,8 @@ export default class GameReader {
 			if (member.type === 'SKIP' && member.skip) {
 				this.PlayerStruct = this.PlayerStruct.addMember(Struct.TYPES.SKIP(member.skip), member.name);
 			} else {
-				this.PlayerStruct = this.PlayerStruct.addMember<unknown>(Struct.TYPES[member.type] as ValueType<unknown>, member.name);
+				const type = (extraStructronTypes[member.type as unknown as keyof typeof extraStructronTypes] ?? Struct.TYPES[member.type]) as ValueType<unknown>;
+				this.PlayerStruct = this.PlayerStruct.addMember<unknown>(type, member.name);
 			}
 		}
 
@@ -199,7 +215,7 @@ export default class GameReader {
 		if (!this.amongUs) throw 'Among Us not open? Weird error';
 		address = address & 0xffffffff;
 		for (let i = 0; i < offsets.length - 1; i++) {
-			address = readMemoryRaw<number>(this.amongUs.handle, address + offsets[i], 'uint32');
+			address = readMemoryRaw<number>(this.amongUs.handle, address + offsets[i], this.offsets.is64Bit ? 'uint64' : 'uint32');
 
 			if (address == 0) break;
 		}
@@ -208,8 +224,8 @@ export default class GameReader {
 	}
 	readString(address: number): string {
 		if (address === 0 || !this.amongUs) return '';
-		const length = readMemoryRaw<number>(this.amongUs.handle, address + 0x8, 'int');
-		const buffer = readBuffer(this.amongUs.handle, address + 0xC, length << 1);
+		const length = readMemoryRaw<number>(this.amongUs.handle, address + (this.offsets.is64Bit ? 0x10 : 0x8), 'int');
+		const buffer = readBuffer(this.amongUs.handle, address + (this.offsets.is64Bit ? 0x14 : 0xC), length << 1);
 		return buffer.toString('utf8').replace(/\0/g, '');
 	}
 
