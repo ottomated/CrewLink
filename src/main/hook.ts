@@ -18,14 +18,14 @@ import { bundledOffsets } from './baked-offsets';
 const { IOffsets } = createCheckers(TI);
 
 interface IOHookEvent {
-	type: string
-	keychar?: number
-	keycode?: number
-	rawcode?: number
-	button?: number
-	clicks?: number
-	x?: number
-	y?: number
+  type: string
+  keychar?: number
+  keycode?: number
+  rawcode?: number
+  button?: number
+  clicks?: number
+  x?: number
+  y?: number
 }
 
 const store = new Store<ISettings>();
@@ -71,7 +71,6 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 	}
 
 	let data: string;
-
 	const offsetStore = store.get('offsets') || {};
 	if (version === offsetStore.version) {
 		data = offsetStore.data;

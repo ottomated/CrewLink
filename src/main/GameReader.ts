@@ -100,19 +100,11 @@ export default class GameReader {
 				break;
 			}
 
-			// memory address of allPlayers struct
-			/*
-				allplayers
-					+0x08: *vec<player>
-						+0x10 - pointer to pointer to pointer to firstplayer
-					+0x0c: playerCount
-			 */
+			// TODO pretty sure this does not read 64bit ptrs correctly
 			const allPlayersPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.allPlayersPtr) & 0xffffffff;
-			// memory address of allPlayers array, vector, whatever it is, pulled from allPlayers struct
+			// TODO pretty sure this does not read 64bit ptrs correctly
 			const allPlayers = this.readMemory<number>('ptr', allPlayersPtr, this.offsets.allPlayers);
-			// number of players, pulled from allPlayers struct
 			const playerCount = this.readMemory<number>('int' as const, allPlayersPtr, this.offsets.playerCount);
-			// 
 			let playerAddrPtr = allPlayers + this.offsets.playerAddrPtr;
 			const players = [];
 
