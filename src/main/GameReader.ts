@@ -66,24 +66,22 @@ export default class GameReader {
 		this.checkProcessOpen();
 
 		if (this.amongUs !== null && this.gameAssembly !== null) {
-
 			if(!this.updated_offsets) {
-			//'74 7F 83 7E 2C 00 A1 ? ? ? ? 8B 40 5C'
 			this.gameClient = this.getOffset("74 7F 83 7E 2C 00 A1 ? ? ? ? 8B 40 5C", 0x7);
 			this.meetinHud = this.getOffset("A1 ? ? ? ? 6A 00 6A 00 6A 63 8B 40 5C FF 30");
 			this.gameData = this.getOffset("8B 0D ? ? ? ? 6A 00 6A 01 6A 9C 8B 49 5C 89 01 A1 ? ? ? ? 8B 40 5C", 0x2)
-			//console.log("OOF:", this.meetinHud.toString(16),this.gameClient.toString(16),this.gameData.toString(16));
 			this.updated_offsets = true;
 			}
 			this.offsets.meetingHud[0] = this.meetinHud;
 			this.offsets.exiledPlayerId[1] = this.meetinHud;
 			this.offsets.allPlayersPtr[0] = this.gameData;
+			this.offsets.gameState[0] = this.gameClient;
 
 			let state = GameState.UNKNOWN;
 			const meetingHud = this.readMemory<number>('pointer', this.gameAssembly.modBaseAddr, this.offsets.meetingHud);
 			const meetingHud_cachePtr = meetingHud === 0 ? 0 : this.readMemory<number>('uint32', meetingHud, this.offsets.meetingHudCachePtr);
 			const meetingHudState = meetingHud_cachePtr === 0 ? 4 : this.readMemory('int', meetingHud, this.offsets.meetingHudState, 4);
-			const gameState = this.readMemory<number>('int', this.gameAssembly.modBaseAddr, [this.gameClient,0x5C, 0x0, 0x64]);
+			const gameState = this.readMemory<number>('int', this.gameAssembly.modBaseAddr, this.offsets.gameState);
 			//console.log(this.offsets.meetingHud[0])
 		
 			switch (gameState) {
