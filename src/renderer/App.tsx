@@ -125,7 +125,7 @@ function App() {
 			page = <Menu error={error} />;
 			break;
 		case AppState.VOICE:
-			page = <Voice />;
+			page = <Voice error={error} />;
 			break;
 	}
 	return (

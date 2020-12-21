@@ -7,6 +7,9 @@ import Peer from 'simple-peer';
 import { ipcRenderer, remote } from 'electron';
 import VAD from './vad';
 import { ISettings } from '../common/ISettings';
+import Typography from '@material-ui/core/Typography';
+import makeStyles from '@material-ui/core/styles/makeStyles';
+import SupportLink from './SupportLink';
 
 export interface ExtendedAudioElement extends HTMLAudioElement {
 	setSinkId: (sinkId: string) => Promise<void>;
@@ -88,8 +91,20 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 	}
 }
 
+export interface VoiceProps {
+	error: string
+}
 
-const Voice: React.FC = function () {
+const useStyles = makeStyles((theme) => ({
+	error: {
+		position: 'absolute',
+		top: '50%',
+		transform: 'translateY(-50%)'
+	}
+}));
+
+const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
+	const classes = useStyles();
 	const [settings] = useContext(SettingsContext);
 	const settingsRef = useRef<ISettings>(settings);
 	const gameState = useContext(GameStateContext);
@@ -387,6 +402,13 @@ const Voice: React.FC = function () {
 
 	return (
 		<div className="root">
+			{error &&
+				<div className={classes.error}>
+					<Typography align="center" variant="h6" color="error">ERROR</Typography>
+					<Typography align="center" style={{ whiteSpace: 'pre-wrap' }}>{error}</Typography>
+					<SupportLink />
+				</div>
+			}
 			<div className="top">
 				{myPlayer &&
 					<Avatar deafened={deafenedState} muted={mutedState} player={myPlayer} borderColor={connected ? '#2ecc71' : '#c0392b'} talking={talking} isAlive={!myPlayer.isDead} size={100} />
@@ -407,7 +429,7 @@ const Voice: React.FC = function () {
 					}
 				</div>
 			</div>
-			<hr />
+			{gameState.lobbyCode && <hr />}
 			<div className="otherplayers">
 				{
 					otherPlayers.map(player => {

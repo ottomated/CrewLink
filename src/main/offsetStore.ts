@@ -32,7 +32,7 @@ export interface IOffsets {
 }
 
 export default {
-	"CwEL0xldOcCJ3AGNg0suvSa6Z9L0nE6+pgioBPwJdbc": {
+	"CwEL0xldOcCJ3AGNg0suvSa6Z9L0nE6+pgioBPwJdbc=": {
 		versionNumber: "2020.12.9",
 		versionSource: "steam",
 		offsets: {

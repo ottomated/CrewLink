@@ -49,6 +49,7 @@ export default class GameReader {
 		if (!this.amongUs && processOpen) { // If process just opened
 			try {
 				this.amongUs = openProcess('Among Us.exe');
+				console.log(this.amongUs);
 				this.gameAssembly = findModule('GameAssembly.dll', this.amongUs.th32ProcessID);
 
 				let dllHash = createHash('sha256');
@@ -56,6 +57,8 @@ export default class GameReader {
 				this.dllHash = dllHash.digest('base64');
 				this.reply('gameOpen', true);
 			} catch (e) {
+				if (processOpen && e.toString() === 'Error: unable to find process')
+					throw Errors.OPEN_AS_ADMINISTRATOR;
 				this.amongUs = null;
 			}
 		} else if (this.amongUs && !processOpen) {
@@ -67,7 +70,11 @@ export default class GameReader {
 	}
 
 	loop(): string | null {
-		this.checkProcessOpen();
+		try {
+			this.checkProcessOpen();
+		} catch (e) {
+			return e;
+		}
 		if (!this.offsets && this.dllHash) {
 			if (!offsetStore.hasOwnProperty(this.dllHash)) {
 				return Errors.UNSUPPORTED_VERSION;
