@@ -7,7 +7,7 @@
 - [ ] Move the default server to a better host.
 - [ ] Rewrite all error messages to be even more human-readable.
 - [ ] Integrate an official server list into the client.
-- [ ] Detect the reason *why* the server can't provide offsets: i.e. Among Us just updated, it's an old version of Among Us, the server hasn't updated, etc.
+- [ ] Detect the reason _why_ the server can't provide offsets: i.e. Among Us just updated, it's an old version of Among Us, the server hasn't updated, etc.
 
 ### Stretch
 

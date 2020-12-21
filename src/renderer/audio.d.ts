@@ -1,1 +1,1 @@
-declare module 'analyser-frequency-average';
+declare module 'analyser-frequency-average'

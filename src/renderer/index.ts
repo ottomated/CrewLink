@@ -1,5 +1,5 @@
-import { ipcRenderer } from 'electron';
-import './App';
-import './css/index.css';
+import { ipcRenderer } from 'electron'
+import './App'
+import './css/index.css'
 
-ipcRenderer.send('start');
+ipcRenderer.send('start')
