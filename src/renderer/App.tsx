@@ -1,16 +1,16 @@
-import React, { useEffect, useReducer, useState } from 'react'
-import ReactDOM from 'react-dom'
-import Voice from './Voice'
-import Menu from './Menu'
-import { ipcRenderer, remote } from 'electron'
-import { AmongUsState } from '../common/AmongUsState'
-import Settings, { settingsReducer } from './Settings'
-import { GameStateContext, SettingsContext } from './contexts'
+import React, { useEffect, useReducer, useState } from 'react';
+import ReactDOM from 'react-dom';
+import Voice from './Voice';
+import Menu from './Menu';
+import { ipcRenderer, remote } from 'electron';
+import { AmongUsState } from '../common/AmongUsState';
+import Settings, { settingsReducer } from './Settings';
+import { GameStateContext, SettingsContext } from './contexts';
 
-let appVersion = ''
+let appVersion = '';
 if (typeof window !== 'undefined' && window.location) {
-  const query = new URLSearchParams(window.location.search.substring(1))
-  appVersion = ' v' + query.get('version') || ''
+  const query = new URLSearchParams(window.location.search.substring(1));
+  appVersion = ' v' + query.get('version') || '';
 }
 
 enum AppState {
@@ -19,10 +19,10 @@ enum AppState {
 }
 
 function App() {
-  const [state, setState] = useState<AppState>(AppState.MENU)
-  const [gameState, setGameState] = useState<AmongUsState>({} as AmongUsState)
-  const [settingsOpen, setSettingsOpen] = useState(false)
-  const [errored, setErrored] = useState(false)
+  const [state, setState] = useState<AppState>(AppState.MENU);
+  const [gameState, setGameState] = useState<AmongUsState>({} as AmongUsState);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [errored, setErrored] = useState(false);
   const settings = useReducer(settingsReducer, {
     alwaysOnTop: false,
     microphone: 'Default',
@@ -37,42 +37,42 @@ function App() {
     },
     hideCode: false,
     enableSpatialAudio: true,
-  })
+  });
 
   useEffect(() => {
     const onOpen = (_: Electron.IpcRendererEvent, isOpen: boolean) => {
-      setState(isOpen ? AppState.VOICE : AppState.MENU)
-    }
+      setState(isOpen ? AppState.VOICE : AppState.MENU);
+    };
     const onState = (_: Electron.IpcRendererEvent, newState: AmongUsState) => {
-      setGameState(newState)
-    }
-    let shouldInit = true
+      setGameState(newState);
+    };
+    let shouldInit = true;
     const onError = (_: Electron.IpcRendererEvent, error: string) => {
-      alert(error + '\n\nRestart the app after you fix this.')
-      shouldInit = false
-      setErrored(true)
-    }
-    ipcRenderer.on('gameOpen', onOpen)
-    ipcRenderer.on('error', onError)
-    ipcRenderer.on('gameState', onState)
+      alert(error + '\n\nRestart the app after you fix this.');
+      shouldInit = false;
+      setErrored(true);
+    };
+    ipcRenderer.on('gameOpen', onOpen);
+    ipcRenderer.on('error', onError);
+    ipcRenderer.on('gameState', onState);
     ipcRenderer.once('started', () => {
-      if (shouldInit) setGameState(ipcRenderer.sendSync('initState'))
-    })
+      if (shouldInit) setGameState(ipcRenderer.sendSync('initState'));
+    });
     return () => {
-      ipcRenderer.off('gameOpen', onOpen)
-      ipcRenderer.off('error', onError)
-      ipcRenderer.off('gameState', onState)
-    }
-  }, [])
+      ipcRenderer.off('gameOpen', onOpen);
+      ipcRenderer.off('error', onError);
+      ipcRenderer.off('gameState', onState);
+    };
+  }, []);
 
-  let page
+  let page;
   switch (state) {
     case AppState.MENU:
-      page = <Menu errored={errored} />
-      break
+      page = <Menu errored={errored} />;
+      break;
     case AppState.VOICE:
-      page = <Voice />
-      break
+      page = <Voice />;
+      break;
   }
   return (
     <GameStateContext.Provider value={gameState}>
@@ -100,7 +100,7 @@ function App() {
             width="20px"
             height="20px"
             onClick={() => {
-              remote.getCurrentWindow().close()
+              remote.getCurrentWindow().close();
             }}
           >
             <path d="M0 0h24v24H0z" fill="none" />
@@ -111,7 +111,7 @@ function App() {
         {page}
       </SettingsContext.Provider>
     </GameStateContext.Provider>
-  )
+  );
 }
 
-ReactDOM.render(<App />, document.getElementById('app'))
+ReactDOM.render(<App />, document.getElementById('app'));

@@ -1,5 +1,5 @@
-import { shell } from 'electron'
-import React from 'react'
+import { shell } from 'electron';
+import React from 'react';
 
 const Footer: React.FC = function () {
   return (
@@ -11,7 +11,7 @@ const Footer: React.FC = function () {
           height={36}
           viewBox="0 0 24 24"
           onClick={() => {
-            shell.openExternal('https://github.com/ottomated/crewlink')
+            shell.openExternal('https://github.com/ottomated/crewlink');
           }}
         >
           <path
@@ -24,7 +24,7 @@ const Footer: React.FC = function () {
           height={36}
           viewBox="0 0 24 24"
           onClick={() => {
-            shell.openExternal('https://twitch.tv/ottomated')
+            shell.openExternal('https://twitch.tv/ottomated');
           }}
         >
           <path
@@ -37,7 +37,7 @@ const Footer: React.FC = function () {
           height={36}
           viewBox="0 0 24 24"
           onClick={() => {
-            shell.openExternal('https://twitter.com/Ottomated_')
+            shell.openExternal('https://twitter.com/Ottomated_');
           }}
         >
           <path
@@ -50,7 +50,7 @@ const Footer: React.FC = function () {
           height={36}
           viewBox="0 0 24 24"
           onClick={() => {
-            shell.openExternal('https://paypal.me/ottomated')
+            shell.openExternal('https://paypal.me/ottomated');
           }}
         >
           <path
@@ -118,7 +118,7 @@ const Footer: React.FC = function () {
         </svg>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;

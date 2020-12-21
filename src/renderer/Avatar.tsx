@@ -1,22 +1,22 @@
-import React, { useEffect, useRef } from 'react'
-import { Player } from '../common/AmongUsState'
-import { backLayerHats, hatOffsets, hats, skins, players } from './cosmetics'
-import Tooltip from 'react-tooltip-lite'
+import React, { useEffect, useRef } from 'react';
+import { Player } from '../common/AmongUsState';
+import { backLayerHats, hatOffsets, hats, skins, players } from './cosmetics';
+import Tooltip from 'react-tooltip-lite';
 
 export interface CanvasProps {
-  src: string
-  hat: number
-  skin: number
-  isAlive: boolean
+  src: string;
+  hat: number;
+  skin: number;
+  isAlive: boolean;
 }
 
 export interface AvatarProps {
-  talking: boolean
-  borderColor: string
-  isAlive: boolean
-  player: Player
-  size: number
-  deafened?: boolean
+  talking: boolean;
+  borderColor: string;
+  isAlive: boolean;
+  player: Player;
+  size: number;
+  deafened?: boolean;
 }
 
 const Avatar: React.FC<AvatarProps> = function ({
@@ -27,9 +27,9 @@ const Avatar: React.FC<AvatarProps> = function ({
   player,
   size,
 }: AvatarProps) {
-  const status = isAlive ? 'alive' : 'dead'
-  let image = players[status][player.colorId]
-  if (!image) image = players[status][0]
+  const status = isAlive ? 'alive' : 'dead';
+  let image = players[status][player.colorId];
+  if (!image) image = players[status][0];
   return (
     <Tooltip useHover={!player.isLocal} content={player.name} padding={5}>
       <div
@@ -55,51 +55,51 @@ const Avatar: React.FC<AvatarProps> = function ({
         )}
       </div>
     </Tooltip>
-  )
-}
+  );
+};
 
 function Canvas({ src, hat, skin, isAlive }: CanvasProps) {
-  const canvas = useRef<HTMLCanvasElement>(null)
-  const hatImg = useRef<HTMLImageElement>(null)
-  const skinImg = useRef<HTMLImageElement>(null)
-  const image = useRef<HTMLImageElement>(null)
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const hatImg = useRef<HTMLImageElement>(null);
+  const skinImg = useRef<HTMLImageElement>(null);
+  const image = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    ;(async () => {
+    (async () => {
       if (
         !canvas.current ||
         !image.current ||
         !hatImg.current ||
         !skinImg.current
       )
-        return
-      const ctx = canvas.current.getContext('2d')
-      if (!ctx) return
+        return;
+      const ctx = canvas.current.getContext('2d');
+      if (!ctx) return;
 
       if (!image.current.complete) {
         await new Promise((r) => {
-          if (image?.current) image.current.onload = r
-        })
+          if (image?.current) image.current.onload = r;
+        });
       }
       if (!hatImg.current.complete) {
         await new Promise((r) => {
-          if (hatImg?.current) hatImg.current.onload = r
-        })
+          if (hatImg?.current) hatImg.current.onload = r;
+        });
       }
       if (!skinImg.current.complete) {
         await new Promise((r) => {
-          if (skinImg?.current) skinImg.current.onload = r
-        })
+          if (skinImg?.current) skinImg.current.onload = r;
+        });
       }
 
-      canvas.current.width = image.current.width
-      canvas.current.height = image.current.height
-      ctx.clearRect(0, 0, canvas.current.width, canvas.current.height)
-      ctx.drawImage(image.current, 0, 0)
+      canvas.current.width = image.current.width;
+      canvas.current.height = image.current.height;
+      ctx.clearRect(0, 0, canvas.current.width, canvas.current.height);
+      ctx.drawImage(image.current, 0, 0);
 
       function drawHat() {
-        if (!ctx || !hatImg.current || !canvas.current) return
-        const hatY = 17 - hatOffsets[hat]
+        if (!ctx || !hatImg.current || !canvas.current) return;
+        const hatY = 17 - hatOffsets[hat];
         ctx.drawImage(
           hatImg.current,
           0,
@@ -110,19 +110,19 @@ function Canvas({ src, hat, skin, isAlive }: CanvasProps) {
           Math.max(hatY, 0),
           hatImg.current.width,
           hatImg.current.height
-        )
+        );
       }
 
       if (isAlive) {
         if (backLayerHats.has(hat))
-          ctx.globalCompositeOperation = 'destination-over'
-        drawHat()
-        ctx.globalCompositeOperation = 'source-over'
+          ctx.globalCompositeOperation = 'destination-over';
+        drawHat();
+        ctx.globalCompositeOperation = 'source-over';
 
-        ctx.drawImage(skinImg.current, 25, 46)
+        ctx.drawImage(skinImg.current, 25, 46);
       }
-    })()
-  }, [src, hat, skin, isAlive])
+    })();
+  }, [src, hat, skin, isAlive]);
 
   return (
     <>
@@ -131,7 +131,7 @@ function Canvas({ src, hat, skin, isAlive }: CanvasProps) {
       <img src={skins[skin]} ref={skinImg} style={{ display: 'none' }} />
       <canvas className="canvas" ref={canvas} />
     </>
-  )
+  );
 }
 
-export default Avatar
+export default Avatar;

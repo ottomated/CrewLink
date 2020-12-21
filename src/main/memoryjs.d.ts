@@ -1,52 +1,52 @@
 declare module 'memoryjs' {
-  type Callback<T> = (error: unknown, value: T) => void
+  type Callback<T> = (error: unknown, value: T) => void;
 
   // Processes
 
   export interface ProcessObject {
-    dwSize: number
-    th32ProcessID: number
-    cntThreads: number
-    th32ParentProcessID: number
-    pcPriClassBase: number
-    szExeFile: string
-    modBaseAddr: number
-    handle: number
+    dwSize: number;
+    th32ProcessID: number;
+    cntThreads: number;
+    th32ParentProcessID: number;
+    pcPriClassBase: number;
+    szExeFile: string;
+    modBaseAddr: number;
+    handle: number;
   }
 
   export function openProcess(
     identifier: string,
     callback?: Callback<ProcessObject>
-  ): ProcessObject
+  ): ProcessObject;
 
   export function getProcesses(
     callback?: Callback<ProcessObject[]>
-  ): ProcessObject[]
+  ): ProcessObject[];
   export function getProcesses(
     processId: number,
     callback?: Callback<ModuleObject[]>
-  ): ModuleObject[]
+  ): ModuleObject[];
 
   // Modules
 
   export interface ModuleObject {
-    modBaseAddr: number
-    modBaseSize: number
-    szExePath: string
-    szModule: string
-    th32ProcessID: number
+    modBaseAddr: number;
+    modBaseSize: number;
+    szExePath: string;
+    szModule: string;
+    th32ProcessID: number;
   }
 
   export function findModule(
     identifier: string,
     processId: number,
     callback?: Callback<ModuleObject>
-  ): ModuleObject
+  ): ModuleObject;
 
   // Memory
 
-  export type Vector3 = { x: number; y: number; z: number }
-  export type Vector4 = { x: number; y: number; z: number; w: number }
+  export type Vector3 = { x: number; y: number; z: number };
+  export type Vector4 = { x: number; y: number; z: number; w: number };
   export type DataType =
     | 'byte'
     | 'int'
@@ -68,51 +68,51 @@ declare module 'memoryjs' {
     | 'vec3'
     | 'vector3'
     | 'vec4'
-    | 'vector4'
+    | 'vector4';
 
   export function readMemory<T>(
     handle: number,
     address: number,
     dataType: DataType,
     callback?: Callback<T>
-  ): T
+  ): T;
 
   export function readBuffer(
     handle: number,
     address: number,
     size: number,
     callback?: Callback<Buffer>
-  ): Buffer
+  ): Buffer;
 
   export function writeMemory<T>(
     handle: number,
     address: number,
     value: T,
     dataType: DataType
-  ): void
+  ): void;
 
   export function writeBuffer(
     handle: number,
     address: number,
     buffer: Buffer
-  ): void
+  ): void;
 
   // Functions
 
   // export enum ArgType { T_VOID, T_STRING, T_CHAR, T_BOOL, T_INT, T_DOUBLE, T_FLOAT }
-  export const T_VOID = 0x0
-  export const T_STRING = 0x1
-  export const T_CHAR = 0x2
-  export const T_BOOL = 0x3
-  export const T_INT = 0x4
-  export const T_DOUBLE = 0x5
-  export const T_FLOAT = 0x6
+  export const T_VOID = 0x0;
+  export const T_STRING = 0x1;
+  export const T_CHAR = 0x2;
+  export const T_BOOL = 0x3;
+  export const T_INT = 0x4;
+  export const T_DOUBLE = 0x5;
+  export const T_FLOAT = 0x6;
 
-  export type FunctionArg = { type: number; value: unknown }
+  export type FunctionArg = { type: number; value: unknown };
 
   export interface FunctionResult<T> {
-    returnValue: T
-    exitCode: number
+    returnValue: T;
+    exitCode: number;
   }
 
   export function callFunction<T>(
@@ -120,5 +120,5 @@ declare module 'memoryjs' {
     args: FunctionArg[],
     returnType: number,
     address: number
-  ): FunctionResult<T>
+  ): FunctionResult<T>;
 }

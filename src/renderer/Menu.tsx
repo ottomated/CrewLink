@@ -1,11 +1,11 @@
-import React from 'react'
-import { ImpulseSpinner as Spinner } from 'react-spinners-kit'
-import { ipcRenderer } from 'electron'
-import './css/menu.css'
-import Footer from './Footer'
+import React from 'react';
+import { ImpulseSpinner as Spinner } from 'react-spinners-kit';
+import { ipcRenderer } from 'electron';
+import './css/menu.css';
+import Footer from './Footer';
 
 export interface MenuProps {
-  errored: boolean
+  errored: boolean;
 }
 
 const Menu: React.FC<MenuProps> = function ({ errored }: MenuProps) {
@@ -25,7 +25,7 @@ const Menu: React.FC<MenuProps> = function ({ errored }: MenuProps) {
             <button
               className="button"
               onClick={() => {
-                ipcRenderer.send('relaunch')
+                ipcRenderer.send('relaunch');
               }}
             >
               Relaunch App
@@ -43,7 +43,7 @@ const Menu: React.FC<MenuProps> = function ({ errored }: MenuProps) {
             <button
               className="button"
               onClick={() => {
-                ipcRenderer.send('openGame')
+                ipcRenderer.send('openGame');
               }}
             >
               Open Game
@@ -53,7 +53,7 @@ const Menu: React.FC<MenuProps> = function ({ errored }: MenuProps) {
         <Footer />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Menu
+export default Menu;
