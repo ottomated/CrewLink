@@ -1,21 +1,85 @@
 import Store from 'electron-store';
 import React, { useContext, useEffect, useReducer, useState } from 'react';
 import { SettingsContext } from '../contexts';
-import Ajv from 'ajv';
-import './css/settings.css';
 import MicrophoneSoundBar from './MicrophoneSoundBar';
 import TestSpeakersButton from './TestSpeakersButton';
 import { ISettings } from '../../common/ISettings';
+import TextField from '@material-ui/core/TextField';
+import makeStyles from '@material-ui/core/styles/makeStyles';
+import withStyles from '@material-ui/core/styles/withStyles';
+import Box from '@material-ui/core/Box';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Radio from '@material-ui/core/Radio';
+import Checkbox from '@material-ui/core/Checkbox';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import MuiDivider from '@material-ui/core/Divider';
+import Typography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
+import { isHttpUri, isHttpsUri } from 'valid-url';
+import ChevronLeft from '@material-ui/icons/ChevronLeft';
+import IconButton from '@material-ui/core/IconButton';
+import Alert from '@material-ui/lab/Alert';
+// import '../css/settings.css';
+
+interface StyleInput {
+	open: boolean;
+}
+
+const Divider = withStyles((theme) => ({
+	root: {
+		width: '100%',
+		marginTop: theme.spacing(2),
+		marginBottom: theme.spacing(2),
+	}
+}))(MuiDivider);
+
+const useStyles = makeStyles((theme) => ({
+	root: {
+		width: '100vw',
+		height: `calc(100vh - ${theme.spacing(3)}px)`,
+		background: '#171717ad',
+		backdropFilter: 'blur(4px)',
+		position: 'absolute',
+		left: 0,
+		top: 0,
+		zIndex: 10,
+		display: 'flex',
+		flexDirection: 'column',
+		justifyContent: 'start',
+		alignItems: 'center',
+		paddingTop: theme.spacing(3),
+		transition: 'transform .1s ease-in-out',
+		transform: ({ open }: StyleInput) => open ? 'translateX(0)' : 'translateX(-100%)'
+	},
+	scroll: {
+		paddingTop: theme.spacing(3),
+		paddingLeft: theme.spacing(2),
+		paddingRight: theme.spacing(2),
+		overflowY: 'auto',
+		display: 'flex',
+		flexDirection: 'column',
+		justifyContent: 'start',
+		alignItems: 'center',
+		paddingBottom: theme.spacing(7)
+	},
+	shortcutField: {
+		marginTop: theme.spacing(1)
+	},
+	back: {
+		cursor: 'pointer',
+		position: 'absolute',
+		top: 2,
+		right: theme.spacing(1),
+		WebkitAppRegion: 'no-drag'
+	},
+	alert: {
+		position: 'absolute',
+		bottom: theme.spacing(1),
+		zIndex: 10
+	}
+}));
 
 const keys = new Set(['Space', 'Backspace', 'Delete', 'Enter', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown', 'Escape', 'LControl', 'LShift', 'LAlt', 'RControl', 'RShift', 'RAlt']);
-
-const validateURL = new Ajv({
-	allErrors: true,
-	format: 'full'
-}).compile({
-	type: 'string',
-	format: 'uri'
-});
 
 const store = new Store<ISettings>({
 	migrations: {
@@ -23,7 +87,7 @@ const store = new Store<ISettings>({
 			const serverIP = store.get('serverIP');
 			if (typeof serverIP === 'string') {
 				const serverURL = `http://${serverIP}`;
-				if (validateURL(serverURL)) {
+				if (validateServerUrl(serverURL)) {
 					store.set('serverURL', serverURL);
 				} else {
 					console.warn('Error while parsing the old serverIP property. Default URL will be used instead.');
@@ -106,12 +170,6 @@ const store = new Store<ISettings>({
 	}
 });
 
-store.onDidChange('serverURL', (newUrl) => {
-	if (newUrl === 'http://54.193.94.35:9736') {
-		store.set('serverURL', 'https://crewl.ink');
-	}
-});
-
 export interface SettingsProps {
 	open: boolean;
 	onClose: () => void;
@@ -140,7 +198,16 @@ type URLInputProps = {
 	onValidURL: (url: string) => void
 };
 
-function URLInput({ initialURL, onValidURL }: URLInputProps) {
+function validateServerUrl(uri: string): boolean {
+	if (uri.endsWith('/')) return false;
+	if (!isHttpUri(uri) && !isHttpsUri(uri)) return false;
+	const url = new URL(uri);
+	if (url.hostname === 'discord.gg') return false;
+	if (url.pathname !== '/') return false;
+	return true;
+}
+
+const URLInput: React.FC<URLInputProps> = function ({ initialURL, onValidURL }: URLInputProps) {
 	const [isValidURL, setURLValid] = useState(true);
 	const [currentURL, setCurrentURL] = useState(initialURL);
 
@@ -148,10 +215,10 @@ function URLInput({ initialURL, onValidURL }: URLInputProps) {
 		setCurrentURL(initialURL);
 	}, [initialURL]);
 
-	function onChange(event: React.ChangeEvent<HTMLInputElement>) {
+	function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
 		setCurrentURL(event.target.value);
 
-		if (validateURL(event.target.value)) {
+		if (validateServerUrl(event.target.value)) {
 			setURLValid(true);
 			onValidURL(event.target.value);
 		} else {
@@ -159,10 +226,17 @@ function URLInput({ initialURL, onValidURL }: URLInputProps) {
 		}
 	}
 
-	return <input className={isValidURL ? '' : 'input-error'} spellCheck={false} type="text" value={currentURL} onChange={onChange} />;
+	return (
+		<TextField error={!isValidURL} spellCheck={false}
+			label="Voice Server"
+			value={currentURL} onChange={handleChange} variant="outlined" color="secondary"
+			helperText={isValidURL ? "" : "Invalid URL"}
+		/>
+	);
 }
 
 const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsProps) {
+	const classes = useStyles({ open });
 	const [settings, setSettings] = useContext(SettingsContext);
 	const [unsavedCount, setUnsavedCount] = useState(0);
 	const unsaved = unsavedCount > 2;
@@ -200,7 +274,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 			));
 	}, [_]);
 
-	const setShortcut = (ev: React.KeyboardEvent<HTMLInputElement>, shortcut: string) => {
+	const setShortcut = (ev: React.KeyboardEvent, shortcut: string) => {
 		let k = ev.key;
 		if (k.length === 1) k = k.toUpperCase();
 		else if (k.startsWith('Arrow')) k = k.substring(5);
@@ -222,8 +296,19 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 	const microphones = devices.filter(d => d.kind === 'audioinput');
 	const speakers = devices.filter(d => d.kind === 'audiooutput');
 
-	return <div id="settings" style={{ transform: open ? 'translateX(0)' : 'translateX(-100%)' }}>
-		<svg className="titlebar-button back" viewBox="0 0 24 24" fill="#868686" width="20px" height="20px" onClick={() => {
+	return <Box className={classes.root}>
+		<IconButton className={classes.back} size="small" onClick={() => {
+			if (unsaved) {
+				onClose();
+				location.reload();
+			}
+			else
+				onClose();
+
+		}}>
+			<ChevronLeft htmlColor="#868686" fontSize="large" />
+		</IconButton>
+		{/* <svg className="titlebar-button back" viewBox="0 0 24 24" fill="#868686" width="20px" height="20px" onClick={() => {
 			if (unsaved) {
 				onClose();
 				location.reload();
@@ -233,99 +318,96 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 		}}>
 			<path d="M0 0h24v24H0z" fill="none" />
 			<path d="M11.67 3.87L9.9 2.1 0 12l9.9 9.9 1.77-1.77L3.54 12z" />
-		</svg>
-		<div className="settings-scroll">
+		</svg> */}
+		<div className={classes.scroll}>
+			<URLInput initialURL={settings.serverURL} onValidURL={(url: string) => {
+				setSettings({
+					type: 'setOne',
+					action: ['serverURL', url]
+				});
+			}} />
+			<Divider />
+			<TextField select label="Microphone" variant="outlined" color="secondary" value={settings.microphone} className={classes.shortcutField}
+				SelectProps={{ native: true }}
+				InputLabelProps={{ shrink: true }}
+				onChange={(ev) => {
+					setSettings({
+						type: 'setOne',
+						action: ['microphone', ev.target.value]
+					});
+				}} onClick={updateDevices}>
+				{
+					microphones.map(d => (
+						<option key={d.id} value={d.id}>{d.label}</option>
+					))
+				}
+			</TextField>
+			{open && <MicrophoneSoundBar microphone={settings.microphone} />}
+			<TextField select label="Speaker" variant="outlined" color="secondary" value={settings.speaker} className={classes.shortcutField}
+				SelectProps={{ native: true }}
+				InputLabelProps={{ shrink: true }}
+				onChange={(ev) => {
+					setSettings({
+						type: 'setOne',
+						action: ['speaker', ev.target.value]
+					});
+				}} onClick={updateDevices}>
+				{
+					speakers.map(d => (
+						<option key={d.id} value={d.id}>{d.label}</option>
+					))
+				}
+			</TextField>
+			{open && <TestSpeakersButton speaker={settings.speaker} />}
+			<RadioGroup value={settings.pushToTalk} onChange={(ev) => {
+				setSettings({
+					type: 'setOne',
+					action: ['pushToTalk', ev.target.value === 'true']
+				});
+			}}>
+				<FormControlLabel label="Voice Activity" value={false} control={<Radio />} />
+				<FormControlLabel label="Push To Talk" value={true} control={<Radio />} />
+			</RadioGroup>
+			<Divider />
+			<Typography variant="h6">Keyboard Shortcuts</Typography>
+			<Grid container spacing={1}>
+				<Grid item xs={12}>
+					<TextField fullWidth spellCheck={false} color="secondary" label="Push To Talk" value={settings.pushToTalkShortcut} className={classes.shortcutField} variant="outlined"
+						onKeyDown={(ev) => {
+							setShortcut(ev, 'pushToTalkShortcut')
+						}} />
 
-			<div className="form-control m l" style={{ color: '#e74c3c' }}>
-				<label>Microphone</label>
-				<select value={settings.microphone} onChange={(ev) => {
-					setSettings({
-						type: 'setOne',
-						action: ['microphone', microphones[ev.target.selectedIndex].id]
-					});
-				}} onClick={() => updateDevices()}>
-					{
-						microphones.map(d => (
-							<option key={d.id} value={d.id}>{d.label}</option>
-						))
-					}
-				</select>
-				{open && <MicrophoneSoundBar microphone={settings.microphone} />}
-			</div>
-			<div className="form-control m l" style={{ color: '#e67e22' }}>
-				<label>Speaker</label>
-				<select value={settings.speaker} onChange={(ev) => {
-					setSettings({
-						type: 'setOne',
-						action: ['speaker', speakers[ev.target.selectedIndex].id]
-					});
-				}} onClick={() => updateDevices()}>
-					{
-						speakers.map(d => (
-							<option key={d.id} value={d.id}>{d.label}</option>
-						))
-					}
-				</select>
-				{open && <TestSpeakersButton speaker={settings.speaker} />}
-			</div>
+				</Grid>
+				<Grid item xs={6}>
+					<TextField spellCheck={false} color="secondary" label="Mute" value={settings.muteShortcut} className={classes.shortcutField} variant="outlined"
+						onKeyDown={(ev) => {
+							setShortcut(ev, 'muteShortcut')
+						}} />
+				</Grid>
+				<Grid item xs={6}>
+					<TextField spellCheck={false} color="secondary" label="Deafen" value={settings.deafenShortcut} className={classes.shortcutField} variant="outlined"
+						onKeyDown={(ev) => {
+							setShortcut(ev, 'deafenShortcut')
+						}} />
 
-			<div className="form-control" style={{ color: '#f1c40f' }} onClick={() => setSettings({
-				type: 'setOne',
-				action: ['pushToTalk', false]
-			})}>
-				<input type="checkbox" checked={!settings.pushToTalk} style={{ color: '#f1c40f' }} readOnly />
-				<label>Voice Activity</label>
-			</div>
-			<div className={`form-control${settings.pushToTalk ? '' : ' m'}`} style={{ color: '#f1c40f' }} onClick={() => setSettings({
-				type: 'setOne',
-				action: ['pushToTalk', true]
-			})}>
-				<input type="checkbox" checked={settings.pushToTalk} readOnly />
-				<label>Push to Talk</label>
-			</div>
-			{settings.pushToTalk &&
-				<div className="form-control m" style={{ color: '#f1c40f' }}>
-					<input spellCheck={false} type="text" value={settings.pushToTalkShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'pushToTalkShortcut')} />
-				</div>
-			}
-			<div className="form-control l m" style={{ color: '#2ecc71' }}>
-				<label>Mute Shortcut</label>
-				<input spellCheck={false} type="text" value={settings.muteShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'muteShortcut')} />
-			</div>
-			<div className="form-control l m" style={{ color: '#2ecc71' }}>
-				<label>Deafen Shortcut</label>
-				<input spellCheck={false} type="text" value={settings.deafenShortcut} readOnly onKeyDown={(ev) => setShortcut(ev, 'deafenShortcut')} />
-			</div>
-			<div className="form-control l m" style={{ color: '#3498db' }}>
-				<label>Voice Server</label>
-				<URLInput initialURL={settings.serverURL} onValidURL={(url: string) => {
-					setSettings({
-						type: 'setOne',
-						action: ['serverURL', url]
-					});
-				}} />
-			</div>
-			<div className="form-control m" style={{ color: '#9b59b6' }} onClick={() => setSettings({
-				type: 'setOne',
-				action: ['hideCode', !settings.hideCode]
-			})}>
-				<input type="checkbox" checked={!settings.hideCode} style={{ color: '#9b59b6' }} readOnly />
-				<label>Show Lobby Code</label>
-			</div>
-			<div className="form-control m" style={{ color: '#fd79a8' }} onClick={() => setSettings({
-				type: 'setOne',
-				action: ['enableSpatialAudio', !settings.enableSpatialAudio]
-			})}>
-				<input type="checkbox" checked={settings.enableSpatialAudio} style={{ color: '#fd79a8' }} readOnly />
-				<label>Enable Spatial Audio</label>
-			</div>
-			<div className='settings-alert' style={{ display: unsaved ? 'flex' : 'none' }}>
-				<span>
-					Exit Settings to apply changes
-				</span>
-			</div>
+				</Grid>
+			</Grid>
+			<Divider />
+			<FormControlLabel label="Show Lobby Code" checked={!settings.hideCode} onChange={(_, checked: boolean) => {
+				setSettings({
+					type: 'setOne',
+					action: ['hideCode', !checked]
+				})
+			}} control={<Checkbox />} />
+			<FormControlLabel label="Enable Spatial Audio" checked={settings.enableSpatialAudio} onChange={(_, checked: boolean) => {
+				setSettings({
+					type: 'setOne',
+					action: ['enableSpatialAudio', checked]
+				})
+			}} control={<Checkbox />} />
+			<Alert className={classes.alert} severity="info" style={{ display: unsaved ? undefined : 'none' }}>Exit Settings to apply changes</Alert>
 		</div>
-	</div>;
+	</Box>;
 };
 
 export default Settings;

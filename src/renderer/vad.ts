@@ -1,5 +1,3 @@
-import analyserFrequency from 'analyser-frequency-average';
-
 interface VADOptions {
 	fftSize: number;
 	bufferLen: number;
@@ -14,6 +12,33 @@ interface VADOptions {
 	onVoiceStop: () => void;
 	onUpdate: (val: number) => void;
 	stereo: boolean;
+}
+
+function clamp(value: number, min: number, max: number): number {
+	return min < max
+		? (value < min ? min : value > max ? max : value)
+		: (value < max ? max : value > min ? min : value);
+}
+
+// https://github.com/Jam3/audio-frequency-to-index
+function frequencyToIndex(frequency: number, sampleRate: number, frequencyBinCount: number): number {
+	const nyquist = sampleRate / 2
+	const index = Math.round(frequency / nyquist * frequencyBinCount)
+	return clamp(index, 0, frequencyBinCount)
+}
+
+// https://github.com/Jam3/analyser-frequency-average
+function analyserFrequency(analyser: AnalyserNode, frequencies: Uint8Array, minHz: number, maxHz: number): number {
+	const sampleRate = analyser.context.sampleRate;
+	const binCount = analyser.frequencyBinCount;
+	let start = frequencyToIndex(minHz, sampleRate, binCount);
+	const end = frequencyToIndex(maxHz, sampleRate, binCount);
+	const count = end - start;
+	let sum = 0;
+	for (; start < end; start++) {
+		sum += frequencies[start] / 255;
+	}
+	return count === 0 ? 0 : (sum / count);
 }
 
 export default function (audioContext: AudioContext, source: AudioNode, destination: AudioNode | undefined, opts: Partial<VADOptions>): {
