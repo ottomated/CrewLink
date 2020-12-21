@@ -1,6 +1,14 @@
 {
+	"baseUrl": "src",
 	"extends": "./node_modules/electron-webpack/tsconfig-base.json",
 	"compilerOptions": {
-		"jsx": "react"
+		"jsx": "react",
+		"lib": ["dom", "esnext"],
+		"module": "esnext",
+		"outDir": "dist",
+		"esModuleInterop": true
+	},
+	"paths": {
+		"test-utils": ["./utils/test-utils"],
 	}
 }
