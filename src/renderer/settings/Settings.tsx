@@ -16,7 +16,7 @@ import MuiDivider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import { isHttpUri, isHttpsUri } from 'valid-url';
-import ChevronLeft from '@material-ui/icons/ChevronLeft';
+import ChevronLeft from '@material-ui/icons/ArrowBack';
 import IconButton from '@material-ui/core/IconButton';
 import Alert from '@material-ui/lab/Alert';
 // import '../css/settings.css';
@@ -43,13 +43,17 @@ const useStyles = makeStyles((theme) => ({
 		left: 0,
 		top: 0,
 		zIndex: 10,
-		display: 'flex',
-		flexDirection: 'column',
-		justifyContent: 'start',
 		alignItems: 'center',
-		paddingTop: theme.spacing(3),
+		marginTop: theme.spacing(3),
 		transition: 'transform .1s ease-in-out',
+		WebkitAppRegion: 'no-drag',
 		transform: ({ open }: StyleInput) => open ? 'translateX(0)' : 'translateX(-100%)'
+	},
+	header: {
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+		height: 40
 	},
 	scroll: {
 		paddingTop: theme.spacing(3),
@@ -60,7 +64,8 @@ const useStyles = makeStyles((theme) => ({
 		flexDirection: 'column',
 		justifyContent: 'start',
 		alignItems: 'center',
-		paddingBottom: theme.spacing(7)
+		paddingBottom: theme.spacing(7),
+		height: `calc(100vh - 40px - ${theme.spacing(7 + 3 + 3)}px)`
 	},
 	shortcutField: {
 		marginTop: theme.spacing(1)
@@ -68,7 +73,6 @@ const useStyles = makeStyles((theme) => ({
 	back: {
 		cursor: 'pointer',
 		position: 'absolute',
-		top: 2,
 		right: theme.spacing(1),
 		WebkitAppRegion: 'no-drag'
 	},
@@ -297,28 +301,20 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 	const speakers = devices.filter(d => d.kind === 'audiooutput');
 
 	return <Box className={classes.root}>
-		<IconButton className={classes.back} size="small" onClick={() => {
-			if (unsaved) {
-				onClose();
-				location.reload();
-			}
-			else
-				onClose();
+		<div className={classes.header}>
+			<IconButton className={classes.back} size="small" onClick={() => {
+				if (unsaved) {
+					onClose();
+					location.reload();
+				}
+				else
+					onClose();
 
-		}}>
-			<ChevronLeft htmlColor="#868686" fontSize="large" />
-		</IconButton>
-		{/* <svg className="titlebar-button back" viewBox="0 0 24 24" fill="#868686" width="20px" height="20px" onClick={() => {
-			if (unsaved) {
-				onClose();
-				location.reload();
-			}
-			else
-				onClose();
-		}}>
-			<path d="M0 0h24v24H0z" fill="none" />
-			<path d="M11.67 3.87L9.9 2.1 0 12l9.9 9.9 1.77-1.77L3.54 12z" />
-		</svg> */}
+			}}>
+				<ChevronLeft htmlColor="#777" />
+			</IconButton>
+			<Typography variant="h6">Settings</Typography>
+		</div>
 		<div className={classes.scroll}>
 			<URLInput initialURL={settings.serverURL} onValidURL={(url: string) => {
 				setSettings({
