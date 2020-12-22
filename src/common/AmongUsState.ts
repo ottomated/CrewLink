@@ -6,6 +6,7 @@ export interface AmongUsState {
 	players: Player[];
 	clientId: number;
 	hostId: number;
+	isHost: boolean;
 }
 
 export interface Player {

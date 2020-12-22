@@ -138,7 +138,7 @@ export default class GameReader {
 			const clientId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, this.offsets.clientId);
 
 
-			const newState = {
+			const newState : AmongUsState = {
 				lobbyCode: this.gameCode || 'MENU',
 				players,
 				gameState: state,
