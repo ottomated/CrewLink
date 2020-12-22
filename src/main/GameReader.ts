@@ -184,11 +184,10 @@ export default class GameReader {
 	isX64Version(): boolean {
 		if (!this.amongUs || !this.gameAssembly)
 			return false;
+			
 		const optionalHeader_offset = readMemoryRaw<number>(this.amongUs.handle, this.gameAssembly.modBaseAddr + 0x3C, 'uint32');
 		const optionalHeader_magic = readMemoryRaw<number>(this.amongUs.handle, this.gameAssembly.modBaseAddr + optionalHeader_offset + 0x18, 'short');
-		console.log(optionalHeader_offset.toString(16), optionalHeader_magic.toString(16), (optionalHeader_offset + 0x18).toString(16))
 		return optionalHeader_magic === 0x20B;
-
 	}
 
 	readMemory<T>(dataType: DataType, address: number, offsets: number[], defaultParam?: T): T {
