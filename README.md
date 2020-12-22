@@ -6,14 +6,14 @@
     <img src="logo.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">CrewLink</h3>
+  <h3 align="center">BetterCrewLink a Crewlink fork with extra features</h3>
 
   <p align="center">
     Free, open, Among Us proximity voice chat.
     <br />
-    <a href="https://github.com/ottomated/CrewLink/issues">Report Bug</a>
+    <a href="https://github.com/OhMyGuus/CrewLink/issues">Report Bug</a>
     ·
-    <a href="https://github.com/ottomated/CrewLink/issues">Request Feature</a>
+    <a href="https://github.com/OhMyGuus/CrewLink/issues">Request Feature</a>
     ·
     <a href="#installation"><b>INSTALLATION INSTRUCTIONS</b></a>
   </p>
@@ -44,9 +44,9 @@ This project implements proximity voice chat in Among Us. Everyone in an Among U
 
 ## Installation
 
-Download the latest version from [releases](https://github.com/ottomated/CrewLink/releases) and run the `CrewLink-Setup-X.X.X.exe` file. You may get antivirus warnings, because this program hooks into the Among Us process to read game data.
+Download the latest version from [releases](https://github.com/OhMyGuus/CrewLink/releases) and run the `CrewLink-Setup-X.X.X.exe` file. You may get antivirus warnings, because this program hooks into the Among Us process to read game data.
 
-If you can, you should use a private server by deploying [this repository](https://github.com/ottomated/CrewLink-server).
+If you can, you should use a private server by deploying [this repository](https://github.com/OhMyGuus/CrewLink-server).
 
 ### Setup Instructions (click)
 
@@ -54,7 +54,7 @@ If you can, you should use a private server by deploying [this repository](https
 
 ## Development
 
-You only need to follow the below instructions if you are trying to modify this software. Otherwise, please download the latest version from the [github releases](https://github.com/ottomated/CrewLink/releases).
+You only need to follow the below instructions if you are trying to modify this software. Otherwise, please download the latest version from the [github releases](https://github.com/OhMyGuus/CrewLink/releases).
 
 Server code is located at [ottomated/CrewLink-server](https://github.com/ottomated/CrewLink-server). Please use a local server for development purposes.
 
