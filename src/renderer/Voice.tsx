@@ -18,12 +18,6 @@ interface PeerConnections {
 	[peer: string]: Peer.Instance;
 }
 
-type PeerErrorCode = 'ERR_WEBRTC_SUPPORT' | 'ERR_CREATE_OFFER' | 'ERR_CREATE_ANSWER' | 'ERR_SET_LOCAL_DESCRIPTION' | 'ERR_SET_REMOTE_DESCRIPTION' | 'ERR_ADD_ICE_CANDIDATE' | 'ERR_ICE_CONNECTION_FAILURE' | 'ERR_SIGNALING' | 'ERR_DATA_CHANNEL' | 'ERR_CONNECTION_FAILURE';
-
-interface PeerError extends Error {
-	code: PeerErrorCode;
-}
-
 interface AudioElements {
 	[peer: string]: {
 		element: HTMLAudioElement;
@@ -384,12 +378,10 @@ const Voice: React.FC = function () {
 			function createPeerConnection(peer: string, initiator: boolean) {
 				const connection = new Peer({
 					stream,
-					initiator,
+					initiator, // @ts-ignore-line
+					iceRestartEnabled: true,
 					config: iceConfig
 				});
-
-				let retries = 0;
-				let errCode: PeerErrorCode;
 
 				peerConnections.current[peer] = connection;
 
@@ -480,17 +472,10 @@ const Voice: React.FC = function () {
 				connection.on('close', () => {
 					console.log('Disconnected from', peer, 'Initiator:', initiator);
 					disconnectPeer(peer);
-
-					// Auto reconnect on connection error
-					if (initiator && errCode && retries < 10 && (errCode == 'ERR_CONNECTION_FAILURE' || errCode == 'ERR_DATA_CHANNEL')) {
-						createPeerConnection(peer, initiator);
-						retries++;
-					}
 				});
 
-				connection.on('error', (err: PeerError) => {
-					errCode = err.code;
-				});
+				// We have to have a listener here otherwise the ICE restart won't work
+				connection.on('error', () => {});
 
 				return connection;
 			}
