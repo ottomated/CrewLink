@@ -39,7 +39,7 @@ export const IOffsets = t.iface([], {
 		})),
 	}),
 	'signatures' : t.iface([], {
-		'gameclient' : ISignature,
+		'innerNetClient' : ISignature,
 		'meetingHud' : ISignature,
 		'gameData' : ISignature
 	})

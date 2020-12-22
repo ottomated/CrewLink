@@ -170,15 +170,15 @@ export default class GameReader {
 			}
 		}
 
-		const gameClient = this.findPattern(this.offsets.signatures.gameclient.sig, this.offsets.signatures.gameclient.patternOffset, this.offsets.signatures.gameclient.addressOffset);
+		const innerNetClient = this.findPattern(this.offsets.signatures.innerNetClient.sig, this.offsets.signatures.innerNetClient.patternOffset, this.offsets.signatures.innerNetClient.addressOffset);
 		const meetingHud = this.findPattern(this.offsets.signatures.meetingHud.sig, this.offsets.signatures.meetingHud.patternOffset, this.offsets.signatures.meetingHud.addressOffset);
 		const gameData = this.findPattern(this.offsets.signatures.gameData.sig, this.offsets.signatures.gameData.patternOffset, this.offsets.signatures.gameData.addressOffset);
 
 		this.offsets.meetingHud[0] = meetingHud;
 		this.offsets.exiledPlayerId[1] = meetingHud;
 		this.offsets.allPlayersPtr[0] = gameData;
-		this.offsets.gameState[0] = gameClient;
-		this.offsets.gameCode[0] = gameClient;
+		this.offsets.gameState[0] = innerNetClient;
+		this.offsets.gameCode[0] = innerNetClient;
 	}
 
 	isX64Version(): boolean {
@@ -227,9 +227,9 @@ export default class GameReader {
 	findPattern(signature: string, patternOffset: number = 0x1, addressOffset: number = 0x0): number {
 		if (!this.amongUs || !this.gameAssembly) return 0x0;
 		const signatureTypes = 0x0 | 0x2;
-		const gameclient_function = findPatternRaw(this.amongUs.handle, "GameAssembly.dll", signature, signatureTypes, patternOffset, 0x0);
-		const offsetAddr = this.readMemory<number>('int', this.gameAssembly.modBaseAddr, [gameclient_function]);
-		return this.is_64bit ? offsetAddr + gameclient_function + addressOffset : offsetAddr - this.gameAssembly.modBaseAddr;;
+		const instruction_location = findPatternRaw(this.amongUs.handle, "GameAssembly.dll", signature, signatureTypes, patternOffset, 0x0);
+		const offsetAddr = this.readMemory<number>('int', this.gameAssembly.modBaseAddr, [instruction_location]);
+		return this.is_64bit ? offsetAddr + instruction_location + addressOffset : offsetAddr - this.gameAssembly.modBaseAddr;;
 	}
 
 	IntToGameCode(input: number) {

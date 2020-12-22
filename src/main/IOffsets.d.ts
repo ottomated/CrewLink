@@ -38,7 +38,7 @@ export interface IOffsets {
 		}[];
 	};
 	signatures: {
-		gameclient: ISignature
+		innerNetClient: ISignature
 		meetingHud: ISignature
 		gameData: ISignature
 	}
