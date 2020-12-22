@@ -89,7 +89,7 @@ export default class GameReader {
 						state = GameState.TASKS;
 					break;
 			}
-			this.gameCode = this.IntToGameCode(this.readMemory<number>('int32', this.gameAssembly.modBaseAddr, this.offsets.gameCode))
+			this.gameCode = this.IntToGameCode(this.readMemory<number>('int32', this.gameAssembly.modBaseAddr, this.offsets.gameCode));
 			const allPlayersPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.allPlayersPtr);
 			const allPlayers = this.readMemory<number>('ptr', allPlayersPtr, this.offsets.allPlayers);
 			const playerCount = this.readMemory<number>('int' as const, allPlayersPtr, this.offsets.playerCount);
@@ -184,7 +184,7 @@ export default class GameReader {
 	isX64Version(): boolean {
 		if (!this.amongUs || !this.gameAssembly)
 			return false;
-			
+
 		const optionalHeader_offset = readMemoryRaw<number>(this.amongUs.handle, this.gameAssembly.modBaseAddr + 0x3C, 'uint32');
 		const optionalHeader_magic = readMemoryRaw<number>(this.amongUs.handle, this.gameAssembly.modBaseAddr + optionalHeader_offset + 0x18, 'short');
 		return optionalHeader_magic === 0x20B;

@@ -29,16 +29,15 @@ interface IOHookEvent {
 const store = new Store<ISettings>();
 
 async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsetsContainer | undefined> {
-	let version = 'x64'
+	let version = 'offsets_new'
 	let data: string;
 	const offsetStore = store.get('offsets') || {};
-	if (false && version === offsetStore.version) {
+	if (version === offsetStore.version) {
 		data = offsetStore.data;
 	} else {
 		try {
 			const response = await axios({
-			//	url: `${store.get('serverURL')}/offsets.yml`
-			url: `http://crewlink.guus.ninja/offsets.yml`
+			url: `${store.get('serverURL')}/offsets.yml`
 			});
 			data = response.data;
 		} catch (_e) {
