@@ -1,3 +1,4 @@
+
 [![GPL-3.0 License][license-shield]][license-url] [![Appveyor Build][appveyor-shield]][appveyor-url]
 
 <br />
@@ -7,6 +8,7 @@
   </a>
 
   <h3 align="center">BetterCrewLink a Crewlink fork with extra features</h3>
+
 
   <p align="center">
     Free, open, Among Us proximity voice chat.
@@ -22,11 +24,21 @@
   (all donations will be used for server costs or paying for college)
   </p>
 </p>
+<hr />
+<p>
+<b>Notes:</b><br />
+
+ - For issues with this fork u can message me on discord and I will do
+   my best to resolve it: ThaGuus#2140 
+  -  To get the most of BetterCrewLink use the voice server`http://crewlink.guus.ninja`
+
+</p>
 
 
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents
 
+* [Extra features in this fork](#extra-features-in-this-fork)
 * [About the Project](#about-the-project)
 * [Installation](#installation)
 * [Development](#development)
@@ -35,7 +47,17 @@
 * [Contributing](#contributing)
 * [License](#license)
 
+<!-- EXTRA FEATURES-->
+## Extra features in this fork
 
+ - An overlay
+ - Haunting 
+ - Support for TURN servers
+ - 32 bit support
+ - Other launcher support like Epic, Windows store, itch.io
+ - Always on top
+ - Volume sliders for players
+ - 
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
