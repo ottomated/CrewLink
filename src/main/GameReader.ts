@@ -105,7 +105,7 @@ export default class GameReader {
 					const { address, last } = this.offsetAddress(playerAddrPtr, this.offsets.player.offsets);
 					const playerData = readBuffer(this.amongUs.handle, address + last, this.offsets.player.bufferLength);
 					const player = this.parsePlayer(address + last, playerData);
-					playerAddrPtr += 4;
+					playerAddrPtr += this.is_64bit? 8 : 4;
 					if (!player) continue;
 					players.push(player);
 
