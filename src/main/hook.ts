@@ -1,5 +1,5 @@
 import { app, dialog, ipcMain } from 'electron';
-import path, { resolve } from 'path';
+import path from 'path';
 import yml from 'js-yaml';
 // import * as Struct from 'structron';
 import { HKEY, enumerateValues } from 'registry-js';
@@ -12,10 +12,9 @@ import axios, { AxiosError } from 'axios';
 import { createCheckers } from 'ts-interface-checker';
 
 import TI from './hook-ti';
-import { existsSync, readFileSync } from 'fs';
-import { IOffsets } from './IOffsets';
+import { IOffsetsContainer } from './IOffsets';
+const {  IOffsetsContainer } = createCheckers(TI);
 import { overlayWindow } from 'electron-overlay-window';
-const { IOffsets } = createCheckers(TI);
 
 interface IOHookEvent {
   type: string
@@ -30,24 +29,8 @@ interface IOHookEvent {
 
 const store = new Store<ISettings>();
 
-async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | undefined> {
-
-	const valuesFile = resolve((process.env.LOCALAPPDATA || '') + 'Low', 'Innersloth/Among Us/Unity/6b8b0d91-4a20-4a00-a3e4-4da4a883a5f0/Analytics/values');
-	let version = '';
-	if (existsSync(valuesFile)) {
-		try {
-			const json = JSON.parse(readFileSync(valuesFile, 'utf8'));
-			version = json.app_ver;
-		} catch (e) {
-			console.error(e);
-			event.reply('error', `Couldn't determine the Among Us version - ${e}. Try opening Among Us and then restarting CrewLink.`);
-			return;
-		}
-	} else {
-		event.reply('error', 'Couldn\'t determine the Among Us version - Unity analytics file doesn\'t exist. Try opening Among Us and then restarting CrewLink.');
-		return;
-	}
-
+async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsetsContainer | undefined> {
+	let version = 'offsets_new'
 	let data: string;
 	const offsetStore = store.get('offsets') || {};
 	if (version === offsetStore.version) {
@@ -55,14 +38,14 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 	} else {
 		try {
 			const response = await axios({
-				url: `${store.get('serverURL')}/${version}.yml`
+			url: `${store.get('serverURL')}/offsets.yml`
 			});
 			data = response.data;
 		} catch (_e) {
 			const e = _e as AxiosError;
 			console.error(e);
 			if (e?.response?.status === 404) {
-				event.reply('error', `You are on an unsupported version of Among Us: ${version}.\n`);
+				event.reply('error', `You are on an unsupported voice server: ${version}.\n`);
 			} else {
 				let errorMessage = e.message;
 				if (errorMessage.includes('ETIMEDOUT')) {
@@ -78,9 +61,9 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsets | und
 		}
 	}
 
-	const offsets: IOffsets = yml.safeLoad(data) as unknown as IOffsets;
+	const offsets: IOffsetsContainer = yml.safeLoad(data) as unknown as IOffsetsContainer;
 	try {
-		IOffsets.check(offsets);
+		IOffsetsContainer.check(offsets);
 		if (!version) {
 			event.reply('error', 'Couldn\'t determine the Among Us version. Try opening Among Us and then restarting CrewLink.');
 			return;
@@ -132,6 +115,7 @@ ipcMain.on('start', async (event) => {
 		ipcMain.on('initState', (event: Electron.IpcMainEvent) => {
 			event.returnValue = gameReader.lastState;
 		});
+
 		const frame = () => {
 			gameReader.loop();
 			setTimeout(frame, 1000 / 20);

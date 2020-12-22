@@ -1,3 +1,15 @@
+interface ISignature {
+	sig: string;
+	addressOffset: number;
+	patternOffset: number;
+}
+
+
+export interface IOffsetsContainer {
+	x64: IOffsets;
+	x86: IOffsets;
+}
+
 
 export interface IOffsets {
 	meetingHud: number[];
@@ -10,8 +22,8 @@ export interface IOffsets {
 	playerAddrPtr: number;
 	exiledPlayerId: number[];
 	gameCode: number[];
-	hostId?: number[];
-	clientId?: number[];
+	hostId: number[];
+	clientId: number[];
 	player: {
 		isLocal: number[];
 		localX: number[];
@@ -21,10 +33,16 @@ export interface IOffsets {
 		bufferLength: number;
 		offsets: number[];
 		inVent: number[];
+		clientId: number[];
 		struct: {
 			type: 'INT' | 'INT_BE' | 'UINT' | 'UINT_BE' | 'SHORT' | 'SHORT_BE' | 'USHORT' | 'USHORT_BE' | 'FLOAT' | 'CHAR' | 'BYTE' | 'SKIP';
 			skip?: number;
 			name: string;
 		}[];
 	};
+	signatures: {
+		innerNetClient: ISignature
+		meetingHud: ISignature
+		gameData: ISignature
+	}
 }
