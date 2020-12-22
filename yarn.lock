@@ -2248,6 +2248,14 @@ buffer@^5.5.0:
     base64-js "^1.3.1"
     ieee754 "^1.1.13"
 
+buffer@^6.0.2:
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/buffer/-/buffer-6.0.3.tgz#2ace578459cc8fbe2a70aaa8f52ee63b6a74c6c6"
+  integrity sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==
+  dependencies:
+    base64-js "^1.3.1"
+    ieee754 "^1.2.1"
+
 builder-util-runtime@8.7.2:
   version "8.7.2"
   resolved "https://registry.yarnpkg.com/builder-util-runtime/-/builder-util-runtime-8.7.2.tgz#d93afc71428a12789b437e13850e1fa7da956d72"
@@ -5157,7 +5165,7 @@ icss-utils@^4.0.0, icss-utils@^4.1.1:
   dependencies:
     postcss "^7.0.14"
 
-ieee754@^1.1.13:
+ieee754@^1.1.13, ieee754@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.2.1.tgz#8eb7a10a63fff25d15a57b001586d177d1b0d352"
   integrity sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==
@@ -8381,11 +8389,11 @@ simple-get@^3.0.3:
     once "^1.3.1"
     simple-concat "^1.0.0"
 
-simple-peer@^9.8.0:
-  version "9.8.0"
-  resolved "https://registry.yarnpkg.com/simple-peer/-/simple-peer-9.8.0.tgz#e84a6af664b0eb42dd1cb2349a69c7ad20051d1d"
-  integrity sha512-GK1KhJvEwtZILr6zWvQR3AnBNpLrxwr6b5wcduFxOrQNGLg9Hn92eFsHD7RYPnnWsapxGXFMJcBjNuicqBDRIQ==
+"simple-peer@https://github.com/vrnagy/simple-peer.git":
+  version "9.9.3"
+  resolved "https://github.com/vrnagy/simple-peer.git#35fcb6b25dd15c1e11ff32d522cf7b8016714bc3"
   dependencies:
+    buffer "^6.0.2"
     debug "^4.2.0"
     err-code "^2.0.3"
     get-browser-rtc "^1.0.2"
