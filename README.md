@@ -28,8 +28,8 @@
 <p>
 <b>Notes:</b><br />
 
- - For issues with this fork u can message me on discord and I will do
-   my best to resolve it: ThaGuus#2140 
+ - For issues with this fork u can message me on discord (ThaGuus#2140) and I will do
+   my best to resolve it.
   -  To get the most of BetterCrewLink use the voice server`http://crewlink.guus.ninja`
 
 </p>
