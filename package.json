@@ -21,8 +21,10 @@
     "lint": "eslint src",
     "dev": "electron-webpack dev",
     "compile": "electron-webpack",
-    "dist": "yarn compile && electron-builder --win --x64",
-    "publish": "yarn compile && electron-builder --win --x64 --publish always"
+    "dist": "yarn compile && electron-builder --win --x64 --ia32",
+    "dist32": "yarn compile && electron-builder --win --ia32",
+    "dist64": "yarn compile && electron-builder --win --x64",
+    "publish": "yarn compile && electron-builder --win --x64 --ia32 --publish always"
   },
   "iohook": {
     "targets": [
