@@ -22,6 +22,8 @@ export interface IOffsets {
 	playerAddrPtr: number;
 	exiledPlayerId: number[];
 	gameCode: number[];
+	hostId: number[];
+	clientId: number[];
 	player: {
 		isLocal: number[];
 		localX: number[];
@@ -31,6 +33,7 @@ export interface IOffsets {
 		bufferLength: number;
 		offsets: number[];
 		inVent: number[];
+		clientId: number[];
 		struct: {
 			type: 'INT' | 'INT_BE' | 'UINT' | 'UINT_BE' | 'SHORT' | 'SHORT_BE' | 'USHORT' | 'USHORT_BE' | 'FLOAT' | 'CHAR' | 'BYTE' | 'SKIP';
 			skip?: number;

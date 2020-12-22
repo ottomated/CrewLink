@@ -89,6 +89,7 @@ export default class GameReader {
 						state = GameState.TASKS;
 					break;
 			}
+
 			this.gameCode = this.IntToGameCode(this.readMemory<number>('int32', this.gameAssembly.modBaseAddr, this.offsets.gameCode));
 			const allPlayersPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.allPlayersPtr);
 			const allPlayers = this.readMemory<number>('ptr', allPlayersPtr, this.offsets.allPlayers);
@@ -133,11 +134,18 @@ export default class GameReader {
 			this.lastPlayerPtr = allPlayers;
 
 
+			const hostId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, this.offsets.hostId);
+			const clientId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, this.offsets.clientId);
+
+
 			const newState = {
 				lobbyCode: this.gameCode || 'MENU',
 				players,
 				gameState: state,
-				oldGameState: this.oldGameState
+				oldGameState: this.oldGameState,
+				isHost: (hostId && clientId && hostId === clientId) as boolean,
+				hostId: hostId,
+				clientId: clientId
 			};
 			const patch = patcher.diff(this.lastState, newState);
 			if (patch) {
@@ -272,9 +280,12 @@ export default class GameReader {
 
 		const x = this.readMemory<number>('float', data.objectPtr, positionOffsets[0]);
 		const y = this.readMemory<number>('float', data.objectPtr, positionOffsets[1]);
+		const clientId = this.readMemory<number>('uint32', data.objectPtr, this.offsets.player.clientId);
+
 		return {
 			ptr,
 			id: data.id,
+			clientId: clientId,
 			name: this.readString(data.name),
 			colorId: data.color,
 			hatId: data.hat,

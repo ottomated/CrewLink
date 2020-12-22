@@ -21,8 +21,8 @@ export const IOffsets = t.iface([], {
 	'playerAddrPtr': 'number',
 	'exiledPlayerId': t.array('number'),
  	'gameCode': t.array('number'),
- 	'hostId': t.opt(t.array('number')),
-  	'clientId': t.opt(t.array('number')),
+ 	'hostId':  t.array('number'),
+  	'clientId': t.array('number'),
 	'player': t.iface([], {
 		'isLocal': t.array('number'),
 		'localX': t.array('number'),
@@ -31,6 +31,7 @@ export const IOffsets = t.iface([], {
 		'remoteY': t.array('number'),
 		'offsets': t.array('number'),
 		'inVent': t.array('number'),
+		'clientId': t.array('number'),
 		'bufferLength': 'number',
 		'struct': t.array(t.iface([], {
 			'type': 'string',
