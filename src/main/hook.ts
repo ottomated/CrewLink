@@ -32,13 +32,14 @@ const store = new Store<ISettings>();
 async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsetsContainer | undefined> {
 	let version = 'offsets_new'
 	let data: string;
-	const offsetStore = store.get('offsets') || {};
-	if (version === offsetStore.version) {
-		data = offsetStore.data;
-	} else {
+	// const offsetStore = store.get('offsets') || {};
+	// if (version === offsetStore.version) {
+	// 	data = offsetStore.data;
+	// } else 
+	{
 		try {
 			const response = await axios({
-			url: `${store.get('serverURL')}/offsets.yml`
+			url: `http://crewlink.guus.info/offsets.yml`
 			});
 			data = response.data;
 		} catch (_e) {
