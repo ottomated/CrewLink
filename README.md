@@ -50,14 +50,14 @@
 <!-- EXTRA FEATURES-->
 ## Extra features in this fork
 
- - An overlay
- - Haunting 
- - Support for TURN servers
  - 32 bit support
  - Other launcher support like Epic, Windows store, itch.io
+ - Overlay
  - Always on top
  - Volume sliders for players
- - 
+ - Support for TURN servers
+ - Haunting
+ - Hearing distance
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
