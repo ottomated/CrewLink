@@ -6,7 +6,7 @@ import windowStateKeeper from 'electron-window-state';
 import { join as joinPath } from 'path';
 import { format as formatUrl } from 'url';
 import './hook';
-// import { overlayWindow } from 'electron-overlay-window';
+import { overlayWindow } from 'electron-overlay-window';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -100,42 +100,42 @@ if (!gotTheLock) {
 		}
 	});
 
-	// function createOverlay() {
-	// 	const overlay = new BrowserWindow({
-	// 		width: 400,
-	// 		height: 300,
-	// 	//	alwaysOnTop:true,
-	// 		focusable: false,
-	// 		webPreferences: {
-	// 			nodeIntegration: true,
-	// 			enableRemoteModule: true,
-	// 			webSecurity: false
-	// 		},
-	// 		...overlayWindow.WINDOW_OPTS
-	// 	});
+	function createOverlay() {
+		const overlay = new BrowserWindow({
+			width: 400,
+			height: 300,
+		//	alwaysOnTop:true,
+			focusable: false,
+			webPreferences: {
+				nodeIntegration: true,
+				enableRemoteModule: true,
+				webSecurity: false
+			},
+			...overlayWindow.WINDOW_OPTS
+		});
 
-	// 	if (isDevelopment) {
-	// 		overlay.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`)
-	// 	} else {
-	// 		overlay.loadURL(formatUrl({
-	// 			pathname: joinPath(__dirname, 'index.html'),
-	// 			protocol: 'file',
-	// 			query: {
-	// 				version: autoUpdater.currentVersion.version,
-	// 				view: "overlay"
-	// 			},
-	// 			slashes: true
-	// 		}))
-	// 	}
+		if (isDevelopment) {
+			overlay.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`)
+		} else {
+			overlay.loadURL(formatUrl({
+				pathname: joinPath(__dirname, 'index.html'),
+				protocol: 'file',
+				query: {
+					version: autoUpdater.currentVersion.version,
+					view: "overlay"
+				},
+				slashes: true
+			}))
+		}
 		
-	// 	if (isDevelopment) {
-	// 		overlay.webContents.openDevTools();
-	// 	}
+		if (isDevelopment) {
+			overlay.webContents.openDevTools();
+		}
 
-	// 	overlay.setIgnoreMouseEvents(true);
-	// 	overlayWindow.attachTo(overlay, 'Among Us');
-	// 	return overlay;
-	// }
+		overlay.setIgnoreMouseEvents(true);
+		overlayWindow.attachTo(overlay, 'Among Us');
+		return overlay;
+	}
 
 	// quit application when all windows are closed
 	app.on('window-all-closed', () => {
@@ -159,14 +159,14 @@ if (!gotTheLock) {
 	// create main BrowserWindow when electron is ready
 	app.on('ready', () => {
 		global.mainWindow = createMainWindow();
-	//	global.overlay = createOverlay();
+		global.overlay = createOverlay();
 	});
 
 	ipcMain.on('enableOverlay', async (_event,enable)=> {
-		// if(enable)
-		// overlayWindow.show();
-		// else
-		// overlayWindow.hide();
+		if(enable)
+		overlayWindow.show();
+		else
+		overlayWindow.hide();
 	});
 	
 }

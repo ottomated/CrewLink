@@ -43,7 +43,7 @@
     "analyser-frequency-average": "^1.0.0",
     "axios": "^0.21.0",
     "cross-spawn": "^7.0.3",
-
+    "electron-overlay-window": "git://github.com/OhMyGuus/electron-overlay-window",
     "electron-store": "^6.0.1",
     "electron-updater": "^4.3.5",
     "electron-window-state": "^5.0.3",
