@@ -1,3 +1,15 @@
+interface ISignature {
+	sig: string;
+	addressOffset: number;
+	patternOffset: number;
+}
+
+
+export interface IOffsetsContainer {
+	x64: IOffsets;
+	x86: IOffsets;
+}
+
 
 export interface IOffsets {
 	meetingHud: number[];
@@ -25,4 +37,9 @@ export interface IOffsets {
 			name: string;
 		}[];
 	};
+	signatures: {
+		gameclient: ISignature
+		meetingHud: ISignature
+		gameData: ISignature
+	}
 }

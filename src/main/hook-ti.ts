@@ -4,6 +4,12 @@
 import * as t from 'ts-interface-checker';
 // tslint:disable:object-literal-key-quotes
 
+export const ISignature = t.iface([], {
+	'sig': 'string',
+	'addressOffset': 'number',
+	'patternOffset': 'number'
+});
+
 export const IOffsets = t.iface([], {
 	'meetingHud': t.array('number'),
 	'meetingHudCachePtr': t.array('number'),
@@ -14,7 +20,9 @@ export const IOffsets = t.iface([], {
 	'playerCount': t.array('number'),
 	'playerAddrPtr': 'number',
 	'exiledPlayerId': t.array('number'),
-	'gameCode': t.array('number'),
+ 	'gameCode': t.array('number'),
+ 	'hostId': t.opt(t.array('number')),
+  	'clientId': t.opt(t.array('number')),
 	'player': t.iface([], {
 		'isLocal': t.array('number'),
 		'localX': t.array('number'),
@@ -30,9 +38,19 @@ export const IOffsets = t.iface([], {
 			'name': 'string',
 		})),
 	}),
+	'signatures' : t.iface([], {
+		'gameclient' : ISignature,
+		'meetingHud' : ISignature,
+		'gameData' : ISignature
+	})
+});
+
+export const IOffsetsContainer = t.iface([], {
+	'x64': IOffsets,
+	'x86': IOffsets
 });
 
 const exportedTypeSuite: t.ITypeSuite = {
-	IOffsets,
+	IOffsets, IOffsetsContainer
 };
 export default exportedTypeSuite;
