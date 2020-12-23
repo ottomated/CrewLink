@@ -34,7 +34,7 @@ export default class GameReader {
 	lastPlayerPtr = 0;
 	shouldReadLobby = false;
 	exileCausesEnd = false;
-	is_64bit: boolean = false;
+	is_64bit = false;
 	oldGameState = GameState.UNKNOWN;
 	lastState: AmongUsState = {} as AmongUsState;
 	amongUs: ProcessObject | null = null;
@@ -71,26 +71,26 @@ export default class GameReader {
 			const gameState = this.readMemory<number>('int', this.gameAssembly.modBaseAddr, this.offsets.gameState);
 
 			switch (gameState) {
-				case 0:
-					state = GameState.MENU;
-					this.exileCausesEnd = false;
-					break;
-				case 1:
-				case 3:
+			case 0:
+				state = GameState.MENU;
+				this.exileCausesEnd = false;
+				break;
+			case 1:
+			case 3:
+				state = GameState.LOBBY;
+				this.exileCausesEnd = false;
+				break;
+			default:
+				if (this.exileCausesEnd)
 					state = GameState.LOBBY;
-					this.exileCausesEnd = false;
-					break;
-				default:
-					if (this.exileCausesEnd)
-						state = GameState.LOBBY;
-					else if (meetingHudState < 4)
-						state = GameState.DISCUSSION;
-					else
-						state = GameState.TASKS;
-					break;
+				else if (meetingHudState < 4)
+					state = GameState.DISCUSSION;
+				else
+					state = GameState.TASKS;
+				break;
 			}
 
-			this.gameCode = state === GameState.MENU? "" : this.IntToGameCode(this.readMemory<number>('int32', this.gameAssembly.modBaseAddr, this.offsets.gameCode));
+			this.gameCode = state === GameState.MENU ? '' : this.IntToGameCode(this.readMemory<number>('int32', this.gameAssembly.modBaseAddr, this.offsets.gameCode));
 			const allPlayersPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.allPlayersPtr);
 			const allPlayers = this.readMemory<number>('ptr', allPlayersPtr, this.offsets.allPlayers);
 			const playerCount = this.readMemory<number>('int' as const, allPlayersPtr, this.offsets.playerCount);
@@ -105,7 +105,7 @@ export default class GameReader {
 					const { address, last } = this.offsetAddress(playerAddrPtr, this.offsets.player.offsets);
 					const playerData = readBuffer(this.amongUs.handle, address + last, this.offsets.player.bufferLength);
 					const player = this.parsePlayer(address + last, playerData);
-					playerAddrPtr += this.is_64bit? 8 : 4;
+					playerAddrPtr += this.is_64bit ? 8 : 4;
 					if (!player) continue;
 					players.push(player);
 
@@ -138,7 +138,7 @@ export default class GameReader {
 			const clientId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, this.offsets.clientId);
 
 
-			const newState : AmongUsState = {
+			const newState: AmongUsState = {
 				lobbyCode: this.gameCode || 'MENU',
 				players,
 				gameState: state,
@@ -166,7 +166,7 @@ export default class GameReader {
 	}
 
 
-	initializeoffsets() {
+	initializeoffsets() : void {
 		this.is_64bit = this.isX64Version();
 		this.offsets = this.is_64bit ? this.offsetsContainer.x64 : this.offsetsContainer.x86;
 		this.PlayerStruct = new Struct();
@@ -232,19 +232,19 @@ export default class GameReader {
 		return buffer.toString('binary').replace(/\0/g, '');
 	}
 
-	findPattern(signature: string, patternOffset: number = 0x1, addressOffset: number = 0x0): number {
+	findPattern(signature: string, patternOffset = 0x1, addressOffset = 0x0): number {
 		if (!this.amongUs || !this.gameAssembly) return 0x0;
 		const signatureTypes = 0x0 | 0x2;
-		const instruction_location = findPatternRaw(this.amongUs.handle, "GameAssembly.dll", signature, signatureTypes, patternOffset, 0x0);
+		const instruction_location = findPatternRaw(this.amongUs.handle, 'GameAssembly.dll', signature, signatureTypes, patternOffset, 0x0);
 		const offsetAddr = this.readMemory<number>('int', this.gameAssembly.modBaseAddr, [instruction_location]);
-		return this.is_64bit ? offsetAddr + instruction_location + addressOffset : offsetAddr - this.gameAssembly.modBaseAddr;;
+		return this.is_64bit ? offsetAddr + instruction_location + addressOffset : offsetAddr - this.gameAssembly.modBaseAddr;
 	}
 
-	IntToGameCode(input: number) {
+	IntToGameCode(input: number) : string {
 		if (!input || input === 0 || input > -1000)
-			return "";
+			return '';
 
-		const V2: string = "QWXRTYLPESDFGHUJKZOCVBINMA";
+		const V2 = 'QWXRTYLPESDFGHUJKZOCVBINMA';
 		const a = input & 0x3FF;
 		const b = (input >> 10) & 0xFFFFF;
 		return [
@@ -254,7 +254,7 @@ export default class GameReader {
 			V2[Math.floor(b / 26 % 26)],
 			V2[Math.floor(b / (26 * 26) % 26)],
 			V2[Math.floor(b / (26 * 26 * 26) % 26)]
-		].join("");
+		].join('');
 	}
 
 	parsePlayer(ptr: number, buffer: Buffer): Player | undefined {
@@ -264,8 +264,8 @@ export default class GameReader {
 		const { data } = this.PlayerStruct.report<PlayerReport>(buffer, 0, {});
 
 		if (this.is_64bit) {
-			data.objectPtr = this.readMemory('pointer', ptr, [this.PlayerStruct.getOffsetByName("objectPtr")]);
-			data.name = this.readMemory('pointer', ptr, [this.PlayerStruct.getOffsetByName("name")]);
+			data.objectPtr = this.readMemory('pointer', ptr, [this.PlayerStruct.getOffsetByName('objectPtr')]);
+			data.name = this.readMemory('pointer', ptr, [this.PlayerStruct.getOffsetByName('name')]);
 		}
 
 		const isLocal = this.readMemory<number>('int', data.objectPtr, this.offsets.player.isLocal) !== 0;
@@ -274,9 +274,9 @@ export default class GameReader {
 			this.offsets.player.localX,
 			this.offsets.player.localY
 		] : [
-				this.offsets.player.remoteX,
-				this.offsets.player.remoteY
-			];
+			this.offsets.player.remoteX,
+			this.offsets.player.remoteY
+		];
 
 		const x = this.readMemory<number>('float', data.objectPtr, positionOffsets[0]);
 		const y = this.readMemory<number>('float', data.objectPtr, positionOffsets[1]);
