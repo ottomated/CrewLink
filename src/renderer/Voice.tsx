@@ -466,7 +466,6 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 	// Connect to P2P negotiator, when lobby and connect code change
 	useEffect(() => {
 		if (connect?.connect && gameState.lobbyCode && myPlayer?.id !== undefined) {
-		console.log(myPlayer.id, gameState.clientId);
 		connect.connect(gameState.lobbyCode, myPlayer.id, gameState.clientId);
 		}
 	}, [connect?.connect, gameState?.lobbyCode]);
