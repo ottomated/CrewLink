@@ -135,14 +135,15 @@ const store = new Store<ISettings>({
 	}
 });
 
-store.onDidChange('serverURL', (newUrl) => {
-	if (newUrl === 'http://54.193.94.35:9736') {
-		store.set('serverURL', 'http://crewlink.guus.info');
-	}
-	if (newUrl === 'https://crewl.ink') {
-		store.set('serverURL', 'http://crewlink.guus.info');
-	}
-});
+// store.onDidChange('serverURL', (newUrl) => {
+// 	console.log(newUrl);
+// 	if (newUrl === 'http://54.193.94.35:9736') {
+// 		store.set('serverURL', 'http://crewlink.guus.info');
+// 	}
+// 	if (newUrl === 'https://crewl.ink') {
+// 		store.set('serverURL', 'http://crewlink.guus.info');
+// 	}
+// });
 
 export interface SettingsProps {
 	open: boolean;
