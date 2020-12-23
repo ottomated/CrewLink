@@ -33,7 +33,7 @@ interface SocketIdMap {
 }
 
 interface ConnectionStuff {
-	socket: typeof Socket;
+	socket?: typeof Socket;
 	stream?: MediaStream;
 	pushToTalk: boolean;
 	deafened: boolean;
@@ -199,7 +199,7 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 	}, [gameState.gameState]);
 
 	// const [audioContext] = useState<AudioContext>(() => new AudioContext());
-	const connectionStuff = useRef<Partial<ConnectionStuff>>({
+	const connectionStuff = useRef<ConnectionStuff>({
 		pushToTalk: settings.pushToTalk,
 		deafened: false,
 		muted: false
@@ -254,6 +254,7 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 				}
 				stream.getAudioTracks()[0].enabled = !connectionStuff.current.muted && !connectionStuff.current.deafened;
 				setMuted(connectionStuff.current.muted);
+				setDeafened(connectionStuff.current.deafened);
 			});
 			ipcRenderer.on('pushToTalk', (_: unknown, pressing: boolean) => {
 				if (!connectionStuff.current.pushToTalk) return;
