@@ -1,7 +1,6 @@
-
 export interface IOffsets {
 	versionNumber: string;
-	versionSource: "steam" | "itch" | "windowsStore";
+	versionSource: 'steam' | 'itch' | 'windowsStore';
 	offsets: {
 		meetingHud: number[];
 		meetingHudCachePtr: number[];
@@ -25,7 +24,19 @@ export interface IOffsets {
 			offsets: number[];
 			inVent: number[];
 			struct: {
-				type: 'INT' | 'INT_BE' | 'UINT' | 'UINT_BE' | 'SHORT' | 'SHORT_BE' | 'USHORT' | 'USHORT_BE' | 'FLOAT' | 'CHAR' | 'BYTE' | 'SKIP';
+				type:
+					| 'INT'
+					| 'INT_BE'
+					| 'UINT'
+					| 'UINT_BE'
+					| 'SHORT'
+					| 'SHORT_BE'
+					| 'USHORT'
+					| 'USHORT_BE'
+					| 'FLOAT'
+					| 'CHAR'
+					| 'BYTE'
+					| 'SKIP';
 				skip?: number;
 				name: string;
 			}[];
@@ -34,9 +45,9 @@ export interface IOffsets {
 }
 
 export default {
-	"CwEL0xldOcCJ3AGNg0suvSa6Z9L0nE6+pgioBPwJdbc=": {
-		versionNumber: "2020.12.9",
-		versionSource: "steam",
+	'CwEL0xldOcCJ3AGNg0suvSa6Z9L0nE6+pgioBPwJdbc=': {
+		versionNumber: '2020.12.9',
+		versionSource: 'steam',
 		offsets: {
 			meetingHud: [29717412, 92, 0],
 			meetingHudCachePtr: [8],
@@ -51,48 +62,62 @@ export default {
 			exiledPlayerId: [255, 29717412, 92, 0, 148, 8],
 			gameCode: [28254460, 92, 0, 32, 40],
 			player: {
-				"struct": [{
-					type: "SKIP",
-					skip: 8,
-					name: "unused"
-				}, {
-					type: "UINT",
-					name: "id"
-				}, {
-					type: "UINT",
-					name: "name"
-				}, {
-					type: "UINT",
-					name: "color"
-				}, {
-					type: "UINT",
-					name: "hat"
-				}, {
-					type: "UINT",
-					name: "pet"
-				}, {
-					type: "UINT",
-					name: "skin"
-				}, {
-					type: "UINT",
-					name: "disconnected"
-				}, {
-					type: "UINT",
-					name: "taskPtr"
-				}, {
-					type: "BYTE",
-					name: "impostor"
-				}, {
-					type: "BYTE",
-					name: "dead"
-				}, {
-					type: "SKIP",
-					skip: 2,
-					name: "unused"
-				}, {
-					type: "UINT",
-					name: "objectPtr"
-				}],
+				struct: [
+					{
+						type: 'SKIP',
+						skip: 8,
+						name: 'unused',
+					},
+					{
+						type: 'UINT',
+						name: 'id',
+					},
+					{
+						type: 'UINT',
+						name: 'name',
+					},
+					{
+						type: 'UINT',
+						name: 'color',
+					},
+					{
+						type: 'UINT',
+						name: 'hat',
+					},
+					{
+						type: 'UINT',
+						name: 'pet',
+					},
+					{
+						type: 'UINT',
+						name: 'skin',
+					},
+					{
+						type: 'UINT',
+						name: 'disconnected',
+					},
+					{
+						type: 'UINT',
+						name: 'taskPtr',
+					},
+					{
+						type: 'BYTE',
+						name: 'impostor',
+					},
+					{
+						type: 'BYTE',
+						name: 'dead',
+					},
+					{
+						type: 'SKIP',
+						skip: 2,
+						name: 'unused',
+					},
+					{
+						type: 'UINT',
+						name: 'objectPtr',
+					},
+				],
 				isLocal: [84],
 				localX: [96, 80],
 				localY: [96, 84],
@@ -100,10 +125,10 @@ export default {
 				remoteY: [96, 64],
 				bufferLength: 56,
 				offsets: [0, 0],
-				inVent: [49]
-			}
-		}
-	}
+				inVent: [49],
+			},
+		},
+	},
 } as {
 	[dllHash: string]: IOffsets;
-}
+};

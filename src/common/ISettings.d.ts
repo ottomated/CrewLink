@@ -1,4 +1,3 @@
-
 export interface ISettings {
 	alwaysOnTop: boolean;
 	microphone: string;

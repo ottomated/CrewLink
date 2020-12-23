@@ -14,12 +14,12 @@ const useStyles = makeStyles((theme) => ({
 		paddingTop: theme.spacing(3),
 	},
 	error: {
-		paddingTop: theme.spacing(4)
-	}
+		paddingTop: theme.spacing(4),
+	},
 }));
 
 export interface MenuProps {
-	error: string
+	error: string;
 }
 
 const Menu: React.FC<MenuProps> = function ({ error }: MenuProps) {
@@ -27,21 +27,30 @@ const Menu: React.FC<MenuProps> = function ({ error }: MenuProps) {
 	return (
 		<div className={classes.root}>
 			<div className="menu">
-				{error ?
+				{error ? (
 					<div className={classes.error}>
-						<Typography align="center" variant="h6" color="error">ERROR</Typography>
-						<Typography align="center" style={{ whiteSpace: 'pre-wrap' }}>{error}</Typography>
+						<Typography align="center" variant="h6" color="error">
+							ERROR
+						</Typography>
+						<Typography align="center" style={{ whiteSpace: 'pre-wrap' }}>
+							{error}
+						</Typography>
 						<SupportLink />
 					</div>
-					:
+				) : (
 					<>
 						<span className="waiting">Waiting for Among Us</span>
 						<CircularProgress color="primary" size={40} />
-						<button className="button" onClick={() => {
-							ipcRenderer.send('openGame');
-						}}>Open Game</button>
+						<button
+							className="button"
+							onClick={() => {
+								ipcRenderer.send('openGame');
+							}}
+						>
+							Open Game
+						</button>
 					</>
-				}
+				)}
 				<Footer />
 			</div>
 		</div>

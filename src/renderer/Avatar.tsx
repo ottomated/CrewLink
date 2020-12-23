@@ -21,11 +21,11 @@ const useStyles = makeStyles(() => ({
 		borderColor: ({ borderColor }: UseStylesParams) => borderColor,
 		borderWidth: ({ size }: UseStylesParams) => Math.max(2, size / 40),
 		width: '100%',
-		paddingBottom: '100%'
+		paddingBottom: '100%',
 	},
 	canvas: {
 		position: 'absolute',
-		width: '100%'
+		width: '100%',
 	},
 	icon: {
 		background: '#ea3c2a',
@@ -36,8 +36,8 @@ const useStyles = makeStyles(() => ({
 		border: '2px solid #690a00',
 		borderRadius: '50%',
 		padding: 2,
-		zIndex: 10
-	}
+		zIndex: 10,
+	},
 }));
 
 export interface CanvasProps {
@@ -59,13 +59,22 @@ export interface AvatarProps {
 	disconnected?: boolean;
 }
 
-const Avatar: React.FC<AvatarProps> = function ({ talking, deafened, muted, borderColor, isAlive, player, size, disconnected }: AvatarProps) {
+const Avatar: React.FC<AvatarProps> = function ({
+	talking,
+	deafened,
+	muted,
+	borderColor,
+	isAlive,
+	player,
+	size,
+	disconnected,
+}: AvatarProps) {
 	const status = isAlive ? 'alive' : 'dead';
 	let image = players[status][player.colorId];
 	if (!image) image = players[status][0];
 	const classes = useStyles({
 		borderColor: talking ? borderColor : 'transparent',
-		size
+		size,
 	});
 
 	let icon;
@@ -81,7 +90,13 @@ const Avatar: React.FC<AvatarProps> = function ({ talking, deafened, muted, bord
 	return (
 		<Tooltip title={player.name} arrow placement="top">
 			<div className={classes.avatar}>
-				<Canvas className={classes.canvas} src={image} hat={player.hatId - 1} skin={player.skinId - 1} isAlive={isAlive} />
+				<Canvas
+					className={classes.canvas}
+					src={image}
+					hat={player.hatId - 1}
+					skin={player.skinId - 1}
+					isAlive={isAlive}
+				/>
 				{icon}
 			</div>
 		</Tooltip>
@@ -91,21 +106,22 @@ const Avatar: React.FC<AvatarProps> = function ({ talking, deafened, muted, bord
 interface UseCanvasStylesParams {
 	backLayerHat: boolean;
 	isAlive: boolean;
-};
-const useCanvasStyles = makeStyles((theme) => ({
+}
+const useCanvasStyles = makeStyles(() => ({
 	base: {
 		width: '100%',
 		position: 'absolute',
 		top: 0,
 		left: 0,
-		zIndex: 2
+		zIndex: 2,
 	},
 	hat: {
 		position: 'absolute',
 		left: '50%',
 		transform: 'translateX(calc(-50% + 4px)) scale(0.7)',
-		zIndex: ({ backLayerHat }: UseCanvasStylesParams) => backLayerHat ? 1 : 4,
-		display: ({ isAlive }: UseCanvasStylesParams) => isAlive ? 'block' : 'none'
+		zIndex: ({ backLayerHat }: UseCanvasStylesParams) => (backLayerHat ? 1 : 4),
+		display: ({ isAlive }: UseCanvasStylesParams) =>
+			isAlive ? 'block' : 'none',
 	},
 	skin: {
 		position: 'absolute',
@@ -113,8 +129,9 @@ const useCanvasStyles = makeStyles((theme) => ({
 		left: '17%',
 		transform: 'scale(0.8)',
 		zIndex: 3,
-		display: ({ isAlive }: UseCanvasStylesParams) => isAlive ? 'block' : 'none'
-	}
+		display: ({ isAlive }: UseCanvasStylesParams) =>
+			isAlive ? 'block' : 'none',
+	},
 }));
 
 function Canvas({ src, hat, skin, isAlive }: CanvasProps) {
@@ -124,13 +141,18 @@ function Canvas({ src, hat, skin, isAlive }: CanvasProps) {
 	const hatY = 11 - hatOffsets[hat];
 	const classes = useCanvasStyles({
 		backLayerHat: backLayerHats.has(hat),
-		isAlive
+		isAlive,
 	});
 
 	return (
 		<>
 			<img src={src} ref={image} className={classes.base} />
-			<img src={hats[hat]} ref={hatImg} className={classes.hat} style={{ top: `${hatY}%` }} />
+			<img
+				src={hats[hat]}
+				ref={hatImg}
+				className={classes.hat}
+				style={{ top: `${hatY}%` }}
+			/>
 			<img src={skins[skin]} ref={skinImg} className={classes.skin} />
 		</>
 	);

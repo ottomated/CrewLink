@@ -1,6 +1,10 @@
 import Store from 'electron-store';
 import React, { useContext, useEffect, useReducer, useState } from 'react';
-import { SettingsContext, LobbySettingsContext, GameStateContext } from '../contexts';
+import {
+	SettingsContext,
+	LobbySettingsContext,
+	GameStateContext,
+} from '../contexts';
 import MicrophoneSoundBar from './MicrophoneSoundBar';
 import TestSpeakersButton from './TestSpeakersButton';
 import { ISettings, ILobbySettings } from '../../common/ISettings';
@@ -31,7 +35,7 @@ const Divider = withStyles((theme) => ({
 		width: '100%',
 		marginTop: theme.spacing(2),
 		marginBottom: theme.spacing(2),
-	}
+	},
 }))(MuiDivider);
 
 const useStyles = makeStyles((theme) => ({
@@ -48,13 +52,14 @@ const useStyles = makeStyles((theme) => ({
 		marginTop: theme.spacing(3),
 		transition: 'transform .1s ease-in-out',
 		WebkitAppRegion: 'no-drag',
-		transform: ({ open }: StyleInput) => open ? 'translateX(0)' : 'translateX(-100%)'
+		transform: ({ open }: StyleInput) =>
+			open ? 'translateX(0)' : 'translateX(-100%)',
 	},
 	header: {
 		display: 'flex',
 		justifyContent: 'center',
 		alignItems: 'center',
-		height: 40
+		height: 40,
 	},
 	scroll: {
 		paddingTop: theme.spacing(3),
@@ -66,49 +71,71 @@ const useStyles = makeStyles((theme) => ({
 		justifyContent: 'start',
 		alignItems: 'center',
 		paddingBottom: theme.spacing(7),
-		height: `calc(100vh - 40px - ${theme.spacing(7 + 3 + 3)}px)`
+		height: `calc(100vh - 40px - ${theme.spacing(7 + 3 + 3)}px)`,
 	},
 	shortcutField: {
-		marginTop: theme.spacing(1)
+		marginTop: theme.spacing(1),
 	},
 	back: {
 		cursor: 'pointer',
 		position: 'absolute',
 		right: theme.spacing(1),
-		WebkitAppRegion: 'no-drag'
+		WebkitAppRegion: 'no-drag',
 	},
 	alert: {
 		position: 'absolute',
 		bottom: theme.spacing(1),
-		zIndex: 10
-	}
+		zIndex: 10,
+	},
 }));
 
-const keys = new Set(['Space', 'Backspace', 'Delete', 'Enter', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown', 'Escape', 'LControl', 'LShift', 'LAlt', 'RControl', 'RShift', 'RAlt']);
+const keys = new Set([
+	'Space',
+	'Backspace',
+	'Delete',
+	'Enter',
+	'Up',
+	'Down',
+	'Left',
+	'Right',
+	'Home',
+	'End',
+	'PageUp',
+	'PageDown',
+	'Escape',
+	'LControl',
+	'LShift',
+	'LAlt',
+	'RControl',
+	'RShift',
+	'RAlt',
+]);
 
 const store = new Store<ISettings>({
 	migrations: {
-		'1.1.3': store => {
+		'1.1.3': (store) => {
 			const serverIP = store.get('serverIP');
 			if (typeof serverIP === 'string') {
 				const serverURL = `http://${serverIP}`;
 				if (validateServerUrl(serverURL)) {
 					store.set('serverURL', serverURL);
 				} else {
-					console.warn('Error while parsing the old serverIP property. Default URL will be used instead.');
+					console.warn(
+						'Error while parsing the old serverIP property. Default URL will be used instead.'
+					);
 				}
 
 				// @ts-ignore: Old serverIP property no longer exists in ISettings
 				store.delete('serverIP');
 			}
 		},
-		'1.1.5': store => {
+		'1.1.5': (store) => {
 			const serverURL = store.get('serverURL');
 			if (serverURL === 'http://54.193.94.35:9736') {
 				store.set('serverURL', 'https://crewl.ink');
 			}
 		},
-		'1.1.6': store => {
+		'1.1.6': (store) => {
 			const enableSpatialAudio = store.get('stereoInLobby');
 			if (typeof enableSpatialAudio === 'boolean') {
 				store.set('enableSpatialAudio', enableSpatialAudio);
@@ -116,23 +143,23 @@ const store = new Store<ISettings>({
 			// @ts-ignore
 			store.delete('stereoInLobby');
 		},
-		'1.2.0': store => {
+		'1.2.0': (store) => {
 			// @ts-ignore
 			store.delete('offests');
-		}
+		},
 	},
 	schema: {
 		alwaysOnTop: {
 			type: 'boolean',
-			default: false
+			default: false,
 		},
 		microphone: {
 			type: 'string',
-			default: 'Default'
+			default: 'Default',
 		},
 		speaker: {
 			type: 'string',
-			default: 'Default'
+			default: 'Default',
 		},
 		pushToTalk: {
 			type: 'boolean',
@@ -141,38 +168,38 @@ const store = new Store<ISettings>({
 		serverURL: {
 			type: 'string',
 			default: 'https://crewl.ink',
-			format: 'uri'
+			format: 'uri',
 		},
 		pushToTalkShortcut: {
 			type: 'string',
-			default: 'V'
+			default: 'V',
 		},
 		deafenShortcut: {
 			type: 'string',
-			default: 'RControl'
+			default: 'RControl',
 		},
 		muteShortcut: {
 			type: 'string',
-			default: 'RAlt'
+			default: 'RAlt',
 		},
 		hideCode: {
 			type: 'boolean',
-			default: false
+			default: false,
 		},
 		enableSpatialAudio: {
 			type: 'boolean',
-			default: true
+			default: true,
 		},
 		localLobbySettings: {
 			type: 'object',
 			properties: {
 				maxDistance: {
 					type: 'number',
-					default: 5.32
-				}
-			}
-		}
-	}
+					default: 5.32,
+				},
+			},
+		},
+	},
 });
 
 export interface SettingsProps {
@@ -180,17 +207,21 @@ export interface SettingsProps {
 	onClose: () => void;
 }
 
-export const settingsReducer = (state: ISettings, action: {
-	type: 'set' | 'setOne' | 'setLobbySetting', action: [string, unknown] | ISettings
-}): ISettings => {
+export const settingsReducer = (
+	state: ISettings,
+	action: {
+		type: 'set' | 'setOne' | 'setLobbySetting';
+		action: [string, unknown] | ISettings;
+	}
+): ISettings => {
 	if (action.type === 'set') {
 		return action.action as ISettings;
 	}
-	let v = (action.action as [string, unknown]);
+	const v = action.action as [string, unknown];
 	if (action.type === 'setLobbySetting') {
-		let lobbySettings = {
+		const lobbySettings = {
 			...state.localLobbySettings,
-			[v[0]]: v[1]
+			[v[0]]: v[1],
 		};
 		v[0] = 'localLobbySettings';
 		v[1] = lobbySettings;
@@ -198,20 +229,24 @@ export const settingsReducer = (state: ISettings, action: {
 	store.set(v[0], v[1]);
 	return {
 		...state,
-		[v[0]]: v[1]
+		[v[0]]: v[1],
 	};
 };
 
-export const lobbySettingsReducer = (state: ILobbySettings, action: {
-	type: 'set' | 'setOne', action: [string, any] | ILobbySettings
-}): ILobbySettings => {
+export const lobbySettingsReducer = (
+	state: ILobbySettings,
+	action: {
+		type: 'set' | 'setOne';
+		action: [string, unknown] | ILobbySettings;
+	}
+): ILobbySettings => {
 	if (action.type === 'set') return action.action as ILobbySettings;
-	let v = (action.action as [string, any]);
+	const v = action.action as [string, unknown];
 	return {
 		...state,
-		[v[0]]: v[1]
+		[v[0]]: v[1],
 	};
-}
+};
 
 interface MediaDevice {
 	id: string;
@@ -220,8 +255,8 @@ interface MediaDevice {
 }
 
 type URLInputProps = {
-	initialURL: string,
-	onValidURL: (url: string) => void
+	initialURL: string;
+	onValidURL: (url: string) => void;
 };
 
 function validateServerUrl(uri: string): boolean {
@@ -233,7 +268,10 @@ function validateServerUrl(uri: string): boolean {
 	return true;
 }
 
-const URLInput: React.FC<URLInputProps> = function ({ initialURL, onValidURL }: URLInputProps) {
+const URLInput: React.FC<URLInputProps> = function ({
+	initialURL,
+	onValidURL,
+}: URLInputProps) {
 	const [isValidURL, setURLValid] = useState(true);
 	const [currentURL, setCurrentURL] = useState(initialURL);
 
@@ -253,15 +291,23 @@ const URLInput: React.FC<URLInputProps> = function ({ initialURL, onValidURL }: 
 	}
 
 	return (
-		<TextField error={!isValidURL} spellCheck={false}
+		<TextField
+			error={!isValidURL}
+			spellCheck={false}
 			label="Voice Server"
-			value={currentURL} onChange={handleChange} variant="outlined" color="secondary"
-			helperText={isValidURL ? "" : "Invalid URL"}
+			value={currentURL}
+			onChange={handleChange}
+			variant="outlined"
+			color="secondary"
+			helperText={isValidURL ? '' : 'Invalid URL'}
 		/>
 	);
-}
+};
 
-const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsProps) {
+const Settings: React.FC<SettingsProps> = function ({
+	open,
+	onClose,
+}: SettingsProps) {
 	const classes = useStyles({ open });
 	const [settings, setSettings] = useContext(SettingsContext);
 	const gameState = useContext(GameStateContext);
@@ -271,35 +317,40 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 	useEffect(() => {
 		setSettings({
 			type: 'set',
-			action: store.store
+			action: store.store,
 		});
 	}, []);
 
 	useEffect(() => {
-		setUnsavedCount(s => s + 1);
-	}, [settings.microphone, settings.speaker, settings.serverURL, settings.enableSpatialAudio]);
+		setUnsavedCount((s) => s + 1);
+	}, [
+		settings.microphone,
+		settings.speaker,
+		settings.serverURL,
+		settings.enableSpatialAudio,
+	]);
 
 	const [devices, setDevices] = useState<MediaDevice[]>([]);
 	const [_, updateDevices] = useReducer((state) => state + 1, 0);
 	useEffect(() => {
-		navigator.mediaDevices.enumerateDevices()
-			.then(devices => setDevices(devices
-				.map(d => {
+		navigator.mediaDevices.enumerateDevices().then((devices) =>
+			setDevices(
+				devices.map((d) => {
 					let label = d.label;
 					if (d.deviceId === 'default') {
 						label = 'Default';
 					} else {
 						const match = /(.+?)\)/.exec(d.label);
-						if (match && match[1])
-							label = match[1] + ')';
+						if (match && match[1]) label = match[1] + ')';
 					}
 					return {
 						id: d.deviceId,
 						kind: d.kind,
-						label
+						label,
 					};
 				})
-			));
+			)
+		);
 	}, [_]);
 
 	const setShortcut = (ev: React.KeyboardEvent, shortcut: string) => {
@@ -311,160 +362,240 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 		if (k === 'Control' || k === 'Alt' || k === 'Shift')
 			k = (ev.location === 1 ? 'L' : 'R') + k;
 
-		if (/^[0-9A-Z]$/.test(k) || /^F[0-9]{1,2}$/.test(k) ||
-			keys.has(k)
-		) {
+		if (/^[0-9A-Z]$/.test(k) || /^F[0-9]{1,2}$/.test(k) || keys.has(k)) {
 			setSettings({
 				type: 'setOne',
-				action: [shortcut, k]
+				action: [shortcut, k],
 			});
 		}
 	};
 
-	const setMouseShortcut = (ev: React.MouseEvent<HTMLDivElement>, shortcut: string) => {
+	const setMouseShortcut = (
+		ev: React.MouseEvent<HTMLDivElement>,
+		shortcut: string
+	) => {
 		if (ev.button > 2) {
 			// this makes our button start at 1 instead of 0
 			// React Mouse event starts at 0, but IOHooks starts at 1
 			const k = `MouseButton${ev.button + 1}`;
 			setSettings({
 				type: 'setOne',
-				action: [shortcut, k]
+				action: [shortcut, k],
 			});
 		}
 	};
 
-	const microphones = devices.filter(d => d.kind === 'audioinput');
-	const speakers = devices.filter(d => d.kind === 'audiooutput');
+	const microphones = devices.filter((d) => d.kind === 'audioinput');
+	const speakers = devices.filter((d) => d.kind === 'audiooutput');
 
-	return <Box className={classes.root}>
-		<div className={classes.header}>
-			<IconButton className={classes.back} size="small" onClick={() => {
-				setSettings({
-					type: 'setOne',
-					action: ['localLobbySettings', lobbySettings]
-				});
-				if (unsaved) {
-					onClose();
-					location.reload();
-				}
-				else
-					onClose();
-
-			}}>
-				<ChevronLeft htmlColor="#777" />
-			</IconButton>
-			<Typography variant="h6">Settings</Typography>
-		</div>
-		<div className={classes.scroll}>
-			<URLInput initialURL={settings.serverURL} onValidURL={(url: string) => {
-				setSettings({
-					type: 'setOne',
-					action: ['serverURL', url]
-				});
-			}} />
-			<Divider />
-			{/* Lobby Settings */}
-			<div>
-				<Typography variant="h6">Lobby Settings</Typography>
-				<Typography gutterBottom>Voice Distance</Typography>
-				<Slider disabled={!gameState.isHost} value={gameState.isHost ? settings.localLobbySettings.maxDistance : lobbySettings.maxDistance}
-					min={1} max={10} step={0.1} onChange={(_, newValue: number | number[]) => {
+	return (
+		<Box className={classes.root}>
+			<div className={classes.header}>
+				<IconButton
+					className={classes.back}
+					size="small"
+					onClick={() => {
 						setSettings({
-							type: 'setLobbySetting',
-							action: ['maxDistance', newValue as number]
-						})
-					}} />
+							type: 'setOne',
+							action: ['localLobbySettings', lobbySettings],
+						});
+						if (unsaved) {
+							onClose();
+							location.reload();
+						} else onClose();
+					}}
+				>
+					<ChevronLeft htmlColor="#777" />
+				</IconButton>
+				<Typography variant="h6">Settings</Typography>
 			</div>
-			<TextField select label="Microphone" variant="outlined" color="secondary" value={settings.microphone} className={classes.shortcutField}
-				SelectProps={{ native: true }}
-				InputLabelProps={{ shrink: true }}
-				onChange={(ev) => {
-					setSettings({
-						type: 'setOne',
-						action: ['microphone', ev.target.value]
-					});
-				}} onClick={updateDevices}>
-				{
-					microphones.map(d => (
-						<option key={d.id} value={d.id}>{d.label}</option>
-					))
-				}
-			</TextField>
-			{open && <MicrophoneSoundBar microphone={settings.microphone} />}
-			<TextField select label="Speaker" variant="outlined" color="secondary" value={settings.speaker} className={classes.shortcutField}
-				SelectProps={{ native: true }}
-				InputLabelProps={{ shrink: true }}
-				onChange={(ev) => {
-					setSettings({
-						type: 'setOne',
-						action: ['speaker', ev.target.value]
-					});
-				}} onClick={updateDevices}>
-				{
-					speakers.map(d => (
-						<option key={d.id} value={d.id}>{d.label}</option>
-					))
-				}
-			</TextField>
-			{open && <TestSpeakersButton speaker={settings.speaker} />}
-			<RadioGroup value={settings.pushToTalk} onChange={(ev) => {
-				setSettings({
-					type: 'setOne',
-					action: ['pushToTalk', ev.target.value === 'true']
-				});
-			}}>
-				<FormControlLabel label="Voice Activity" value={false} control={<Radio />} />
-				<FormControlLabel label="Push To Talk" value={true} control={<Radio />} />
-			</RadioGroup>
-			<Divider />
-			<Typography variant="h6">Keyboard Shortcuts</Typography>
-			<Grid container spacing={1}>
-				<Grid item xs={12}>
-					<TextField fullWidth spellCheck={false} color="secondary" label="Push To Talk" value={settings.pushToTalkShortcut} className={classes.shortcutField} variant="outlined"
-						onKeyDown={(ev) => {
-							setShortcut(ev, 'pushToTalkShortcut')
+			<div className={classes.scroll}>
+				<URLInput
+					initialURL={settings.serverURL}
+					onValidURL={(url: string) => {
+						setSettings({
+							type: 'setOne',
+							action: ['serverURL', url],
+						});
+					}}
+				/>
+				<Divider />
+				{/* Lobby Settings */}
+				<div>
+					<Typography variant="h6">Lobby Settings</Typography>
+					<Typography gutterBottom>Voice Distance</Typography>
+					<Slider
+						disabled={!gameState.isHost}
+						value={
+							gameState.isHost
+								? settings.localLobbySettings.maxDistance
+								: lobbySettings.maxDistance
+						}
+						min={1}
+						max={10}
+						step={0.1}
+						onChange={(_, newValue: number | number[]) => {
+							setSettings({
+								type: 'setLobbySetting',
+								action: ['maxDistance', newValue as number],
+							});
 						}}
-						onMouseDown={(ev) => {
-							setMouseShortcut(ev, 'pushToTalkShortcut')
-						}} />
-
+					/>
+				</div>
+				<TextField
+					select
+					label="Microphone"
+					variant="outlined"
+					color="secondary"
+					value={settings.microphone}
+					className={classes.shortcutField}
+					SelectProps={{ native: true }}
+					InputLabelProps={{ shrink: true }}
+					onChange={(ev) => {
+						setSettings({
+							type: 'setOne',
+							action: ['microphone', ev.target.value],
+						});
+					}}
+					onClick={updateDevices}
+				>
+					{microphones.map((d) => (
+						<option key={d.id} value={d.id}>
+							{d.label}
+						</option>
+					))}
+				</TextField>
+				{open && <MicrophoneSoundBar microphone={settings.microphone} />}
+				<TextField
+					select
+					label="Speaker"
+					variant="outlined"
+					color="secondary"
+					value={settings.speaker}
+					className={classes.shortcutField}
+					SelectProps={{ native: true }}
+					InputLabelProps={{ shrink: true }}
+					onChange={(ev) => {
+						setSettings({
+							type: 'setOne',
+							action: ['speaker', ev.target.value],
+						});
+					}}
+					onClick={updateDevices}
+				>
+					{speakers.map((d) => (
+						<option key={d.id} value={d.id}>
+							{d.label}
+						</option>
+					))}
+				</TextField>
+				{open && <TestSpeakersButton speaker={settings.speaker} />}
+				<RadioGroup
+					value={settings.pushToTalk}
+					onChange={(ev) => {
+						setSettings({
+							type: 'setOne',
+							action: ['pushToTalk', ev.target.value === 'true'],
+						});
+					}}
+				>
+					<FormControlLabel
+						label="Voice Activity"
+						value={false}
+						control={<Radio />}
+					/>
+					<FormControlLabel
+						label="Push To Talk"
+						value={true}
+						control={<Radio />}
+					/>
+				</RadioGroup>
+				<Divider />
+				<Typography variant="h6">Keyboard Shortcuts</Typography>
+				<Grid container spacing={1}>
+					<Grid item xs={12}>
+						<TextField
+							fullWidth
+							spellCheck={false}
+							color="secondary"
+							label="Push To Talk"
+							value={settings.pushToTalkShortcut}
+							className={classes.shortcutField}
+							variant="outlined"
+							onKeyDown={(ev) => {
+								setShortcut(ev, 'pushToTalkShortcut');
+							}}
+							onMouseDown={(ev) => {
+								setMouseShortcut(ev, 'pushToTalkShortcut');
+							}}
+						/>
+					</Grid>
+					<Grid item xs={6}>
+						<TextField
+							spellCheck={false}
+							color="secondary"
+							label="Mute"
+							value={settings.muteShortcut}
+							className={classes.shortcutField}
+							variant="outlined"
+							onKeyDown={(ev) => {
+								setShortcut(ev, 'muteShortcut');
+							}}
+							onMouseDown={(ev) => {
+								setMouseShortcut(ev, 'muteShortcut');
+							}}
+						/>
+					</Grid>
+					<Grid item xs={6}>
+						<TextField
+							spellCheck={false}
+							color="secondary"
+							label="Deafen"
+							value={settings.deafenShortcut}
+							className={classes.shortcutField}
+							variant="outlined"
+							onKeyDown={(ev) => {
+								setShortcut(ev, 'deafenShortcut');
+							}}
+							onMouseDown={(ev) => {
+								setMouseShortcut(ev, 'deafenShortcut');
+							}}
+						/>
+					</Grid>
 				</Grid>
-				<Grid item xs={6}>
-					<TextField spellCheck={false} color="secondary" label="Mute" value={settings.muteShortcut} className={classes.shortcutField} variant="outlined"
-						onKeyDown={(ev) => {
-							setShortcut(ev, 'muteShortcut')
-						}}
-						onMouseDown={(ev) => {
-							setMouseShortcut(ev, 'muteShortcut')
-						}} />
-				</Grid>
-				<Grid item xs={6}>
-					<TextField spellCheck={false} color="secondary" label="Deafen" value={settings.deafenShortcut} className={classes.shortcutField} variant="outlined"
-						onKeyDown={(ev) => {
-							setShortcut(ev, 'deafenShortcut')
-						}}
-						onMouseDown={(ev) => {
-							setMouseShortcut(ev, 'deafenShortcut')
-						}} />
-
-				</Grid>
-			</Grid>
-			<Divider />
-			<FormControlLabel label="Show Lobby Code" checked={!settings.hideCode} onChange={(_, checked: boolean) => {
-				setSettings({
-					type: 'setOne',
-					action: ['hideCode', !checked]
-				})
-			}} control={<Checkbox />} />
-			<FormControlLabel label="Enable Spatial Audio" checked={settings.enableSpatialAudio} onChange={(_, checked: boolean) => {
-				setSettings({
-					type: 'setOne',
-					action: ['enableSpatialAudio', checked]
-				})
-			}} control={<Checkbox />} />
-			<Alert className={classes.alert} severity="info" style={{ display: unsaved ? undefined : 'none' }}>Exit Settings to apply changes</Alert>
-		</div>
-	</Box>;
+				<Divider />
+				<FormControlLabel
+					label="Show Lobby Code"
+					checked={!settings.hideCode}
+					onChange={(_, checked: boolean) => {
+						setSettings({
+							type: 'setOne',
+							action: ['hideCode', !checked],
+						});
+					}}
+					control={<Checkbox />}
+				/>
+				<FormControlLabel
+					label="Enable Spatial Audio"
+					checked={settings.enableSpatialAudio}
+					onChange={(_, checked: boolean) => {
+						setSettings({
+							type: 'setOne',
+							action: ['enableSpatialAudio', checked],
+						});
+					}}
+					control={<Checkbox />}
+				/>
+				<Alert
+					className={classes.alert}
+					severity="info"
+					style={{ display: unsaved ? undefined : 'none' }}
+				>
+					Exit Settings to apply changes
+				</Alert>
+			</div>
+		</Box>
+	);
 };
 
 export default Settings;

@@ -1,4 +1,3 @@
-
 export interface AmongUsState {
 	gameState: GameState;
 	oldGameState: GameState;
@@ -28,5 +27,9 @@ export interface Player {
 	inVent: boolean;
 }
 export enum GameState {
-	LOBBY, TASKS, DISCUSSION, MENU, UNKNOWN
+	LOBBY,
+	TASKS,
+	DISCUSSION,
+	MENU,
+	UNKNOWN,
 }

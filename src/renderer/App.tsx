@@ -1,11 +1,24 @@
-import React, { Dispatch, SetStateAction, useEffect, useReducer, useState } from 'react';
+import React, {
+	Dispatch,
+	SetStateAction,
+	useEffect,
+	useReducer,
+	useState,
+} from 'react';
 import ReactDOM from 'react-dom';
 import Voice from './Voice';
 import Menu from './Menu';
 import { ipcRenderer, remote } from 'electron';
 import { AmongUsState } from '../common/AmongUsState';
-import Settings, { settingsReducer, lobbySettingsReducer } from './settings/Settings';
-import { GameStateContext, SettingsContext, LobbySettingsContext } from './contexts';
+import Settings, {
+	settingsReducer,
+	lobbySettingsReducer,
+} from './settings/Settings';
+import {
+	GameStateContext,
+	SettingsContext,
+	LobbySettingsContext,
+} from './contexts';
 import { ThemeProvider } from '@material-ui/core/styles';
 import theme from './theme';
 import SettingsIcon from '@material-ui/icons/Settings';
@@ -16,7 +29,7 @@ import makeStyles from '@material-ui/core/styles/makeStyles';
 let appVersion = '';
 if (typeof window !== 'undefined' && window.location) {
 	const query = new URLSearchParams(window.location.search.substring(1));
-	appVersion = (' v' + query.get('version')) || '';
+	appVersion = ' v' + query.get('version') || '';
 }
 
 const useStyles = makeStyles(() => ({
@@ -26,7 +39,7 @@ const useStyles = makeStyles(() => ({
 		height: theme.spacing(3),
 		backgroundColor: '#1d1a23',
 		top: 0,
-		WebkitAppRegion: 'drag'
+		WebkitAppRegion: 'drag',
 	},
 	title: {
 		width: '100%',
@@ -34,7 +47,7 @@ const useStyles = makeStyles(() => ({
 		display: 'block',
 		height: theme.spacing(3),
 		lineHeight: `${theme.spacing(3)}px`,
-		color: theme.palette.primary.main
+		color: theme.palette.primary.main,
 	},
 	button: {
 		WebkitAppRegion: 'no-drag',
@@ -42,7 +55,7 @@ const useStyles = makeStyles(() => ({
 		padding: 0,
 		position: 'absolute',
 		top: 0,
-	}
+	},
 }));
 
 interface TitleBarProps {
@@ -50,25 +63,38 @@ interface TitleBarProps {
 	setSettingsOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const TitleBar: React.FC<TitleBarProps> = function ({ settingsOpen, setSettingsOpen }: TitleBarProps) {
-
+const TitleBar: React.FC<TitleBarProps> = function ({
+	settingsOpen,
+	setSettingsOpen,
+}: TitleBarProps) {
 	const classes = useStyles();
 	return (
 		<div className={classes.root}>
 			<span className={classes.title}>CrewLink{appVersion}</span>
-			<IconButton className={classes.button} style={{ left: 0 }} size="small" onClick={() => setSettingsOpen(!settingsOpen)}>
-				<SettingsIcon htmlColor='#777' />
+			<IconButton
+				className={classes.button}
+				style={{ left: 0 }}
+				size="small"
+				onClick={() => setSettingsOpen(!settingsOpen)}
+			>
+				<SettingsIcon htmlColor="#777" />
 			</IconButton>
-			<IconButton className={classes.button} style={{ right: 0 }} size="small" onClick={() =>
-				remote.getCurrentWindow().close()
-			}>
-				<CloseIcon htmlColor='#777' />
+			<IconButton
+				className={classes.button}
+				style={{ right: 0 }}
+				size="small"
+				onClick={() => remote.getCurrentWindow().close()}
+			>
+				<CloseIcon htmlColor="#777" />
 			</IconButton>
 		</div>
 	);
-}
+};
 
-enum AppState { MENU, VOICE }
+enum AppState {
+	MENU,
+	VOICE,
+}
 
 function App() {
 	const [state, setState] = useState<AppState>(AppState.MENU);
@@ -87,11 +113,11 @@ function App() {
 		hideCode: false,
 		enableSpatialAudio: true,
 		localLobbySettings: {
-			maxDistance: 5.32
-		}
+			maxDistance: 5.32,
+		},
 	});
 	const lobbySettings = useReducer(lobbySettingsReducer, {
-		maxDistance: 5.32
+		maxDistance: 5.32,
 	});
 
 	useEffect(() => {
@@ -110,8 +136,7 @@ function App() {
 		ipcRenderer.on('error', onError);
 		ipcRenderer.on('gameState', onState);
 		ipcRenderer.once('started', () => {
-			if (shouldInit)
-				setGameState(ipcRenderer.sendSync('initState'));
+			if (shouldInit) setGameState(ipcRenderer.sendSync('initState'));
 		});
 		return () => {
 			ipcRenderer.off('gameOpen', onOpen);
@@ -119,7 +144,6 @@ function App() {
 			ipcRenderer.off('gameState', onState);
 		};
 	}, []);
-
 
 	let page;
 	switch (state) {
@@ -135,8 +159,14 @@ function App() {
 			<LobbySettingsContext.Provider value={lobbySettings}>
 				<SettingsContext.Provider value={settings}>
 					<ThemeProvider theme={theme}>
-						<TitleBar settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
-						<Settings open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+						<TitleBar
+							settingsOpen={settingsOpen}
+							setSettingsOpen={setSettingsOpen}
+						/>
+						<Settings
+							open={settingsOpen}
+							onClose={() => setSettingsOpen(false)}
+						/>
 						{page}
 					</ThemeProvider>
 				</SettingsContext.Provider>

@@ -4,14 +4,14 @@ import React, { useEffect, useState } from 'react';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 
 interface TestMicProps {
-	microphone: string
+	microphone: string;
 }
 
 const useStyles = makeStyles((theme) => ({
 	root: {
 		display: 'flex',
 		width: '100%',
-		marginBottom: theme.spacing(2)
+		marginBottom: theme.spacing(2),
 	},
 	bar: {
 		height: 8,
@@ -19,11 +19,13 @@ const useStyles = makeStyles((theme) => ({
 		width: 200,
 	},
 	inner: {
-		transition: 'transform .05s linear'
-	}
+		transition: 'transform .05s linear',
+	},
 }));
 
-const TestMicrophoneButton: React.FC<TestMicProps> = function ({ microphone }: TestMicProps) {
+const TestMicrophoneButton: React.FC<TestMicProps> = function ({
+	microphone,
+}: TestMicProps) {
 	const classes = useStyles();
 	const [error, setError] = useState<boolean>(false);
 	const [rms, setRms] = useState<number>(0);
@@ -49,11 +51,12 @@ const TestMicrophoneButton: React.FC<TestMicProps> = function ({ microphone }: T
 
 			const input = event.inputBuffer.getChannelData(0);
 			const total = input.reduce((acc, val) => acc + Math.abs(val), 0);
-			const rms = Math.min(.5, Math.sqrt(total / input.length));
+			const rms = Math.min(0.5, Math.sqrt(total / input.length));
 			setRms(rms);
 		};
 
-		navigator.mediaDevices.getUserMedia({ audio: { deviceId: microphone ?? 'default' } })
+		navigator.mediaDevices
+			.getUserMedia({ audio: { deviceId: microphone ?? 'default' } })
 			.then((stream) => {
 				const src = ctx.createMediaStreamSource(stream);
 				src.connect(processor);
@@ -68,18 +71,20 @@ const TestMicrophoneButton: React.FC<TestMicProps> = function ({ microphone }: T
 
 	if (error) {
 		return (
-			<Typography color="error">
-				Could not connect to microphone
-			</Typography>
+			<Typography color="error">Could not connect to microphone</Typography>
 		);
 	} else {
 		return (
 			<div className={classes.root}>
-				<LinearProgress classes={{
-					root: classes.bar,
-					bar: classes.inner
-				}} color="secondary" variant="determinate"
-					value={rms * 2 * 100} />
+				<LinearProgress
+					classes={{
+						root: classes.bar,
+						bar: classes.inner,
+					}}
+					color="secondary"
+					variant="determinate"
+					value={rms * 2 * 100}
+				/>
 			</div>
 		);
 	}
