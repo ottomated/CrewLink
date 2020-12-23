@@ -30,7 +30,7 @@ interface IOHookEvent {
 const store = new Store<ISettings>();
 
 async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsetsContainer | undefined> {
-	let version = 'offsets_new'
+	const version = 'offsets_new';
 	let data: string;
 	// const offsetStore = store.get('offsets') || {};
 	// if (version === offsetStore.version) {
