@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Player } from '../common/AmongUsState';
 import { backLayerHats, hatOffsets, hats, skins, players } from './cosmetics';
 import makeStyles from '@material-ui/core/styles/makeStyles';
@@ -13,9 +13,6 @@ interface UseStylesParams {
 }
 const useStyles = makeStyles(() => ({
 	avatar: {
-		// top: ({small}: UseStylesParams) => small ? '50%' : undefined,
-		// left: ({small}: UseStylesParams) => small ? '50%' : undefined,
-		// transform: ({small}: UseStylesParams) => small ? 'translate(-50%, -50%)' : undefined,
 		borderRadius: '50%',
 		overflow: 'hidden',
 		position: 'relative',
@@ -25,8 +22,6 @@ const useStyles = makeStyles(() => ({
 		borderWidth: ({ size }: UseStylesParams) => Math.max(2, size / 40),
 		width: '100%',
 		paddingBottom: '100%'
-		// width: ({ size }) => size,
-		// height: ({ size }) => size
 	},
 	canvas: {
 		position: 'absolute',
@@ -137,7 +132,6 @@ function Canvas({ src, hat, skin, isAlive }: CanvasProps) {
 			<img src={src} ref={image} className={classes.base} />
 			<img src={hats[hat]} ref={hatImg} className={classes.hat} style={{ top: `${hatY}%` }} />
 			<img src={skins[skin]} ref={skinImg} className={classes.skin} />
-			{/* <canvas className={className} ref={canvas} /> */}
 		</>
 	);
 }
