@@ -13,6 +13,8 @@ export interface IOffsets {
 		playerAddrPtr: number;
 		exiledPlayerId: number[];
 		gameCode: number[];
+		hostId: number[];
+		clientId: number[];
 		player: {
 			isLocal: number[];
 			localX: number[];
@@ -40,6 +42,8 @@ export default {
 			meetingHudCachePtr: [8],
 			meetingHudState: [132],
 			gameState: [29720404, 92, 0, 100],
+			hostId: [29720404, 92, 0, 68],
+			clientId: [29720404, 92, 0, 72],
 			allPlayersPtr: [29719528, 92, 0, 36],
 			allPlayers: [8],
 			playerCount: [12],

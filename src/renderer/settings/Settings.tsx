@@ -1,9 +1,9 @@
 import Store from 'electron-store';
 import React, { useContext, useEffect, useReducer, useState } from 'react';
-import { SettingsContext } from '../contexts';
+import { SettingsContext, LobbySettingsContext, GameStateContext } from '../contexts';
 import MicrophoneSoundBar from './MicrophoneSoundBar';
 import TestSpeakersButton from './TestSpeakersButton';
-import { ISettings } from '../../common/ISettings';
+import { ISettings, ILobbySettings } from '../../common/ISettings';
 import TextField from '@material-ui/core/TextField';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import withStyles from '@material-ui/core/styles/withStyles';
@@ -19,6 +19,7 @@ import { isHttpUri, isHttpsUri } from 'valid-url';
 import ChevronLeft from '@material-ui/icons/ArrowBack';
 import IconButton from '@material-ui/core/IconButton';
 import Alert from '@material-ui/lab/Alert';
+import Slider from '@material-ui/core/Slider';
 // import '../css/settings.css';
 
 interface StyleInput {
@@ -114,6 +115,10 @@ const store = new Store<ISettings>({
 			}
 			// @ts-ignore
 			store.delete('stereoInLobby');
+		},
+		'1.2.0': store => {
+			// @ts-ignore
+			store.delete('offests');
 		}
 	},
 	schema: {
@@ -150,19 +155,6 @@ const store = new Store<ISettings>({
 			type: 'string',
 			default: 'RAlt'
 		},
-		offsets: {
-			type: 'object',
-			properties: {
-				version: {
-					type: 'string',
-					default: ''
-				},
-				data: {
-					type: 'string',
-					default: ''
-				}
-			}
-		},
 		hideCode: {
 			type: 'boolean',
 			default: false
@@ -170,6 +162,15 @@ const store = new Store<ISettings>({
 		enableSpatialAudio: {
 			type: 'boolean',
 			default: true
+		},
+		localLobbySettings: {
+			type: 'object',
+			properties: {
+				maxDistance: {
+					type: 'number',
+					default: 5.32
+				}
+			}
 		}
 	}
 });
@@ -180,16 +181,37 @@ export interface SettingsProps {
 }
 
 export const settingsReducer = (state: ISettings, action: {
-	type: 'set' | 'setOne', action: [string, unknown] | ISettings
+	type: 'set' | 'setOne' | 'setLobbySetting', action: [string, unknown] | ISettings
 }): ISettings => {
-	if (action.type === 'set') return action.action as ISettings;
-	const v = (action.action as [string, unknown]);
+	if (action.type === 'set') {
+		return action.action as ISettings;
+	}
+	let v = (action.action as [string, unknown]);
+	if (action.type === 'setLobbySetting') {
+		let lobbySettings = {
+			...state.localLobbySettings,
+			[v[0]]: v[1]
+		};
+		v[0] = 'localLobbySettings';
+		v[1] = lobbySettings;
+	}
 	store.set(v[0], v[1]);
 	return {
 		...state,
 		[v[0]]: v[1]
 	};
 };
+
+export const lobbySettingsReducer = (state: ILobbySettings, action: {
+	type: 'set' | 'setOne', action: [string, any] | ILobbySettings
+}): ILobbySettings => {
+	if (action.type === 'set') return action.action as ILobbySettings;
+	let v = (action.action as [string, any]);
+	return {
+		...state,
+		[v[0]]: v[1]
+	};
+}
 
 interface MediaDevice {
 	id: string;
@@ -242,6 +264,8 @@ const URLInput: React.FC<URLInputProps> = function ({ initialURL, onValidURL }: 
 const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsProps) {
 	const classes = useStyles({ open });
 	const [settings, setSettings] = useContext(SettingsContext);
+	const gameState = useContext(GameStateContext);
+	const [lobbySettings] = useContext(LobbySettingsContext);
 	const [unsavedCount, setUnsavedCount] = useState(0);
 	const unsaved = unsavedCount > 2;
 	useEffect(() => {
@@ -303,6 +327,10 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 	return <Box className={classes.root}>
 		<div className={classes.header}>
 			<IconButton className={classes.back} size="small" onClick={() => {
+				setSettings({
+					type: 'setOne',
+					action: ['localLobbySettings', lobbySettings]
+				});
 				if (unsaved) {
 					onClose();
 					location.reload();
@@ -323,6 +351,18 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 				});
 			}} />
 			<Divider />
+			{/* Lobby Settings */}
+			<div>
+				<Typography variant="h6">Lobby Settings</Typography>
+				<Typography gutterBottom>Voice Distance</Typography>
+				<Slider disabled={!gameState.isHost} value={gameState.isHost ? settings.localLobbySettings.maxDistance : lobbySettings.maxDistance}
+					min={1} max={10} step={0.1} onChange={(_, newValue: number | number[]) => {
+						setSettings({
+							type: 'setLobbySetting',
+							action: ['maxDistance', newValue as number]
+						})
+					}} />
+			</div>
 			<TextField select label="Microphone" variant="outlined" color="secondary" value={settings.microphone} className={classes.shortcutField}
 				SelectProps={{ native: true }}
 				InputLabelProps={{ shrink: true }}

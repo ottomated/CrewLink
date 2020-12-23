@@ -8,15 +8,9 @@ export interface ISettings {
 	pushToTalkShortcut: string;
 	deafenShortcut: string;
 	muteShortcut: string;
-	offsets: {
-		version: string;
-		data: string;
-	},
 	hideCode: boolean;
 	enableSpatialAudio: boolean;
-	localLobbySettings: {
-		maxDistance: number;
-	}
+	localLobbySettings: ILobbySettings;
 }
 
 export interface ILobbySettings {
