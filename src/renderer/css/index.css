@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Varela&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@500&display=swap');
 body {
-	background-color: #23272A;
+	background-color: #25232a;
 	color: white;
 	font-family: 'Varela', sans-serif;
 	margin: 0;
@@ -45,6 +45,11 @@ body {
 	font-size: 20px;
 }
 
+.username svg {
+	height: 20px;
+	margin-right: 3px;
+}
+
 .code {
 	font-family: 'Source Code Pro', monospace;
 	display: block;
@@ -59,7 +64,7 @@ body {
 	position: absolute;
 	width: 100vw;
 	height: 24px;
-	background-color: #2C2F33;
+	background-color: black;
 	top: 0;
 	-webkit-app-region: drag;
 }
