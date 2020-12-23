@@ -49,7 +49,6 @@ export default class GameReader {
 		if (!this.amongUs && processOpen) { // If process just opened
 			try {
 				this.amongUs = openProcess('Among Us.exe');
-				console.log(this.amongUs);
 				this.gameAssembly = findModule('GameAssembly.dll', this.amongUs.th32ProcessID);
 
 				let dllHash = createHash('sha256');
@@ -126,7 +125,7 @@ export default class GameReader {
 			const exiledPlayerId = this.readMemory<number>('byte', this.gameAssembly.modBaseAddr, offsets.exiledPlayerId);
 			let impostors = 0, crewmates = 0;
 
-			for (let i = 0; i < Math.min(playerCount, 10); i++) {
+			for (let i = 0; i < Math.min(playerCount, 100); i++) {
 				const { address, last } = this.offsetAddress(playerAddrPtr, offsets.player.offsets);
 				const playerData = readBuffer(this.amongUs.handle, address + last, offsets.player.bufferLength);
 				const player = this.parsePlayer(address + last, playerData, this.offsets, this.PlayerStruct);
@@ -185,7 +184,7 @@ export default class GameReader {
 				gameState: state,
 				oldGameState: this.oldGameState
 			};
-			const stateHasChanged = equal(this.lastState, newState);
+			const stateHasChanged = !equal(this.lastState, newState);
 			if (stateHasChanged) {
 				try {
 					this.reply('gameState', newState);

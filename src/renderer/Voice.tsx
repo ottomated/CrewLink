@@ -8,6 +8,7 @@ import { ipcRenderer, remote } from 'electron';
 import VAD from './vad';
 import { ISettings } from '../common/ISettings';
 import Typography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import SupportLink from './SupportLink';
 
@@ -100,11 +101,58 @@ const useStyles = makeStyles((theme) => ({
 		position: 'absolute',
 		top: '50%',
 		transform: 'translateY(-50%)'
+	},
+	root: {
+		paddingTop: theme.spacing(3),
+	},
+	top: {
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center'
+	},
+	right: {
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'center',
+		justifyContent: 'center'
+	},
+	username: {
+		display: 'block',
+		textAlign: 'center',
+		fontSize: 20
+	},
+	code: {
+		fontFamily: "'Source Code Pro', monospace",
+		display: 'block',
+		width: 'fit-content',
+		margin: '5px auto',
+		padding: 5,
+		borderRadius: 5,
+		fontSize: 28
+	},
+	otherplayers: {
+		width: 225,
+		height: 225,
+		margin: '4px auto',
+		'& .MuiGrid-grid-xs-1': {
+			maxHeight: '8.3333333%'
+		},
+		'& .MuiGrid-grid-xs-2': {
+			maxHeight: '16.666667%'
+		},
+		'& .MuiGrid-grid-xs-3': {
+			maxHeight: '25%'
+		},
+		'& .MuiGrid-grid-xs-4': {
+			maxHeight: '33.333333%'
+		}
+	},
+	avatarWrapper: {
+		width: 100
 	}
 }));
 
 const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
-	const classes = useStyles();
 	const [settings] = useContext(SettingsContext);
 	const settingsRef = useRef<ISettings>(settings);
 	const gameState = useContext(GameStateContext);
@@ -116,6 +164,7 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 	const [otherTalking, setOtherTalking] = useState<OtherTalking>({});
 	const [otherDead, setOtherDead] = useState<OtherDead>({});
 	const audioElements = useRef<AudioElements>({});
+	const classes = useStyles();
 
 	const [deafenedState, setDeafened] = useState(false);
 	const [mutedState, setMuted] = useState(false);
@@ -174,18 +223,12 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 		const audio = {
 			deviceId: undefined as unknown as string,
 			autoGainControl: false,
-			channelCount: 2,
-			echoCancellation: false,
-			latency: 0,
-			noiseSuppression: false,
-			sampleRate: 48000,
-			sampleSize: 16,
-			googEchoCancellation: false,
 			googAutoGainControl: false,
 			googAutoGainControl2: false,
-			googNoiseSuppression: false,
-			googHighpassFilter: false,
-			googTypingNoiseDetection: false
+			channelCount: 2,
+			latency: 0,
+			sampleRate: 48000,
+			sampleSize: 16,
 		};
 
 		// Get microphone settings
@@ -400,8 +443,9 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 		}
 	}, [myPlayer?.id]);
 
+
 	return (
-		<div className="root">
+		<div className={classes.root}>
 			{error &&
 				<div className={classes.error}>
 					<Typography align="center" variant="h6" color="error">ERROR</Typography>
@@ -409,43 +453,51 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 					<SupportLink />
 				</div>
 			}
-			<div className="top">
+			<div className={classes.top}>
 				{myPlayer &&
-					<Avatar deafened={deafenedState} muted={mutedState} player={myPlayer} borderColor={connected ? '#2ecc71' : '#c0392b'} talking={talking} isAlive={!myPlayer.isDead} size={100} />
-					// <div className="avatar" style={{ borderColor: talking ? '#2ecc71' : 'transparent' }}>
-					// 	<Canvas src={alive} color={playerColors[myPlayer.colorId][0]} shadow={playerColors[myPlayer.colorId][1]} />
-					// </div>
+					<div className={classes.avatarWrapper}>
+						<Avatar deafened={deafenedState} muted={mutedState} player={myPlayer} borderColor={connected ? '#2ecc71' : '#c0392b'} talking={talking} isAlive={!myPlayer.isDead} size={100} />
+					</div>
 				}
-				<div className="right">
+				<div className={classes.right}>
 					{myPlayer && gameState?.gameState !== GameState.MENU &&
-						<span className="username">
+						<span className={classes.username}>
 							{myPlayer.name}
 						</span>
 					}
 					{gameState.lobbyCode &&
-						<span className="code" style={{ background: gameState.lobbyCode === 'MENU' ? 'transparent' : '#3e4346' }}>
+						<span className={classes.code} style={{ background: gameState.lobbyCode === 'MENU' ? 'transparent' : '#3e4346' }}>
 							{displayedLobbyCode}
 						</span>
 					}
 				</div>
 			</div>
 			{gameState.lobbyCode && <hr />}
-			<div className="otherplayers">
+			<Grid container spacing={1} className={classes.otherplayers} alignItems="flex-start" alignContent="flex-start" justify="flex-start">
 				{
 					otherPlayers.map(player => {
 						const connected = Object.values(socketPlayerIds).includes(player.id);
+						console.log(12 / getPlayersPerRow(otherPlayers.length));
 						return (
-							<Avatar key={player.id} player={player}
-								talking={!connected || otherTalking[player.id]}
-								borderColor={connected ? '#2ecc71' : '#c0392b'}
-								isAlive={!otherDead[player.id]}
-								size={50} />
+							<Grid item key={player.id} xs={getPlayersPerRow(otherPlayers.length)}>
+								<Avatar small player={player}
+									talking={!connected || otherTalking[player.id]}
+									borderColor={connected ? '#2ecc71' : '#c0392b'}
+									isAlive={!otherDead[player.id]}
+									size={50} />
+							</Grid>
 						);
 					})
 				}
-			</div>
+			</Grid>
 		</div>
 	);
 };
+
+type ValidPlayersPerRow = 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+function getPlayersPerRow(playerCount: number): ValidPlayersPerRow {
+	if (playerCount <= 9) return 12 / 3 as ValidPlayersPerRow;
+	else return Math.min(12, Math.floor(12 / Math.ceil(Math.sqrt(playerCount)))) as ValidPlayersPerRow;
+}
 
 export default Voice;
