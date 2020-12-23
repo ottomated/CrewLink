@@ -131,7 +131,7 @@ function mouseClickMatches(key: M, ev: IOHookEvent): boolean {
 }
 
 function isMouseButton(shortcutKey:string): boolean {
-	return !!shortcutKey.match('MouseButton');
+	return shortcutKey.includes('MouseButton');
 }
 
 ipcMain.on('openGame', () => {

@@ -321,6 +321,18 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 		}
 	};
 
+	const setMouseShortcut = (ev: React.MouseEvent<HTMLDivElement>, shortcut: string) => {
+		if (ev.button > 2) {
+			// this makes our button start at 1 instead of 0
+			// React Mouse event starts at 0, but IOHooks starts at 1
+			const k = `MouseButton${ev.button + 1}`;
+			setSettings({
+				type: 'setOne',
+				action: [shortcut, k]
+			});
+		}
+	};
+
 	const microphones = devices.filter(d => d.kind === 'audioinput');
 	const speakers = devices.filter(d => d.kind === 'audiooutput');
 
@@ -411,6 +423,9 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					<TextField fullWidth spellCheck={false} color="secondary" label="Push To Talk" value={settings.pushToTalkShortcut} className={classes.shortcutField} variant="outlined"
 						onKeyDown={(ev) => {
 							setShortcut(ev, 'pushToTalkShortcut')
+						}}
+						onMouseDown={(ev) => {
+							setMouseShortcut(ev, 'pushToTalkShortcut')
 						}} />
 
 				</Grid>
@@ -418,12 +433,18 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					<TextField spellCheck={false} color="secondary" label="Mute" value={settings.muteShortcut} className={classes.shortcutField} variant="outlined"
 						onKeyDown={(ev) => {
 							setShortcut(ev, 'muteShortcut')
+						}}
+						onMouseDown={(ev) => {
+							setMouseShortcut(ev, 'muteShortcut')
 						}} />
 				</Grid>
 				<Grid item xs={6}>
 					<TextField spellCheck={false} color="secondary" label="Deafen" value={settings.deafenShortcut} className={classes.shortcutField} variant="outlined"
 						onKeyDown={(ev) => {
 							setShortcut(ev, 'deafenShortcut')
+						}}
+						onMouseDown={(ev) => {
+							setMouseShortcut(ev, 'deafenShortcut')
 						}} />
 
 				</Grid>
