@@ -148,7 +148,8 @@ const useStyles = makeStyles((theme) => ({
 		}
 	},
 	avatarWrapper: {
-		width: 100
+		width: 80,
+		padding: theme.spacing(1)
 	}
 }));
 
@@ -456,7 +457,7 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 			<div className={classes.top}>
 				{myPlayer &&
 					<div className={classes.avatarWrapper}>
-						<Avatar deafened={deafenedState} muted={mutedState} player={myPlayer} borderColor={connected ? '#2ecc71' : '#c0392b'} talking={talking} isAlive={!myPlayer.isDead} size={100} />
+						<Avatar deafened={deafenedState} muted={mutedState} player={myPlayer} borderColor='#2ecc71' disconnected={!connected} talking={talking} isAlive={!myPlayer.isDead} size={100} />
 					</div>
 				}
 				<div className={classes.right}>
@@ -477,12 +478,11 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 				{
 					otherPlayers.map(player => {
 						const connected = Object.values(socketPlayerIds).includes(player.id);
-						console.log(12 / getPlayersPerRow(otherPlayers.length));
 						return (
 							<Grid item key={player.id} xs={getPlayersPerRow(otherPlayers.length)}>
-								<Avatar small player={player}
-									talking={!connected || otherTalking[player.id]}
-									borderColor={connected ? '#2ecc71' : '#c0392b'}
+								<Avatar disconnected={!connected} player={player}
+									talking={otherTalking[player.id]}
+									borderColor={'#2ecc71'}
 									isAlive={!otherDead[player.id]}
 									size={50} />
 							</Grid>
