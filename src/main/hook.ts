@@ -149,10 +149,10 @@ ipcMain.on('openGame', () => {
 				'945360'
 			]);
 			process.on('error', () => {
-				dialog.showErrorBox('Error', 'Please launch the game through Steam.');
+				dialog.showErrorBox('Error', 'Please launch the game manually.');
 			});
 		} catch (e) {
-			dialog.showErrorBox('Error', 'Please launch the game through Steam.');
+			dialog.showErrorBox('Error', 'Please launch the game manually.');
 		}
 	}
 });
