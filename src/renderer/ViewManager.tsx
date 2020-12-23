@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 // @ts-ignore
-import { BrowserRouter as Router, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 import App from './App';
 import Overlay from './Overlay';
@@ -10,37 +10,37 @@ class ViewManager extends Component {
 	
 	static Views() {
 		// @ts-ignore
-		var val:any = {
+		const val:any = {
 			// @ts-ignore
 			app: <App />,
 			// @ts-ignore
 			overlay: <Overlay />
-		}
-		return val
+		};
+		return val;
 	}
  
 	static View(props: any) {
-		let name = props.location.search.split("view=")[1];
+		const name = props.location.search.split('view=')[1];
 		// @ts-ignore
-		console.log("View type: " + name);
-		let view = ViewManager.Views()[name];
+		console.log('View type: ' + name);
+		const view = ViewManager.Views()[name];
 		if(view == null) 
-			throw new Error("View '" + name + "' is undefined");
+			throw new Error('View \'' + name + '\' is undefined');
 
-			return view;
+		return view;
 	}
-	 
+
 	render() {
 		return (
 			<Router>
-			<div>
-			<Route path='/' component={ViewManager.View}/>
-			</div>
+				<div>
+					<Route path='/' component={ViewManager.View}/>
+				</div>
 			</Router>
 		);
 	}
 }
 
-export default ViewManager
+export default ViewManager;
 
 ReactDOM.render(<ViewManager />, document.getElementById('app'));

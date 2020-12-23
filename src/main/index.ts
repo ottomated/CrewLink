@@ -13,8 +13,8 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 declare global {
   namespace NodeJS {
     interface Global {
-       mainWindow: BrowserWindow|null;
-	   overlay: BrowserWindow|null;
+		mainWindow: BrowserWindow|null;
+		overlay: BrowserWindow|null;
     } 
   }
 }
@@ -64,7 +64,7 @@ function createMainWindow() {
 			protocol: 'file',
 			query: {
 				version: autoUpdater.currentVersion.version,
-				view: "app"
+				view: 'app'
 			},
 			slashes: true
 		}));
@@ -99,74 +99,74 @@ if (!gotTheLock) {
 			global.mainWindow.focus();
 		}
 	});
+}
 
-	function createOverlay() {
-		const overlay = new BrowserWindow({
-			width: 400,
-			height: 300,
+function createOverlay() {
+	const overlay = new BrowserWindow({
+		width: 400,
+		height: 300,
 		//	alwaysOnTop:true,
-			focusable: false,
-			webPreferences: {
-				nodeIntegration: true,
-				enableRemoteModule: true,
-				webSecurity: false
+		focusable: false,
+		webPreferences: {
+			nodeIntegration: true,
+			enableRemoteModule: true,
+			webSecurity: false
+		},
+		...overlayWindow.WINDOW_OPTS
+	});
+
+	if (isDevelopment) {
+		overlay.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`);
+	} else {
+		overlay.loadURL(formatUrl({
+			pathname: joinPath(__dirname, 'index.html'),
+			protocol: 'file',
+			query: {
+				version: autoUpdater.currentVersion.version,
+				view: 'overlay'
 			},
-			...overlayWindow.WINDOW_OPTS
-		});
-
-		if (isDevelopment) {
-			overlay.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`)
-		} else {
-			overlay.loadURL(formatUrl({
-				pathname: joinPath(__dirname, 'index.html'),
-				protocol: 'file',
-				query: {
-					version: autoUpdater.currentVersion.version,
-					view: "overlay"
-				},
-				slashes: true
-			}))
-		}
+			slashes: true
+		}));
+	}
 		
-		if (isDevelopment) {
-			overlay.webContents.openDevTools();
-		}
-
-		overlay.setIgnoreMouseEvents(true);
-		overlayWindow.attachTo(overlay, 'Among Us');
-		return overlay;
+	if (isDevelopment) {
+		overlay.webContents.openDevTools();
 	}
 
-	// quit application when all windows are closed
-	app.on('window-all-closed', () => {
-		// on macOS it is common for applications to stay open until the user explicitly quits
-		if (process.platform !== 'darwin') {
-			if (global.overlay != null) {
-				global.overlay.close()
-				global.overlay = null;
-			}
-			app.quit();
-		}
-	});
-
-	app.on('activate', () => {
-		// on macOS it is common to re-create a window even after all windows have been closed
-		if (global.mainWindow === null) {
-			global.mainWindow = createMainWindow();
-		}
-	});
-
-	// create main BrowserWindow when electron is ready
-	app.on('ready', () => {
-		global.mainWindow = createMainWindow();
-		global.overlay = createOverlay();
-	});
-
-	ipcMain.on('enableOverlay', async (_event,enable)=> {
-		if(enable)
-		overlayWindow.show();
-		else
-		overlayWindow.hide();
-	});
-	
+	overlay.setIgnoreMouseEvents(true);
+	overlayWindow.attachTo(overlay, 'Among Us');
+	return overlay;
 }
+
+// quit application when all windows are closed
+app.on('window-all-closed', () => {
+	// on macOS it is common for applications to stay open until the user explicitly quits
+	if (process.platform !== 'darwin') {
+		if (global.overlay != null) {
+			global.overlay.close();
+			global.overlay = null;
+		}
+		app.quit();
+	}
+});
+
+app.on('activate', () => {
+	// on macOS it is common to re-create a window even after all windows have been closed
+	if (global.mainWindow === null) {
+		global.mainWindow = createMainWindow();
+	}
+});
+
+// create main BrowserWindow when electron is ready
+app.on('ready', () => {
+	global.mainWindow = createMainWindow();
+	global.overlay = createOverlay();
+});
+
+ipcMain.on('enableOverlay', async (_event,enable)=> {
+	if(enable)
+		overlayWindow.show();
+	else
+		overlayWindow.hide();
+});
+	

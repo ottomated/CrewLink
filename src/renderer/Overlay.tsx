@@ -16,8 +16,9 @@ interface SocketIdMap {
 	[socketId: string]: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default function Overlay() {
-	const [status, setStatus] = useState("WAITING");
+	const [status, setStatus] = useState('WAITING');
 	const [gameState, setGameState] = useState<AmongUsState>({} as AmongUsState);
 	const [settings, setSettings] = useState<ISettings>({} as ISettings);
 	const [socketPlayerIds, setSocketPlayerIds] = useState<SocketIdMap>({});
@@ -25,17 +26,17 @@ export default function Overlay() {
 	const [otherTalking, setOtherTalking] = useState<OtherTalking>({});
 	const [otherDead, setOtherDead] = useState<OtherDead>({});
 	const myPlayer = useMemo(() => {
-			if (!gameState || !gameState.players) return undefined;
-			else return gameState.players.find(p => p.isLocal);
-		}, [gameState]);
+		if (!gameState || !gameState.players) return undefined;
+		else return gameState.players.find(p => p.isLocal);
+	}, [gameState]);
 	
 	const relevantPlayers = useMemo(() => {
 		let relevantPlayers: Player[];
 		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) relevantPlayers = [];
 		else relevantPlayers = gameState.players.filter(p => (
-				(Object.values(socketPlayerIds).includes(p.id) || p.isLocal) && 
+			(Object.values(socketPlayerIds).includes(p.id) || p.isLocal) && 
 				((!myPlayer.isDead && !otherDead[p.id]) || myPlayer.isDead)
-			));
+		));
 		return relevantPlayers;
 	}, [gameState]);
 	
@@ -49,7 +50,7 @@ export default function Overlay() {
 		} else if (gameState.gameState !== GameState.TASKS) {
 			if (!gameState.players) return;
 			setOtherDead(old => {
-				for (let player of gameState.players) {
+				for (const player of gameState.players) {
 					old[player.id] = player.isDead || player.disconnected;
 				}
 				return { ...old };
@@ -110,83 +111,83 @@ export default function Overlay() {
 			ipcRenderer.off('overlayTalkingSelf', onOverlayTalkingSelf);
 			ipcRenderer.off('overlayTalking', onOverlayTalking);
 			ipcRenderer.off('overlayNotTalking', onOverlayNotTalking);
-		}
+		};
 	}, []);
 		
-	document.body.style.backgroundColor = "rgba(255, 255, 255, 0)";
-	document.body.style.paddingTop = "0";
+	document.body.style.backgroundColor = 'rgba(255, 255, 255, 0)';
+	document.body.style.paddingTop = '0';
 	
-	var baseCSS:any = {
-		backgroundColor: "rgba(0, 0, 0, 0.85)",
-		width: "100px",
-		borderRadius: "8px",
-		position: "relative",
-		marginTop: "-16px",
-		paddingLeft: "8px",
+	const baseCSS:any = {
+		backgroundColor: 'rgba(0, 0, 0, 0.85)',
+		width: '100px',
+		borderRadius: '8px',
+		position: 'relative',
+		marginTop: '-16px',
+		paddingLeft: '8px',
 	};
-	var topArea = <p><b style={{color:"#9b59b6"}}>CrewLink</b> ({status})</p>
-	var playersCSS:any = {}
-	var playerList:Player[] = [];
+	let topArea = <p><b style={{color:'#9b59b6'}}>CrewLink</b> ({status})</p>;
+	const playersCSS:any = {};
+	let playerList:Player[] = [];
 	if (gameState.players && gameState.gameState != GameState.MENU) playerList = relevantPlayers;
 	
 	if (gameState.gameState == GameState.UNKNOWN || gameState.gameState == GameState.MENU) {
-		baseCSS["left"] = "8px";
-		baseCSS["top"] = "60px";
+		baseCSS['left'] = '8px';
+		baseCSS['top'] = '60px';
 	} else {
-		baseCSS["paddingTop"] = "8px";
-		baseCSS["paddingLeft"] = "0px";
-		baseCSS["width"] = "800px";
-		baseCSS["backgroundColor"] = "rgba(0, 0, 0, 0.5)";
+		baseCSS['paddingTop'] = '8px';
+		baseCSS['paddingLeft'] = '0px';
+		baseCSS['width'] = '800px';
+		baseCSS['backgroundColor'] = 'rgba(0, 0, 0, 0.5)';
 		if (settings.overlayPosition == 'top') {
-			baseCSS["marginLeft"] = "auto";
-			baseCSS["marginRight"] = "auto";
-			baseCSS["marginTop"] = "0px";
+			baseCSS['marginLeft'] = 'auto';
+			baseCSS['marginRight'] = 'auto';
+			baseCSS['marginTop'] = '0px';
 		} else if (settings.overlayPosition == 'bottom_left') {
-			baseCSS["position"] = "absolute";
-			baseCSS["bottom"] = "0px";
-			baseCSS["backgroundColor"] = "rgba(0, 0, 0, 0.35)";
-			baseCSS["width"] = null;
+			baseCSS['position'] = 'absolute';
+			baseCSS['bottom'] = '0px';
+			baseCSS['backgroundColor'] = 'rgba(0, 0, 0, 0.35)';
+			baseCSS['width'] = null;
 			
-			playersCSS["justifyContent"] = "left"
-			playersCSS["alignItems"] = "left"
+			playersCSS['justifyContent'] = 'left';
+			playersCSS['alignItems'] = 'left';
 		}
 		topArea = <></>;
 		if ((settings.compactOverlay) && playerList) {
 			playerList = talkingPlayers;
-			baseCSS["backgroundColor"] = "rgba(0, 0, 0, 0)";
+			baseCSS['backgroundColor'] = 'rgba(0, 0, 0, 0)';
 		}
 	}
 
-	var playerArea:JSX.Element = <></>;
+	let playerArea:JSX.Element = <></>;
 	if (playerList) {
 		playerArea = <div className="otherplayers" style={playersCSS}>
-					{
-						playerList.map(player => {
-							const connected = Object.values(socketPlayerIds).includes(player.id) || player.isLocal;
-							let name = settings.compactOverlay ? "" : <span><small>{player.name}</small></span>
-							return (
-								<div key={player.id} style={{width:"60px", textAlign:"center"}}>
-									<div style={{paddingLeft:"5px"}}>
-										<Avatar key={player.id} player={player}
-											talking={!connected || otherTalking[player.id] || (player.isLocal && talking)}
-											borderColor={connected ? '#2ecc71' : '#c0392b'}
-											isAlive={(!player.isLocal && !otherDead[player.id]) || (player.isLocal && !player.isDead)}
-											size={50} />
-									</div>
-									{name}
-								</div>
-							);
-						})
-					}
-					</div>
+			{
+				playerList.map(player => {
+					const connected = Object.values(socketPlayerIds).includes(player.id) || player.isLocal;
+					const name = settings.compactOverlay ? '' : <span><small>{player.name}</small></span>;
+					return (
+						<div key={player.id} style={{width:'60px', textAlign:'center'}}>
+							<div style={{paddingLeft:'5px'}}>
+								<Avatar key={player.id} player={player}
+									talking={!connected || otherTalking[player.id] || (player.isLocal && talking)}
+									borderColor={connected ? '#2ecc71' : '#c0392b'}
+									isAlive={(!player.isLocal && !otherDead[player.id]) || (player.isLocal && !player.isDead)}
+									size={50} />
+							</div>
+							{name}
+						</div>
+					);
+				})
+			}
+		</div>;
 	}
 		
 	
 	
 	return (
-	<div style={baseCSS}>
-		{topArea}
-		{playerArea}
-	</div>
-	)
+		<div style={baseCSS}>
+			{topArea}
+			{playerArea}
+		</div>
+	);
 }

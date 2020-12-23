@@ -4,6 +4,7 @@ import patcher from '../patcher';
 import { GameState, AmongUsState, Player } from '../common/AmongUsState';
 import { IOffsets, IOffsetsContainer } from './IOffsets';
 
+
 interface ValueType<T> {
 	read(buffer: BufferSource, offset: number): T;
 	SIZE: number;
@@ -21,7 +22,6 @@ interface PlayerReport {
 	impostor: number;
 	dead: number;
 	taskPtr: number;
-	clientId: number;
 }
 
 export default class GameReader {
@@ -39,7 +39,6 @@ export default class GameReader {
 	lastState: AmongUsState = {} as AmongUsState;
 	amongUs: ProcessObject | null = null;
 	gameAssembly: ModuleObject | null = null;
-	updated_offsets = false;
 
 
 	gameCode = 'MENU';
@@ -61,9 +60,6 @@ export default class GameReader {
 		}
 		return;
 	}
- gameClient : number = 0;
- meetinHud : number = 0;
- gameData : number = 0;
 
 	loop(): void {
 		this.checkProcessOpen();
@@ -73,8 +69,7 @@ export default class GameReader {
 			const meetingHud_cachePtr = meetingHud === 0 ? 0 : this.readMemory<number>('pointer', meetingHud, this.offsets.meetingHudCachePtr);
 			const meetingHudState = meetingHud_cachePtr === 0 ? 4 : this.readMemory('int', meetingHud, this.offsets.meetingHudState, 4);
 			const gameState = this.readMemory<number>('int', this.gameAssembly.modBaseAddr, this.offsets.gameState);
-			//console.log(this.offsets.meetingHud[0])
-		
+
 			switch (gameState) {
 			case 0:
 				state = GameState.MENU;
@@ -130,7 +125,7 @@ export default class GameReader {
 				}
 			}
 			if (this.oldGameState === GameState.MENU && state === GameState.LOBBY && this.menuUpdateTimer > 0 &&
-				(this.lastPlayerPtr === allPlayers || players.length === 1 || !players.find(p => p.isLocal && p.disconnected === false))) {
+				(this.lastPlayerPtr === allPlayers || players.length === 1 || !players.find(p => p.isLocal))) {
 				state = GameState.MENU;
 				this.menuUpdateTimer--;
 			} else {

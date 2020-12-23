@@ -67,7 +67,7 @@ interface ICEServer {
 }
 
 interface PeerConfig {
-	forceRelayOnly: Boolean,
+	forceRelayOnly: boolean,
 	stunServers: ICEServer[],
 	turnServers: ICEServer[]
 }
@@ -78,7 +78,7 @@ const DEFAULT_ICE_CONFIG: RTCConfiguration = {
 			urls: 'stun:stun.l.google.com:19302'
 		}
 	]
-}
+};
 
 
 function calculateVoiceAudio(state: AmongUsState, settings: ISettings, lobbySettings: ILobbySettings,  me: Player, other: Player, gain: GainNode, pan: PannerNode, reverbGain: GainNode): void {
@@ -135,12 +135,12 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, lobbySett
 }
 
 function toArrayBuffer(buf: Buffer) {
-    var ab = new ArrayBuffer(buf.length);
-    var view = new Uint8Array(ab);
-    for (var i = 0; i < buf.length; ++i) {
-        view[i] = buf[i];
-    }
-    return ab;
+	const ab = new ArrayBuffer(buf.length);
+	const view = new Uint8Array(ab);
+	for (let i = 0; i < buf.length; ++i) {
+		view[i] = buf[i];
+	}
+	return ab;
 }
 
 const Voice: React.FC = function () {
@@ -169,10 +169,10 @@ const Voice: React.FC = function () {
 
 	let joinedLobby = '';
 
-	var reverbFile:any = null;
-	if (fs.existsSync("static/reverb.ogx"))
+	let reverbFile:any = null;
+	if (fs.existsSync('static/reverb.ogx'))
 		reverbFile = fs.readFileSync('static/reverb.ogx');
-	else if (fs.existsSync("resources/static/reverb.ogx"))
+	else if (fs.existsSync('resources/static/reverb.ogx'))
 		reverbFile = fs.readFileSync('resources/static/reverb.ogx');
 	
 
@@ -187,15 +187,15 @@ const Voice: React.FC = function () {
 	useEffect(() => {
 		if (connectionStuff.current.socket && gameState.isHost === true && inRoom === true) {
 			connectionStuff.current.socket.emit('config', settings.localLobbySettings);
-			console.log("emit shit");
+			console.log('emit shit');
 		}
 	}, [settings.localLobbySettings]);
 
 	useEffect(() => {
-		for (let peer in audioElements.current) {
+		for (const peer in audioElements.current) {
 			audioElements.current[peer].pan.maxDistance = lobbySettings.maxDistance;
 		}
-		console.log("Maxdistance change",lobbySettings.maxDistance )
+		console.log('Maxdistance change',lobbySettings.maxDistance );
 	}, [lobbySettings.maxDistance]);
 
 	useEffect(() => {
@@ -239,7 +239,7 @@ const Voice: React.FC = function () {
 			document.body.removeChild(audioElements.current[peer].element);
 			audioElements.current[peer].pan?.disconnect();
 			audioElements.current[peer].gain?.disconnect();
-            audioElements.current[peer].reverbGain?.disconnect();
+			audioElements.current[peer].reverbGain?.disconnect();
 			audioElements.current[peer].reverb?.disconnect();
 			audioElements.current[peer].compressor?.disconnect();
 			delete audioElements.current[peer];
@@ -267,13 +267,13 @@ const Voice: React.FC = function () {
 		socket.on('peerConfig', (peerConfig: PeerConfig) => {
 			if (!validatePeerConfig(peerConfig)) {
 				alert(`Server sent a malformed peer config. Default config will be used.${validatePeerConfig.errors ?
-					` See errors below:\n${validatePeerConfig.errors.map(error => error.dataPath + ' ' + error.message).join('\n')}` : ``
-					}`);
+					` See errors below:\n${validatePeerConfig.errors.map(error => error.dataPath + ' ' + error.message).join('\n')}` : ''
+				}`);
 				return;
 			}
 
 			if (peerConfig.forceRelayOnly && !peerConfig.turnServers) {
-				alert(`Server has forced relay mode enabled but provides no relay servers. Default config will be used.`);
+				alert('Server has forced relay mode enabled but provides no relay servers. Default config will be used.');
 				return;
 			}
 
@@ -285,10 +285,10 @@ const Voice: React.FC = function () {
 							urls: server.url,
 							username: server.username,
 							credential: server.credential
-						}
+						};
 					})
 			};
-		})
+		});
 
 		// Initialize variables
 		let audioListener: {
@@ -337,15 +337,15 @@ const Voice: React.FC = function () {
 			ac.createMediaStreamSource(stream);
 			audioListener = VAD(ac, ac.createMediaStreamSource(stream), undefined, {
 				onVoiceStart: () => {
-					setTalking(true)
-					let overlay = remote.getGlobal("overlay");
+					setTalking(true);
+					const overlay = remote.getGlobal('overlay');
 					if (overlay) {
 						overlay.webContents.send('overlayTalkingSelf', true);
 					}
 				},
 				onVoiceStop: () => {
-					setTalking(false)
-					let overlay = remote.getGlobal("overlay");
+					setTalking(false);
+					const overlay = remote.getGlobal('overlay');
 					if (overlay) {
 						overlay.webContents.send('overlayTalkingSelf', false);
 					}
@@ -358,8 +358,8 @@ const Voice: React.FC = function () {
 
 			const connect = (lobbyCode: string, playerId: number) => {
 				console.log('Connect called', lobbyCode, playerId);
-                const overlay = remote.getGlobal("overlay");
-				overlay?.webContents?.send('overlayState', (lobbyCode === 'MENU' ? "MENU" : "VOICE"));
+				const overlay = remote.getGlobal('overlay');
+				overlay?.webContents?.send('overlayState', (lobbyCode === 'MENU' ? 'MENU' : 'VOICE'));
                 
 				if (lobbyCode === 'MENU') {
 					disconnectPeers();
@@ -411,8 +411,8 @@ const Voice: React.FC = function () {
 					pan.connect(gain);
 					gain.connect(compressor);
 					
-					var reverb:any = null;
-					var reverbGain:any = null;
+					let reverb:any = null;
+					let reverbGain:any = null;
 					if (lobbySettings.haunting) {
 						reverb = context.createConvolver();
 						reverbGain = context.createGain();					
@@ -423,7 +423,7 @@ const Voice: React.FC = function () {
 								reverb.buffer = buffer;
 							},
 							function(e) {
-							  alert("Error when decoding audio data" + e);
+								alert('Error when decoding audio data' + e);
 							}
 						);
 						
@@ -446,9 +446,9 @@ const Voice: React.FC = function () {
 								[socketPlayerIds[peer]]: talking && gain.gain.value > 0
 							}));
 							
-							let overlay = remote.getGlobal("overlay");
+							const overlay = remote.getGlobal('overlay');
 							if (overlay) {
-								var reallyTalking = talking && gain.gain.value > 0;
+								const reallyTalking = talking && gain.gain.value > 0;
 								overlay.webContents.send(reallyTalking ? 'overlayTalking' : 'overlayNotTalking', socketPlayerIds[peer]);
 						
 							}
@@ -508,7 +508,7 @@ const Voice: React.FC = function () {
 						});
 					}
 				});
-			})
+			});
 
 		}, (error) => {
 			console.error(error);
@@ -543,9 +543,9 @@ const Voice: React.FC = function () {
 		for (const k of Object.keys(socketPlayerIds)) {
 			playerSocketIds[socketPlayerIds[k]] = k;
 		}
-		let overlay = remote.getGlobal("overlay");
+		const overlay = remote.getGlobal('overlay');
 		if (overlay) overlay.webContents.send('overlaySocketIds', socketPlayerIds);
-		console.log("socketPlayerIds3", socketPlayerIds);
+		console.log('socketPlayerIds3', socketPlayerIds);
 
 		for (const player of otherPlayers) {
 			const audio = audioElements.current[playerSocketIds[player.id]];
@@ -555,7 +555,7 @@ const Voice: React.FC = function () {
 					audio.gain.gain.value = 0;
 				}
 				if(audio.gain.gain.value > 0){
-					let playerVolume = playerConfigs[player.clientId]?.volume;
+					const playerVolume = playerConfigs[player.clientId]?.volume;
 					audio.gain.gain.value = playerVolume === undefined? audio.gain.gain.value  : audio.gain.gain.value * playerVolume;
 				}
 			}
@@ -568,12 +568,12 @@ const Voice: React.FC = function () {
 	useEffect(() => {
 		if(!gameState.players)
 			return;
-   		 for (let player of gameState.players) {
-     		 if (playerConfigs[player.clientId] === undefined) {
-        		playerConfigs[player.clientId] = { volume: 1 };
-      		}
- 	 	}
- 	 }, [gameState?.players]);
+		for (const player of gameState.players) {
+			if (playerConfigs[player.clientId] === undefined) {
+				playerConfigs[player.clientId] = { volume: 1 };
+			}
+		}
+	}, [gameState?.players]);
 
 	useEffect(() => {
 		if (connect?.connect && gameState.lobbyCode && myPlayer?.id !== undefined) {
@@ -660,7 +660,7 @@ const Voice: React.FC = function () {
 					otherPlayers.map(player => {
 						const peer = playerSocketIds[player.id];
 						const connected = Object.values(socketPlayerIds).includes(player.id);
-						let socketConfig = playerConfigs[player.clientId];
+						const socketConfig = playerConfigs[player.clientId];
 						const audio = audioConnected[peer];
 						let borderColor = '#C0392B';
 						if (connected) {
@@ -670,13 +670,11 @@ const Voice: React.FC = function () {
 								borderColor = '#FFFF00';
 						}
 						return (
-							<div>
 							<Avatar key={player.id} player={player}
 								talking={!connected || !audio || otherTalking[player.id]}
 								borderColor={borderColor}
 								isAlive={!otherDead[player.id]}
 								size={50} socketConfig={socketConfig}/>
-								</div>
 						);
 					})
 				}

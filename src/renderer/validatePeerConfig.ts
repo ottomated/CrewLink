@@ -1,24 +1,24 @@
 import Ajv from 'ajv';
 
 const ICE_SERVER_DEFINITION = {
-    type: 'array',
-    items: {
-        type: 'object',
-        properties: {
-            url: {
-                type: 'string',
-                format: 'uri'
-            },
-            username: {
-                type: 'string',
-            },
-            credential: {
-                type: 'string',
-            }
-        },
-        required: ['url']
-    }
-}
+	type: 'array',
+	items: {
+		type: 'object',
+		properties: {
+			url: {
+				type: 'string',
+				format: 'uri'
+			},
+			username: {
+				type: 'string',
+			},
+			credential: {
+				type: 'string',
+			}
+		},
+		required: ['url']
+	}
+};
 
 export const validatePeerConfig = new Ajv({ format: 'full', allErrors: true }).compile({
 	type: 'object',
@@ -26,8 +26,8 @@ export const validatePeerConfig = new Ajv({ format: 'full', allErrors: true }).c
 		forceRelayOnly: {
 			type: 'boolean'
 		},
-        stunServers: ICE_SERVER_DEFINITION,
-        turnServers: ICE_SERVER_DEFINITION,
-    },
-    required: ['forceRelayOnly']
+		stunServers: ICE_SERVER_DEFINITION,
+		turnServers: ICE_SERVER_DEFINITION,
+	},
+	required: ['forceRelayOnly']
 });

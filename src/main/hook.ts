@@ -39,7 +39,7 @@ async function loadOffsets(event: Electron.IpcMainEvent): Promise<IOffsetsContai
 	{
 		try {
 			const response = await axios({
-			url: `http://crewlink.guus.info/offsets.yml`
+				url: 'http://crewlink.guus.info/offsets.yml'
 			});
 			data = response.data;
 		} catch (_e) {
@@ -128,7 +128,7 @@ ipcMain.on('start', async (event) => {
 	event.reply('started');
 });
 
-ipcMain.on('reload', async => {
+ipcMain.on('reload', async () => {
 	global.mainWindow?.reload();
 	overlayWindow?.hide();
 	global.overlay?.reload();

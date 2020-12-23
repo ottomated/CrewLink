@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Player } from '../common/AmongUsState';
 import { backLayerHats, hatOffsets, hats, skins, players } from './cosmetics';
 import Tooltip from 'react-tooltip-lite';
-import { SocketConfig } from "./Voice";
+import { SocketConfig } from './Voice';
 
 export interface CanvasProps {
 	src: string;
@@ -28,11 +28,11 @@ const Avatar: React.FC<AvatarProps> = function ({ talking, deafened, borderColor
 	return (
 		<Tooltip useHover={!player.isLocal} content={(<div><b>{player?.name}</b><div className="slidecontainer" style={{ minWidth:'55px'}}>
 			
-		<input type="range" min="0" max="2" value={socketConfig?.volume} className="relativeGainSlider" style={{ width:'50px'}} step="any" onInput={(ev): void => console.log("thing happened")} onChange={(ev): void => {
-			if(socketConfig)
-			socketConfig.volume = parseFloat(ev.target.value);
-		}} ></input>
-	</div> </div>)} padding={5}>
+			<input type="range" min="0" max="2" value={socketConfig?.volume} className="relativeGainSlider" style={{ width:'50px'}} step="any"  onChange={(ev): void => {
+				if(socketConfig)
+					socketConfig.volume = parseFloat(ev.target.value);
+			}} ></input>
+		</div> </div>)} padding={5}>
 			<div className="avatar" style={{
 				borderColor: talking ? borderColor : 'transparent',
 				borderWidth: Math.max(2, size / 40),

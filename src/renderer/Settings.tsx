@@ -58,7 +58,7 @@ const store = new Store<ISettings>({
 		},
 		'1.1.93': store => {
 			store.delete('offsets');
-			console.log("delete offsets");
+			console.log('delete offsets');
 		}
 		
 	},
@@ -156,7 +156,7 @@ export const settingsReducer = (state: ISettings, action: {
 	if (action.type === 'set') return action.action as ISettings;
 	const v = (action.action as [string, unknown]);
 	if (action.type === 'setLobbySetting') {
-		let settings = {
+		const settings = {
 			...state.localLobbySettings,
 			[v[0]]: v[1]
 		};
@@ -174,12 +174,12 @@ export const lobbySettingsReducer = (state: ILobbySettings, action: {
 	type: 'set' | 'setOne', action: [string, any] | ILobbySettings
 }): ILobbySettings => {
 	if (action.type === 'set') return action.action as ILobbySettings;
-	let v = (action.action as [string, any]);
+	const v = (action.action as [string, any]);
 	return {
 		...state,
 		[v[0]]: v[1]
 	};
-}
+};
 
 interface MediaDevice {
 	id: string;
@@ -227,7 +227,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 		});
 	}, []);
 	
-	let overlay = remote.getGlobal('overlay');
+	const overlay = remote.getGlobal('overlay');
 	if (overlay) {
 		overlay.webContents.send('overlaySettings', settings);
 	}
@@ -237,7 +237,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 	}, [settings.microphone, settings.speaker, settings.serverURL, settings.enableSpatialAudio]);
 
 	useEffect(() => {
-		remote.getCurrentWindow().setAlwaysOnTop(settings.alwaysOnTop, 'screen-saver')
+		remote.getCurrentWindow().setAlwaysOnTop(settings.alwaysOnTop, 'screen-saver');
 	}, [settings.alwaysOnTop]);
 
 	useEffect(() => {
@@ -379,7 +379,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 				<input type="checkbox" checked={!settings.hideCode} style={{ color: '#9b59b6' }} readOnly />
 				<label>Show Lobby Code</label>
 			</div>
-			<div className={gameState.gameState === GameState.MENU || gameState.gameState === undefined ? "form-control m" : "form-control"} style={{ color: '#fd79a8' }} onClick={() => setSettings({
+			<div className={gameState.gameState === GameState.MENU || gameState.gameState === undefined ? 'form-control m' : 'form-control'} style={{ color: '#fd79a8' }} onClick={() => setSettings({
 				type: 'setOne',
 				action: ['enableSpatialAudio', !settings.enableSpatialAudio]
 			})}>
@@ -393,9 +393,9 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 			})}>
 				<input type="checkbox" checked={settings.alwaysOnTop} style={{ color: '#fd79a8' }} readOnly />
 				<label>Show on top of the game</label>
-            </div>
+			</div>
 	
-			<div className="form-control m" style={{ color: '#f72f5e', paddingTop: "10px" }} onClick={() => setSettings({
+			<div className="form-control m" style={{ color: '#f72f5e', paddingTop: '10px' }} onClick={() => setSettings({
 				type: 'setOne',
 				action: ['enableOverlay', !settings.enableOverlay]
 			})}>
@@ -410,18 +410,18 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 				<label>Compact Overlay</label>
 			</div>
 			{settings.enableOverlay && 
-           <div className="form-control l" style={{ color: '#f72f5e' }} >
-				<label>Overlay Position</label>
-				<select onChange={(ev) => {
-					setSettings({
-						type: 'setOne',
-						action: ['overlayPosition', ev.target.value]
-					});
-				}}>
-				  <option value="top" selected={settings.overlayPosition == "top"}>Top Center</option>
-				  <option value="bottom_left" selected={settings.overlayPosition == "bottom_left"}>Bottom Left</option>
-				</select>		
-			 </div>	
+				<div className="form-control l" style={{ color: '#f72f5e' }} >
+					<label>Overlay Position</label>
+					<select onChange={(ev) => {
+						setSettings({
+							type: 'setOne',
+							action: ['overlayPosition', ev.target.value]
+						});
+					}}>
+						<option value="top" selected={settings.overlayPosition == 'top'}>Top Center</option>
+						<option value="bottom_left" selected={settings.overlayPosition == 'bottom_left'}>Bottom Left</option>
+					</select>		
+				</div>	
 			}
 			<div className='settings-alert' style={{ display: unsaved ? 'flex' : 'none' }}>
 				<span>
@@ -434,34 +434,34 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 			}
 			{gameState.gameState !== undefined && gameState.gameState !== GameState.MENU && gameState.isHost === true ? (
 				<>
-				<div className="form-control l m" style={{ color: '#3498db' }}>
-					<label>Max Distance</label>
-					<input spellCheck={false} type="range" min="1" max="10" step="0.1" onChange={(ev) => setSettings({
+					<div className="form-control l m" style={{ color: '#3498db' }}>
+						<label>Max Distance</label>
+						<input spellCheck={false} type="range" min="1" max="10" step="0.1" onChange={(ev) => setSettings({
+							type: 'setLobbySetting',
+							action: ['maxDistance', parseFloat(ev.target.value)]
+						})} value={settings.localLobbySettings.maxDistance} />
+						<span>{settings.localLobbySettings.maxDistance}</span>
+					</div>
+					<div className="form-control m" style={{ color: '#3498db' }} onClick={() => setSettings({
 						type: 'setLobbySetting',
-						action: ['maxDistance', parseFloat(ev.target.value)]
-					})} value={settings.localLobbySettings.maxDistance} />
-					<span>{settings.localLobbySettings.maxDistance}</span>
-				</div>
-				<div className="form-control m" style={{ color: '#3498db' }} onClick={() => setSettings({
-				type: 'setLobbySetting',
-				action: ['haunting', !settings.localLobbySettings.haunting]
-			})}>
-				<input type="checkbox" checked={settings.localLobbySettings.haunting} style={{ color: '#fd79a8' }} readOnly />
-				<label>Ghost haunt imposters</label>
-			</div>
+						action: ['haunting', !settings.localLobbySettings.haunting]
+					})}>
+						<input type="checkbox" checked={settings.localLobbySettings.haunting} style={{ color: '#fd79a8' }} readOnly />
+						<label>Ghost haunt imposters</label>
+					</div>
 				</>
 			) : gameState.gameState !== undefined && gameState.gameState !== GameState.MENU && (
 				<>
-				<div className="form-control l m" style={{ color: '#3498db' }}>
-					<label>Max Distance: {lobbySettings.maxDistance}</label>
-				</div>
-				<div className="form-control l m" style={{ color: '#3498db' }}>
-					<label>Impostors Hear Ghosts: {lobbySettings.haunting? 'true' : 'false'}</label>
-				</div>
+					<div className="form-control l m" style={{ color: '#3498db' }}>
+						<label>Max Distance: {lobbySettings.maxDistance}</label>
+					</div>
+					<div className="form-control l m" style={{ color: '#3498db' }}>
+						<label>Impostors Hear Ghosts: {lobbySettings.haunting? 'true' : 'false'}</label>
+					</div>
 				</>
 			)}
 		</div>
-	</div>
+	</div>;
 };
 
 export default Settings;
