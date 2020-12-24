@@ -187,6 +187,9 @@ export default class GameReader {
 		this.offsets.allPlayersPtr[0] = gameData;
 		this.offsets.gameState[0] = innerNetClient;
 		this.offsets.gameCode[0] = innerNetClient;
+		this.offsets.hostId[0] = innerNetClient;
+		this.offsets.clientId[0] = innerNetClient;
+
 	}
 
 	isX64Version(): boolean {
