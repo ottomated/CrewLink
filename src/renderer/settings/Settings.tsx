@@ -1,5 +1,11 @@
 import Store from 'electron-store';
-import React, { ReactChild, useContext, useEffect, useReducer, useState } from 'react';
+import React, {
+	ReactChild,
+	useContext,
+	useEffect,
+	useReducer,
+	useState,
+} from 'react';
 import {
 	SettingsContext,
 	LobbySettingsContext,
@@ -312,19 +318,19 @@ interface DisabledTooltipProps {
 	children: ReactChild;
 }
 
-const DisabledTooltip: React.FC<DisabledTooltipProps> = function ({ disabled, children, title }: DisabledTooltipProps) {
+const DisabledTooltip: React.FC<DisabledTooltipProps> = function ({
+	disabled,
+	children,
+	title,
+}: DisabledTooltipProps) {
 	if (disabled)
 		return (
 			<Tooltip placement="top" arrow title={title}>
 				<span>{children}</span>
 			</Tooltip>
 		);
-	else return (
-		<>
-			{children}
-		</>
-	);
-}
+	else return <>{children}</>;
+};
 
 const Settings: React.FC<SettingsProps> = function ({
 	open,
@@ -344,7 +350,7 @@ const Settings: React.FC<SettingsProps> = function ({
 		console.log(store.get('localLobbySettings'));
 		setLobbySettings({
 			type: 'set',
-			action: store.get('localLobbySettings')
+			action: store.get('localLobbySettings'),
 		});
 	}, []);
 
@@ -414,13 +420,19 @@ const Settings: React.FC<SettingsProps> = function ({
 
 	const microphones = devices.filter((d) => d.kind === 'audioinput');
 	const speakers = devices.filter((d) => d.kind === 'audiooutput');
-	const [localDistance, setLocalDistance] = useState(settings.localLobbySettings.maxDistance);
+	const [localDistance, setLocalDistance] = useState(
+		settings.localLobbySettings.maxDistance
+	);
 	useEffect(() => {
 		setLocalDistance(settings.localLobbySettings.maxDistance);
 	}, [settings.localLobbySettings.maxDistance]);
 
-	const isInMenuOrLobby = gameState.gameState === GameState.LOBBY || gameState.gameState === GameState.MENU;
-	const canChangeLobbySettings = (gameState.gameState === GameState.MENU) || (gameState.isHost && gameState.gameState === GameState.LOBBY);
+	const isInMenuOrLobby =
+		gameState.gameState === GameState.LOBBY ||
+		gameState.gameState === GameState.MENU;
+	const canChangeLobbySettings =
+		gameState.gameState === GameState.MENU ||
+		(gameState.isHost && gameState.gameState === GameState.LOBBY);
 
 	console.log(gameState);
 	return (
@@ -458,8 +470,18 @@ const Settings: React.FC<SettingsProps> = function ({
 				{/* Lobby Settings */}
 				<div>
 					<Typography variant="h6">Lobby Settings</Typography>
-					<Typography gutterBottom>Voice Distance: {canChangeLobbySettings ? localDistance : lobbySettings.maxDistance}</Typography>
-					<DisabledTooltip disabled={!canChangeLobbySettings} title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}>
+					<Typography gutterBottom>
+						Voice Distance:{' '}
+						{canChangeLobbySettings ? localDistance : lobbySettings.maxDistance}
+					</Typography>
+					<DisabledTooltip
+						disabled={!canChangeLobbySettings}
+						title={
+							isInMenuOrLobby
+								? 'Only the game host can change this!'
+								: 'You can only change this in the lobby!'
+						}
+					>
 						<Slider
 							disabled={!canChangeLobbySettings}
 							value={
