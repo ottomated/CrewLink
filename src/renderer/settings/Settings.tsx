@@ -1,5 +1,5 @@
 import Store from 'electron-store';
-import React, { useContext, useEffect, useReducer, useState } from 'react';
+import React, { ReactChild, useContext, useEffect, useReducer, useState } from 'react';
 import {
 	SettingsContext,
 	LobbySettingsContext,
@@ -24,6 +24,8 @@ import ChevronLeft from '@material-ui/icons/ArrowBack';
 import IconButton from '@material-ui/core/IconButton';
 import Alert from '@material-ui/lab/Alert';
 import Slider from '@material-ui/core/Slider';
+import Tooltip from '@material-ui/core/Tooltip';
+import { GameState } from '../../common/AmongUsState';
 // import '../css/settings.css';
 
 interface StyleInput {
@@ -47,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
 		position: 'absolute',
 		left: 0,
 		top: 0,
-		zIndex: 10,
+		zIndex: 99,
 		alignItems: 'center',
 		marginTop: theme.spacing(3),
 		transition: 'transform .1s ease-in-out',
@@ -145,7 +147,7 @@ const store = new Store<ISettings>({
 		},
 		'1.2.0': (store) => {
 			// @ts-ignore
-			store.delete('offests');
+			store.delete('offsets');
 		},
 	},
 	schema: {
@@ -304,6 +306,26 @@ const URLInput: React.FC<URLInputProps> = function ({
 	);
 };
 
+interface DisabledTooltipProps {
+	disabled: boolean;
+	title: string;
+	children: ReactChild;
+}
+
+const DisabledTooltip: React.FC<DisabledTooltipProps> = function ({ disabled, children, title }: DisabledTooltipProps) {
+	if (disabled)
+		return (
+			<Tooltip placement="top" arrow title={title}>
+				<span>{children}</span>
+			</Tooltip>
+		);
+	else return (
+		<>
+			{children}
+		</>
+	);
+}
+
 const Settings: React.FC<SettingsProps> = function ({
 	open,
 	onClose,
@@ -311,13 +333,18 @@ const Settings: React.FC<SettingsProps> = function ({
 	const classes = useStyles({ open });
 	const [settings, setSettings] = useContext(SettingsContext);
 	const gameState = useContext(GameStateContext);
-	const [lobbySettings] = useContext(LobbySettingsContext);
+	const [lobbySettings, setLobbySettings] = useContext(LobbySettingsContext);
 	const [unsavedCount, setUnsavedCount] = useState(0);
 	const unsaved = unsavedCount > 2;
 	useEffect(() => {
 		setSettings({
 			type: 'set',
 			action: store.store,
+		});
+		console.log(store.get('localLobbySettings'));
+		setLobbySettings({
+			type: 'set',
+			action: store.get('localLobbySettings')
 		});
 	}, []);
 
@@ -387,7 +414,15 @@ const Settings: React.FC<SettingsProps> = function ({
 
 	const microphones = devices.filter((d) => d.kind === 'audioinput');
 	const speakers = devices.filter((d) => d.kind === 'audiooutput');
+	const [localDistance, setLocalDistance] = useState(settings.localLobbySettings.maxDistance);
+	useEffect(() => {
+		setLocalDistance(settings.localLobbySettings.maxDistance);
+	}, [settings.localLobbySettings.maxDistance]);
 
+	const isInMenuOrLobby = gameState.gameState === GameState.LOBBY || gameState.gameState === GameState.MENU;
+	const canChangeLobbySettings = (gameState.gameState === GameState.MENU) || (gameState.isHost && gameState.gameState === GameState.LOBBY);
+
+	console.log(gameState);
 	return (
 		<Box className={classes.root}>
 			<div className={classes.header}>
@@ -423,25 +458,37 @@ const Settings: React.FC<SettingsProps> = function ({
 				{/* Lobby Settings */}
 				<div>
 					<Typography variant="h6">Lobby Settings</Typography>
-					<Typography gutterBottom>Voice Distance</Typography>
-					<Slider
-						disabled={!gameState.isHost}
-						value={
-							gameState.isHost
-								? settings.localLobbySettings.maxDistance
-								: lobbySettings.maxDistance
-						}
-						min={1}
-						max={10}
-						step={0.1}
-						onChange={(_, newValue: number | number[]) => {
-							setSettings({
-								type: 'setLobbySetting',
-								action: ['maxDistance', newValue as number],
-							});
-						}}
-					/>
+					<Typography gutterBottom>Voice Distance: {canChangeLobbySettings ? localDistance : lobbySettings.maxDistance}</Typography>
+					<DisabledTooltip disabled={!canChangeLobbySettings} title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}>
+						<Slider
+							disabled={!canChangeLobbySettings}
+							value={
+								canChangeLobbySettings
+									? localDistance
+									: lobbySettings.maxDistance
+							}
+							min={1}
+							max={10}
+							step={0.1}
+							onChange={(_, newValue: number | number[]) => {
+								setLocalDistance(newValue as number);
+							}}
+							onChangeCommitted={(_, newValue: number | number[]) => {
+								setSettings({
+									type: 'setLobbySetting',
+									action: ['maxDistance', newValue as number],
+								});
+								if (gameState.isHost) {
+									setLobbySettings({
+										type: 'setOne',
+										action: ['maxDistance', newValue as number],
+									});
+								}
+							}}
+						/>
+					</DisabledTooltip>
 				</div>
+				<Divider />
 				<TextField
 					select
 					label="Microphone"

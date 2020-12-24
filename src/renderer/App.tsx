@@ -116,9 +116,7 @@ function App() {
 			maxDistance: 5.32,
 		},
 	});
-	const lobbySettings = useReducer(lobbySettingsReducer, {
-		maxDistance: 5.32,
-	});
+	const lobbySettings = useReducer(lobbySettingsReducer, settings[0].localLobbySettings);
 
 	useEffect(() => {
 		const onOpen = (_: Electron.IpcRendererEvent, isOpen: boolean) => {

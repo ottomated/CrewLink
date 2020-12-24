@@ -5,6 +5,7 @@ import makeStyles from '@material-ui/core/styles/makeStyles';
 import MicOff from '@material-ui/icons/MicOff';
 import VolumeOff from '@material-ui/icons/VolumeOff';
 import WifiOff from '@material-ui/icons/WifiOff';
+import LinkOff from '@material-ui/icons/LinkOff';
 import Tooltip from '@material-ui/core/Tooltip';
 
 interface UseStylesParams {
@@ -56,7 +57,7 @@ export interface AvatarProps {
 	size: number;
 	deafened?: boolean;
 	muted?: boolean;
-	disconnected?: boolean;
+	connectionState?: 'disconnected' | 'novoice' | 'connected';
 }
 
 const Avatar: React.FC<AvatarProps> = function ({
@@ -67,7 +68,7 @@ const Avatar: React.FC<AvatarProps> = function ({
 	isAlive,
 	player,
 	size,
-	disconnected,
+	connectionState,
 }: AvatarProps) {
 	const status = isAlive ? 'alive' : 'dead';
 	let image = players[status][player.colorId];
@@ -79,12 +80,20 @@ const Avatar: React.FC<AvatarProps> = function ({
 
 	let icon;
 
-	if (disconnected) {
-		icon = <WifiOff className={classes.icon} />;
-	} else if (deafened) {
-		icon = <VolumeOff className={classes.icon} />;
-	} else if (muted) {
-		icon = <MicOff className={classes.icon} />;
+	switch (connectionState) {
+		case 'connected':
+			if (deafened) {
+				icon = <VolumeOff className={classes.icon} />;
+			} else if (muted) {
+				icon = <MicOff className={classes.icon} />;
+			}
+			break;
+		case 'novoice':
+			icon = <LinkOff className={classes.icon} style={{background: '#e67e22', borderColor: '#694900'}}/>;
+			break;
+		case 'disconnected':
+			icon = <WifiOff className={classes.icon} />;
+			break;
 	}
 
 	return (

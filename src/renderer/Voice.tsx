@@ -185,6 +185,7 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 	const [settings, setSettings] = useContext(SettingsContext);
 	const settingsRef = useRef<ISettings>(settings);
 	const [lobbySettings, setLobbySettings] = useContext(LobbySettingsContext);
+	const lobbySettingsRef = useRef(lobbySettings);
 	const gameState = useContext(GameStateContext);
 	let { lobbyCode: displayedLobbyCode } = gameState;
 	if (displayedLobbyCode !== 'MENU' && settings.hideCode)
@@ -233,9 +234,13 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 	// Emit lobby settings to connected peers
 	useEffect(() => {
 		if (gameState.isHost !== true) return;
-		Object.values(peerConnections).forEach((peer) =>
-			peer.send(JSON.stringify(settings.localLobbySettings))
-		);
+		Object.values(peerConnections).forEach((peer) => {
+			try {
+				peer.send(JSON.stringify(settings.localLobbySettings));
+			} catch (e) {
+				console.warn("failed to update lobby settings: ", e);
+			}
+		});
 	}, [settings.localLobbySettings]);
 
 	useEffect(() => {
@@ -253,6 +258,11 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 	useEffect(() => {
 		socketClientsRef.current = socketClients;
 	}, [socketClients]);
+
+	// Add lobbySettings to lobbySettingsRef
+	useEffect(() => {
+		lobbySettingsRef.current = lobbySettings;
+	}, [lobbySettings]);
 
 	// Set dead player data
 	useEffect(() => {
@@ -391,6 +401,15 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 					let retries = 0;
 					let errCode: PeerErrorCode;
 
+					connection.on('connect', () => {
+						if (gameState.isHost) {
+							try {
+								connection.send(JSON.stringify(lobbySettingsRef.current));
+							} catch (e) {
+								console.warn("failed to update lobby settings: ", e);
+							}
+						}
+					});
 					connection.on('stream', (stream: MediaStream) => {
 						setAudioConnected(old => ({ ...old, [peer]: true }));
 						const audio = document.createElement(
@@ -408,7 +427,7 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 						pan.refDistance = 0.1;
 						pan.panningModel = 'equalpower';
 						pan.distanceModel = 'linear';
-						pan.maxDistance = lobbySettings.maxDistance;
+						pan.maxDistance = lobbySettingsRef.current.maxDistance;
 						pan.rolloffFactor = 1;
 
 						source.connect(pan);
@@ -578,7 +597,7 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 	}, [gameState.gameState]);
 
 	useEffect(() => {
-		if (gameState.isHost === true) {
+		if (gameState.isHost) {
 			setSettings({
 				type: 'setOne',
 				action: ['localLobbySettings', lobbySettings],
@@ -604,12 +623,11 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 	const playerSocketIds: {
 		[index: number]: string
 	} = {};
+
 	for (const k of Object.keys(socketClients)) {
-		playerSocketIds[socketClients[k].playerId] = k;
+		if (socketClients[k].playerId)
+			playerSocketIds[socketClients[k].playerId] = k;
 	}
-
-	console.log(playerSocketIds);
-
 	return (
 		<div className={classes.root}>
 			{error && (
@@ -631,7 +649,7 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 							muted={mutedState}
 							player={myPlayer}
 							borderColor="#2ecc71"
-							disconnected={!connected}
+							connectionState={connected ? 'connected' : 'disconnected'}
 							talking={talking}
 							isAlive={!myPlayer.isDead}
 							size={100}
@@ -641,14 +659,6 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 				<div className={classes.right}>
 					{myPlayer && gameState?.gameState !== GameState.MENU && (
 						<span className={classes.username}>
-							{gameState.isHost === true && (
-								<svg viewBox="0 0 48 36">
-									<path
-										fill="#fcdb03"
-										d="M39.67,36H8.33a5,5,0,0,1-5-4.34L0,6.63a3,3,0,0,1,5-2.6l5.6,5.19A3,3,0,0,0,15,9l6.7-7.9a3,3,0,0,1,4.6,0L33,9a3,3,0,0,0,4.34.26L42.94,4a3,3,0,0,1,5,2.6l-3.33,25A5,5,0,0,1,39.67,36Z"
-									/>
-								</svg>
-							)}
 							{myPlayer.name}
 						</span>
 					)}
@@ -675,9 +685,11 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 				justify="flex-start"
 			>
 				{otherPlayers.map((player) => {
+					const peer = playerSocketIds[player.id];
 					const connected = Object.values(socketClients)
 						.map(({ playerId }) => playerId)
 						.includes(player.id);
+					const audio = audioConnected[peer];
 					return (
 						<Grid
 							item
@@ -685,7 +697,7 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 							xs={getPlayersPerRow(otherPlayers.length)}
 						>
 							<Avatar
-								disconnected={!connected}
+								connectionState={!connected ? 'disconnected' : audio ? 'connected' : 'novoice'}
 								player={player}
 								talking={otherTalking[player.id]}
 								borderColor='#2ecc71'
