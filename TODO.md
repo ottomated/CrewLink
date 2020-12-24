@@ -3,9 +3,8 @@
 ## Server
 
 - [ ] Migrate from socket.io to a raw websocket connection. Ensure it auto-reconnects.
-- [ ] Request offsets over the websocket connection, to keep the number of open sockets down.
-- [ ] Move the default server to a better host.
-- [ ] Rewrite all error messages to be even more human-readable.
+- [x] Move the default server to a better host.
+- [x] Rewrite all error messages to be even more human-readable.
 - [ ] Integrate an official server list into the client.
 - [ ] Detect the reason *why* the server can't provide offsets: i.e. Among Us just updated, it's an old version of Among Us, the server hasn't updated, etc.
 
