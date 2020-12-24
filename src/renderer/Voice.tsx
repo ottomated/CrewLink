@@ -299,17 +299,17 @@ const Voice: React.FC = function () {
 			deviceId: undefined as unknown as string,
 			autoGainControl: false,
 			channelCount: 2,
-			echoCancellation: false,
+			echoCancellation: true,
 			latency: 0,
-			noiseSuppression: false,
+			noiseSuppression: true,
 			sampleRate: 48000,
 			sampleSize: 16,
-			googEchoCancellation: false,
+			googEchoCancellation: true,
 			googAutoGainControl: false,
 			googAutoGainControl2: false,
-			googNoiseSuppression: false,
-			googHighpassFilter: false,
-			googTypingNoiseDetection: false
+			googNoiseSuppression: true,
+			googHighpassFilter: true,
+			googTypingNoiseDetection: true
 		};
 
 		// Get microphone settings
@@ -475,6 +475,7 @@ const Voice: React.FC = function () {
 				});
 
 				// We have to have a listener here otherwise the ICE restart won't work
+				// eslint-disable-next-line @typescript-eslint/no-empty-function
 				connection.on('error', () => {});
 
 				return connection;
@@ -545,7 +546,6 @@ const Voice: React.FC = function () {
 		}
 		const overlay = remote.getGlobal('overlay');
 		if (overlay) overlay.webContents.send('overlaySocketIds', socketPlayerIds);
-		console.log('socketPlayerIds3', socketPlayerIds);
 
 		for (const player of otherPlayers) {
 			const audio = audioElements.current[playerSocketIds[player.id]];

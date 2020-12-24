@@ -11,6 +11,7 @@ import { overlayWindow } from 'electron-overlay-window';
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace NodeJS {
     interface Global {
 		mainWindow: BrowserWindow|null;
