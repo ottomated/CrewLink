@@ -6,7 +6,6 @@
   <a href="https://github.com/ottomated/CrewLink">
     <img src="logo.png" alt="Logo" width="80" height="80">
   </a>
-
   <h3 align="center">BetterCrewLink a Crewlink fork with extra features</h3>
 
 
@@ -25,7 +24,9 @@
   </p>
 </p>
 <hr />
+
 <p>
+  
 <b>Notes:</b><br />
 
  - For issues with this fork u can message me on discord (ThaGuus#2140) and I will do
@@ -33,6 +34,8 @@
   -  To get the most of BetterCrewLink use the voice server`http://crewlink.guus.ninja`
 
 </p>
+<a href="https://discord.gg/qDqTzvj4SH"> <img src="https://i.imgur.com/XpnBhTW.png" width="150px" /> </a>
+
 
 
 <!-- TABLE OF CONTENTS -->
