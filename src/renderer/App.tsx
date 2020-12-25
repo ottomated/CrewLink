@@ -15,7 +15,7 @@ if (typeof window !== 'undefined' && window.location) {
 
 enum AppState { MENU, VOICE }
 
-export default function App() {
+export default function App() : JSX.Element {
 	const [state, setState] = useState<AppState>(AppState.MENU);
 	const [gameState, setGameState] = useState<AmongUsState>({} as AmongUsState);
 	const [settingsOpen, setSettingsOpen] = useState(false);

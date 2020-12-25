@@ -59,7 +59,7 @@ export default function Overlay() {
 	}, [gameState.gameState]);
 	
 	useEffect(() => {		
-		const onOverlaySettings = (_: Electron.IpcRendererEvent, newSettings: any) => {
+		const onOverlaySettings = (_: Electron.IpcRendererEvent, newSettings: ISettings) => {
 			setSettings(newSettings);
 		};
 		

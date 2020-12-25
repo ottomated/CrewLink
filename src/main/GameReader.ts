@@ -65,8 +65,9 @@ export default class GameReader {
 		this.checkProcessOpen();
 		if (this.PlayerStruct && this.offsets && this.amongUs !== null && this.gameAssembly !== null) {
 			let state = GameState.UNKNOWN;
+			console.log(this.offsets.meetingHud[0].toString(16));
 			const meetingHud = this.readMemory<number>('pointer', this.gameAssembly.modBaseAddr, this.offsets.meetingHud);
-			const meetingHud_cachePtr = meetingHud === 0 ? 0 : this.readMemory<number>('pointer', meetingHud, this.offsets.meetingHudCachePtr);
+			const meetingHud_cachePtr = meetingHud === 0 ? 0 : this.readMemory<number>('uint32', meetingHud, this.offsets.meetingHudCachePtr);
 			const meetingHudState = meetingHud_cachePtr === 0 ? 4 : this.readMemory('int', meetingHud, this.offsets.meetingHudState, 4);
 			const gameState = this.readMemory<number>('int', this.gameAssembly.modBaseAddr, this.offsets.gameState);
 
@@ -117,7 +118,6 @@ export default class GameReader {
 						crewmates++;
 				}
 			}
-
 			if (this.oldGameState === GameState.DISCUSSION && state === GameState.TASKS) {
 				if (impostors === 0 || impostors >= crewmates) {
 					this.exileCausesEnd = true;
@@ -137,6 +137,7 @@ export default class GameReader {
 			const hostId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, this.offsets.hostId);
 			const clientId = this.readMemory<number>('uint32', this.gameAssembly.modBaseAddr, this.offsets.clientId);
 
+			console.log(gameState,meetingHudState,state)
 
 			const newState: AmongUsState = {
 				lobbyCode: this.gameCode || 'MENU',
@@ -204,9 +205,7 @@ export default class GameReader {
 	readMemory<T>(dataType: DataType, address: number, offsets: number[], defaultParam?: T): T {
 		if (!this.amongUs) return defaultParam as T;
 		if (address === 0) return defaultParam as T;
-		if (this.is_64bit && (dataType == 'pointer' || dataType == 'ptr')) {
-			dataType = 'uint64';
-		}
+		dataType = (dataType == 'pointer' || dataType == 'ptr')? (this.is_64bit? 'uint64' : 'uint32') : dataType;
 		const { address: addr, last } = this.offsetAddress(address, offsets);
 		if (addr === 0) return defaultParam as T;
 		return readMemoryRaw<T>(
