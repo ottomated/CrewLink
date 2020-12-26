@@ -419,10 +419,9 @@ const Settings: React.FC<SettingsProps> = function ({
 		setLocalDistance(settings.localLobbySettings.maxDistance);
 	}, [settings.localLobbySettings.maxDistance]);
 
-	const isInMenuOrLobby = gameState.gameState === GameState.LOBBY || gameState.gameState === GameState.MENU;
-	const canChangeLobbySettings = (gameState.gameState === GameState.MENU) || (gameState.isHost && gameState.gameState === GameState.LOBBY);
+	const isInMenuOrLobby = gameState?.gameState === GameState.LOBBY || gameState?.gameState === GameState.MENU;
+	const canChangeLobbySettings = (gameState?.gameState === GameState.MENU) || (gameState?.isHost && gameState?.gameState === GameState.LOBBY);
 
-	console.log(gameState);
 	return (
 		<Box className={classes.root}>
 			<div className={classes.header}>
@@ -478,7 +477,7 @@ const Settings: React.FC<SettingsProps> = function ({
 									type: 'setLobbySetting',
 									action: ['maxDistance', newValue as number],
 								});
-								if (gameState.isHost) {
+								if (gameState?.isHost) {
 									setLobbySettings({
 										type: 'setOne',
 										action: ['maxDistance', newValue as number],

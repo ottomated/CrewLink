@@ -1,3 +1,5 @@
+import { ProgressInfo } from 'builder-util-runtime';
+
 // Renderer --> Main (send/on)
 export enum IpcMessages {
   SHOW_ERROR_DIALOG = 'SHOW_ERROR_DIALOG',
@@ -21,5 +23,14 @@ export enum IpcRendererMessages {
   NOTIFY_GAME_OPENED = 'NOTIFY_GAME_OPENED',
   NOTIFY_GAME_STATE_CHANGED = 'NOTIFY_GAME_STATE_CHANGED',
   TOGGLE_DEAFEN = 'TOGGLE_DEAFEN',
+  TOGGLE_MUTE = 'TOGGLE_MUTE',
   PUSH_TO_TALK = 'PUSH_TO_TALK',
+  ERROR = 'ERROR',
+  AUTO_UPDATER_STATE = 'AUTO_UPDATER_STATE',
+}
+
+export interface AutoUpdaterState {
+  state: 'error' | 'available' | 'downloading' | 'downloaded' | 'unavailable';
+  error?: string;
+  progress?: ProgressInfo;
 }
