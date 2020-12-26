@@ -207,7 +207,6 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 	const [deafenedState, setDeafened] = useState(false);
 	const [mutedState, setMuted] = useState(false);
 	const [connected, setConnected] = useState(false);
-
 	function disconnectPeer(peer: string) {
 		const connection = peerConnections[peer];
 		if (!connection) {
@@ -312,16 +311,11 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 			autoGainControl: false,
 			googAutoGainControl: false,
 			googAutoGainControl2: false,
-			channelCount: 2,
-			latency: 0,
-			sampleRate: 48000,
-			sampleSize: 16,
 		};
 
 		// Get microphone settings
-		if (settings.microphone.toLowerCase() !== 'default')
-			audio.deviceId = settings.microphone;
-
+		if (settingsRef.current.microphone.toLowerCase() !== 'default')
+			audio.deviceId = settingsRef.current.microphone;
 		navigator.getUserMedia(
 			{ video: false, audio },
 			async (stream) => {
@@ -418,8 +412,8 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 						) as ExtendedAudioElement;
 						document.body.appendChild(audio);
 						audio.srcObject = stream;
-						if (settings.speaker.toLowerCase() !== 'default')
-							audio.setSinkId(settings.speaker);
+						if (settingsRef.current.speaker.toLowerCase() !== 'default')
+							audio.setSinkId(settingsRef.current.speaker);
 
 						const context = new AudioContext();
 						const source = context.createMediaStreamSource(stream);
