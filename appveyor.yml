@@ -23,3 +23,5 @@ artifacts:
   - path: dist/win-unpacked
     name: unpacked
     type: zip
+  - path: 'dist/CrewLink Setup *.exe'
+    name: CrewLink Setup Appveyor Build.exe
