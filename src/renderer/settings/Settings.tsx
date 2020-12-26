@@ -306,6 +306,7 @@ const URLInput: React.FC<URLInputProps> = function ({
 
 	return (
 		<TextField
+			type={hideURL ? "password" : "text"}
 			error={!isValidURL}
 			spellCheck={false}
 			label="Voice Server"
