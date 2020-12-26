@@ -62,20 +62,17 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 	if (isNaN(panPos[1])) panPos[1] = 999;
 	panPos[0] = Math.min(999, Math.max(-999, panPos[0]));
 	panPos[1] = Math.min(999, Math.max(-999, panPos[1]));
-	// Don't hear people inside vents
 	if (other.inVent) {
 		gain.gain.value = 0;
 		return;
 	}
-	// Ghosts can hear other ghosts
 	if (me.isDead && other.isDead) {
 		gain.gain.value = 1;
 		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
 		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
 		return;
 	}
-	// Living crewmates cannot hear ghosts
-	if (!me.isDead && other.isDead && (!me.isImpostor || !settings.haunting || state.gameState !== GameState.TASKS)) {
+	if (!me.isDead && other.isDead) {
 		gain.gain.value = 0;
 		return;
 	}
@@ -92,11 +89,6 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 	}
 	if (gain.gain.value === 1 && Math.sqrt(Math.pow(panPos[0], 2) + Math.pow(panPos[1], 2)) > 7) {
 		gain.gain.value = 0;
-	}
-	// Living impostors hear ghosts at a faint volume
-	if (gain.gain.value > 0 && !me.isDead && me.isImpostor && other.isDead && settings.haunting) {
-		gain.gain.value = gain.gain.value * 0.015;
-		if (reverbGain != null) reverbGain.gain.value = 1;
 	}
 }
 
