@@ -27,6 +27,13 @@ import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
 import Dialog from '@material-ui/core/Dialog';
 import makeStyles from '@material-ui/core/styles/makeStyles';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogActions from '@material-ui/core/DialogActions';
+import Button from '@material-ui/core/Button';
+import prettyBytes from 'pretty-bytes';
 
 let appVersion = '';
 if (typeof window !== 'undefined' && window.location) {
@@ -133,7 +140,7 @@ function App() {
 			setError(error);
 		};
 		const onAutoUpdaterStateChange = (_: Electron.IpcRendererEvent, state: AutoUpdaterState) => {
-			setUpdaterState(state);
+			setUpdaterState(old => ({...old, ...state}));
 		}
 		let shouldInit = true;
 		ipcRenderer.invoke(IpcHandlerMessages.START_HOOK).then(() => {
@@ -168,6 +175,7 @@ function App() {
 			page = <Voice error={error} />;
 			break;
 	}
+
 	console.log(updaterState);
 	return (
 		<GameStateContext.Provider value={gameState}>
@@ -182,8 +190,23 @@ function App() {
 							open={settingsOpen}
 							onClose={() => setSettingsOpen(false)}
 						/>
-						<Dialog open={updaterState.state !== 'unavailable'}>
-
+						<Dialog fullWidth open={updaterState.state !== 'unavailable'}>
+							<DialogTitle>Installing Updates</DialogTitle>
+							<DialogContent>
+								{((updaterState.state === 'downloading' || updaterState.state === 'downloaded') && updaterState.progress) &&
+									<>
+										<LinearProgress variant={updaterState.state === 'downloaded' ? "indeterminate" : "determinate"} value={updaterState.progress.percent} />
+										<DialogContentText>{prettyBytes(updaterState.progress.transferred)} / {prettyBytes(updaterState.progress.total)}</DialogContentText>
+									</>
+								}
+								{
+									updaterState.state === 'error' &&
+									<DialogContentText color="error">{updaterState.error}</DialogContentText>
+								}
+							</DialogContent>
+							{updaterState.state === 'error' &&
+								<DialogActions><Button href="https://github.com/ottomated/CrewLink/releases/latest">Download Manually</Button></DialogActions>
+							}
 						</Dialog>
 						{page}
 					</ThemeProvider>

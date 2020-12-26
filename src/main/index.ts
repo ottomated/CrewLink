@@ -107,7 +107,37 @@ if (!gotTheLock) {
 		mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
 			state: 'downloaded',
 		});
+		app.relaunch();
+		autoUpdater.quitAndInstall();
 	});
+
+	// Mock auto-update download
+	// setTimeout(() => {
+	// 	mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
+	// 		state: 'available'
+	// 	});
+	// 	let total = 1000*1000;
+	// 	let i = 0;
+	// 	let interval = setInterval(() => {
+	// 		mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
+	// 			state: 'downloading',
+	// 			progress: {
+	// 				total,
+	// 				delta: total * 0.01,
+	// 				transferred: i * total / 100,
+	// 				percent: i,
+	// 				bytesPerSecond: 1000
+	// 			}
+	// 		} as AutoUpdaterState);
+	// 		i++;
+	// 		if (i === 100) {
+	// 			clearInterval(interval);
+	// 			mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
+	// 				state: 'downloaded',
+	// 			});
+	// 		}
+	// 	}, 100);
+	// }, 10000);
 
 	app.on('second-instance', () => {
 		// Someone tried to run a second instance, we should focus our window.
