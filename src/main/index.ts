@@ -7,6 +7,8 @@ import { join as joinPath } from 'path';
 import { format as formatUrl } from 'url';
 import './hook';
 import { initializeIpcHandlers, initializeIpcListeners } from './ipc-handlers';
+import { IpcRendererMessages } from '../common/ipc-messages';
+import { ProgressInfo } from 'builder-util-runtime';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -49,17 +51,20 @@ function createMainWindow() {
 	}
 
 	if (isDevelopment) {
-		window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}`);
-	}
-	else {
-		window.loadURL(formatUrl({
-			pathname: joinPath(__dirname, 'index.html'),
-			protocol: 'file',
-			query: {
-				version: autoUpdater.currentVersion.version
-			},
-			slashes: true
-		}));
+		window.loadURL(
+			`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=DEV`
+		);
+	} else {
+		window.loadURL(
+			formatUrl({
+				pathname: joinPath(__dirname, 'index.html'),
+				protocol: 'file',
+				query: {
+					version: autoUpdater.currentVersion.version,
+				},
+				slashes: true,
+			})
+		);
 	}
 
 	window.on('closed', () => {
@@ -80,7 +85,30 @@ const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
 	app.quit();
 } else {
-	autoUpdater.checkForUpdatesAndNotify();
+	autoUpdater.checkForUpdates();
+	autoUpdater.on('update-available', () => {
+		mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
+			state: 'available'
+		});
+	});
+	autoUpdater.on('error', (err: string) => {
+		mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
+			state: 'error',
+			error: err
+		});
+	});
+	autoUpdater.on('download-progress', (progress: ProgressInfo) => {
+		mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
+			state: 'downloading',
+			progress
+		});
+	});
+	autoUpdater.on('update-downloaded', () => {
+		mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
+			state: 'downloaded',
+		});
+	});
+
 	app.on('second-instance', () => {
 		// Someone tried to run a second instance, we should focus our window.
 		if (mainWindow) {
@@ -88,7 +116,6 @@ if (!gotTheLock) {
 			mainWindow.focus();
 		}
 	});
-
 
 	// quit application when all windows are closed
 	app.on('window-all-closed', () => {
