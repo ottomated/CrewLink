@@ -652,6 +652,17 @@ const Settings: React.FC<SettingsProps> = function ({
 					control={<Checkbox />}
 				/>
 				<FormControlLabel
+					label="Show Server Address"
+					checked={!settings.hideServer}
+					onChange={(_, checked: boolean) => {
+						setSettings({
+							type: 'setOne',
+							action: ['hideServer', !checked],
+						});
+					}}
+					control={<Checkbox />}
+				/>
+				<FormControlLabel
 					label="Enable Spatial Audio"
 					checked={settings.enableSpatialAudio}
 					onChange={(_, checked: boolean) => {
