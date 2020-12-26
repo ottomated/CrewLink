@@ -268,6 +268,7 @@ interface MediaDevice {
 
 type URLInputProps = {
 	initialURL: string;
+	hideURL?: boolean;
 	onValidURL: (url: string) => void;
 };
 
@@ -282,6 +283,7 @@ function validateServerUrl(uri: string): boolean {
 
 const URLInput: React.FC<URLInputProps> = function ({
 	initialURL,
+	hideURL,
 	onValidURL,
 }: URLInputProps) {
 	const [isValidURL, setURLValid] = useState(true);
@@ -463,6 +465,7 @@ const Settings: React.FC<SettingsProps> = function ({
 			<div className={classes.scroll}>
 				<URLInput
 					initialURL={settings.serverURL}
+					hideURL={settings.hideServer}
 					onValidURL={(url: string) => {
 						setSettings({
 							type: 'setOne',
