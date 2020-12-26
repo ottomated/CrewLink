@@ -87,6 +87,7 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 	}
 }
 
+
 const Voice: React.FC = function () {
 	const [settings] = useContext(SettingsContext);
 	const settingsRef = useRef<ISettings>(settings);
