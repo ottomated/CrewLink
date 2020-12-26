@@ -34,7 +34,8 @@ function App() {
 			data: ''
 		},
 		hideCode: false,
-		enableSpatialAudio: true
+		enableSpatialAudio: true,
+    haunting: true
 	});
 
 	useEffect(() => {

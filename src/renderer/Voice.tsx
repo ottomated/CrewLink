@@ -7,6 +7,7 @@ import Peer from 'simple-peer';
 import { ipcRenderer, remote } from 'electron';
 import VAD from './vad';
 import { ISettings } from '../common/ISettings';
+import fs from 'fs';
 
 export interface ExtendedAudioElement extends HTMLAudioElement {
 	setSinkId: (sinkId: string) => Promise<void>;
@@ -21,6 +22,9 @@ interface AudioElements {
 		element: HTMLAudioElement;
 		gain: GainNode;
 		pan: PannerNode;
+		reverbGain: GainNode;
+		reverb: ConvolverNode;
+		compressor: DynamicsCompressorNode;
 	};
 }
 
@@ -43,9 +47,10 @@ interface OtherDead {
 	[playerId: number]: boolean; // isTalking
 }
 
-function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Player, other: Player, gain: GainNode, pan: PannerNode): void {
+function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Player, other: Player, gain: GainNode, pan: PannerNode, reverbGain: GainNode): void {
 	const audioContext = pan.context;
 	pan.positionZ.setValueAtTime(-0.5, audioContext.currentTime);
+	if (reverbGain != null) reverbGain.gain.value = 0;
 	let panPos = [
 		(other.x - me.x),
 		(other.y - me.y)
@@ -57,17 +62,20 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 	if (isNaN(panPos[1])) panPos[1] = 999;
 	panPos[0] = Math.min(999, Math.max(-999, panPos[0]));
 	panPos[1] = Math.min(999, Math.max(-999, panPos[1]));
+	// Don't hear people inside vents
 	if (other.inVent) {
 		gain.gain.value = 0;
 		return;
 	}
+	// Ghosts can hear other ghosts
 	if (me.isDead && other.isDead) {
 		gain.gain.value = 1;
 		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
 		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
 		return;
 	}
-	if (!me.isDead && other.isDead) {
+	// Living crewmates cannot hear ghosts
+	if (!me.isDead && other.isDead && (!me.isImpostor || !settings.haunting || state.gameState !== GameState.TASKS)) {
 		gain.gain.value = 0;
 		return;
 	}
@@ -85,6 +93,20 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Playe
 	if (gain.gain.value === 1 && Math.sqrt(Math.pow(panPos[0], 2) + Math.pow(panPos[1], 2)) > 7) {
 		gain.gain.value = 0;
 	}
+	// Living impostors hear ghosts at a faint volume
+	if (gain.gain.value > 0 && !me.isDead && me.isImpostor && other.isDead && settings.haunting) {
+		gain.gain.value = gain.gain.value * 0.015;
+		if (reverbGain != null) reverbGain.gain.value = 1;
+	}
+}
+
+function toArrayBuffer(buf: Buffer) {
+    var ab = new ArrayBuffer(buf.length);
+    var view = new Uint8Array(ab);
+    for (var i = 0; i < buf.length; ++i) {
+        view[i] = buf[i];
+    }
+    return ab;
 }
 
 
@@ -104,6 +126,12 @@ const Voice: React.FC = function () {
 	const [deafenedState, setDeafened] = useState(false);
 	const [connected, setConnected] = useState(false);
 
+	var reverbFile:any = null;
+	if (fs.existsSync("static/reverb.ogx"))
+		reverbFile = fs.readFileSync('static/reverb.ogx');
+	else if (fs.existsSync("resources/static/reverb.ogx"))
+		reverbFile = fs.readFileSync('resources/static/reverb.ogx');
+	
 	// Handle pushToTalk, if set
 	useEffect(() => {
 		if (!connectionStuff.current.stream) return;
@@ -225,10 +253,13 @@ const Voice: React.FC = function () {
 						document.body.removeChild(audioElements.current[peer].element);
 						audioElements.current[peer].pan.disconnect();
 						audioElements.current[peer].gain.disconnect();
+						if (audioElements.current[peer].reverbGain != null) audioElements.current[peer].reverbGain.disconnect();
+						if (audioElements.current[peer].reverb != null) audioElements.current[peer].reverb.disconnect();
+						audioElements.current[peer].compressor.disconnect();
 						delete audioElements.current[peer];
 					}
 				}
-
+				
 				socket.emit('join', lobbyCode, playerId);
 			};
 			setConnect({ connect });
@@ -254,7 +285,9 @@ const Voice: React.FC = function () {
 					const context = new AudioContext();
 					const source = context.createMediaStreamSource(stream);
 					const gain = context.createGain();
-					const pan = context.createPanner();
+					const pan = context.createPanner();				
+					const compressor = context.createDynamicsCompressor();
+
 					pan.refDistance = 0.1;
 					pan.panningModel = 'equalpower';
 					pan.distanceModel = 'linear';
@@ -263,8 +296,31 @@ const Voice: React.FC = function () {
 
 					source.connect(pan);
 					pan.connect(gain);
+					gain.connect(compressor);
+					
+					var reverb:any = null;
+					var reverbGain:any = null;
+					if (settings.haunting) {
+						reverb = context.createConvolver();
+						reverbGain = context.createGain();					
+						reverbGain.gain.value = 0;
+						
+						context.decodeAudioData(toArrayBuffer(reverbFile), 
+							function(buffer) {
+								reverb.buffer = buffer;
+							},
+							function(e) {
+							  alert("Error when decoding audio data" + e);
+							}
+						);
+						
+						gain.connect(reverbGain);
+						reverbGain.connect(reverb);
+						reverb.connect(compressor);
+					}
+					
 					// Source -> pan -> gain -> VAD -> destination
-					VAD(context, gain, context.destination, {
+					VAD(context, compressor, context.destination, {
 						onVoiceStart: () => setTalking(true),
 						onVoiceStop: () => setTalking(false),
 						stereo: settingsRef.current.enableSpatialAudio
@@ -279,7 +335,7 @@ const Voice: React.FC = function () {
 							return socketPlayerIds;
 						});
 					};
-					audioElements.current[peer] = { element: audio, gain, pan };
+					audioElements.current[peer] = { element: audio, gain, pan, reverbGain, reverb, compressor };
 				});
 				connection.on('signal', (data) => {
 					socket.emit('signal', {
@@ -343,7 +399,7 @@ const Voice: React.FC = function () {
 		for (const player of otherPlayers) {
 			const audio = audioElements.current[playerSocketIds[player.id]];
 			if (audio) {
-				calculateVoiceAudio(gameState, settingsRef.current, myPlayer, player, audio.gain, audio.pan);
+				calculateVoiceAudio(gameState, settingsRef.current, myPlayer, player, audio.gain, audio.pan, audio.reverbGain);
 				if (connectionStuff.current.deafened) {
 					audio.gain.gain.value = 0;
 				}

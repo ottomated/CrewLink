@@ -98,6 +98,10 @@ const store = new Store<ISettings>({
 		enableSpatialAudio: {
 			type: 'boolean',
 			default: true
+		},
+		haunting: {
+			type: 'boolean',
+			default: true
 		}
 	}
 });
@@ -315,6 +319,13 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 				<span>
 					Exit to apply changes
 				</span>
+			</div>
+			<div className="form-control m" style={{ color: '#F45837' }} onClick={() => setSettings({
+				type: 'setOne',
+				action: ['haunting', !settings.haunting]
+			})}>
+				<input type="checkbox" checked={settings.haunting} style={{ color: '#F45837' }} readOnly />
+				<label>Impostors Hear Ghosts</label>
 			</div>
 		</div>
 	</div>;
