@@ -111,6 +111,7 @@ function App() {
 		deafenShortcut: 'RControl',
 		muteShortcut: 'RAlt',
 		hideCode: false,
+		hideServer: false,
 		enableSpatialAudio: true,
 		localLobbySettings: {
 			maxDistance: 5.32,

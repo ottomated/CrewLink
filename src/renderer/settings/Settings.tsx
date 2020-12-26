@@ -194,6 +194,10 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: false,
 		},
+		hideServer: {
+			type: 'boolean',
+			default: false,
+		},
 		enableSpatialAudio: {
 			type: 'boolean',
 			default: true,

@@ -8,6 +8,7 @@ export interface ISettings {
 	deafenShortcut: string;
 	muteShortcut: string;
 	hideCode: boolean;
+	hideServer: boolean;
 	enableSpatialAudio: boolean;
 	localLobbySettings: ILobbySettings;
 }
