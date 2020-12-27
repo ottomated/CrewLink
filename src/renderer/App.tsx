@@ -176,7 +176,6 @@ function App() {
 			break;
 	}
 
-	console.log(updaterState);
 	return (
 		<GameStateContext.Provider value={gameState}>
 			<LobbySettingsContext.Provider value={lobbySettings}>
@@ -191,7 +190,7 @@ function App() {
 							onClose={() => setSettingsOpen(false)}
 						/>
 						<Dialog fullWidth open={updaterState.state !== 'unavailable'}>
-							<DialogTitle>Installing Updates</DialogTitle>
+							<DialogTitle>Updating...</DialogTitle>
 							<DialogContent>
 								{((updaterState.state === 'downloading' || updaterState.state === 'downloaded') && updaterState.progress) &&
 									<>
