@@ -1,6 +1,5 @@
 import React from 'react';
 import { ipcRenderer } from 'electron';
-import './css/menu.css';
 import Footer from './Footer';
 import { IpcMessages } from '../common/ipc-messages';
 import makeStyles from '@material-ui/core/styles/makeStyles';
@@ -17,6 +16,33 @@ const useStyles = makeStyles((theme) => ({
 	error: {
 		paddingTop: theme.spacing(4),
 	},
+	menu: {
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'center',
+		justifyContent: 'start'
+	},
+	waiting: {
+		fontSize: 20,
+		marginTop: 12,
+		marginBottom: 12
+	},
+	button: {
+		color: 'white',
+		background: 'none',
+		padding: '2px 10px',
+		borderRadius: 10,
+		border: '4px solid white',
+		fontSize: 24,
+		outline: 'none',
+		fontWeight: 500,
+		fontFamily: '"Varela", sans-serif',
+		marginTop: 24,
+		'&:hover': {
+			borderColor: '#00ff00',
+			cursor: 'pointer'
+		}
+	}
 }));
 
 export interface MenuProps {
@@ -27,7 +53,7 @@ const Menu: React.FC<MenuProps> = function ({ error }: MenuProps) {
 	const classes = useStyles();
 	return (
 		<div className={classes.root}>
-			<div className="menu">
+			<div className={classes.menu}>
 				{error ? (
 					<div className={classes.error}>
 						<Typography align="center" variant="h6" color="error">
@@ -40,10 +66,10 @@ const Menu: React.FC<MenuProps> = function ({ error }: MenuProps) {
 					</div>
 				) : (
 					<>
-						<span className="waiting">Waiting for Among Us</span>
+						<span className={classes.waiting}>Waiting for Among Us</span>
 						<CircularProgress color="primary" size={40} />
 						<button
-							className="button"
+							className={classes.button}
 							onClick={() => {
 								ipcRenderer.send(IpcMessages.OPEN_AMONG_US_GAME);
 							}}

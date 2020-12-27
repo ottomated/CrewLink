@@ -16,6 +16,7 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import SupportLink from './SupportLink';
+import Divider from '@material-ui/core/Divider';
 
 export interface ExtendedAudioElement extends HTMLAudioElement {
 	setSinkId: (sinkId: string) => Promise<void>;
@@ -670,7 +671,7 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 					)}
 				</div>
 			</div>
-			{gameState.lobbyCode && <hr />}
+			{gameState.lobbyCode && <Divider />}
 			<Grid
 				container
 				spacing={1}
