@@ -1,6 +1,6 @@
 {
   "name": "crewlink",
-  "version": "1.1.6",
+  "version": "1.2.0",
   "license": "GPL-3.0-or-later",
   "description": "Free, open, Among Us proximity voice chat",
   "repository": {
@@ -21,41 +21,60 @@
     "lint": "eslint src",
     "dev": "electron-webpack dev",
     "compile": "electron-webpack",
-    "dist": "yarn compile && electron-builder --win --x64",
-    "publish": "yarn compile && electron-builder --win --x64 --publish always"
+    "dist": "yarn compile && electron-builder --win --x64 --ia32",
+    "dist:32": "yarn compile && electron-builder --win --ia32",
+    "dist:64": "yarn compile && electron-builder --win --x64",
+    "publish": "yarn compile && electron-builder --win --x64 --ia32 --publish always"
+  },
+  "iohook": {
+    "targets": [
+      "electron-80"
+    ],
+    "platforms": [
+      "win32"
+    ],
+    "arches": [
+      "x64",
+      "ia32"
+    ]
   },
   "dependencies": {
-    "ajv": "^6.12.6",
-    "analyser-frequency-average": "^1.0.0",
+    "@material-ui/core": "^4.11.2",
+    "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.57",
     "axios": "^0.21.0",
     "cross-spawn": "^7.0.3",
+    "deep-equal": "^2.0.5",
     "electron-store": "^6.0.1",
     "electron-updater": "^4.3.5",
     "electron-window-state": "^5.0.3",
-    "iohook": "git://github.com/ykhwong/iohook",
-    "jsondiffpatch": "^0.4.1",
+    "iohook": "^0.7.1",
     "memoryjs": "git://github.com/Rob--/memoryjs",
+    "pretty-bytes": "^5.5.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "react-spinners-kit": "^1.9.1",
-    "react-tooltip-lite": "^1.12.0",
     "registry-js": "^1.12.0",
     "simple-peer": "^9.8.0",
     "socket.io-client": "^2.3.1",
     "source-map-support": "^0.5.16",
     "structron": "^0.2.4",
-    "ts-interface-checker": "^0.1.13"
+    "valid-url": "^1.0.9"
   },
   "devDependencies": {
+    "@babel/core": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
     "@babel/preset-react": "^7.12.1",
     "@types/color": "^3.0.1",
     "@types/cross-spawn": "^6.0.2",
+    "@types/deep-equal": "^1.0.1",
     "@types/js-yaml": "^3.12.5",
     "@types/node": "12",
+    "@types/pretty-bytes": "^5.2.0",
     "@types/react": "^16.9.53",
     "@types/react-dom": "^16.9.8",
     "@types/simple-peer": "^9.6.1",
     "@types/socket.io-client": "^1.4.34",
+    "@types/valid-url": "^1.0.3",
     "@types/webpack-env": "^1.15.3",
     "@typescript-eslint/eslint-plugin": "^4.9.1",
     "@typescript-eslint/parser": "^4.9.1",
@@ -64,8 +83,11 @@
     "electron-webpack": "^2.8.2",
     "electron-webpack-ts": "^4.0.1",
     "eslint": "^7.15.0",
+    "eslint-config-prettier": "^7.1.0",
+    "eslint-plugin-prettier": "^3.3.0",
     "eslint-plugin-react": "^7.21.5",
-    "ts-interface-builder": "^0.2.2",
+    "prettier": "^2.2.1",
+    "prettier-eslint": "^12.0.0",
     "typescript": "^4.0.3",
     "webpack": "~4.42.1"
   }
