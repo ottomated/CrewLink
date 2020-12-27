@@ -655,7 +655,7 @@ const Voice: React.FC<VoiceProps> = function ({
 	} = {};
 
 	for (const k of Object.keys(socketClients)) {
-		if (socketClients[k].playerId)
+		if (socketClients[k].playerId !== undefined)
 			playerSocketIds[socketClients[k].playerId] = k;
 	}
 	return (
