@@ -37,6 +37,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import { GameState } from '../../common/AmongUsState';
 import Button from '@material-ui/core/Button';
+import { ipcRenderer, remote } from 'electron';
 
 interface StyleInput {
 	open: boolean;
@@ -214,6 +215,18 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: true,
 		},
+		compactOverlay: {
+			type: 'boolean',
+			default: false,
+		},
+		overlayPosition: {
+			type: 'string',
+			default: 'top',
+		},
+		enableOverlay: {
+			type: 'boolean',
+			default: true,
+		},
 		localLobbySettings: {
 			type: 'object',
 			properties: {
@@ -221,9 +234,14 @@ const store = new Store<ISettings>({
 					type: 'number',
 					default: 5.32,
 				},
+				haunting: {
+					type: 'boolean',
+					default: false,
+				},
 			},
 			default: {
 				maxDistance: 5.32,
+				haunting: false,
 			},
 		},
 	},
@@ -439,6 +457,18 @@ const Settings: React.FC<SettingsProps> = function ({
 		settings.serverURL,
 		settings.enableSpatialAudio,
 	]);
+
+	useEffect(() => {
+		remote
+			.getCurrentWindow()
+			.setAlwaysOnTop(settings.alwaysOnTop, 'screen-saver');
+	}, [settings.alwaysOnTop]);
+
+	useEffect(() => {
+		ipcRenderer.send('enableOverlay', settings.enableOverlay);
+	}, [settings.enableOverlay]);
+
+	remote?.getGlobal('overlay')?.webContents.send('overlaySettings', settings);
 
 	const [devices, setDevices] = useState<MediaDevice[]>([]);
 	const [_, updateDevices] = useReducer((state) => state + 1, 0);
@@ -699,6 +729,67 @@ const Settings: React.FC<SettingsProps> = function ({
 						/>
 					</Grid>
 				</Grid>
+
+				<Divider />
+				<Typography variant="h6">Overlay</Typography>
+				<FormControlLabel
+					label="Crewlink on top"
+					checked={settings.alwaysOnTop}
+					onChange={(_, checked: boolean) => {
+						setSettings({
+							type: 'setOne',
+							action: ['alwaysOnTop', checked],
+						});
+					}}
+					control={<Checkbox />}
+				/>
+				<FormControlLabel
+					label="Enable Overlay"
+					checked={settings.enableOverlay}
+					onChange={(_, checked: boolean) => {
+						setSettings({
+							type: 'setOne',
+							action: ['enableOverlay', checked],
+						});
+					}}
+					control={<Checkbox />}
+				/>
+				{settings.enableOverlay && (
+					<>
+						<FormControlLabel
+							label="compactOverlay"
+							checked={settings.compactOverlay}
+							onChange={(_, checked: boolean) => {
+								setSettings({
+									type: 'setOne',
+									action: ['compactOverlay', checked],
+								});
+							}}
+							control={<Checkbox />}
+						/>
+						<TextField
+							select
+							label="Overlay Position"
+							variant="outlined"
+							color="secondary"
+							value={settings.overlayPosition}
+							className={classes.shortcutField}
+							SelectProps={{ native: true }}
+							InputLabelProps={{ shrink: true }}
+							onChange={(ev) => {
+								setSettings({
+									type: 'setOne',
+									action: ['overlayPosition', ev.target.value],
+								});
+							}}
+							onClick={updateDevices}
+						>
+							<option value="top">Top Center</option>
+							<option value="bottom_left">Bottom Left</option>
+						</TextField>
+					</>
+				)}
+
 				<Divider />
 				<Typography variant="h6">Advanced</Typography>
 				<FormControlLabel
@@ -723,6 +814,7 @@ const Settings: React.FC<SettingsProps> = function ({
 					}}
 					control={<Checkbox />}
 				/>
+
 				<URLInput
 					initialURL={settings.serverURL}
 					onValidURL={(url: string) => {

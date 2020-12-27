@@ -52,6 +52,7 @@ function createMainWindow() {
 	});
 
 	mainWindowState.manage(window);
+
 	if (isDevelopment) {
 		// Force devtools into detached mode otherwise they are unusable
 		window.webContents.openDevTools({
@@ -83,7 +84,7 @@ function createMainWindow() {
 	window.on('closed', () => {
 		global.mainWindow = null;
 		if (global.overlay != null) {
-			global.overlay.close()
+			global.overlay.close();
 			global.overlay = null;
 		}
 	});
@@ -94,7 +95,7 @@ function createMainWindow() {
 			window.focus();
 		});
 	});
-
+	console.log('Opened app version: ', crewlinkVersion);
 	return window;
 }
 
@@ -104,26 +105,38 @@ if (!gotTheLock) {
 } else {
 	autoUpdater.checkForUpdates();
 	autoUpdater.on('update-available', () => {
-		global.mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
-			state: 'available',
-		});
+		global.mainWindow?.webContents.send(
+			IpcRendererMessages.AUTO_UPDATER_STATE,
+			{
+				state: 'available',
+			}
+		);
 	});
 	autoUpdater.on('error', (err: string) => {
-		global.mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
-			state: 'error',
-			error: err,
-		});
+		global.mainWindow?.webContents.send(
+			IpcRendererMessages.AUTO_UPDATER_STATE,
+			{
+				state: 'error',
+				error: err,
+			}
+		);
 	});
 	autoUpdater.on('download-progress', (progress: ProgressInfo) => {
-		global.mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
-			state: 'downloading',
-			progress,
-		});
+		global.mainWindow?.webContents.send(
+			IpcRendererMessages.AUTO_UPDATER_STATE,
+			{
+				state: 'downloading',
+				progress,
+			}
+		);
 	});
 	autoUpdater.on('update-downloaded', () => {
-		global.mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
-			state: 'downloaded',
-		});
+		global.mainWindow?.webContents.send(
+			IpcRendererMessages.AUTO_UPDATER_STATE,
+			{
+				state: 'downloaded',
+			}
+		);
 		app.relaunch();
 		autoUpdater.quitAndInstall();
 	});
@@ -171,31 +184,34 @@ if (!gotTheLock) {
 			webPreferences: {
 				nodeIntegration: true,
 				enableRemoteModule: true,
-				webSecurity: false
+				webSecurity: false,
 			},
-			...overlayWindow.WINDOW_OPTS
+			...overlayWindow.WINDOW_OPTS,
 		});
-
 
 		if (isDevelopment) {
 			overlay.webContents.openDevTools({
 				mode: 'detach',
 			});
-			overlay.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`)
+			overlay.loadURL(
+				`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`
+			);
 		} else {
-			overlay.loadURL(formatUrl({
-				pathname: joinPath(__dirname, 'index.html'),
-				protocol: 'file',
-				query: {
-					version: autoUpdater.currentVersion.version,
-					view: "overlay"
-				},
-				slashes: true
-			}))
+			overlay.loadURL(
+				formatUrl({
+					pathname: joinPath(__dirname, 'index.html'),
+					protocol: 'file',
+					query: {
+						version: autoUpdater.currentVersion.version,
+						view: 'overlay',
+					},
+					slashes: true,
+				})
+			);
 		}
 		overlay.setIgnoreMouseEvents(true);
 		overlayWindow.attachTo(overlay, 'Among Us');
-		
+
 		return overlay;
 	}
 
@@ -204,7 +220,7 @@ if (!gotTheLock) {
 		// on macOS it is common for applications to stay open until the user explicitly quits
 		if (process.platform !== 'darwin') {
 			if (global.overlay != null) {
-				global.overlay.close()
+				global.overlay.close();
 				global.overlay = null;
 			}
 			app.quit();
@@ -226,12 +242,8 @@ if (!gotTheLock) {
 		global.mainWindow = createMainWindow();
 	});
 
-
 	ipcMain.on('enableOverlay', async (_event, enable) => {
-		if (enable)
-			overlayWindow.show();
-		else
-			overlayWindow.hide();
+		if (enable) overlayWindow.show();
+		else overlayWindow.hide();
 	});
-
 }

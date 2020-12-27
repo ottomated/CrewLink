@@ -401,12 +401,7 @@ const Voice: React.FC<VoiceProps> = function ({
 				) => {
 					console.log('Connect called', lobbyCode, playerId, clientId);
 					socket.emit('leave');
-					remote
-						.getGlobal('overlay')
-						?.webContents?.send(
-							'overlayState',
-							lobbyCode === 'MENU' ? 'MENU' : 'VOICE'
-						);
+
 					if (lobbyCode === 'MENU') {
 						Object.keys(peerConnections).forEach((k) => {
 							disconnectPeer(k);
@@ -477,6 +472,10 @@ const Voice: React.FC<VoiceProps> = function ({
 						});
 
 						const setTalking = (talking: boolean) => {
+							if (!socketClientsRef.current[peer]) {
+								console.log('error with settalking: ', talking);
+								return;
+							}
 							const reallyTalking = talking && gain.gain.value > 0;
 							setOtherTalking((old) => ({
 								...old,
@@ -637,12 +636,14 @@ const Voice: React.FC<VoiceProps> = function ({
 			(gameState.oldGameState === GameState.DISCUSSION ||
 				gameState.oldGameState === GameState.TASKS)
 		) {
+			remote?.getGlobal('overlay')?.webContents?.send('overlayState', 'VOICE');
 			connect.connect(gameState.lobbyCode, myPlayer.id, gameState.clientId);
 		} else if (
 			gameState.oldGameState !== GameState.UNKNOWN &&
 			gameState.oldGameState !== GameState.MENU &&
 			gameState.gameState === GameState.MENU
 		) {
+			remote?.getGlobal('overlay')?.webContents?.send('overlayState', 'MENU');
 			// On change from a game to menu, exit from the current game properly
 			connectionStuff.current.socket?.emit('leave');
 			Object.keys(peerConnections).forEach((k) => {

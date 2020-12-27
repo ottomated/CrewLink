@@ -6,8 +6,12 @@ import MicOff from '@material-ui/icons/MicOff';
 import VolumeOff from '@material-ui/icons/VolumeOff';
 import WifiOff from '@material-ui/icons/WifiOff';
 import LinkOff from '@material-ui/icons/LinkOff';
-import Tooltip from '@material-ui/core/Tooltip';
-import { SocketConfig } from './Voice';
+// import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from 'react-tooltip-lite';
+
+export interface SocketConfig{
+	volume : number
+}
 
 interface UseStylesParams {
 	size: number;
@@ -105,7 +109,13 @@ const Avatar: React.FC<AvatarProps> = function ({
 	}
 
 	return (
-		<Tooltip title={player.name} arrow placement="top">
+		<Tooltip useHover={!player.isLocal} content={(<div><b>{player?.name}</b><div className="slidecontainer" style={{ minWidth:'55px'}}>
+			
+			<input type="range" min="0" max="2" value={socketConfig?.volume} className="relativeGainSlider" style={{ width:'50px'}} step="any"  onChange={(ev): void => {
+				if(socketConfig)
+					socketConfig.volume = parseFloat(ev.target.value);
+			}} ></input>
+		</div> </div>)} padding={5}>
 			<div className={classes.avatar}>
 				<Canvas
 					className={classes.canvas}

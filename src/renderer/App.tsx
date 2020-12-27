@@ -5,10 +5,9 @@ import React, {
 	useReducer,
 	useState,
 } from 'react';
-import ReactDOM from 'react-dom';
 import Voice from './Voice';
 import Menu from './Menu';
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, remote } from 'electron';
 import { AmongUsState } from '../common/AmongUsState';
 import Settings, {
 	settingsReducer,
@@ -135,6 +134,7 @@ export default function App() : JSX.Element {
 		enableOverlay: false,
 		localLobbySettings: {
 			maxDistance: 5.32,
+			haunting: false
 		},
 	});
 	const lobbySettings = useReducer(
@@ -144,21 +144,14 @@ export default function App() : JSX.Element {
 
 	useEffect(() => {
 		const onOpen = (_: Electron.IpcRendererEvent, isOpen: boolean) => {
-
 			setState(isOpen ? AppState.VOICE : AppState.MENU);
-			const overlay = remote.getGlobal('overlay');
-			if (overlay) {
-				overlay.webContents.send('overlayState', 'MENU');
-			}
-	
+			remote?.getGlobal('overlay')?.send('overlayState', 'MENU');
 		};
 		const onState = (_: Electron.IpcRendererEvent, newState: AmongUsState) => {
 			setGameState(newState);
-			const overlay = remote.getGlobal('overlay');
-			if (overlay) {
-				overlay.webContents.send('overlayGameState', newState);
-			}
+			remote?.getGlobal('overlay')?.webContents.send('overlayGameState', newState);
 		};
+
 		const onError = (_: Electron.IpcRendererEvent, error: string) => {
 			shouldInit = false;
 			setError(error);

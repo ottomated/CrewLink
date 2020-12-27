@@ -32,7 +32,7 @@ const Footer: React.FC = function () {
 					height={36}
 					viewBox="0 0 24 24"
 					onClick={() => {
-						shell.openExternal('https://github.com/ottomated/crewlink');
+						shell.openExternal('https://github.com/OhMyGuus/BetterCrewlink');
 					}}
 				>
 					<path

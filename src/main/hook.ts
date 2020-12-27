@@ -8,6 +8,7 @@ import {
 	IpcRendererMessages,
 	IpcSyncMessages,
 } from '../common/ipc-messages';
+import { overlayWindow } from 'electron-overlay-window';
 
 interface IOHookEvent {
 	type: string;
@@ -83,7 +84,7 @@ ipcMain.handle(IpcHandlerMessages.START_HOOK, async (event) => {
 			}
 		});
 
-		iohook.start();
+	//	iohook.start();
 
 		// Read game memory
 		gameReader = new GameReader(event.sender.send.bind(event.sender));
