@@ -50,9 +50,9 @@ export interface IOffsets {
 		}[];
 	};
 	signatures: {
-		innerNetClient: ISignature
-		meetingHud: ISignature
-		gameData: ISignature
+		innerNetClient: ISignature;
+		meetingHud: ISignature;
+		gameData: ISignature;
 	};
 }
 

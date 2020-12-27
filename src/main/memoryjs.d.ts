@@ -97,7 +97,14 @@ declare module 'memoryjs' {
 		buffer: Buffer
 	): void;
 
-	export function findPattern(handle: number, moduleName: string, signature: string, signatureType: number , patternOffset: number, addressOffset: number): number;
+	export function findPattern(
+		handle: number,
+		moduleName: string,
+		signature: string,
+		signatureType: number,
+		patternOffset: number,
+		addressOffset: number
+	): number;
 
 	// Functions
 

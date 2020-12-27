@@ -319,7 +319,12 @@ export default class GameReader {
 	): T {
 		if (!this.amongUs) return defaultParam as T;
 		if (address === 0) return defaultParam as T;
-		dataType = (dataType == 'pointer' || dataType == 'ptr')? (this.is_64bit? 'uint64' : 'uint32') : dataType;
+		dataType =
+			dataType == 'pointer' || dataType == 'ptr'
+				? this.is_64bit
+					? 'uint64'
+					: 'uint32'
+				: dataType;
 		const { address: addr, last } = this.offsetAddress(address, offsets);
 		if (addr === 0) return defaultParam as T;
 		return readMemoryRaw<T>(this.amongUs.handle, addr + last, dataType);
