@@ -50,6 +50,14 @@ interface SocketClientMap {
 	[socketId: string]: Client;
 }
 
+interface playerConfigMap {
+	[socketId: number]: SocketConfig;
+}
+
+export interface SocketConfig {
+	volume: number;
+}
+
 interface ConnectionStuff {
 	socket?: typeof Socket;
 	stream?: MediaStream;
@@ -211,8 +219,10 @@ const Voice: React.FC<VoiceProps> = function ({
 		displayedLobbyCode = 'LOBBY';
 	const [talking, setTalking] = useState(false);
 	const [socketClients, setSocketClients] = useState<SocketClientMap>({});
+	const [playerConfigs] = useState<playerConfigMap>({});
 	const socketClientsRef = useRef(socketClients);
 	const [peerConnections, setPeerConnections] = useState<PeerConnections>({});
+
 	const [connect, setConnect] = useState<{
 		connect: (lobbyCode: string, playerId: number, clientId: number) => void;
 	} | null>(null);
@@ -613,6 +623,10 @@ const Voice: React.FC<VoiceProps> = function ({
 				if (connectionStuff.current.deafened) {
 					audio.gain.gain.value = 0;
 				}
+				if(audio.gain.gain.value > 0){
+					const playerVolume = playerConfigs[player.clientId]?.volume;
+					audio.gain.gain.value = playerVolume === undefined? audio.gain.gain.value  : audio.gain.gain.value * playerVolume;
+				}
 			}
 		}
 
@@ -745,6 +759,8 @@ const Voice: React.FC<VoiceProps> = function ({
 						.map(({ playerId }) => playerId)
 						.includes(player.id);
 					const audio = audioConnected[peer];
+					const socketConfig = playerConfigs[player.clientId];
+
 					return (
 						<Grid
 							item
@@ -760,6 +776,7 @@ const Voice: React.FC<VoiceProps> = function ({
 								borderColor="#2ecc71"
 								isAlive={!otherDead[player.id]}
 								size={50}
+								socketConfig={socketConfig}
 							/>
 						</Grid>
 					);

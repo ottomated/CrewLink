@@ -8,10 +8,8 @@ import WifiOff from '@material-ui/icons/WifiOff';
 import LinkOff from '@material-ui/icons/LinkOff';
 // import Tooltip from '@material-ui/core/Tooltip';
 import Tooltip from 'react-tooltip-lite';
+import { SocketConfig } from './Voice';
 
-export interface SocketConfig{
-	volume : number
-}
 
 interface UseStylesParams {
 	size: number;

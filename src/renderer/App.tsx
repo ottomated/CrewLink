@@ -28,6 +28,7 @@ import {
 } from '../common/ipc-messages';
 import theme from './theme';
 import SettingsIcon from '@material-ui/icons/Settings';
+import RefreshSharpIcon from '@material-ui/icons/RefreshSharp';
 import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
 import Dialog from '@material-ui/core/Dialog';
@@ -92,6 +93,14 @@ const TitleBar: React.FC<TitleBarProps> = function ({
 				onClick={() => setSettingsOpen(!settingsOpen)}
 			>
 				<SettingsIcon htmlColor="#777" />
+			</IconButton>
+			<IconButton
+				className={classes.button}
+				style={{ left: 22 }}
+				size="small"
+				onClick={() => ipcRenderer.send('reload')}
+			>
+			<RefreshSharpIcon htmlColor="#777" />
 			</IconButton>
 			<IconButton
 				className={classes.button}
