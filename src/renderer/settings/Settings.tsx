@@ -159,6 +159,9 @@ const store = new Store<ISettings>({
 			store.delete('stereoInLobby');
 		},
 		'1.2.0': (store) => {
+			if (store.get('serverURL') !== 'https://crewl.ink') {
+				store.set('serverURL', 'https://crewl.ink');
+			}
 			// @ts-ignore
 			store.delete('offsets');
 		},
