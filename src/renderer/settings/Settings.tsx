@@ -278,7 +278,6 @@ interface MediaDevice {
 
 function validateServerUrl(uri: string): boolean {
 	try {
-		if (uri.endsWith('/')) return false;
 		if (!isHttpUri(uri) && !isHttpsUri(uri)) return false;
 		const url = new URL(uri);
 		if (url.hostname === 'discord.gg') return false;
@@ -310,7 +309,6 @@ const URLInput: React.FC<URLInputProps> = function ({
 
 	function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
 		let url = event.target.value.trim();
-		if (url.endsWith('/')) url = url.substring(0, url.length - 1);
 		setCurrentURL(url);
 		if (validateServerUrl(url)) {
 			setURLValid(true);
@@ -336,7 +334,7 @@ const URLInput: React.FC<URLInputProps> = function ({
 						color="primary"
 						helperText={isValidURL ? '' : 'Invalid URL'}
 					/>
-					<Alert severity="error">This option is for advanced users only. Untrusted servers can potentially steal your info or crash CrewLink.</Alert>
+					<Alert severity="error">This option is for advanced users only. Other servers can steal your info or crash CrewLink.</Alert>
 					<Button color="primary" variant="contained" onClick={() => {
 						setOpen(false);
 						setURLValid(true);
@@ -351,7 +349,9 @@ const URLInput: React.FC<URLInputProps> = function ({
 					}}>Cancel</Button>
 					<Button disabled={!isValidURL} color="primary" onClick={() => {
 						setOpen(false);
-						onValidURL(currentURL);
+						let url = currentURL;
+						if (url.endsWith('/')) url = url.substring(0, url.length - 1);
+						onValidURL(url);
 					}}>Confirm</Button>
 				</DialogActions>
 			</Dialog>
