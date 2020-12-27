@@ -7,7 +7,7 @@ import Peer from 'simple-peer';
 import { ipcRenderer, remote } from 'electron';
 import VAD from './vad';
 import { ISettings } from '../common/ISettings';
-import { validatePeerConfig } from './validatePeerConfig';
+import { validateClientPeerConfig } from './validateClientPeerConfig';
 
 export interface ExtendedAudioElement extends HTMLAudioElement {
 	setSinkId: (sinkId: string) => Promise<void>;
@@ -44,16 +44,9 @@ interface OtherDead {
 	[playerId: number]: boolean; // isTalking
 }
 
-interface ICEServer {
-	url: string,
-	username: string | undefined,
-	credential: string | undefined,
-}
-
-interface PeerConfig {
-	forceRelayOnly: Boolean,
-	stunServers: ICEServer[],
-	turnServers: ICEServer[]
+interface ClientPeerConfig {
+	forceRelayOnly: boolean,
+	iceServers: RTCIceServer[]
 }
 
 const DEFAULT_ICE_CONFIG: RTCConfiguration = {
@@ -62,7 +55,7 @@ const DEFAULT_ICE_CONFIG: RTCConfiguration = {
 			urls: 'stun:stun.l.google.com:19302'
 		}
 	]
-}
+};
 
 function calculateVoiceAudio(state: AmongUsState, settings: ISettings, me: Player, other: Player, gain: GainNode, pan: PannerNode): void {
 	const audioContext = pan.context;
@@ -172,31 +165,27 @@ const Voice: React.FC = function () {
 		});
 
 		let iceConfig: RTCConfiguration = DEFAULT_ICE_CONFIG;
-		socket.on('peerConfig', (peerConfig: PeerConfig) => {
-			if (!validatePeerConfig(peerConfig)) {
-				alert(`Server sent a malformed peer config. Default config will be used.${validatePeerConfig.errors ?
-					` See errors below:\n${validatePeerConfig.errors.map(error => error.dataPath + ' ' + error.message).join('\n')}` : ``
-					}`);
+		socket.on('clientPeerConfig', (clientPeerConfig: ClientPeerConfig) => {
+			if (!validateClientPeerConfig(clientPeerConfig)) {
+				alert(`Server sent a malformed peer config. Default config will be used.${validateClientPeerConfig.errors ?
+					` See errors below:\n${validateClientPeerConfig.errors.map(error => error.dataPath + ' ' + error.message).join('\n')}` : ''
+				}`);
 				return;
 			}
 
-			if (peerConfig.forceRelayOnly && !peerConfig.turnServers) {
-				alert(`Server has forced relay mode enabled but provides no relay servers. Default config will be used.`);
+			if (
+				clientPeerConfig.forceRelayOnly &&
+				!clientPeerConfig.iceServers.some(server => server.urls.toString().includes('turn:'))
+			) {
+				alert('Server has forced relay mode enabled but provides no relay servers. Default config will be used.');
 				return;
 			}
 
 			iceConfig = {
-				iceTransportPolicy: peerConfig.forceRelayOnly ? 'relay' : 'all',
-				iceServers: [...(peerConfig.stunServers || []), ...(peerConfig.turnServers || [])]
-					.map((server) => {
-						return {
-							urls: server.url,
-							username: server.username,
-							credential: server.credential
-						}
-					})
+				iceTransportPolicy: clientPeerConfig.forceRelayOnly ? 'relay' : 'all',
+				iceServers: clientPeerConfig.iceServers
 			};
-		})
+		});
 
 		// Initialize variables
 		let audioListener: {
@@ -282,6 +271,7 @@ const Voice: React.FC = function () {
 			};
 			setConnect({ connect });
 			function createPeerConnection(peer: string, initiator: boolean) {
+				console.log(iceConfig);
 				const connection = new Peer({
 					stream,
 					initiator,
