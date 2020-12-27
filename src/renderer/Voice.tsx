@@ -17,6 +17,7 @@ import Grid from '@material-ui/core/Grid';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import SupportLink from './SupportLink';
 import Divider from '@material-ui/core/Divider';
+import { validateClientPeerConfig } from './validateClientPeerConfig';
 
 export interface ExtendedAudioElement extends HTMLAudioElement {
 	setSinkId: (sinkId: string) => Promise<void>;
@@ -86,6 +87,19 @@ interface Client {
 interface SocketError {
 	message?: string;
 }
+
+interface ClientPeerConfig {
+	forceRelayOnly: boolean;
+	iceServers: RTCIceServer[];
+}
+
+const DEFAULT_ICE_CONFIG: RTCConfiguration = {
+	iceServers: [
+		{
+			urls: 'stun:stun.l.google.com:19302',
+		},
+	],
+};
 
 function calculateVoiceAudio(
 	state: AmongUsState,
@@ -334,6 +348,39 @@ const Voice: React.FC<VoiceProps> = function ({
 			setConnected(false);
 		});
 
+		let iceConfig: RTCConfiguration = DEFAULT_ICE_CONFIG;
+		socket.on('clientPeerConfig', (clientPeerConfig: ClientPeerConfig) => {
+			if (!validateClientPeerConfig(clientPeerConfig)) {
+				let errorsFormatted = '';
+				if (validateClientPeerConfig.errors) {
+					errorsFormatted = validateClientPeerConfig.errors
+						.map((error) => error.dataPath + ' ' + error.message)
+						.join('\n');
+				}
+				alert(
+					`Server sent a malformed peer config. Default config will be used. See errors below:\n${errorsFormatted}`
+				);
+				return;
+			}
+
+			if (
+				clientPeerConfig.forceRelayOnly &&
+				!clientPeerConfig.iceServers.some((server) =>
+					server.urls.toString().includes('turn:')
+				)
+			) {
+				alert(
+					'Server has forced relay mode enabled but provides no relay servers. Default config will be used.'
+				);
+				return;
+			}
+
+			iceConfig = {
+				iceTransportPolicy: clientPeerConfig.forceRelayOnly ? 'relay' : 'all',
+				iceServers: clientPeerConfig.iceServers,
+			};
+		});
+
 		// Initialize variables
 		let audioListener: {
 			connect: () => void;
@@ -428,13 +475,7 @@ const Voice: React.FC<VoiceProps> = function ({
 					const connection = new Peer({
 						stream,
 						initiator,
-						config: {
-							iceServers: [
-								{
-									urls: 'stun:stun.l.google.com:19302',
-								},
-							],
-						},
+						config: iceConfig,
 					});
 					setPeerConnections((connections) => {
 						connections[peer] = connection;
