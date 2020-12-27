@@ -77,8 +77,13 @@ export default class GameReader {
 		return;
 	}
 
-	loop(): void {
-		this.checkProcessOpen();
+	loop(): string | null {
+
+		try {
+			this.checkProcessOpen();
+		} catch (e) {
+			return e;
+		}
 		if (
 			this.PlayerStruct &&
 			this.offsets &&
@@ -246,6 +251,7 @@ export default class GameReader {
 			this.lastState = newState;
 			this.oldGameState = state;
 		}
+		return null;
 	}
 
 	constructor(sendIPC: Electron.WebContents['send']) {
