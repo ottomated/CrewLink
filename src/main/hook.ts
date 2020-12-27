@@ -134,7 +134,7 @@ type K = keyof typeof keycodeMap;
 
 function keyCodeMatches(key: K, ev: IOHookEvent): boolean {
 	if (keycodeMap[key]) return keycodeMap[key] === ev.keycode;
-	else if (key.length === 1) return key.charCodeAt(0) === ev.rawcode;
+	else if (key && key.length === 1) return key.charCodeAt(0) === ev.rawcode;
 	else {
 		console.error('Invalid key', key);
 		return false;
