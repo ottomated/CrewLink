@@ -68,7 +68,7 @@ function createMainWindow() {
 			})
 		);
 	}
-	window.webContents.userAgent = `CrewLink/${crewlinkVersion} (${process.platform}) Node/${process.versions.node} Electron/${process.versions.electron}`;
+	window.webContents.userAgent = `CrewLink/${crewlinkVersion} (${process.platform})`;
 
 	window.on('closed', () => {
 		mainWindow = null;
