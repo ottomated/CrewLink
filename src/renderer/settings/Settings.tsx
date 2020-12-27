@@ -200,6 +200,7 @@ const store = new Store<ISettings>({
 					default: 5.32,
 				},
 			},
+			default:{},
 		},
 	},
 });
