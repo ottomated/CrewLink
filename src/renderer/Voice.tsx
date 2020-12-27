@@ -65,6 +65,10 @@ interface Client {
 	clientId: number;
 }
 
+interface SocketError {
+	message?: string;
+}
+
 function calculateVoiceAudio(
 	state: AmongUsState,
 	settings: ISettings,
@@ -183,7 +187,8 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
+const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProps) {
+	const [error, setError] = useState(initialError);
 	const [settings, setSettings] = useContext(SettingsContext);
 	const settingsRef = useRef<ISettings>(settings);
 	const [lobbySettings, setLobbySettings] = useContext(LobbySettingsContext);
@@ -295,6 +300,11 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 		});
 		const { socket } = connectionStuff.current;
 
+		socket.on('error', (error: SocketError) => {
+			if (error.message) {
+				setError(error.message);
+			}
+		});
 		socket.on('connect', () => {
 			setConnected(true);
 		});
@@ -500,10 +510,11 @@ const Voice: React.FC<VoiceProps> = function ({ error }: VoiceProps) {
 			},
 			(error) => {
 				console.error(error);
-				ipcRenderer.send(IpcMessages.SHOW_ERROR_DIALOG, {
-					title: 'Error',
-					content: 'Couldn\'t connect to your microphone:\n' + error
-				});
+				setError('Couldn\'t connect to your microphone:\n' + error);
+				// ipcRenderer.send(IpcMessages.SHOW_ERROR_DIALOG, {
+				// 	title: 'Error',
+				// 	content: 'Couldn\'t connect to your microphone:\n' + error
+				// });
 			}
 		);
 
