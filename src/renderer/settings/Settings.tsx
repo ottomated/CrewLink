@@ -216,6 +216,9 @@ const store = new Store<ISettings>({
 					default: 5.32,
 				},
 			},
+			default: {
+				maxDistance: 5.32
+			}
 		},
 	},
 });
@@ -309,7 +312,6 @@ const URLInput: React.FC<URLInputProps> = function ({
 		let url = event.target.value.trim();
 		if (url.endsWith('/')) url = url.substring(0, url.length - 1);
 		setCurrentURL(url);
-		console.log(url, validateServerUrl(url));
 		if (validateServerUrl(url)) {
 			setURLValid(true);
 		} else {
@@ -392,7 +394,6 @@ const Settings: React.FC<SettingsProps> = function ({
 			type: 'set',
 			action: store.store,
 		});
-		console.log(store.get('localLobbySettings'));
 		setLobbySettings({
 			type: 'set',
 			action: store.get('localLobbySettings')
