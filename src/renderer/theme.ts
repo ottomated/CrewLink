@@ -5,12 +5,12 @@ import { red, purple } from '@material-ui/core/colors';
 const theme = createMuiTheme({
 	palette: {
 		primary: {
-			main: purple[300]
+			main: purple[300],
 		},
 		secondary: red,
 		background: {
 			default: '#27232a',
-			paper: '#272727'
+			paper: '#272727',
 		},
 		type: 'dark',
 	},

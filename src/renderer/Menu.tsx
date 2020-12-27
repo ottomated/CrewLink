@@ -20,12 +20,12 @@ const useStyles = makeStyles((theme) => ({
 		display: 'flex',
 		flexDirection: 'column',
 		alignItems: 'center',
-		justifyContent: 'start'
+		justifyContent: 'start',
 	},
 	waiting: {
 		fontSize: 20,
 		marginTop: 12,
-		marginBottom: 12
+		marginBottom: 12,
 	},
 	button: {
 		color: 'white',
@@ -40,9 +40,9 @@ const useStyles = makeStyles((theme) => ({
 		marginTop: 24,
 		'&:hover': {
 			borderColor: '#00ff00',
-			cursor: 'pointer'
-		}
-	}
+			cursor: 'pointer',
+		},
+	},
 }));
 
 export interface MenuProps {

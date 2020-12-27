@@ -1,5 +1,11 @@
 import Store from 'electron-store';
-import React, { ReactChild, useContext, useEffect, useReducer, useState } from 'react';
+import React, {
+	ReactChild,
+	useContext,
+	useEffect,
+	useReducer,
+	useState,
+} from 'react';
 import {
 	SettingsContext,
 	LobbySettingsContext,
@@ -99,9 +105,9 @@ const useStyles = makeStyles((theme) => ({
 		alignItems: 'center',
 		justifyContent: 'start',
 		'&>*': {
-			marginBottom: theme.spacing(1)
-		}
-	}
+			marginBottom: theme.spacing(1),
+		},
+	},
 }));
 
 const keys = new Set([
@@ -217,8 +223,8 @@ const store = new Store<ISettings>({
 				},
 			},
 			default: {
-				maxDistance: 5.32
-			}
+				maxDistance: 5.32,
+			},
 		},
 	},
 });
@@ -275,7 +281,6 @@ interface MediaDevice {
 	label: string;
 }
 
-
 function validateServerUrl(uri: string): boolean {
 	try {
 		if (!isHttpUri(uri) && !isHttpsUri(uri)) return false;
@@ -297,7 +302,7 @@ type URLInputProps = {
 const URLInput: React.FC<URLInputProps> = function ({
 	initialURL,
 	onValidURL,
-	className
+	className,
 }: URLInputProps) {
 	const [isValidURL, setURLValid] = useState(true);
 	const [currentURL, setCurrentURL] = useState(initialURL);
@@ -308,7 +313,7 @@ const URLInput: React.FC<URLInputProps> = function ({
 	}, [initialURL]);
 
 	function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-		let url = event.target.value.trim();
+		const url = event.target.value.trim();
 		setCurrentURL(url);
 		if (validateServerUrl(url)) {
 			setURLValid(true);
@@ -319,7 +324,13 @@ const URLInput: React.FC<URLInputProps> = function ({
 
 	return (
 		<>
-			<Button variant="contained" color="secondary" onClick={() => setOpen(true)}>Change Voice Server</Button>
+			<Button
+				variant="contained"
+				color="secondary"
+				onClick={() => setOpen(true)}
+			>
+				Change Voice Server
+			</Button>
 			<Dialog fullScreen open={open} onClose={() => setOpen(false)}>
 				<DialogTitle>Change Voice Server</DialogTitle>
 				<DialogContent className={className}>
@@ -334,25 +345,45 @@ const URLInput: React.FC<URLInputProps> = function ({
 						color="primary"
 						helperText={isValidURL ? '' : 'Invalid URL'}
 					/>
-					<Alert severity="error">This option is for advanced users only. Other servers can steal your info or crash CrewLink.</Alert>
-					<Button color="primary" variant="contained" onClick={() => {
-						setOpen(false);
-						setURLValid(true);
-						onValidURL('https://crewl.ink');
-					}}>Reset to default</Button>
+					<Alert severity="error">
+						This option is for advanced users only. Other servers can steal your
+						info or crash CrewLink.
+					</Alert>
+					<Button
+						color="primary"
+						variant="contained"
+						onClick={() => {
+							setOpen(false);
+							setURLValid(true);
+							onValidURL('https://crewl.ink');
+						}}
+					>
+						Reset to default
+					</Button>
 				</DialogContent>
 				<DialogActions>
-					<Button color="primary" onClick={() => {
-						setURLValid(true);
-						setOpen(false)
-						setCurrentURL(initialURL);
-					}}>Cancel</Button>
-					<Button disabled={!isValidURL} color="primary" onClick={() => {
-						setOpen(false);
-						let url = currentURL;
-						if (url.endsWith('/')) url = url.substring(0, url.length - 1);
-						onValidURL(url);
-					}}>Confirm</Button>
+					<Button
+						color="primary"
+						onClick={() => {
+							setURLValid(true);
+							setOpen(false);
+							setCurrentURL(initialURL);
+						}}
+					>
+						Cancel
+					</Button>
+					<Button
+						disabled={!isValidURL}
+						color="primary"
+						onClick={() => {
+							setOpen(false);
+							let url = currentURL;
+							if (url.endsWith('/')) url = url.substring(0, url.length - 1);
+							onValidURL(url);
+						}}
+					>
+						Confirm
+					</Button>
 				</DialogActions>
 			</Dialog>
 		</>
@@ -365,19 +396,19 @@ interface DisabledTooltipProps {
 	children: ReactChild;
 }
 
-const DisabledTooltip: React.FC<DisabledTooltipProps> = function ({ disabled, children, title }: DisabledTooltipProps) {
+const DisabledTooltip: React.FC<DisabledTooltipProps> = function ({
+	disabled,
+	children,
+	title,
+}: DisabledTooltipProps) {
 	if (disabled)
 		return (
 			<Tooltip placement="top" arrow title={title}>
 				<span>{children}</span>
 			</Tooltip>
 		);
-	else return (
-		<>
-			{children}
-		</>
-	);
-}
+	else return <>{children}</>;
+};
 
 const Settings: React.FC<SettingsProps> = function ({
 	open,
@@ -396,7 +427,7 @@ const Settings: React.FC<SettingsProps> = function ({
 		});
 		setLobbySettings({
 			type: 'set',
-			action: store.get('localLobbySettings')
+			action: store.get('localLobbySettings'),
 		});
 	}, []);
 
@@ -466,13 +497,19 @@ const Settings: React.FC<SettingsProps> = function ({
 
 	const microphones = devices.filter((d) => d.kind === 'audioinput');
 	const speakers = devices.filter((d) => d.kind === 'audiooutput');
-	const [localDistance, setLocalDistance] = useState(settings.localLobbySettings.maxDistance);
+	const [localDistance, setLocalDistance] = useState(
+		settings.localLobbySettings.maxDistance
+	);
 	useEffect(() => {
 		setLocalDistance(settings.localLobbySettings.maxDistance);
 	}, [settings.localLobbySettings.maxDistance]);
 
-	const isInMenuOrLobby = gameState?.gameState === GameState.LOBBY || gameState?.gameState === GameState.MENU;
-	const canChangeLobbySettings = (gameState?.gameState === GameState.MENU) || (gameState?.isHost && gameState?.gameState === GameState.LOBBY);
+	const isInMenuOrLobby =
+		gameState?.gameState === GameState.LOBBY ||
+		gameState?.gameState === GameState.MENU;
+	const canChangeLobbySettings =
+		gameState?.gameState === GameState.MENU ||
+		(gameState?.isHost && gameState?.gameState === GameState.LOBBY);
 
 	return (
 		<Box className={classes.root}>
@@ -499,8 +536,18 @@ const Settings: React.FC<SettingsProps> = function ({
 				{/* Lobby Settings */}
 				<div>
 					<Typography variant="h6">Lobby Settings</Typography>
-					<Typography gutterBottom>Voice Distance: {canChangeLobbySettings ? localDistance : lobbySettings.maxDistance}</Typography>
-					<DisabledTooltip disabled={!canChangeLobbySettings} title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}>
+					<Typography gutterBottom>
+						Voice Distance:{' '}
+						{canChangeLobbySettings ? localDistance : lobbySettings.maxDistance}
+					</Typography>
+					<DisabledTooltip
+						disabled={!canChangeLobbySettings}
+						title={
+							isInMenuOrLobby
+								? 'Only the game host can change this!'
+								: 'You can only change this in the lobby!'
+						}
+					>
 						<Slider
 							disabled={!canChangeLobbySettings}
 							value={

@@ -56,7 +56,10 @@ const TestMicrophoneButton: React.FC<TestMicProps> = function ({
 		};
 
 		navigator.mediaDevices
-			.getUserMedia({ audio: { deviceId: microphone ?? 'default' }, video: false })
+			.getUserMedia({
+				audio: { deviceId: microphone ?? 'default' },
+				video: false,
+			})
 			.then((stream) => {
 				const src = ctx.createMediaStreamSource(stream);
 				src.connect(processor);

@@ -26,7 +26,17 @@ interface PeerConnections {
 	[peer: string]: Peer.Instance;
 }
 
-type PeerErrorCode = 'ERR_WEBRTC_SUPPORT' | 'ERR_CREATE_OFFER' | 'ERR_CREATE_ANSWER' | 'ERR_SET_LOCAL_DESCRIPTION' | 'ERR_SET_REMOTE_DESCRIPTION' | 'ERR_ADD_ICE_CANDIDATE' | 'ERR_ICE_CONNECTION_FAILURE' | 'ERR_SIGNALING' | 'ERR_DATA_CHANNEL' | 'ERR_CONNECTION_FAILURE';
+type PeerErrorCode =
+	| 'ERR_WEBRTC_SUPPORT'
+	| 'ERR_CREATE_OFFER'
+	| 'ERR_CREATE_ANSWER'
+	| 'ERR_SET_LOCAL_DESCRIPTION'
+	| 'ERR_SET_REMOTE_DESCRIPTION'
+	| 'ERR_ADD_ICE_CANDIDATE'
+	| 'ERR_ICE_CONNECTION_FAILURE'
+	| 'ERR_SIGNALING'
+	| 'ERR_DATA_CHANNEL'
+	| 'ERR_CONNECTION_FAILURE';
 
 interface AudioElements {
 	[peer: string]: {
@@ -187,7 +197,9 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProps) {
+const Voice: React.FC<VoiceProps> = function ({
+	error: initialError,
+}: VoiceProps) {
 	const [error, setError] = useState(initialError);
 	const [settings, setSettings] = useContext(SettingsContext);
 	const settingsRef = useRef<ISettings>(settings);
@@ -244,7 +256,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			try {
 				peer.send(JSON.stringify(settings.localLobbySettings));
 			} catch (e) {
-				console.warn("failed to update lobby settings: ", e);
+				console.warn('failed to update lobby settings: ', e);
 			}
 		});
 	}, [settings.localLobbySettings]);
@@ -351,12 +363,15 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 					setMuted(connectionStuff.current.muted);
 					setDeafened(connectionStuff.current.deafened);
 				});
-				ipcRenderer.on(IpcRendererMessages.PUSH_TO_TALK, (_: unknown, pressing: boolean) => {
-					if (!connectionStuff.current.pushToTalk) return;
-					if (!connectionStuff.current.deafened) {
-						stream.getAudioTracks()[0].enabled = pressing;
+				ipcRenderer.on(
+					IpcRendererMessages.PUSH_TO_TALK,
+					(_: unknown, pressing: boolean) => {
+						if (!connectionStuff.current.pushToTalk) return;
+						if (!connectionStuff.current.deafened) {
+							stream.getAudioTracks()[0].enabled = pressing;
+						}
 					}
-				});
+				);
 
 				const ac = new AudioContext();
 				ac.createMediaStreamSource(stream);
@@ -412,12 +427,12 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 							try {
 								connection.send(JSON.stringify(lobbySettingsRef.current));
 							} catch (e) {
-								console.warn("failed to update lobby settings: ", e);
+								console.warn('failed to update lobby settings: ', e);
 							}
 						}
 					});
 					connection.on('stream', (stream: MediaStream) => {
-						setAudioConnected(old => ({ ...old, [peer]: true }));
+						setAudioConnected((old) => ({ ...old, [peer]: true }));
 						const audio = document.createElement(
 							'audio'
 						) as ExtendedAudioElement;
@@ -478,7 +493,13 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						disconnectPeer(peer);
 
 						// Auto reconnect on connection error
-						if (initiator && errCode && retries < 10 && (errCode == 'ERR_CONNECTION_FAILURE' || errCode == 'ERR_DATA_CHANNEL')) {
+						if (
+							initiator &&
+							errCode &&
+							retries < 10 &&
+							(errCode == 'ERR_CONNECTION_FAILURE' ||
+								errCode == 'ERR_DATA_CHANNEL')
+						) {
 							createPeerConnection(peer, initiator);
 							retries++;
 						}
@@ -510,7 +531,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			},
 			(error) => {
 				console.error(error);
-				setError('Couldn\'t connect to your microphone:\n' + error);
+				setError("Couldn't connect to your microphone:\n" + error);
 				// ipcRenderer.send(IpcMessages.SHOW_ERROR_DIALOG, {
 				// 	title: 'Error',
 				// 	content: 'Couldn\'t connect to your microphone:\n' + error
@@ -591,8 +612,11 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				gameState.oldGameState === GameState.TASKS)
 		) {
 			connect.connect(gameState.lobbyCode, myPlayer.id, gameState.clientId);
-		}
-		else if (gameState.oldGameState !== GameState.UNKNOWN && gameState.oldGameState !== GameState.MENU && gameState.gameState === GameState.MENU) {
+		} else if (
+			gameState.oldGameState !== GameState.UNKNOWN &&
+			gameState.oldGameState !== GameState.MENU &&
+			gameState.gameState === GameState.MENU
+		) {
 			// On change from a game to menu, exit from the current game properly
 			connectionStuff.current.socket?.emit('leave');
 			Object.keys(peerConnections).forEach((k) => {
@@ -600,7 +624,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			});
 			setOtherDead({});
 		}
-
 	}, [gameState.gameState]);
 
 	useEffect(() => {
@@ -628,7 +651,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 	}, [myPlayer?.id]);
 
 	const playerSocketIds: {
-		[index: number]: string
+		[index: number]: string;
 	} = {};
 
 	for (const k of Object.keys(socketClients)) {
@@ -665,9 +688,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				)}
 				<div className={classes.right}>
 					{myPlayer && gameState?.gameState !== GameState.MENU && (
-						<span className={classes.username}>
-							{myPlayer.name}
-						</span>
+						<span className={classes.username}>{myPlayer.name}</span>
 					)}
 					{gameState.lobbyCode && (
 						<span
@@ -704,18 +725,20 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 							xs={getPlayersPerRow(otherPlayers.length)}
 						>
 							<Avatar
-								connectionState={!connected ? 'disconnected' : audio ? 'connected' : 'novoice'}
+								connectionState={
+									!connected ? 'disconnected' : audio ? 'connected' : 'novoice'
+								}
 								player={player}
 								talking={otherTalking[player.id]}
-								borderColor='#2ecc71'
+								borderColor="#2ecc71"
 								isAlive={!otherDead[player.id]}
 								size={50}
 							/>
 						</Grid>
 					);
 				})}
-			</Grid >
-		</div >
+			</Grid>
+		</div>
 	);
 };
 

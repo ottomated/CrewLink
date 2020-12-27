@@ -20,7 +20,13 @@ import {
 	LobbySettingsContext,
 } from './contexts';
 import { ThemeProvider } from '@material-ui/core/styles';
-import { AutoUpdaterState, IpcHandlerMessages, IpcMessages, IpcRendererMessages, IpcSyncMessages } from '../common/ipc-messages';
+import {
+	AutoUpdaterState,
+	IpcHandlerMessages,
+	IpcMessages,
+	IpcRendererMessages,
+	IpcSyncMessages,
+} from '../common/ipc-messages';
 import theme from './theme';
 import SettingsIcon from '@material-ui/icons/Settings';
 import CloseIcon from '@material-ui/icons/Close';
@@ -110,7 +116,9 @@ function App() {
 	const [gameState, setGameState] = useState<AmongUsState>({} as AmongUsState);
 	const [settingsOpen, setSettingsOpen] = useState(false);
 	const [error, setError] = useState('');
-	const [updaterState, setUpdaterState] = useState<AutoUpdaterState>({ state: 'unavailable' });
+	const [updaterState, setUpdaterState] = useState<AutoUpdaterState>({
+		state: 'unavailable',
+	});
 	const settings = useReducer(settingsReducer, {
 		alwaysOnTop: false,
 		microphone: 'Default',
@@ -126,7 +134,10 @@ function App() {
 			maxDistance: 5.32,
 		},
 	});
-	const lobbySettings = useReducer(lobbySettingsReducer, settings[0].localLobbySettings);
+	const lobbySettings = useReducer(
+		lobbySettingsReducer,
+		settings[0].localLobbySettings
+	);
 
 	useEffect(() => {
 		const onOpen = (_: Electron.IpcRendererEvent, isOpen: boolean) => {
@@ -139,26 +150,38 @@ function App() {
 			shouldInit = false;
 			setError(error);
 		};
-		const onAutoUpdaterStateChange = (_: Electron.IpcRendererEvent, state: AutoUpdaterState) => {
-			setUpdaterState(old => ({...old, ...state}));
-		}
+		const onAutoUpdaterStateChange = (
+			_: Electron.IpcRendererEvent,
+			state: AutoUpdaterState
+		) => {
+			setUpdaterState((old) => ({ ...old, ...state }));
+		};
 		let shouldInit = true;
-		ipcRenderer.invoke(IpcHandlerMessages.START_HOOK).then(() => {
-			if (shouldInit) {
-				setGameState(ipcRenderer.sendSync(IpcSyncMessages.GET_INITIAL_STATE));
-			}
-		}).catch((error: Error) => {
-			if (shouldInit) {
-				shouldInit = false;
-				setError(error.message);
-			}
-		});
-		ipcRenderer.on(IpcRendererMessages.AUTO_UPDATER_STATE, onAutoUpdaterStateChange);
+		ipcRenderer
+			.invoke(IpcHandlerMessages.START_HOOK)
+			.then(() => {
+				if (shouldInit) {
+					setGameState(ipcRenderer.sendSync(IpcSyncMessages.GET_INITIAL_STATE));
+				}
+			})
+			.catch((error: Error) => {
+				if (shouldInit) {
+					shouldInit = false;
+					setError(error.message);
+				}
+			});
+		ipcRenderer.on(
+			IpcRendererMessages.AUTO_UPDATER_STATE,
+			onAutoUpdaterStateChange
+		);
 		ipcRenderer.on(IpcRendererMessages.NOTIFY_GAME_OPENED, onOpen);
 		ipcRenderer.on(IpcRendererMessages.NOTIFY_GAME_STATE_CHANGED, onState);
 		ipcRenderer.on(IpcRendererMessages.ERROR, onError);
 		return () => {
-			ipcRenderer.off(IpcRendererMessages.AUTO_UPDATER_STATE, onAutoUpdaterStateChange);
+			ipcRenderer.off(
+				IpcRendererMessages.AUTO_UPDATER_STATE,
+				onAutoUpdaterStateChange
+			);
 			ipcRenderer.off(IpcRendererMessages.NOTIFY_GAME_OPENED, onOpen);
 			ipcRenderer.off(IpcRendererMessages.NOTIFY_GAME_STATE_CHANGED, onState);
 			ipcRenderer.off(IpcRendererMessages.ERROR, onError);
@@ -192,20 +215,37 @@ function App() {
 						<Dialog fullWidth open={updaterState.state !== 'unavailable'}>
 							<DialogTitle>Updating...</DialogTitle>
 							<DialogContent>
-								{((updaterState.state === 'downloading' || updaterState.state === 'downloaded') && updaterState.progress) &&
-									<>
-										<LinearProgress variant={updaterState.state === 'downloaded' ? "indeterminate" : "determinate"} value={updaterState.progress.percent} />
-										<DialogContentText>{prettyBytes(updaterState.progress.transferred)} / {prettyBytes(updaterState.progress.total)}</DialogContentText>
-									</>
-								}
-								{
-									updaterState.state === 'error' &&
-									<DialogContentText color="error">{updaterState.error}</DialogContentText>
-								}
+								{(updaterState.state === 'downloading' ||
+									updaterState.state === 'downloaded') &&
+									updaterState.progress && (
+										<>
+											<LinearProgress
+												variant={
+													updaterState.state === 'downloaded'
+														? 'indeterminate'
+														: 'determinate'
+												}
+												value={updaterState.progress.percent}
+											/>
+											<DialogContentText>
+												{prettyBytes(updaterState.progress.transferred)} /{' '}
+												{prettyBytes(updaterState.progress.total)}
+											</DialogContentText>
+										</>
+									)}
+								{updaterState.state === 'error' && (
+									<DialogContentText color="error">
+										{updaterState.error}
+									</DialogContentText>
+								)}
 							</DialogContent>
-							{updaterState.state === 'error' &&
-								<DialogActions><Button href="https://github.com/ottomated/CrewLink/releases/latest">Download Manually</Button></DialogActions>
-							}
+							{updaterState.state === 'error' && (
+								<DialogActions>
+									<Button href="https://github.com/ottomated/CrewLink/releases/latest">
+										Download Manually
+									</Button>
+								</DialogActions>
+							)}
 						</Dialog>
 						{page}
 					</ThemeProvider>

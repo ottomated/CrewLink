@@ -3,7 +3,11 @@ import GameReader from './GameReader';
 import iohook from 'iohook';
 import Store from 'electron-store';
 import { ISettings } from '../common/ISettings';
-import { IpcHandlerMessages, IpcRendererMessages, IpcSyncMessages } from '../common/ipc-messages';
+import {
+	IpcHandlerMessages,
+	IpcRendererMessages,
+	IpcSyncMessages,
+} from '../common/ipc-messages';
 
 interface IOHookEvent {
 	type: string;
@@ -23,7 +27,9 @@ let gameReader: GameReader;
 
 ipcMain.on(IpcSyncMessages.GET_INITIAL_STATE, (event) => {
 	if (!readingGame) {
-		console.error('Recieved GET_INITIAL_STATE message before the START_HOOK message was received');
+		console.error(
+			'Recieved GET_INITIAL_STATE message before the START_HOOK message was received'
+		);
 		event.returnValue = null;
 		return;
 	}

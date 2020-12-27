@@ -37,15 +37,15 @@ function createMainWindow() {
 		transparent: true,
 		webPreferences: {
 			nodeIntegration: true,
-			webSecurity: false
-		}
+			webSecurity: false,
+		},
 	});
 
 	mainWindowState.manage(window);
 	if (isDevelopment) {
 		// Force devtools into detached mode otherwise they are unusable
 		window.webContents.openDevTools({
-			mode: 'detach'
+			mode: 'detach',
 		});
 	}
 
@@ -91,19 +91,19 @@ if (!gotTheLock) {
 	autoUpdater.checkForUpdates();
 	autoUpdater.on('update-available', () => {
 		mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
-			state: 'available'
+			state: 'available',
 		});
 	});
 	autoUpdater.on('error', (err: string) => {
 		mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
 			state: 'error',
-			error: err
+			error: err,
 		});
 	});
 	autoUpdater.on('download-progress', (progress: ProgressInfo) => {
 		mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
 			state: 'downloading',
-			progress
+			progress,
 		});
 	});
 	autoUpdater.on('update-downloaded', () => {

@@ -89,7 +89,12 @@ const Avatar: React.FC<AvatarProps> = function ({
 			}
 			break;
 		case 'novoice':
-			icon = <LinkOff className={classes.icon} style={{background: '#e67e22', borderColor: '#694900'}}/>;
+			icon = (
+				<LinkOff
+					className={classes.icon}
+					style={{ background: '#e67e22', borderColor: '#694900' }}
+				/>
+			);
 			break;
 		case 'disconnected':
 			icon = <WifiOff className={classes.icon} />;
