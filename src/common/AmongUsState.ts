@@ -1,12 +1,11 @@
-
 export interface AmongUsState {
 	gameState: GameState;
 	oldGameState: GameState;
 	lobbyCode: string;
 	players: Player[];
+	isHost: boolean;
 	clientId: number;
 	hostId: number;
-	isHost: boolean;
 }
 
 export interface Player {
@@ -31,5 +30,9 @@ export interface Player {
 }
 
 export enum GameState {
-	LOBBY, TASKS, DISCUSSION, MENU, UNKNOWN
+	LOBBY,
+	TASKS,
+	DISCUSSION,
+	MENU,
+	UNKNOWN,
 }
