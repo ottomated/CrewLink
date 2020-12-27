@@ -1,4 +1,4 @@
-export interface IOffsetsContainer {
+export interface IOffsetsStore {
 	x64: IOffsets;
 	x86: IOffsets;
 }
@@ -182,4 +182,4 @@ export default {
 			},
 		},
 	},
-} as IOffsetsContainer;
+} as IOffsetsStore;
