@@ -42,7 +42,6 @@ function createMainWindow() {
 	});
 
 	mainWindowState.manage(window);
-
 	if (isDevelopment) {
 		// Force devtools into detached mode otherwise they are unusable
 		window.webContents.openDevTools({
@@ -50,11 +49,14 @@ function createMainWindow() {
 		});
 	}
 
+	let crewlinkVersion: string;
 	if (isDevelopment) {
+		crewlinkVersion = 'dev';
 		window.loadURL(
 			`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=DEV`
 		);
 	} else {
+		crewlinkVersion = autoUpdater.currentVersion.version;
 		window.loadURL(
 			formatUrl({
 				pathname: joinPath(__dirname, 'index.html'),
@@ -66,6 +68,7 @@ function createMainWindow() {
 			})
 		);
 	}
+	window.webContents.userAgent = `CrewLink/${crewlinkVersion} (${process.platform}) Node/${process.versions.node} Electron/${process.versions.electron}`;
 
 	window.on('closed', () => {
 		mainWindow = null;
