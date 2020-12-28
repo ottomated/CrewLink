@@ -7,25 +7,23 @@ import Overlay from './Overlay';
 
 // @ts-ignore
 class ViewManager extends Component {
-	
 	static Views() {
 		// @ts-ignore
-		const val:any = {
+		const val: any = {
 			// @ts-ignore
 			app: <App />,
 			// @ts-ignore
-			overlay: <Overlay />
+			overlay: <Overlay />,
 		};
 		return val;
 	}
- 
+
 	static View(props: any) {
 		const name = props.location.search.split('view=')[1];
 		// @ts-ignore
 		console.log('View type: ' + name);
 		const view = ViewManager.Views()[name];
-		if(view == null) 
-			throw new Error('View \'' + name + '\' is undefined');
+		if (view == null) throw new Error("View '" + name + "' is undefined");
 
 		return view;
 	}
@@ -34,7 +32,7 @@ class ViewManager extends Component {
 		return (
 			<Router>
 				<div>
-					<Route path='/' component={ViewManager.View}/>
+					<Route path="/" component={ViewManager.View} />
 				</div>
 			</Router>
 		);

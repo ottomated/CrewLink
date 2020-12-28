@@ -16,7 +16,6 @@ import equal from 'deep-equal';
 import offsetStore, { IOffsets } from './offsetStore';
 import Errors from '../common/Errors';
 
-
 interface ValueType<T> {
 	read(buffer: BufferSource, offset: number): T;
 	SIZE: number;
@@ -79,7 +78,6 @@ export default class GameReader {
 	}
 
 	loop(): string | null {
-
 		try {
 			this.checkProcessOpen();
 		} catch (e) {

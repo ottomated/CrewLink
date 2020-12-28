@@ -10,7 +10,6 @@ import LinkOff from '@material-ui/icons/LinkOff';
 import Tooltip from 'react-tooltip-lite';
 import { SocketConfig } from './Voice';
 
-
 interface UseStylesParams {
 	size: number;
 	borderColor: string;
@@ -107,13 +106,30 @@ const Avatar: React.FC<AvatarProps> = function ({
 	}
 
 	return (
-		<Tooltip useHover={!player.isLocal} content={(<div><b>{player?.name}</b><div className="slidecontainer" style={{ minWidth:'55px'}}>
-			
-			<input type="range" min="0" max="2" value={socketConfig?.volume} className="relativeGainSlider" style={{ width:'50px'}} step="any"  onChange={(ev): void => {
-				if(socketConfig)
-					socketConfig.volume = parseFloat(ev.target.value);
-			}} ></input>
-		</div> </div>)} padding={5}>
+		<Tooltip
+			useHover={!player.isLocal}
+			content={
+				<div>
+					<b>{player?.name}</b>
+					<div className="slidecontainer" style={{ minWidth: '55px' }}>
+						<input
+							type="range"
+							min="0"
+							max="2"
+							value={socketConfig?.volume}
+							className="relativeGainSlider"
+							style={{ width: '50px' }}
+							step="any"
+							onChange={(ev): void => {
+								if (socketConfig)
+									socketConfig.volume = parseFloat(ev.target.value);
+							}}
+						></input>
+					</div>{' '}
+				</div>
+			}
+			padding={5}
+		>
 			<div className={classes.avatar}>
 				<Canvas
 					className={classes.canvas}

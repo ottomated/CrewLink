@@ -60,7 +60,9 @@ export const initializeIpcListeners = (): void => {
 			overlay?.close();
 			mainWindow?.destroy();
 			overlay?.destroy();
-		} catch {}
+		} catch {
+			/* empty */
+		}
 		app.quit();
 	});
 };

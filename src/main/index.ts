@@ -91,7 +91,9 @@ function createMainWindow() {
 			overlay?.close();
 			mainWindow?.destroy();
 			overlay?.destroy();
-		} catch {}
+		} catch {
+			/* empty */
+		}
 	});
 
 	window.webContents.on('devtools-opened', () => {
@@ -102,6 +104,44 @@ function createMainWindow() {
 	});
 	console.log('Opened app version: ', crewlinkVersion);
 	return window;
+}
+
+function createOverlay() {
+	const overlay = new BrowserWindow({
+		width: 400,
+		height: 300,
+		webPreferences: {
+			nodeIntegration: true,
+			enableRemoteModule: true,
+			webSecurity: false,
+		},
+		...overlayWindow.WINDOW_OPTS,
+	});
+
+	if (isDevelopment) {
+		overlay.webContents.openDevTools({
+			mode: 'detach',
+		});
+		overlay.loadURL(
+			`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`
+		);
+	} else {
+		overlay.loadURL(
+			formatUrl({
+				pathname: joinPath(__dirname, 'index.html'),
+				protocol: 'file',
+				query: {
+					version: autoUpdater.currentVersion.version,
+					view: 'overlay',
+				},
+				slashes: true,
+			})
+		);
+	}
+	overlay.setIgnoreMouseEvents(true);
+	overlayWindow.attachTo(overlay, 'Among Us');
+
+	return overlay;
 }
 
 const gotTheLock = app.requestSingleInstanceLock();
@@ -174,52 +214,6 @@ if (!gotTheLock) {
 	// 	}, 100);
 	// }, 10000);
 
-	app.on('second-instance', () => {
-		// Someone tried to run a second instance, we should focus our window.
-		if (global.mainWindow) {
-			if (global.mainWindow.isMinimized()) global.mainWindow.restore();
-			global.mainWindow.focus();
-		}
-	});
-
-	function createOverlay() {
-		const overlay = new BrowserWindow({
-			width: 400,
-			height: 300,
-			webPreferences: {
-				nodeIntegration: true,
-				enableRemoteModule: true,
-				webSecurity: false,
-			},
-			...overlayWindow.WINDOW_OPTS,
-		});
-
-		if (isDevelopment) {
-			overlay.webContents.openDevTools({
-				mode: 'detach',
-			});
-			overlay.loadURL(
-				`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`
-			);
-		} else {
-			overlay.loadURL(
-				formatUrl({
-					pathname: joinPath(__dirname, 'index.html'),
-					protocol: 'file',
-					query: {
-						version: autoUpdater.currentVersion.version,
-						view: 'overlay',
-					},
-					slashes: true,
-				})
-			);
-		}
-		overlay.setIgnoreMouseEvents(true);
-		overlayWindow.attachTo(overlay, 'Among Us');
-
-		return overlay;
-	}
-
 	// quit application when all windows are closed
 	app.on('window-all-closed', () => {
 		// on macOS it is common for applications to stay open until the user explicitly quits
@@ -231,7 +225,9 @@ if (!gotTheLock) {
 			overlay?.close();
 			mainWindow?.destroy();
 			overlay?.destroy();
-		} catch {}
+		} catch {
+			/* empty */
+		}
 		app.quit();
 	});
 
@@ -248,6 +244,14 @@ if (!gotTheLock) {
 		initializeIpcHandlers();
 		global.overlay = createOverlay();
 		global.mainWindow = createMainWindow();
+	});
+
+	app.on('second-instance', () => {
+		// Someone tried to run a second instance, we should focus our window.
+		if (global.mainWindow) {
+			if (global.mainWindow.isMinimized()) global.mainWindow.restore();
+			global.mainWindow.focus();
+		}
 	});
 
 	ipcMain.on('enableOverlay', async (_event, enable) => {

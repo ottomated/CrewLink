@@ -85,7 +85,9 @@ const TitleBar: React.FC<TitleBarProps> = function ({
 	const classes = useStyles();
 	return (
 		<div className={classes.root}>
-			<span className={classes.title} style={{ marginLeft: 5 }}>BetterCrewLink{appVersion}</span>
+			<span className={classes.title} style={{ marginLeft: 5 }}>
+				BetterCrewLink{appVersion}
+			</span>
 			<IconButton
 				className={classes.button}
 				style={{ left: 0 }}
@@ -100,7 +102,7 @@ const TitleBar: React.FC<TitleBarProps> = function ({
 				size="small"
 				onClick={() => ipcRenderer.send('reload')}
 			>
-			<RefreshSharpIcon htmlColor="#777" />
+				<RefreshSharpIcon htmlColor="#777" />
 			</IconButton>
 			<IconButton
 				className={classes.button}
@@ -119,7 +121,7 @@ enum AppState {
 	VOICE,
 }
 
-export default function App() : JSX.Element {
+export default function App(): JSX.Element {
 	const [state, setState] = useState<AppState>(AppState.MENU);
 	const [gameState, setGameState] = useState<AmongUsState>({} as AmongUsState);
 	const [settingsOpen, setSettingsOpen] = useState(false);
@@ -137,13 +139,14 @@ export default function App() : JSX.Element {
 		deafenShortcut: 'RControl',
 		muteShortcut: 'RAlt',
 		hideCode: false,
+		natFix: false,
 		enableSpatialAudio: true,
 		overlayPosition: 'top',
 		compactOverlay: false,
 		enableOverlay: false,
 		localLobbySettings: {
 			maxDistance: 5.32,
-			haunting: false
+			haunting: false,
 		},
 	});
 	const lobbySettings = useReducer(
@@ -158,7 +161,9 @@ export default function App() : JSX.Element {
 		};
 		const onState = (_: Electron.IpcRendererEvent, newState: AmongUsState) => {
 			setGameState(newState);
-			remote?.getGlobal('overlay')?.webContents.send('overlayGameState', newState);
+			remote
+				?.getGlobal('overlay')
+				?.webContents.send('overlayGameState', newState);
 		};
 
 		const onError = (_: Electron.IpcRendererEvent, error: string) => {
@@ -269,4 +274,3 @@ export default function App() : JSX.Element {
 		</GameStateContext.Provider>
 	);
 }
-

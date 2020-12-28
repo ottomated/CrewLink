@@ -84,7 +84,7 @@ ipcMain.handle(IpcHandlerMessages.START_HOOK, async (event) => {
 			}
 		});
 
-	iohook.start();
+		iohook.start();
 
 		// Read game memory
 		gameReader = new GameReader(event.sender.send.bind(event.sender));
@@ -108,7 +108,12 @@ ipcMain.on('reload', async () => {
 	global.mainWindow?.reload();
 	overlayWindow?.hide();
 	global.overlay?.reload();
-	setTimeout(function() {	overlayWindow?.show(); }.bind(this), 1000); // let it load fr a second
+	setTimeout(
+		function () {
+			overlayWindow?.show();
+		}.bind(this),
+		1000
+	); // let it load fr a second
 });
 
 const keycodeMap = {

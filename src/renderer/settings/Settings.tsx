@@ -234,6 +234,10 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: true,
 		},
+		natFix: {
+			type: 'boolean',
+			default: false,
+		},
 		localLobbySettings: {
 			type: 'object',
 			properties: {
@@ -799,6 +803,17 @@ const Settings: React.FC<SettingsProps> = function ({
 
 				<Divider />
 				<Typography variant="h6">Advanced</Typography>
+				<FormControlLabel
+					label="NAT FIX"
+					checked={settings.natFix}
+					onChange={(_, checked: boolean) => {
+						setSettings({
+							type: 'setOne',
+							action: ['natFix', checked],
+						});
+					}}
+					control={<Checkbox />}
+				/>
 				<FormControlLabel
 					label="Show Lobby Code"
 					checked={!settings.hideCode}

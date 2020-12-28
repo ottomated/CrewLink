@@ -103,19 +103,16 @@ const DEFAULT_ICE_CONFIG: RTCConfiguration = {
 const DEFAULT_ICE_CONFIG_TURN: RTCConfiguration = {
 	iceTransportPolicy: 'relay',
 	iceServers: [
-	  {
-		urls: 'stun:stun.l.google.com:19302'
-	  },
-	  {
-		urls: 'turn:crewlink.guus.info:3478',
-		username: 'M9DRVaByiujoXeuYAAAG',
-		credential: 'TpHR9HQNZ8taxjb3'
-	  }
-	]
-  };
-
-
-
+		{
+			urls: 'stun:stun.l.google.com:19302',
+		},
+		{
+			urls: 'turn:crewlink.guus.info:3478',
+			username: 'M9DRVaByiujoXeuYAAAG',
+			credential: 'TpHR9HQNZ8taxjb3',
+		},
+	],
+};
 
 function calculateVoiceAudio(
 	state: AmongUsState,
@@ -364,7 +361,7 @@ const Voice: React.FC<VoiceProps> = function ({
 			setConnected(false);
 		});
 
-		let iceConfig: RTCConfiguration = DEFAULT_ICE_CONFIG_TURN;
+		let iceConfig: RTCConfiguration = DEFAULT_ICE_CONFIG;
 		socket.on('clientPeerConfig', (clientPeerConfig: ClientPeerConfig) => {
 			if (!validateClientPeerConfig(clientPeerConfig)) {
 				let errorsFormatted = '';
@@ -391,12 +388,11 @@ const Voice: React.FC<VoiceProps> = function ({
 				return;
 			}
 
-			iceConfig = DEFAULT_ICE_CONFIG_TURN;
-			// {
-			// 	iceTransportPolicy: clientPeerConfig.forceRelayOnly ? 'relay' : 'all',
-			// 	iceServers: clientPeerConfig.iceServers,
-			// };
-
+			iceConfig = 
+			{
+				iceTransportPolicy: clientPeerConfig.forceRelayOnly ? 'relay' : 'all',
+				iceServers: clientPeerConfig.iceServers,
+			};
 		});
 
 		// Initialize variables
@@ -491,7 +487,7 @@ const Voice: React.FC<VoiceProps> = function ({
 					const connection = new Peer({
 						stream,
 						initiator,
-						config: iceConfig,
+						config: settingsRef.current.natFix?  DEFAULT_ICE_CONFIG_TURN : iceConfig,
 					});
 					setPeerConnections((connections) => {
 						connections[peer] = connection;
@@ -680,10 +676,13 @@ const Voice: React.FC<VoiceProps> = function ({
 				if (connectionStuff.current.deafened) {
 					audio.gain.gain.value = 0;
 				}
-				if(audio.gain.gain.value > 0){
+				if (audio.gain.gain.value > 0) {
 					const playerVolume = playerConfigs[player.clientId]?.volume;
 					console.log(playerConfigs);
-					audio.gain.gain.value = playerVolume === undefined? audio.gain.gain.value  : audio.gain.gain.value * playerVolume;
+					audio.gain.gain.value =
+						playerVolume === undefined
+							? audio.gain.gain.value
+							: audio.gain.gain.value * playerVolume;
 				}
 			}
 		}
@@ -692,15 +691,13 @@ const Voice: React.FC<VoiceProps> = function ({
 	}, [gameState]);
 
 	useEffect(() => {
-		if(!gameState.players)
-			return;
+		if (!gameState.players) return;
 		for (const player of gameState.players) {
 			if (playerConfigs[player.clientId] === undefined) {
 				playerConfigs[player.clientId] = { volume: 1 };
 			}
 		}
 	}, [gameState?.players]);
-
 
 	// Connect to P2P negotiator, when lobby and connect code change
 	useEffect(() => {
