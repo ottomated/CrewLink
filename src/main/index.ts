@@ -74,6 +74,7 @@ function createMainWindow() {
 				protocol: 'file',
 				query: {
 					version: autoUpdater.currentVersion.version,
+					view: 'app'
 				},
 				slashes: true,
 			})
@@ -204,6 +205,7 @@ if (!gotTheLock) {
 					query: {
 						version: autoUpdater.currentVersion.version,
 						view: 'overlay',
+						
 					},
 					slashes: true,
 				})
