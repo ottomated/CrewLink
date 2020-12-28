@@ -664,6 +664,7 @@ const Voice: React.FC<VoiceProps> = function ({
 				}
 				if(audio.gain.gain.value > 0){
 					const playerVolume = playerConfigs[player.clientId]?.volume;
+					console.log(playerConfigs);
 					audio.gain.gain.value = playerVolume === undefined? audio.gain.gain.value  : audio.gain.gain.value * playerVolume;
 				}
 			}
@@ -671,6 +672,17 @@ const Voice: React.FC<VoiceProps> = function ({
 
 		return otherPlayers;
 	}, [gameState]);
+
+	useEffect(() => {
+		if(!gameState.players)
+			return;
+		for (const player of gameState.players) {
+			if (playerConfigs[player.clientId] === undefined) {
+				playerConfigs[player.clientId] = { volume: 1 };
+			}
+		}
+	}, [gameState?.players]);
+
 
 	// Connect to P2P negotiator, when lobby and connect code change
 	useEffect(() => {
