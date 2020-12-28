@@ -51,14 +51,16 @@ export const initializeIpcListeners = (): void => {
 	});
 
 	ipcMain.on(IpcMessages.QUIT_CREWLINK, () => {
-		var dd = global.mainWindow;
-		var dd2 = global.overlay;
-		global.mainWindow = null;
-		global.overlay = null;
-		dd?.close();
-		dd2?.close();
-		dd?.destroy();
-		dd2?.destroy();
+		try {
+			const mainWindow = global.mainWindow;
+			const overlay = global.overlay;
+			global.mainWindow = null;
+			global.overlay = null;
+			mainWindow?.close();
+			overlay?.close();
+			mainWindow?.destroy();
+			overlay?.destroy();
+		} catch {}
 		app.quit();
 	});
 };

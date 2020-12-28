@@ -74,7 +74,7 @@ function createMainWindow() {
 				protocol: 'file',
 				query: {
 					version: autoUpdater.currentVersion.version,
-					view: 'app'
+					view: 'app',
 				},
 				slashes: true,
 			})
@@ -83,15 +83,15 @@ function createMainWindow() {
 	//window.webContents.userAgent = `CrewLink/${crewlinkVersion} (${process.platform})`;
 	window.webContents.userAgent = `CrewLink/1.2.0 (win32)`;
 	window.on('closed', () => {
-		var mainWindow = global.mainWindow;
-			var overlay = global.overlay;
+		try {
+			const mainWindow = global.mainWindow;
+			const overlay = global.overlay;
 			global.mainWindow = null;
 			global.overlay = null;
-			mainWindow?.close();
 			overlay?.close();
 			mainWindow?.destroy();
 			overlay?.destroy();
-			app.quit();
+		} catch {}
 	});
 
 	window.webContents.on('devtools-opened', () => {
@@ -209,7 +209,6 @@ if (!gotTheLock) {
 					query: {
 						version: autoUpdater.currentVersion.version,
 						view: 'overlay',
-						
 					},
 					slashes: true,
 				})
@@ -224,16 +223,16 @@ if (!gotTheLock) {
 	// quit application when all windows are closed
 	app.on('window-all-closed', () => {
 		// on macOS it is common for applications to stay open until the user explicitly quits
-		var mainWindow = global.mainWindow;
-		var overlay = global.overlay;
-		global.mainWindow = null;
-		global.overlay = null;
-		mainWindow?.close();
-		overlay?.close();
-		mainWindow?.destroy();
-		overlay?.destroy();
+		try {
+			const mainWindow = global.mainWindow;
+			const overlay = global.overlay;
+			global.mainWindow = null;
+			global.overlay = null;
+			overlay?.close();
+			mainWindow?.destroy();
+			overlay?.destroy();
+		} catch {}
 		app.quit();
-	
 	});
 
 	app.on('activate', () => {
