@@ -85,7 +85,7 @@ const TitleBar: React.FC<TitleBarProps> = function ({
 	const classes = useStyles();
 	return (
 		<div className={classes.root}>
-			<span className={classes.title} style={{ marginLeft: 5 }}>
+			<span className={classes.title} style={{ marginLeft: 10 }}>
 				BetterCrewLink{appVersion}
 			</span>
 			<IconButton
