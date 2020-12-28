@@ -181,6 +181,10 @@ const store = new Store<ISettings>({
 			type: 'string',
 			default: 'Default',
 		},
+		microphoneGain: {
+			type: 'number',
+			default: 1,
+		},
 		speaker: {
 			type: 'string',
 			default: 'Default',
@@ -602,6 +606,26 @@ const Settings: React.FC<SettingsProps> = function ({
 					))}
 				</TextField>
 				{open && <MicrophoneSoundBar microphone={settings.microphone} />}
+				<Typography gutterBottom>
+				Microphone Gain:{' '}
+				{settings.microphoneGain}
+			</Typography>
+
+				<Slider
+					value={settings.microphoneGain}
+					min={0}
+					max={5}
+					step={0.1}
+					onChange={(_, newValue: number | number[]) => {
+						//TODO: setMicrophoneGain(newValue as number);
+					}}
+					onChangeCommitted={(_, newValue: number | number[]) => {
+						setSettings({
+							type: 'setOne',
+							action: ['microphoneGain', newValue as number],
+						});
+					}}
+				/>
 				<TextField
 					select
 					label="Speaker"

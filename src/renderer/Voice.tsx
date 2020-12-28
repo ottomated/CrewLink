@@ -225,6 +225,9 @@ const Voice: React.FC<VoiceProps> = function ({
 	const [deafenedState, setDeafened] = useState(false);
 	const [mutedState, setMuted] = useState(false);
 	const [connected, setConnected] = useState(false);
+	
+	let microphoneGain: GainNode;
+	
 	function disconnectPeer(peer: string) {
 		const connection = peerConnections[peer];
 		if (!connection) {
@@ -260,6 +263,13 @@ const Voice: React.FC<VoiceProps> = function ({
 			}
 		});
 	}, [settings.localLobbySettings]);
+	
+	//Handle local microphone gain
+	useEffect(()=> {
+		if (microphoneGain) {
+			microphoneGain.gain.value = settings.microphoneGain;
+		}
+	}, [settings.microphoneGain]);
 
 	useEffect(() => {
 		for (const peer in audioElements.current) {
@@ -342,7 +352,20 @@ const Voice: React.FC<VoiceProps> = function ({
 		navigator.getUserMedia(
 			{ video: false, audio },
 			async (stream) => {
-				connectionStuff.current.stream = stream;
+				
+				// Handle output voice modifiers (gain)
+				const outStream = (()=>{
+					const ac = new AudioContext();
+					const source = ac.createMediaStreamSource(stream);
+					microphoneGain = ac.createGain();
+					const destination = ac.createMediaStreamDestination();
+					source.connect(microphoneGain)
+					microphoneGain.gain.value = settings.microphoneGain;
+					microphoneGain.connect(destination);
+					return destination.stream;
+				})();
+				
+				connectionStuff.current.stream = outStream;
 
 				stream.getAudioTracks()[0].enabled = !settings.pushToTalk;
 

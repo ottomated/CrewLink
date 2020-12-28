@@ -122,6 +122,7 @@ function App() {
 	const settings = useReducer(settingsReducer, {
 		alwaysOnTop: false,
 		microphone: 'Default',
+		microphoneGain: 1,
 		speaker: 'Default',
 		pushToTalk: false,
 		serverURL: 'https://crewl.ink',

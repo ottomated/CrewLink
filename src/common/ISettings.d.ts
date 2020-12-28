@@ -1,6 +1,7 @@
 export interface ISettings {
 	alwaysOnTop: boolean;
 	microphone: string;
+	microphoneGain: number;
 	speaker: string;
 	pushToTalk: boolean;
 	serverURL: string;
