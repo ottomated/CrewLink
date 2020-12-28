@@ -84,7 +84,7 @@ ipcMain.handle(IpcHandlerMessages.START_HOOK, async (event) => {
 			}
 		});
 
-	//	iohook.start();
+	iohook.start();
 
 		// Read game memory
 		gameReader = new GameReader(event.sender.send.bind(event.sender));
