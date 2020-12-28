@@ -23,7 +23,6 @@ export interface IOffsets {
 	hostId: number[];
 	clientId: number[];
 	player: {
-		isLocal: number[];
 		localX: number[];
 		localY: number[];
 		remoteX: number[];
@@ -31,6 +30,7 @@ export interface IOffsets {
 		bufferLength: number;
 		offsets: number[];
 		inVent: number[];
+		clientId: number[];
 		struct: {
 			type:
 				| 'INT'
@@ -91,7 +91,6 @@ export default {
 				{ type: 'UINT', name: 'objectPtr' },
 				{ type: 'SKIP', skip: 4, name: 'unused' },
 			],
-			isLocal: [120],
 			localX: [144, 108],
 			localY: [144, 112],
 			remoteX: [144, 88],
@@ -151,7 +150,6 @@ export default {
 				{ type: 'SKIP', skip: 2, name: 'unused' },
 				{ type: 'UINT', name: 'objectPtr' },
 			],
-			isLocal: [84],
 			localX: [96, 80],
 			localY: [96, 84],
 			remoteX: [96, 60],

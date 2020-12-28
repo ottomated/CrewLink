@@ -136,6 +136,18 @@ export default class GameReader {
 								this.offsets.gameCode
 							)
 					  );
+
+			const hostId = this.readMemory<number>(
+				'uint32',
+				this.gameAssembly.modBaseAddr,
+				this.offsets.hostId
+			);
+			const clientId = this.readMemory<number>(
+				'uint32',
+				this.gameAssembly.modBaseAddr,
+				this.offsets.clientId
+			);
+
 			const allPlayersPtr = this.readMemory<number>(
 				'ptr',
 				this.gameAssembly.modBaseAddr,
@@ -173,7 +185,8 @@ export default class GameReader {
 						address + last,
 						this.offsets.player.bufferLength
 					);
-					const player = this.parsePlayer(address + last, playerData);
+
+					const player = this.parsePlayer(address + last, playerData, clientId);
 					playerAddrPtr += this.is_64bit ? 8 : 4;
 					if (!player) continue;
 					players.push(player);
@@ -214,17 +227,6 @@ export default class GameReader {
 				this.menuUpdateTimer = 20;
 			}
 			this.lastPlayerPtr = allPlayers;
-
-			const hostId = this.readMemory<number>(
-				'uint32',
-				this.gameAssembly.modBaseAddr,
-				this.offsets.hostId
-			);
-			const clientId = this.readMemory<number>(
-				'uint32',
-				this.gameAssembly.modBaseAddr,
-				this.offsets.clientId
-			);
 
 			const newState: AmongUsState = {
 				lobbyCode: this.gameCode || 'MENU',
@@ -405,7 +407,11 @@ export default class GameReader {
 		].join('');
 	}
 
-	parsePlayer(ptr: number, buffer: Buffer): Player | undefined {
+	parsePlayer(
+		ptr: number,
+		buffer: Buffer,
+		localClientId = -1
+	): Player | undefined {
 		if (!this.PlayerStruct || !this.offsets) return undefined;
 
 		const { data } = this.PlayerStruct.report<PlayerReport>(buffer, 0, {});
@@ -419,12 +425,13 @@ export default class GameReader {
 			]);
 		}
 
-		const isLocal =
-			this.readMemory<number>(
-				'int',
-				data.objectPtr,
-				this.offsets.player.isLocal
-			) !== 0;
+		const clientId = this.readMemory<number>(
+			'uint32',
+			data.objectPtr,
+			this.offsets.player.clientId
+		);
+
+		const isLocal = clientId === localClientId;
 
 		const positionOffsets = isLocal
 			? [this.offsets.player.localX, this.offsets.player.localY]
@@ -439,11 +446,6 @@ export default class GameReader {
 			'float',
 			data.objectPtr,
 			positionOffsets[1]
-		);
-		const clientId = this.readMemory<number>(
-			'uint32',
-			data.objectPtr,
-			this.offsets.clientId
 		);
 
 		return {
