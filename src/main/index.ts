@@ -83,11 +83,15 @@ function createMainWindow() {
 	//window.webContents.userAgent = `CrewLink/${crewlinkVersion} (${process.platform})`;
 	window.webContents.userAgent = `CrewLink/1.2.0 (win32)`;
 	window.on('closed', () => {
-		global.mainWindow = null;
-		if (global.overlay != null) {
-			global.overlay.close();
+		var mainWindow = global.mainWindow;
+			var overlay = global.overlay;
+			global.mainWindow = null;
 			global.overlay = null;
-		}
+			mainWindow?.close();
+			overlay?.close();
+			mainWindow?.destroy();
+			overlay?.destroy();
+			app.quit();
 	});
 
 	window.webContents.on('devtools-opened', () => {
@@ -220,13 +224,16 @@ if (!gotTheLock) {
 	// quit application when all windows are closed
 	app.on('window-all-closed', () => {
 		// on macOS it is common for applications to stay open until the user explicitly quits
-		if (process.platform !== 'darwin') {
-			if (global.overlay != null) {
-				global.overlay.close();
-				global.overlay = null;
-			}
-			app.quit();
-		}
+		var mainWindow = global.mainWindow;
+		var overlay = global.overlay;
+		global.mainWindow = null;
+		global.overlay = null;
+		mainWindow?.close();
+		overlay?.close();
+		mainWindow?.destroy();
+		overlay?.destroy();
+		app.quit();
+	
 	});
 
 	app.on('activate', () => {

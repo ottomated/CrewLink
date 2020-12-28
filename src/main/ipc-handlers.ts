@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain } from 'electron';
+import { app, dialog, ipcMain } from 'electron';
 import { HKEY, enumerateValues } from 'registry-js';
 import spawn from 'cross-spawn';
 import path from 'path';
@@ -51,9 +51,14 @@ export const initializeIpcListeners = (): void => {
 	});
 
 	ipcMain.on(IpcMessages.QUIT_CREWLINK, () => {
-		for (const win of BrowserWindow.getAllWindows()) {
-			win.close();
-		}
+		var dd = global.mainWindow;
+		var dd2 = global.overlay;
+		global.mainWindow = null;
+		global.overlay = null;
+		dd?.close();
+		dd2?.close();
+		dd?.destroy();
+		dd2?.destroy();
 		app.quit();
 	});
 };

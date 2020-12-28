@@ -179,6 +179,13 @@ const store = new Store<ISettings>({
 			// @ts-ignore
 			store.delete('offsets');
 		},
+		'1.2.2': (store) => {
+			if (store.get('serverURL') !== 'http://bettercrewl.ink:6523') {
+				store.set('serverURL', 'http://bettercrewl.ink:6523');
+			}
+			// @ts-ignore
+			store.delete('offsets');
+		},
 	},
 	schema: {
 		alwaysOnTop: {
