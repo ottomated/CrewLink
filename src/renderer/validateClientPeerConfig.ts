@@ -1,10 +1,13 @@
 import Ajv from 'ajv';
 
-export const validateClientPeerConfig = new Ajv({ format: 'full', allErrors: true }).compile({
+export const validateClientPeerConfig = new Ajv({
+	format: 'full',
+	allErrors: true,
+}).compile({
 	type: 'object',
 	properties: {
 		forceRelayOnly: {
-			type: 'boolean'
+			type: 'boolean',
 		},
 		iceServers: {
 			type: 'array',
@@ -16,19 +19,19 @@ export const validateClientPeerConfig = new Ajv({ format: 'full', allErrors: tru
 						format: 'uri',
 						items: {
 							type: 'string',
-							format: 'uri'
-						}
+							format: 'uri',
+						},
 					},
 					username: {
 						type: 'string',
 					},
 					credential: {
 						type: 'string',
-					}
+					},
 				},
-				required: ['urls']
-			}
-		}
+				required: ['urls'],
+			},
+		},
 	},
-	required: ['forceRelayOnly', 'iceServers']
+	required: ['forceRelayOnly', 'iceServers'],
 });

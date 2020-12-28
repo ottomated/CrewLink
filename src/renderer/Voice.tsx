@@ -100,6 +100,22 @@ const DEFAULT_ICE_CONFIG: RTCConfiguration = {
 		},
 	],
 };
+const DEFAULT_ICE_CONFIG_TURN: RTCConfiguration = {
+	iceTransportPolicy: 'relay',
+	iceServers: [
+	  {
+		urls: 'stun:stun.l.google.com:19302'
+	  },
+	  {
+		urls: 'turn:crewlink.guus.info:3478',
+		username: 'M9DRVaByiujoXeuYAAAG',
+		credential: 'TpHR9HQNZ8taxjb3'
+	  }
+	]
+  };
+
+
+
 
 function calculateVoiceAudio(
 	state: AmongUsState,
@@ -348,7 +364,7 @@ const Voice: React.FC<VoiceProps> = function ({
 			setConnected(false);
 		});
 
-		let iceConfig: RTCConfiguration = DEFAULT_ICE_CONFIG;
+		let iceConfig: RTCConfiguration = DEFAULT_ICE_CONFIG_TURN;
 		socket.on('clientPeerConfig', (clientPeerConfig: ClientPeerConfig) => {
 			if (!validateClientPeerConfig(clientPeerConfig)) {
 				let errorsFormatted = '';
@@ -375,10 +391,12 @@ const Voice: React.FC<VoiceProps> = function ({
 				return;
 			}
 
-			iceConfig = {
-				iceTransportPolicy: clientPeerConfig.forceRelayOnly ? 'relay' : 'all',
-				iceServers: clientPeerConfig.iceServers,
-			};
+			iceConfig = DEFAULT_ICE_CONFIG_TURN;
+			// {
+			// 	iceTransportPolicy: clientPeerConfig.forceRelayOnly ? 'relay' : 'all',
+			// 	iceServers: clientPeerConfig.iceServers,
+			// };
+
 		});
 
 		// Initialize variables
