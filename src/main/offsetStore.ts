@@ -31,6 +31,7 @@ export interface IOffsets {
 		bufferLength: number;
 		offsets: number[];
 		inVent: number[];
+		clientId: number[];
 		struct: {
 			type:
 				| 'INT'

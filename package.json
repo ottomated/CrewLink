@@ -57,7 +57,7 @@
     "react-router-dom": "^5.2.0",
     "react-tooltip-lite": "^1.12.0",
     "registry-js": "^1.12.0",
-    "simple-peer": "^9.8.0",
+    "simple-peer": "https://github.com/vrnagy/simple-peer.git",
     "socket.io-client": "^2.3.1",
     "source-map-support": "^0.5.16",
     "structron": "^0.2.4",

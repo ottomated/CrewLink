@@ -27,18 +27,6 @@ interface PeerConnections {
 	[peer: string]: Peer.Instance;
 }
 
-type PeerErrorCode =
-	| 'ERR_WEBRTC_SUPPORT'
-	| 'ERR_CREATE_OFFER'
-	| 'ERR_CREATE_ANSWER'
-	| 'ERR_SET_LOCAL_DESCRIPTION'
-	| 'ERR_SET_REMOTE_DESCRIPTION'
-	| 'ERR_ADD_ICE_CANDIDATE'
-	| 'ERR_ICE_CONNECTION_FAILURE'
-	| 'ERR_SIGNALING'
-	| 'ERR_DATA_CHANNEL'
-	| 'ERR_CONNECTION_FAILURE';
-
 interface AudioElements {
 	[peer: string]: {
 		element: HTMLAudioElement;
@@ -103,9 +91,9 @@ const DEFAULT_ICE_CONFIG: RTCConfiguration = {
 const DEFAULT_ICE_CONFIG_TURN: RTCConfiguration = {
 	iceTransportPolicy: 'relay',
 	iceServers: [
-		{
-			urls: 'stun:stun.l.google.com:19302',
-		},
+		// {
+		// 	urls: 'stun:stun.l.google.com:19302',
+		// },
 		{
 			urls: 'turn:crewlink.guus.info:3478',
 			username: 'M9DRVaByiujoXeuYAAAG',
@@ -401,10 +389,20 @@ const Voice: React.FC<VoiceProps> = function ({
 			destroy: () => void;
 		};
 		const audio = {
-			deviceId: (undefined as unknown) as string,
+			deviceId: undefined as unknown as string,
 			autoGainControl: false,
+			channelCount: 2,
+			echoCancellation: true,
+			latency: 0,
+			noiseSuppression: true,
+			sampleRate: 48000,
+			sampleSize: 16,
+			googEchoCancellation: true,
 			googAutoGainControl: false,
 			googAutoGainControl2: false,
+			googNoiseSuppression: true,
+			googHighpassFilter: true,
+			googTypingNoiseDetection: true
 		};
 
 		// Get microphone settings
@@ -486,16 +484,15 @@ const Voice: React.FC<VoiceProps> = function ({
 				function createPeerConnection(peer: string, initiator: boolean) {
 					const connection = new Peer({
 						stream,
-						initiator,
+						initiator,// @ts-ignore-line
+						iceRestartEnabled: true,
 						config: settingsRef.current.natFix?  DEFAULT_ICE_CONFIG_TURN : iceConfig,
 					});
 					setPeerConnections((connections) => {
 						connections[peer] = connection;
 						return connections;
 					});
-					let retries = 0;
-					let errCode: PeerErrorCode;
-
+	
 					connection.on('connect', () => {
 						if (gameState.isHost) {
 							try {
@@ -577,18 +574,9 @@ const Voice: React.FC<VoiceProps> = function ({
 						console.log('Disconnected from', peer, 'Initiator:', initiator);
 						disconnectPeer(peer);
 
-						// Auto reconnect on connection error
-						if (
-							initiator &&
-							errCode &&
-							retries < 10 &&
-							(errCode == 'ERR_CONNECTION_FAILURE' ||
-								errCode == 'ERR_DATA_CHANNEL')
-						) {
-							createPeerConnection(peer, initiator);
-							retries++;
-						}
+						
 					});
+					connection.on('error', () => {});
 					return connection;
 				}
 				socket.on('join', async (peer: string, client: Client) => {
@@ -678,7 +666,6 @@ const Voice: React.FC<VoiceProps> = function ({
 				}
 				if (audio.gain.gain.value > 0) {
 					const playerVolume = playerConfigs[player.clientId]?.volume;
-					console.log(playerConfigs);
 					audio.gain.gain.value =
 						playerVolume === undefined
 							? audio.gain.gain.value
