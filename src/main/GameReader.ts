@@ -181,7 +181,8 @@ export default class GameReader {
 					);
 					const player = this.parsePlayer(address + last, playerData);
 					playerAddrPtr += this.is_64bit ? 8 : 4;
-					if (!player) continue;
+					if (!player || state === GameState.MENU) continue;
+
 					players.push(player);
 
 					if (
