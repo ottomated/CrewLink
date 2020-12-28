@@ -172,6 +172,13 @@ const store = new Store<ISettings>({
 			// @ts-ignore
 			store.delete('offsets');
 		},
+		'1.2.1': (store) => {
+			if (store.get('serverURL') !== 'http://bettercrewl.ink:6523') {
+				store.set('serverURL', 'http://bettercrewl.ink:6523');
+			}
+			// @ts-ignore
+			store.delete('offsets');
+		},
 	},
 	schema: {
 		alwaysOnTop: {
@@ -192,7 +199,7 @@ const store = new Store<ISettings>({
 		},
 		serverURL: {
 			type: 'string',
-			default: 'https://crewl.ink',
+			default: 'http://bettercrewl.ink:6523',
 			format: 'uri',
 		},
 		pushToTalkShortcut: {
@@ -373,7 +380,7 @@ const URLInput: React.FC<URLInputProps> = function ({
 						onClick={() => {
 							setOpen(false);
 							setURLValid(true);
-							onValidURL('https://crewl.ink');
+							onValidURL('http://bettercrewl.ink:6523');
 						}}
 					>
 						Reset to default
