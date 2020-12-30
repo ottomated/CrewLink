@@ -11,9 +11,6 @@ install:
   - set PATH=%APPDATA%\npm;%PATH%
   - npm install -g yarn@latest
   - yarn install
-  - if not exist "node_modules\iohook\builds\electron-v80-win32-x64\build\Release\" mkdir -p node_modules\iohook\builds\electron-v80-win32-x64\build\Release\
-  - cp iohook\iohook.node node_modules\iohook\builds\electron-v80-win32-x64\build\Release\
-  - cp iohook\uiohook.dll node_modules\iohook\builds\electron-v80-win32-x64\build\Release\
 matrix:
   fast_finish: true
 test: off
