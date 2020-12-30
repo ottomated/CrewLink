@@ -239,6 +239,10 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: true,
 		},
+		ghostVolume: {
+			type: 'number',
+			default: 100,
+		},
 		natFix: {
 			type: 'boolean',
 			default: false,
@@ -692,7 +696,24 @@ const Settings: React.FC<SettingsProps> = function ({
 						value={true}
 						control={<Radio />}
 					/>
+					<Divider />
 				</RadioGroup>
+				<div>
+					<Typography id="input-slider" gutterBottom>
+						Crew volume as ghost
+					</Typography>
+					<Slider
+						value={settings.ghostVolume}
+						valueLabelDisplay="auto"
+						onChange={(_, newValue: number | number[]) => {
+							setSettings({
+								type: 'setOne',
+								action: ['ghostVolume', newValue],
+							});
+						}}
+						aria-labelledby="input-slider"
+					/>
+				</div>
 				<Divider />
 				<Typography variant="h6">Keyboard Shortcuts</Typography>
 				<Grid container spacing={1}>

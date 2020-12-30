@@ -144,6 +144,7 @@ export default function App(): JSX.Element {
 		overlayPosition: 'top',
 		compactOverlay: false,
 		enableOverlay: false,
+		ghostVolume: 100,
 		localLobbySettings: {
 			maxDistance: 5.32,
 			haunting: false,

@@ -137,6 +137,7 @@ function calculateVoiceAudio(
 		gain.gain.value = 0;
 		return;
 	}
+
 	if (
 		state.gameState === GameState.LOBBY ||
 		state.gameState === GameState.DISCUSSION
@@ -672,10 +673,16 @@ const Voice: React.FC<VoiceProps> = function ({
 				}
 				if (audio.gain.gain.value > 0) {
 					const playerVolume = playerConfigs[player.clientId]?.volume;
+
 					audio.gain.gain.value =
 						playerVolume === undefined
 							? audio.gain.gain.value
 							: audio.gain.gain.value * playerVolume;
+
+					if (myPlayer.isDead && !player.isDead) {
+						audio.gain.gain.value =
+							audio.gain.gain.value * (settings.ghostVolume / 100);
+					}
 				}
 			}
 		}
