@@ -83,7 +83,7 @@ export default function Overlay(): JSX.Element {
 	useEffect(() => {
 		const onOverlaySettings = (
 			_: Electron.IpcRendererEvent,
-			newSettings: any
+			newSettings: ISettings
 		) => {
 			setSettings(newSettings);
 		};
@@ -147,7 +147,7 @@ export default function Overlay(): JSX.Element {
 	document.body.style.backgroundColor = 'rgba(255, 255, 255, 0)';
 	document.body.style.paddingTop = '0';
 
-	const baseCSS: any = {
+	const baseCSS: React.CSSProperties = {
 		backgroundColor: 'rgba(0, 0, 0, 0.85)',
 		width: '100px',
 		borderRadius: '8px',
@@ -160,7 +160,7 @@ export default function Overlay(): JSX.Element {
 			<b style={{ color: '#9b59b6' }}>CrewLink</b> ({status})
 		</p>
 	);
-	const playersCSS: any = {};
+	const playersCSS: React.CSSProperties = {};
 	let playerList: Player[] = [];
 	if (gameState.players && gameState.gameState != GameState.MENU)
 		playerList = relevantPlayers;
@@ -184,7 +184,7 @@ export default function Overlay(): JSX.Element {
 			baseCSS['position'] = 'absolute';
 			baseCSS['bottom'] = '0px';
 			baseCSS['backgroundColor'] = 'rgba(0, 0, 0, 0.35)';
-			baseCSS['width'] = null;
+			baseCSS['width'] = 'auto';
 
 			playersCSS['justifyContent'] = 'left';
 			playersCSS['alignItems'] = 'left';

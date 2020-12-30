@@ -468,7 +468,6 @@ const Settings: React.FC<SettingsProps> = function ({
 		settings.serverURL,
 		settings.enableSpatialAudio,
 		settings.natFix,
-
 	]);
 
 	useEffect(() => {

@@ -286,6 +286,10 @@ const Voice: React.FC<VoiceProps> = function ({
 		});
 	}, [settings.localLobbySettings]);
 
+	// useEffect(() => {
+	// 	console.log(gameState);
+	// }, [gameState]);
+
 	useEffect(() => {
 		for (const peer in audioElements.current) {
 			audioElements.current[peer].pan.maxDistance = lobbySettings.maxDistance;
@@ -376,8 +380,7 @@ const Voice: React.FC<VoiceProps> = function ({
 				return;
 			}
 
-			iceConfig = 
-			{
+			iceConfig = {
 				iceTransportPolicy: clientPeerConfig.forceRelayOnly ? 'relay' : 'all',
 				iceServers: clientPeerConfig.iceServers,
 			};
@@ -389,7 +392,7 @@ const Voice: React.FC<VoiceProps> = function ({
 			destroy: () => void;
 		};
 		const audio = {
-			deviceId: undefined as unknown as string,
+			deviceId: (undefined as unknown) as string,
 			autoGainControl: false,
 			channelCount: 2,
 			echoCancellation: true,
@@ -402,7 +405,7 @@ const Voice: React.FC<VoiceProps> = function ({
 			googAutoGainControl2: false,
 			googNoiseSuppression: true,
 			googHighpassFilter: true,
-			googTypingNoiseDetection: true
+			googTypingNoiseDetection: true,
 		};
 
 		// Get microphone settings
@@ -484,15 +487,17 @@ const Voice: React.FC<VoiceProps> = function ({
 				function createPeerConnection(peer: string, initiator: boolean) {
 					const connection = new Peer({
 						stream,
-						initiator,// @ts-ignore-line
+						initiator, // @ts-ignore-line
 						iceRestartEnabled: true,
-						config: settingsRef.current.natFix?  DEFAULT_ICE_CONFIG_TURN : iceConfig,
+						config: settingsRef.current.natFix
+							? DEFAULT_ICE_CONFIG_TURN
+							: iceConfig,
 					});
 					setPeerConnections((connections) => {
 						connections[peer] = connection;
 						return connections;
 					});
-	
+
 					connection.on('connect', () => {
 						if (gameState.isHost) {
 							try {
@@ -573,10 +578,10 @@ const Voice: React.FC<VoiceProps> = function ({
 					connection.on('close', () => {
 						console.log('Disconnected from', peer, 'Initiator:', initiator);
 						disconnectPeer(peer);
-
-						
 					});
-					connection.on('error', () => {});
+					connection.on('error', () => {
+						/*empty*/
+					});
 					return connection;
 				}
 				socket.on('join', async (peer: string, client: Client) => {

@@ -26,18 +26,6 @@
     "dist:64": "yarn compile && electron-builder --win --x64",
     "publish": "yarn compile && electron-builder --win --x64 --ia32 --publish always"
   },
-  "iohook": {
-    "targets": [
-      "electron-80"
-    ],
-    "platforms": [
-      "win32"
-    ],
-    "arches": [
-      "x64",
-      "ia32"
-    ]
-  },
   "dependencies": {
     "@material-ui/core": "^4.11.2",
     "@material-ui/icons": "^4.11.2",
@@ -49,8 +37,8 @@
     "electron-store": "^6.0.1",
     "electron-updater": "^4.3.5",
     "electron-window-state": "^5.0.3",
-    "iohook": "^0.7.1",
     "memoryjs": "git://github.com/Rob--/memoryjs",
+    "node-keyboard-watcher": "https://github.com/OhMyGuus/node-keyboard-watcher.git",
     "pretty-bytes": "^5.5.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",

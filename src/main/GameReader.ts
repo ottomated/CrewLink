@@ -56,6 +56,7 @@ export default class GameReader {
 		const processOpen = getProcesses().find(
 			(p) => p.szExeFile === 'Among Us.exe'
 		);
+
 		if (!this.amongUs && processOpen) {
 			try {
 				this.amongUs = openProcess('Among Us.exe');
@@ -230,8 +231,6 @@ export default class GameReader {
 				this.menuUpdateTimer = 20;
 			}
 			this.lastPlayerPtr = allPlayers;
-
-		
 
 			const newState: AmongUsState = {
 				lobbyCode: this.gameCode || 'MENU',
@@ -413,7 +412,11 @@ export default class GameReader {
 		].join('');
 	}
 
-	parsePlayer(ptr: number, buffer: Buffer, LocalclientId: Number = -1): Player | undefined {
+	parsePlayer(
+		ptr: number,
+		buffer: Buffer,
+		LocalclientId = -1
+	): Player | undefined {
 		if (!this.PlayerStruct || !this.offsets) return undefined;
 
 		const { data } = this.PlayerStruct.report<PlayerReport>(buffer, 0, {});
@@ -433,7 +436,7 @@ export default class GameReader {
 		);
 
 		const isLocal = clientId === LocalclientId;
-	
+
 		const positionOffsets = isLocal
 			? [this.offsets.player.localX, this.offsets.player.localY]
 			: [this.offsets.player.remoteX, this.offsets.player.remoteY];
@@ -448,8 +451,6 @@ export default class GameReader {
 			data.objectPtr,
 			positionOffsets[1]
 		);
-	
-
 
 		return {
 			ptr,
