@@ -147,73 +147,39 @@ export default function Overlay(): JSX.Element {
 	document.body.style.backgroundColor = 'rgba(255, 255, 255, 0)';
 	document.body.style.paddingTop = '0';
 
-	const baseCSS: React.CSSProperties = {
-		backgroundColor: 'rgba(0, 0, 0, 0.85)',
-		width: '100px',
-		borderRadius: '8px',
-		position: 'relative',
-		marginTop: '-16px',
-		paddingLeft: '8px',
-	};
 	let topArea = (
 		<p>
 			<b style={{ color: '#9b59b6' }}>CrewLink</b> ({status})
 		</p>
 	);
-	const playersCSS: React.CSSProperties = {};
-	const playerCSS: React.CSSProperties = { textAlign: 'center' };
-
+	
 	let playerList: Player[] = [];
 	if (gameState.players && gameState.gameState != GameState.MENU)
 		playerList = relevantPlayers;
-
+	let classnames: string[] = ['overlay-wrapper'];
 	if (
 		gameState.gameState == GameState.UNKNOWN ||
 		gameState.gameState == GameState.MENU
 	) {
-		baseCSS['left'] = '8px';
-		baseCSS['top'] = '60px';
+		classnames.push('gamestate_menu');
 	} else {
-		baseCSS['paddingTop'] = '8px';
-		baseCSS['paddingLeft'] = '0px';
-		baseCSS['width'] = '800px';
-		baseCSS['backgroundColor'] = 'rgba(0, 0, 0, 0.5)';
-		if (settings.overlayPosition == 'top') {
-			baseCSS['marginLeft'] = 'auto';
-			baseCSS['marginRight'] = 'auto';
-			baseCSS['marginTop'] = '0px';
-		} else if (settings.overlayPosition == 'bottom_left') {
-			baseCSS['position'] = 'absolute';
-			baseCSS['bottom'] = '0px';
-			baseCSS['backgroundColor'] = 'rgba(0, 0, 0, 0.35)';
-			baseCSS['width'] = undefined;
+		classnames.push('gamestate_game');
+		classnames.push('overlay_postion_' + settings.overlayPosition);
 
-			playersCSS['justifyContent'] = 'left';
-			playersCSS['alignItems'] = 'left';
-		} else if (settings.overlayPosition == 'right' || settings.overlayPosition == 'left') {
-			baseCSS['marginLeft'] = settings.overlayPosition == 'right'? 'auto' : undefined;
-			baseCSS['marginRight'] = settings.overlayPosition == 'left'? 'auto' : undefined;
-			baseCSS['marginTop'] = '400px';
-			baseCSS['width'] = '300px';
-			baseCSS['backgroundColor'] = '';
-			playerCSS['width'] = '100%';
-		}
 		topArea = <></>;
-		if (
-			(settings.compactOverlay ) &&
-			playerList
-		) {
+		if (settings.compactOverlay && playerList) {
 			playerList = talkingPlayers;
-			baseCSS['backgroundColor'] = 'rgba(0, 0, 0, 0)';
+			classnames.push('compactoverlay');
 		}
 	}
 
 	let isOnSide =
 		settings.overlayPosition == 'right' || settings.overlayPosition == 'left';
 	let playerArea: JSX.Element = <></>;
+
 	if (playerList) {
 		playerArea = (
-			<div className="otherplayers" style={playersCSS}>
+			<div className="otherplayers">
 				{playerList.map((player) => {
 					const connected =
 						Object.values(socketPlayerIds).some(
@@ -222,30 +188,13 @@ export default function Overlay(): JSX.Element {
 					const name = settings.compactOverlay ? (
 						''
 					) : (
-						<span
-							style={{
-								float: isOnSide
-									? (settings.overlayPosition as Property.Float)
-									: 'none',
-								paddingTop: isOnSide ? '40px' : '',
-								fontWeight: 'bold',
-								paddingLeft: settings.overlayPosition == 'left'? '5px' : ''
-							}}
-						>
+						<span className="playername">
 							<small>{player.name}</small>
 						</span>
 					);
 					return (
-						<div key={player.id} style={playerCSS}>
-							<div
-								style={{
-									paddingLeft: '5px',
-									width: isOnSide ? '80px' : '60px',
-									float: isOnSide
-										? (settings.overlayPosition as Property.Float)
-										: 'none',
-								}}
-							>
+						<div key={player.id} className="player_wrapper">
+							<div>
 								<Avatar
 									key={player.id}
 									player={player}
@@ -258,7 +207,7 @@ export default function Overlay(): JSX.Element {
 									borderColor={connected ? '#2ecc71' : '#c0392b'}
 									isAlive={
 										(!player.isLocal && !otherDead[player.id]) ||
-										(player.isLocal && !player.isDead) 
+										(player.isLocal && !player.isDead)
 									}
 									size={50}
 								/>
@@ -272,7 +221,7 @@ export default function Overlay(): JSX.Element {
 	}
 
 	return (
-		<div style={baseCSS}>
+		<div className={classnames.join(' ')}>
 			{topArea}
 			{playerArea}
 		</div>

@@ -588,6 +588,7 @@ const Voice: React.FC<VoiceProps> = function ({
 					createPeerConnection(peer, true);
 					setSocketClients((old) => ({ ...old, [peer]: client }));
 				});
+
 				socket.on(
 					'signal',
 					({ data, from }: { data: Peer.SignalData; from: string }) => {

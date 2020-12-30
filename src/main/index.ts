@@ -81,7 +81,7 @@ function createMainWindow() {
 		);
 	}
 	//window.webContents.userAgent = `CrewLink/${crewlinkVersion} (${process.platform})`;
-	window.webContents.userAgent = `CrewLink/1.2.0 (win32)`;
+	window.webContents.userAgent = `CrewLink/1.2.1 (win32)`;
 	window.on('closed', () => {
 		try {
 			const mainWindow = global.mainWindow;

@@ -435,7 +435,7 @@ export default class GameReader {
 			this.offsets.player.clientId
 		);
 
-		const isLocal = clientId === LocalclientId;
+		const isLocal = clientId === LocalclientId && data.disconnected === 0;
 
 		const positionOffsets = isLocal
 			? [this.offsets.player.localX, this.offsets.player.localY]
