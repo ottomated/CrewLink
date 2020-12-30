@@ -179,6 +179,11 @@ const store = new Store<ISettings>({
 			// @ts-ignore
 			store.delete('offsets');
 		},
+		'1.2.15': (store) => {
+			if (store.get('serverURL') === 'http://bettercrewl.ink:6523') {
+				store.set('serverURL', 'https://crewl.ink');
+			}
+		},
 	},
 	schema: {
 		alwaysOnTop: {
@@ -199,7 +204,7 @@ const store = new Store<ISettings>({
 		},
 		serverURL: {
 			type: 'string',
-			default: 'http://bettercrewl.ink:6523',
+			default: 'https://crewl.ink',
 			format: 'uri',
 		},
 		pushToTalkShortcut: {
@@ -800,7 +805,6 @@ const Settings: React.FC<SettingsProps> = function ({
 							<option value="bottom_left">Bottom Left</option>
 							<option value="right">Right</option>
 							<option value="left">Left</option>
-
 						</TextField>
 					</>
 				)}
