@@ -390,7 +390,6 @@ const Voice: React.FC<VoiceProps> = function ({
 					clientId: number
 				) => {
 					console.log('Connect called', lobbyCode, playerId, clientId);
-					socket.emit('leave');
 					if (lobbyCode === 'MENU') {
 						Object.keys(peerConnections).forEach((k) => {
 							disconnectPeer(k);
@@ -476,7 +475,7 @@ const Voice: React.FC<VoiceProps> = function ({
 						});
 					});
 					connection.on('data', (data) => {
-						if (gameState.hostId !== socketClientsRef.current[peer].clientId)
+						if (gameState.hostId !== socketClientsRef.current[peer]?.clientId)
 							return;
 						const settings = JSON.parse(data);
 						Object.keys(lobbySettings).forEach((field: string) => {
@@ -655,7 +654,7 @@ const Voice: React.FC<VoiceProps> = function ({
 	} = {};
 
 	for (const k of Object.keys(socketClients)) {
-		if (socketClients[k].playerId)
+		if (socketClients[k].playerId !== undefined)
 			playerSocketIds[socketClients[k].playerId] = k;
 	}
 	return (

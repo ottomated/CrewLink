@@ -202,7 +202,8 @@ export default class GameReader {
 					this.PlayerStruct
 				);
 				playerAddrPtr += 4;
-				players.push(player);
+				if (state !== GameState.MENU)
+					players.push(player);
 
 				if (
 					player.name === '' ||
