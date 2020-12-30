@@ -7,9 +7,11 @@ export interface AmongUsState {
 	clientId: number;
 	hostId: number;
 }
+
 export interface Player {
 	ptr: number;
 	id: number;
+	clientId: number;
 	name: string;
 	colorId: number;
 	hatId: number;
@@ -26,6 +28,7 @@ export interface Player {
 	y: number;
 	inVent: boolean;
 }
+
 export enum GameState {
 	LOBBY,
 	TASKS,
