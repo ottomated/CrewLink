@@ -161,6 +161,8 @@ export default function Overlay(): JSX.Element {
 		</p>
 	);
 	const playersCSS: React.CSSProperties = {};
+	const playerCSS: React.CSSProperties = { textAlign: 'center' };
+
 	let playerList: Player[] = [];
 	if (gameState.players && gameState.gameState != GameState.MENU)
 		playerList = relevantPlayers;
@@ -184,14 +186,21 @@ export default function Overlay(): JSX.Element {
 			baseCSS['position'] = 'absolute';
 			baseCSS['bottom'] = '0px';
 			baseCSS['backgroundColor'] = 'rgba(0, 0, 0, 0.35)';
-			baseCSS['width'] = 'auto';
+			baseCSS['width'] = undefined;
 
 			playersCSS['justifyContent'] = 'left';
 			playersCSS['alignItems'] = 'left';
+		} else if (settings.overlayPosition == 'right' || settings.overlayPosition == 'left') {
+			baseCSS['marginLeft'] = settings.overlayPosition == 'right'? 'auto' : undefined;
+			baseCSS['marginRight'] = settings.overlayPosition == 'left'? 'auto' : undefined;
+			baseCSS['marginTop'] = '400px';
+			baseCSS['width'] = '300px';
+			baseCSS['backgroundColor'] = '';
+			playerCSS['width'] = '100%';
 		}
 		topArea = <></>;
 		if (
-			(settings.compactOverlay || gameState.gameState == GameState.TASKS) &&
+			(settings.compactOverlay ) &&
 			playerList
 		) {
 			playerList = talkingPlayers;
@@ -199,6 +208,8 @@ export default function Overlay(): JSX.Element {
 		}
 	}
 
+	let isOnSide =
+		settings.overlayPosition == 'right' || settings.overlayPosition == 'left';
 	let playerArea: JSX.Element = <></>;
 	if (playerList) {
 		playerArea = (
@@ -211,13 +222,30 @@ export default function Overlay(): JSX.Element {
 					const name = settings.compactOverlay ? (
 						''
 					) : (
-						<span>
+						<span
+							style={{
+								float: isOnSide
+									? (settings.overlayPosition as Property.Float)
+									: 'none',
+								paddingTop: isOnSide ? '40px' : '',
+								fontWeight: 'bold',
+								paddingLeft: settings.overlayPosition == 'left'? '5px' : ''
+							}}
+						>
 							<small>{player.name}</small>
 						</span>
 					);
 					return (
-						<div key={player.id} style={{ width: '60px', textAlign: 'center' }}>
-							<div style={{ paddingLeft: '5px' }}>
+						<div key={player.id} style={playerCSS}>
+							<div
+								style={{
+									paddingLeft: '5px',
+									width: isOnSide ? '80px' : '60px',
+									float: isOnSide
+										? (settings.overlayPosition as Property.Float)
+										: 'none',
+								}}
+							>
 								<Avatar
 									key={player.id}
 									player={player}
@@ -226,10 +254,11 @@ export default function Overlay(): JSX.Element {
 										otherTalking[player.id] ||
 										(player.isLocal && talking)
 									}
+									showborder={isOnSide}
 									borderColor={connected ? '#2ecc71' : '#c0392b'}
 									isAlive={
 										(!player.isLocal && !otherDead[player.id]) ||
-										(player.isLocal && !player.isDead)
+										(player.isLocal && !player.isDead) 
 									}
 									size={50}
 								/>

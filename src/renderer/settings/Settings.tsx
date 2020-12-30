@@ -798,6 +798,9 @@ const Settings: React.FC<SettingsProps> = function ({
 						>
 							<option value="top">Top Center</option>
 							<option value="bottom_left">Bottom Left</option>
+							<option value="right">Right</option>
+							<option value="left">Left</option>
+
 						</TextField>
 					</>
 				)}
