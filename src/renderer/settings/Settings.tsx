@@ -226,6 +226,14 @@ const store = new Store<ISettings>({
 				maxDistance: 5.32,
 			},
 		},
+		compactOverlay: {
+			type: 'boolean',
+			default: false
+		},
+		overlayPosition: {
+			type: 'string',
+			default: 'top'
+		}
 	},
 });
 
