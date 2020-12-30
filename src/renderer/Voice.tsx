@@ -18,6 +18,7 @@ import makeStyles from '@material-ui/core/styles/makeStyles';
 import SupportLink from './SupportLink';
 import Divider from '@material-ui/core/Divider';
 import { validateClientPeerConfig } from './validateClientPeerConfig';
+import fs from 'fs';
 
 export interface ExtendedAudioElement extends HTMLAudioElement {
 	setSinkId: (sinkId: string) => Promise<void>;
@@ -32,6 +33,10 @@ interface AudioElements {
 		element: HTMLAudioElement;
 		gain: GainNode;
 		pan: PannerNode;
+		reverbGain: GainNode;
+		reverb: ConvolverNode;
+		compressor: DynamicsCompressorNode;
+
 	};
 }
 
@@ -102,14 +107,26 @@ const DEFAULT_ICE_CONFIG_TURN: RTCConfiguration = {
 	],
 };
 
+function toArrayBuffer(buf: Buffer) {
+    var ab = new ArrayBuffer(buf.length);
+    var view = new Uint8Array(ab);
+    for (var i = 0; i < buf.length; ++i) {
+        view[i] = buf[i];
+    }
+    return ab;
+}
+
+
 function calculateVoiceAudio(
 	state: AmongUsState,
 	settings: ISettings,
 	me: Player,
 	other: Player,
 	gain: GainNode,
-	pan: PannerNode
+	pan: PannerNode,
+	reverbGain: GainNode
 ): void {
+	if (reverbGain != null) reverbGain.gain.value = 0;
 	const audioContext = pan.context;
 	pan.positionZ.setValueAtTime(-0.5, audioContext.currentTime);
 	let panPos = [other.x - me.x, other.y - me.y];
@@ -133,7 +150,7 @@ function calculateVoiceAudio(
 		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
 		return;
 	}
-	if (!me.isDead && other.isDead) {
+	if (!me.isDead && other.isDead && (!me.isImpostor || !settings.localLobbySettings.haunting || state.gameState !== GameState.TASKS)) {
 		gain.gain.value = 0;
 		return;
 	}
@@ -158,6 +175,13 @@ function calculateVoiceAudio(
 	) {
 		gain.gain.value = 0;
 	}
+
+	// Living impostors hear ghosts at a faint volume
+	if (gain.gain.value > 0 && !me.isDead && me.isImpostor && other.isDead && settings.localLobbySettings.haunting) {
+		gain.gain.value = gain.gain.value * 0.015;
+		if (reverbGain != null) reverbGain.gain.value = 1;
+	}
+
 }
 
 export interface VoiceProps {
@@ -251,6 +275,13 @@ const Voice: React.FC<VoiceProps> = function ({
 	const [deafenedState, setDeafened] = useState(false);
 	const [mutedState, setMuted] = useState(false);
 	const [connected, setConnected] = useState(false);
+
+	let reverbFile:any = null;
+	if (fs.existsSync("static/reverb.ogx"))
+		reverbFile = fs.readFileSync('static/reverb.ogx');
+	else if (fs.existsSync("resources/static/reverb.ogx"))
+		reverbFile = fs.readFileSync('resources/static/reverb.ogx')
+
 	function disconnectPeer(peer: string) {
 		const connection = peerConnections[peer];
 		if (!connection) {
@@ -265,6 +296,8 @@ const Voice: React.FC<VoiceProps> = function ({
 			document.body.removeChild(audioElements.current[peer].element);
 			audioElements.current[peer].pan.disconnect();
 			audioElements.current[peer].gain.disconnect();
+			if (audioElements.current[peer].reverbGain != null) audioElements.current[peer].reverbGain.disconnect();
+						if (audioElements.current[peer].reverb != null) audioElements.current[peer].reverb.disconnect();
 			delete audioElements.current[peer];
 		}
 	}
@@ -521,7 +554,9 @@ const Voice: React.FC<VoiceProps> = function ({
 						const context = new AudioContext();
 						const source = context.createMediaStreamSource(stream);
 						const gain = context.createGain();
-						const pan = context.createPanner();
+						const pan = context.createPanner();				
+						const compressor = context.createDynamicsCompressor();
+
 						pan.refDistance = 0.1;
 						pan.panningModel = 'equalpower';
 						pan.distanceModel = 'linear';
@@ -530,8 +565,31 @@ const Voice: React.FC<VoiceProps> = function ({
 
 						source.connect(pan);
 						pan.connect(gain);
+						gain.connect(compressor);
+
+						var reverb:any = null;
+						var reverbGain:any = null;
+						if (lobbySettingsRef.current.haunting) {
+							reverb = context.createConvolver();
+							reverbGain = context.createGain();					
+							reverbGain.gain.value = 0;
+							
+							context.decodeAudioData(toArrayBuffer(reverbFile), 
+								function(buffer) {
+									reverb.buffer = buffer;
+								},
+								function(e) {
+								  alert("Error when decoding audio data" + e);
+								}
+							);
+							
+							gain.connect(reverbGain);
+							reverbGain.connect(reverb);
+							reverb.connect(compressor);
+						}
+
 						// Source -> pan -> gain -> VAD -> destination
-						VAD(context, gain, context.destination, {
+						VAD(context, compressor, context.destination, {
 							onVoiceStart: () => setTalking(true),
 							onVoiceStop: () => setTalking(false),
 							stereo: settingsRef.current.enableSpatialAudio,
@@ -555,7 +613,7 @@ const Voice: React.FC<VoiceProps> = function ({
 									socketClientsRef.current[peer].playerId
 								);
 						};
-						audioElements.current[peer] = { element: audio, gain, pan };
+						audioElements.current[peer] = { element: audio, gain, pan, reverbGain, reverb, compressor };
 					});
 					connection.on('signal', (data) => {
 						socket.emit('signal', {
@@ -666,7 +724,8 @@ const Voice: React.FC<VoiceProps> = function ({
 					myPlayer,
 					player,
 					audio.gain,
-					audio.pan
+					audio.pan,
+					audio.reverbGain
 				);
 				if (connectionStuff.current.deafened) {
 					audio.gain.gain.value = 0;

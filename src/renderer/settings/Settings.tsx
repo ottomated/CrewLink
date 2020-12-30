@@ -551,6 +551,7 @@ const Settings: React.FC<SettingsProps> = function ({
 	const [localDistance, setLocalDistance] = useState(
 		settings.localLobbySettings.maxDistance
 	);
+
 	useEffect(() => {
 		setLocalDistance(settings.localLobbySettings.maxDistance);
 	}, [settings.localLobbySettings.maxDistance]);
@@ -624,6 +625,32 @@ const Settings: React.FC<SettingsProps> = function ({
 									});
 								}
 							}}
+						/>
+					</DisabledTooltip>
+					<Typography gutterBottom>
+						Voice Distance:{' '}
+						{canChangeLobbySettings ? localDistance : lobbySettings.maxDistance}
+					</Typography>
+					<DisabledTooltip
+						disabled={!canChangeLobbySettings}
+						title={
+							isInMenuOrLobby
+								? 'Only the game host can change this!'
+								: 'You can only change this in the lobby!'
+						}
+					>
+						<FormControlLabel
+							label="Haunting"
+							disabled={!canChangeLobbySettings}
+							value={settings.localLobbySettings.haunting}
+							checked={settings.alwaysOnTop}
+							onChange={(_, checked: boolean) => {
+								setSettings({
+									type: 'setLobbySetting',
+									action: ['haunting', checked],
+								});
+							}}
+							control={<Checkbox />}
 						/>
 					</DisabledTooltip>
 				</div>
