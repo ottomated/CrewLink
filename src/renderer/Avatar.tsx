@@ -141,6 +141,7 @@ const useCanvasStyles = makeStyles(() => ({
 		position: 'absolute',
 		top: '38%',
 		left: '17%',
+		width: '73.5%',
 		transform: 'scale(0.8)',
 		zIndex: 3,
 		display: ({ isAlive }: UseCanvasStylesParams) =>
