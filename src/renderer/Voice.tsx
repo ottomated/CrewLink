@@ -211,7 +211,6 @@ const Voice: React.FC<VoiceProps> = function ({
 	if (fs.existsSync('static/reverb.ogx'))
 		reverbFile = fs.readFileSync('static/reverb.ogx');
 
-
 	function calculateVoiceAudio(
 		state: AmongUsState,
 		settings: ISettings,
@@ -285,7 +284,7 @@ const Voice: React.FC<VoiceProps> = function ({
 			other.isDead &&
 			lobbySettings.haunting
 		) {
-			gain.gain.value = 0.005;//gain.gain.value * 0.015;
+			gain.gain.value = 0.005; //gain.gain.value * 0.015;
 			if (reverbGain != null) reverbGain.gain.value = 1;
 		}
 	}
@@ -447,7 +446,7 @@ const Voice: React.FC<VoiceProps> = function ({
 			const audio = {
 				deviceId: (undefined as unknown) as string,
 				echoCancellation: true,
-				NoiseSuppression: true
+				NoiseSuppression: true,
 			};
 
 			// Get microphone settings
@@ -499,15 +498,19 @@ const Voice: React.FC<VoiceProps> = function ({
 						{
 							onVoiceStart: () => {
 								setTalking(true);
-								remote
-									.getGlobal('overlay')
-									?.webContents.send('overlayTalkingSelf', true);
+								if (settings.enableOverlay) {
+									remote
+										.getGlobal('overlay')
+										?.webContents.send('overlayTalkingSelf', true);
+								}
 							},
 							onVoiceStop: () => {
 								setTalking(false);
-								remote
-									.getGlobal('overlay')
-									?.webContents.send('overlayTalkingSelf', false);
+								if (settings.enableOverlay) {
+									remote
+										.getGlobal('overlay')
+										?.webContents.send('overlayTalkingSelf', false);
+								}
 							},
 							noiseCaptureDuration: 1,
 							stereo: false,
@@ -621,13 +624,14 @@ const Voice: React.FC<VoiceProps> = function ({
 									...old,
 									[socketClientsRef.current[peer].playerId]: reallyTalking,
 								}));
-
-								remote
-									.getGlobal('overlay')
-									.webContents.send(
-										reallyTalking ? 'overlayTalking' : 'overlayNotTalking',
-										socketClientsRef.current[peer].playerId
-									);
+								if (settings.enableOverlay) {
+									remote
+										.getGlobal('overlay')
+										.webContents.send(
+											reallyTalking ? 'overlayTalking' : 'overlayNotTalking',
+											socketClientsRef.current[peer].playerId
+										);
+								}
 							};
 							audioElements.current[peer] = {
 								element: audio,
@@ -736,9 +740,11 @@ const Voice: React.FC<VoiceProps> = function ({
 		for (const k of Object.keys(socketClients)) {
 			playerSocketIds[socketClients[k].playerId] = k;
 		}
-		remote
-			?.getGlobal('overlay')
-			?.webContents.send('overlaySocketIds', socketClients);
+		if (settings.enableOverlay) {
+			remote
+				?.getGlobal('overlay')
+				?.webContents.send('overlaySocketIds', socketClients);
+		}
 		for (const player of otherPlayers) {
 			const audio = audioElements.current[playerSocketIds[player.id]];
 			if (audio) {
@@ -799,14 +805,16 @@ const Voice: React.FC<VoiceProps> = function ({
 			(gameState.oldGameState === GameState.DISCUSSION ||
 				gameState.oldGameState === GameState.TASKS)
 		) {
-			remote?.getGlobal('overlay')?.webContents?.send('overlayState', 'VOICE');
+				remote
+					?.getGlobal('overlay')
+					?.webContents?.send('overlayState', 'VOICE');
 			connect.connect(gameState.lobbyCode, myPlayer.id, gameState.clientId);
 		} else if (
 			gameState.oldGameState !== GameState.UNKNOWN &&
 			gameState.oldGameState !== GameState.MENU &&
 			gameState.gameState === GameState.MENU
 		) {
-			remote?.getGlobal('overlay')?.webContents?.send('overlayState', 'MENU');
+				remote?.getGlobal('overlay')?.webContents?.send('overlayState', 'MENU');
 			// On change from a game to menu, exit from the current game properly
 			connectionStuff.current.socket?.emit('leave');
 			Object.keys(peerConnections).forEach((k) => {

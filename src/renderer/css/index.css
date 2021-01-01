@@ -128,6 +128,10 @@ body {
 	padding-left: 20px;
 	padding-right: 20px;
 }
+.overlay-wrapper.overlay_postion_right .playername small,
+.overlay-wrapper.overlay_postion_left .playername small {
+	background-color: rgba(0, 0, 0, 0.322);
+}
 
 .overlay-wrapper.overlay_postion_right .playername {
 	float: right;
