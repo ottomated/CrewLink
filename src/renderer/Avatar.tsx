@@ -74,13 +74,17 @@ const Avatar: React.FC<AvatarProps> = function ({
 	size,
 	connectionState,
 	socketConfig,
-	showborder
+	showborder,
 }: AvatarProps) {
 	const status = isAlive ? 'alive' : 'dead';
 	let image = players[status][player.colorId];
 	if (!image) image = players[status][0];
 	const classes = useStyles({
-		borderColor: talking ? borderColor : showborder === true? '#ccbdcc86' : 'transparent',
+		borderColor: talking
+			? borderColor
+			: showborder === true
+			? '#ccbdcc86'
+			: 'transparent',
 		size,
 	});
 

@@ -552,7 +552,6 @@ const Settings: React.FC<SettingsProps> = function ({
 		settings.localLobbySettings
 	);
 
-	
 	useEffect(() => {
 		setLocalLobbySettings(settings.localLobbySettings);
 	}, [settings.localLobbySettings]);
@@ -591,7 +590,9 @@ const Settings: React.FC<SettingsProps> = function ({
 					<Typography variant="h6">Lobby Settings</Typography>
 					<Typography gutterBottom>
 						Voice Distance:{' '}
-						{canChangeLobbySettings ? localLobbySettings : lobbySettings.maxDistance}
+						{canChangeLobbySettings
+							? localLobbySettings
+							: lobbySettings.maxDistance}
 					</Typography>
 					<DisabledTooltip
 						disabled={!canChangeLobbySettings}
@@ -631,7 +632,9 @@ const Settings: React.FC<SettingsProps> = function ({
 					</DisabledTooltip>
 					<Typography gutterBottom>
 						Voice Distance:{' '}
-						{canChangeLobbySettings ? localLobbySettings : lobbySettings.maxDistance}
+						{canChangeLobbySettings
+							? localLobbySettings
+							: lobbySettings.maxDistance}
 					</Typography>
 					<DisabledTooltip
 						disabled={!canChangeLobbySettings}
@@ -653,9 +656,11 @@ const Settings: React.FC<SettingsProps> = function ({
 									? localLobbySettings.haunting
 									: lobbySettings.haunting
 							}
-							checked={canChangeLobbySettings
-								? localLobbySettings.haunting
-								: lobbySettings.haunting}
+							checked={
+								canChangeLobbySettings
+									? localLobbySettings.haunting
+									: lobbySettings.haunting
+							}
 							// onChange={(_, checked: boolean) => {
 							// 	setSettings({
 							// 		type: 'setLobbySetting',
