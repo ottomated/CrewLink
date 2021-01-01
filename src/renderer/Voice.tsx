@@ -385,7 +385,7 @@ const Voice: React.FC<VoiceProps> = function ({
 	});
 
 	useEffect(() => {
-		(async function anyNameFunction() {
+		// (async function anyNameFunction() {
 			let currentLobby = '';
 			// Connect to voice relay server
 			connectionStuff.current.socket = io(settings.serverURL, {
@@ -712,7 +712,7 @@ const Voice: React.FC<VoiceProps> = function ({
 				connectionStuff.current.socket?.close();
 				audioListener.destroy();
 			};
-		})();
+		// })();
 	}, []);
 
 	const myPlayer = useMemo(() => {
@@ -723,6 +723,7 @@ const Voice: React.FC<VoiceProps> = function ({
 		}
 	}, [gameState.players]);
 
+	
 	const otherPlayers = useMemo(() => {
 		let otherPlayers: Player[];
 		if (

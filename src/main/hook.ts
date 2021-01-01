@@ -61,21 +61,14 @@ ipcMain.handle(IpcHandlerMessages.START_HOOK, async (event) => {
 
 		// Read game memory
 		gameReader = new GameReader(event.sender.send.bind(event.sender));
-		const {
-			performance,
-			PerformanceObserver
-		  } = require('perf_hooks');
 		const frame = () => {
-			var t0 = performance.now();
 
 			const err = gameReader.loop();
-			var t1 = performance.now();
-			console.log('Call to doSomething took ' + (t1 - t0) + ' milliseconds.');
 			if (err) {
 				readingGame = false;
 				event.sender.send(IpcRendererMessages.ERROR, err);
 			} else {
-				setTimeout(frame, 1000 / 15);
+				setTimeout(frame, 1000 / 5);
 			}
 		};
 		frame();

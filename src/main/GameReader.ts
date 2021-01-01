@@ -108,9 +108,14 @@ export default class GameReader {
 				meetingHud_cachePtr === 0
 					? 4
 					: this.readMemory('int', meetingHud, this.offsets.meetingHudState, 4);
+
+
+
+					const innerNetClient = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.innerNetClient);
+
 			const gameState = this.readMemory<number>(
 				'int',
-				this.gameAssembly.modBaseAddr,
+				innerNetClient,
 				this.offsets.gameState
 			);
 
@@ -137,7 +142,7 @@ export default class GameReader {
 					: this.IntToGameCode(
 							this.readMemory<number>(
 								'int32',
-								this.gameAssembly.modBaseAddr,
+								innerNetClient,
 								this.offsets.gameCode
 							)
 					  );
@@ -162,12 +167,12 @@ export default class GameReader {
 
 			const hostId = this.readMemory<number>(
 				'uint32',
-				this.gameAssembly.modBaseAddr,
+				innerNetClient,
 				this.offsets.hostId
 			);
 			const clientId = this.readMemory<number>(
 				'uint32',
-				this.gameAssembly.modBaseAddr,
+				innerNetClient,
 				this.offsets.clientId
 			);
 
@@ -299,10 +304,8 @@ export default class GameReader {
 		this.offsets.meetingHud[0] = meetingHud;
 		this.offsets.exiledPlayerId[1] = meetingHud;
 		this.offsets.allPlayersPtr[0] = gameData;
-		this.offsets.gameState[0] = innerNetClient;
-		this.offsets.gameCode[0] = innerNetClient;
-		this.offsets.hostId[0] = innerNetClient;
-		this.offsets.clientId[0] = innerNetClient;
+		this.offsets.innerNetClient[0] = innerNetClient;
+		
 	}
 
 	isX64Version(): boolean {

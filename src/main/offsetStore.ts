@@ -14,6 +14,7 @@ export interface IOffsets {
 	meetingHudCachePtr: number[];
 	meetingHudState: number[];
 	gameState: number[];
+	innerNetClient: number[];
 	allPlayersPtr: number[];
 	allPlayers: number[];
 	playerCount: number[];
@@ -62,10 +63,12 @@ export default {
 		meetingHud: [0x21d03e0, 0xb8, 0],
 		meetingHudCachePtr: [0x10],
 		meetingHudState: [0xc0],
-		gameState: [0x21d0ea0, 0xb8, 0, 0xac],
-		gameCode: [0x21d0ea0, 0xb8, 0, 0x74],
-		hostId: [0x143be9c, 0xb8, 0, 0x78],
-		clientId: [0x143be9c, 0xb8, 0, 0x7c],
+		innerNetClient: [0x1c57f54, 0xb8, 0x0],
+
+		gameState: [0xac],
+		gameCode: [0x74],
+		hostId: [0x78],
+		clientId: [0x7c],
 		allPlayersPtr: [0x21d0e60, 0xb8, 0, 0x30],
 		allPlayers: [0x10],
 		playerCount: [0x18],
@@ -127,10 +130,11 @@ export default {
 		meetingHud: [0x1c573a4, 0x5c, 0],
 		meetingHudCachePtr: [0x8],
 		meetingHudState: [0x84],
-		gameState: [0x1c57f54, 0x5c, 0, 0x64],
-		gameCode: [0x1c57f54, 0x5c, 0, 0x40],
-		hostId: [0x1c57f54, 0x5c, 0, 0x44],
-		clientId: [0x1c57f54, 0x5c, 0, 0x48],
+		innerNetClient: [0x1c57f54, 0x5c, 0x0],
+		gameState: [0x64],
+		gameCode: [0x40],
+		hostId: [0x44],
+		clientId: [0x48],
 		allPlayersPtr: [0x1c57be8, 0x5c, 0, 0x24],
 		allPlayers: [0x08],
 		playerCount: [0x0c],
