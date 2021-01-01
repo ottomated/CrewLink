@@ -591,7 +591,7 @@ const Settings: React.FC<SettingsProps> = function ({
 					<Typography gutterBottom>
 						Voice Distance:{' '}
 						{canChangeLobbySettings
-							? localLobbySettings
+							? localLobbySettings.maxDistance
 							: lobbySettings.maxDistance}
 					</Typography>
 					<DisabledTooltip
@@ -630,12 +630,7 @@ const Settings: React.FC<SettingsProps> = function ({
 							}}
 						/>
 					</DisabledTooltip>
-					<Typography gutterBottom>
-						Voice Distance:{' '}
-						{canChangeLobbySettings
-							? localLobbySettings
-							: lobbySettings.maxDistance}
-					</Typography>
+				
 					<DisabledTooltip
 						disabled={!canChangeLobbySettings}
 						title={
