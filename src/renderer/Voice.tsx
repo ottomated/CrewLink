@@ -210,8 +210,7 @@ const Voice: React.FC<VoiceProps> = function ({
 	let reverbFile: any = null;
 	if (fs.existsSync('static/reverb.ogx'))
 		reverbFile = fs.readFileSync('static/reverb.ogx');
-	else if (fs.existsSync('resources/static/reverb.ogx'))
-		reverbFile = fs.readFileSync('resources/static/reverb.ogx');
+
 
 	function calculateVoiceAudio(
 		state: AmongUsState,
@@ -286,7 +285,7 @@ const Voice: React.FC<VoiceProps> = function ({
 			other.isDead &&
 			lobbySettings.haunting
 		) {
-			gain.gain.value = gain.gain.value * 0.015;
+			gain.gain.value = 0.005;//gain.gain.value * 0.015;
 			if (reverbGain != null) reverbGain.gain.value = 1;
 		}
 	}
@@ -447,19 +446,8 @@ const Voice: React.FC<VoiceProps> = function ({
 			};
 			const audio = {
 				deviceId: (undefined as unknown) as string,
-				autoGainControl: false,
-				channelCount: 2,
 				echoCancellation: true,
-				latency: 0,
-				noiseSuppression: true,
-				sampleRate: 48000,
-				sampleSize: 16,
-				googEchoCancellation: true,
-				googAutoGainControl: false,
-				googAutoGainControl2: false,
-				googNoiseSuppression: true,
-				googHighpassFilter: true,
-				googTypingNoiseDetection: true,
+				NoiseSuppression: true
 			};
 
 			// Get microphone settings

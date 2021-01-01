@@ -38,7 +38,7 @@
     "electron-updater": "^4.3.5",
     "electron-window-state": "^5.0.3",
     "memoryjs": "git://github.com/Rob--/memoryjs",
-    "node-keyboard-watcher": "https://github.com/OhMyGuus/node-keyboard-watcher.git",
+    "node-keyboard-watcher": "git://github.com/OhMyGuus/node-keyboard-watcher",
     "pretty-bytes": "^5.5.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
