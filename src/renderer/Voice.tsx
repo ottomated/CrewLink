@@ -284,7 +284,7 @@ const Voice: React.FC<VoiceProps> = function ({
 			other.isDead &&
 			lobbySettings.haunting
 		) {
-			gain.gain.value = 0.005; //gain.gain.value * 0.015;
+			gain.gain.value = gain.gain.value * 0.015; //0.005; 
 			if (reverbGain != null) reverbGain.gain.value = 1;
 		}
 	}
@@ -443,10 +443,13 @@ const Voice: React.FC<VoiceProps> = function ({
 				connect: () => void;
 				destroy: () => void;
 			};
-			const audio = {
+			const audio : MediaTrackConstraintSet = {
 				deviceId: (undefined as unknown) as string,
+				autoGainControl: false,
+				channelCount: 2,
 				echoCancellation: true,
-				NoiseSuppression: true,
+				latency: 0,
+				noiseSuppression: true,
 			};
 
 			// Get microphone settings
@@ -758,9 +761,11 @@ const Voice: React.FC<VoiceProps> = function ({
 					audio.pan,
 					audio.reverbGain
 				);
+
 				if (connectionStuff.current.deafened) {
 					audio.gain.gain.value = 0;
 				}
+
 				if (audio.gain.gain.value > 0) {
 					const playerVolume = playerConfigs[player.clientId]?.volume;
 
@@ -787,7 +792,7 @@ const Voice: React.FC<VoiceProps> = function ({
 				playerConfigs[player.clientId] = { volume: 1 };
 			}
 		}
-	}, [gameState?.players]);
+	}, [gameState?.players?.length]); /* move the the other gamestate hooks */
 
 	// Connect to P2P negotiator, when lobby and connect code change
 	useEffect(() => {
@@ -857,6 +862,7 @@ const Voice: React.FC<VoiceProps> = function ({
 		if (socketClients[k].playerId !== undefined)
 			playerSocketIds[socketClients[k].playerId] = k;
 	}
+	
 	return (
 		<div className={classes.root}>
 			{error && (
