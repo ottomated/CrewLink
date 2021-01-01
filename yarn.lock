@@ -7382,7 +7382,7 @@ node-gyp-build@4.x.x:
 
 "node-keyboard-watcher@git://github.com/OhMyGuus/node-keyboard-watcher":
   version "1.0.0"
-  resolved "git://github.com/OhMyGuus/node-keyboard-watcher#ff0d50a020bb01f73d814bcc19804cdcd7a44c0f"
+  resolved "git://github.com/OhMyGuus/node-keyboard-watcher#895ed65cd415dcc191e45465534079b0163546e0"
   dependencies:
     "@types/throttle-debounce" "2.x.x"
     bindings "*"
