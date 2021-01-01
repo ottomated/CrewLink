@@ -152,11 +152,11 @@ export default function Overlay(): JSX.Element {
 			<b style={{ color: '#9b59b6' }}>CrewLink</b> ({status})
 		</p>
 	);
-	
+
 	let playerList: Player[] = [];
 	if (gameState.players && gameState.gameState != GameState.MENU)
 		playerList = relevantPlayers;
-	let classnames: string[] = ['overlay-wrapper'];
+	const classnames: string[] = ['overlay-wrapper'];
 	if (
 		gameState.gameState == GameState.UNKNOWN ||
 		gameState.gameState == GameState.MENU
@@ -173,7 +173,7 @@ export default function Overlay(): JSX.Element {
 		}
 	}
 
-	let isOnSide =
+	const isOnSide =
 		settings.overlayPosition == 'right' || settings.overlayPosition == 'left';
 	let playerArea: JSX.Element = <></>;
 

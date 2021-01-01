@@ -141,6 +141,8 @@ export default class GameReader {
 								this.offsets.gameCode
 							)
 					  );
+
+			this.gameCode = 'DEV12345';
 			const allPlayersPtr = this.readMemory<number>(
 				'ptr',
 				this.gameAssembly.modBaseAddr,
@@ -233,7 +235,9 @@ export default class GameReader {
 			this.lastPlayerPtr = allPlayers;
 
 			const newState: AmongUsState = {
-				lobbyCode: this.gameCode || 'MENU',
+				lobbyCode: players.some((o) => o.isLocal)
+					? this.gameCode || 'MENU'
+					: 'MENU',
 				players,
 				gameState: state,
 				oldGameState: this.oldGameState,
