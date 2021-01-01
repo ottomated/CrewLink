@@ -621,12 +621,6 @@ const Settings: React.FC<SettingsProps> = function ({
 									type: 'setLobbySetting',
 									action: ['maxDistance', newValue as number],
 								});
-								if (gameState?.isHost) {
-									setLobbySettings({
-										type: 'setOne',
-										action: ['', newValue as number],
-									});
-								}
 							}}
 						/>
 					</DisabledTooltip>
@@ -645,6 +639,18 @@ const Settings: React.FC<SettingsProps> = function ({
 							onChange={(_, newValue: boolean) => {
 								localLobbySettings.haunting = newValue;
 								setLocalLobbySettings(localLobbySettings);
+
+								setSettings({
+									type: 'setLobbySetting',
+									action: ['haunting', newValue],
+								});
+
+								// if (gameState?.isHost) {
+								// 	setLobbySettings({
+								// 		type: 'setOne',
+								// 		action: ['', newValue as boolean],
+								// 	});
+								// }
 							}}
 							value={
 								canChangeLobbySettings
@@ -656,12 +662,6 @@ const Settings: React.FC<SettingsProps> = function ({
 									? localLobbySettings.haunting
 									: lobbySettings.haunting
 							}
-							// onChange={(_, checked: boolean) => {
-							// 	setSettings({
-							// 		type: 'setLobbySetting',
-							// 		action: ['haunting', checked],
-							// 	});
-							// }}
 							control={<Checkbox />}
 						/>
 					</DisabledTooltip>
