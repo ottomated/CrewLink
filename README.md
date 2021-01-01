@@ -27,13 +27,16 @@
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents
 
-* [About the Project](#about-the-project)
-* [Installation](#installation)
-* [Development](#development)
-  * [Prerequisites](#prerequisites)
-  * [Setup](#setup)
-* [Contributing](#contributing)
-* [License](#license)
+- [Table of Contents](#table-of-contents)
+- [About The Project](#about-the-project)
+- [Installation](#installation)
+  - [Setup Instructions (click)](#setup-instructions-click)
+- [Known Issues](#known-issues)
+- [Development](#development)
+  - [Prerequisites](#prerequisites)
+  - [Setup](#setup)
+- [Contributing](#contributing)
+- [License](#license)
 
 
 
@@ -51,6 +54,14 @@ If you can, you should use a private server by deploying [this repository](https
 ### Setup Instructions (click)
 
 [![Setup Video](https://img.youtube.com/vi/_8F4f5iQEIc/0.jpg)](https://www.youtube.com/watch?v=_8F4f5iQEIc "CrewLink Setup Instructions")
+
+## Known Issues
+
+  On Windows, if you have your sound communications settings set to reduce volume upon joining a call, the CrewLink application volume will be impacted by this when anyone joins/leaves the lobby. To fix this go to your Sound settings through the Control Panel and set it to "Do nothing".
+ 
+<p align="center">
+  <img src="resources/reduce-volume.jpg" alt="Logo" height="200">
+</p>
 
 ## Development
 
