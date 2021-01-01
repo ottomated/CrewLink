@@ -180,9 +180,9 @@ const store = new Store<ISettings>({
 			store.delete('offsets');
 		},
 		'1.2.15': (store) => {
-			if (store.get('serverURL') === 'http://bettercrewl.ink:6523') {
-				store.set('serverURL', 'https://crewl.ink');
-			}
+			// if (store.get('serverURL') === 'http://bettercrewl.ink:6523') {
+			// 	store.set('serverURL', 'https://crewl.ink');
+			// }
 		},
 	},
 	schema: {
@@ -393,7 +393,7 @@ const URLInput: React.FC<URLInputProps> = function ({
 						onClick={() => {
 							setOpen(false);
 							setURLValid(true);
-							onValidURL('http://bettercrewl.ink:6523');
+							onValidURL('https://crewl.ink');
 						}}
 					>
 						Reset to default

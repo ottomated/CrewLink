@@ -142,7 +142,6 @@ export default class GameReader {
 							)
 					  );
 
-			this.gameCode = 'DEV12345';
 			const allPlayersPtr = this.readMemory<number>(
 				'ptr',
 				this.gameAssembly.modBaseAddr,
