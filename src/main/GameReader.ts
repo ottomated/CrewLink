@@ -233,7 +233,7 @@ export default class GameReader {
 			this.lastPlayerPtr = allPlayers;
 
 			const newState: AmongUsState = {
-				lobbyCode: this.gameCode || 'MENU',
+				lobbyCode:  players.some(o => o.isLocal)? this.gameCode || 'MENU' : 'MENU',
 				players,
 				gameState: state,
 				oldGameState: this.oldGameState,

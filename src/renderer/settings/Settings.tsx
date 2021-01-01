@@ -552,9 +552,17 @@ const Settings: React.FC<SettingsProps> = function ({
 		settings.localLobbySettings.maxDistance
 	);
 
+	const [localHaunting, setLocalHaunting] = useState(
+		settings.localLobbySettings.haunting
+	);
+
 	useEffect(() => {
 		setLocalDistance(settings.localLobbySettings.maxDistance);
 	}, [settings.localLobbySettings.maxDistance]);
+
+	useEffect(() => {
+		setLocalHaunting(settings.localLobbySettings.haunting);
+	}, [settings.localLobbySettings.haunting]);
 
 	const isInMenuOrLobby =
 		gameState?.gameState === GameState.LOBBY ||
@@ -643,7 +651,7 @@ const Settings: React.FC<SettingsProps> = function ({
 							label="Haunting"
 							disabled={!canChangeLobbySettings}
 							value={settings.localLobbySettings.haunting}
-							checked={settings.alwaysOnTop}
+							checked={settings.localLobbySettings.haunting}
 							onChange={(_, checked: boolean) => {
 								setSettings({
 									type: 'setLobbySetting',

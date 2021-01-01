@@ -313,6 +313,7 @@ const Voice: React.FC<VoiceProps> = function ({
 		if (gameState.isHost !== true) return;
 		Object.values(peerConnections).forEach((peer) => {
 			try {
+				console.log("Emmiting");
 				peer.send(JSON.stringify(settings.localLobbySettings));
 			} catch (e) {
 				console.warn('failed to update lobby settings: ', e);
@@ -440,6 +441,7 @@ const Voice: React.FC<VoiceProps> = function ({
 			googNoiseSuppression: true,
 			googHighpassFilter: true,
 			googTypingNoiseDetection: true,
+			
 		};
 
 		// Get microphone settings
@@ -622,6 +624,7 @@ const Voice: React.FC<VoiceProps> = function ({
 						});
 					});
 					connection.on('data', (data) => {
+						console.log('ON DATA')
 						if (gameState.hostId !== socketClientsRef.current[peer]?.clientId)
 							return;
 						const settings = JSON.parse(data);
