@@ -88,52 +88,70 @@ function calculateVoiceAudio(
 	pan: PannerNode
 ): void {
 	const audioContext = pan.context;
-	pan.positionZ.setValueAtTime(-0.5, audioContext.currentTime);
 	let panPos = [other.x - me.x, other.y - me.y];
-	if (
-		state.gameState === GameState.DISCUSSION ||
-		(state.gameState === GameState.LOBBY && !settings.enableSpatialAudio)
-	) {
+
+	switch (state.gameState) {
+		case GameState.MENU:
+			gain.gain.value = 0;
+			break;
+
+		case GameState.LOBBY:
+			gain.gain.value = 1;
+			break;
+	
+		case GameState.TASKS:
+			gain.gain.value = 1;
+
+			// Mute other players which are in a vent
+			if (other.inVent) {
+				gain.gain.value = 0;
+			}
+
+			// Mute dead players for still living players
+			if (!me.isDead && other.isDead) {
+				gain.gain.value = 0;
+			}
+
+			break;
+
+		case GameState.DISCUSSION:
+			panPos = [0, 0];
+			gain.gain.value = 1;
+
+			// Mute dead players for still living players
+			if (!me.isDead && other.isDead) {
+				gain.gain.value = 0;
+			}
+
+			break;
+
+		case GameState.UNKNOWN:
+		default:
+			gain.gain.value = 0;
+			break;
+	}
+
+	// Reset panning position if the setting is disabled
+	if (!settings.enableSpatialAudio) {
 		panPos = [0, 0];
 	}
+
+	// Clamp panning position
 	if (isNaN(panPos[0])) panPos[0] = 999;
 	if (isNaN(panPos[1])) panPos[1] = 999;
-	panPos[0] = Math.min(999, Math.max(-999, panPos[0]));
-	panPos[1] = Math.min(999, Math.max(-999, panPos[1]));
-	if (other.inVent) {
-		gain.gain.value = 0;
-		return;
-	}
-	if (me.isDead && other.isDead) {
-		gain.gain.value = 1;
-		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
-		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
-		return;
-	}
-	if (!me.isDead && other.isDead) {
-		gain.gain.value = 0;
-		return;
-	}
-	if (
-		state.gameState === GameState.LOBBY ||
-		state.gameState === GameState.DISCUSSION
-	) {
-		gain.gain.value = 1;
-		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
-		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
-	} else if (state.gameState === GameState.TASKS) {
-		gain.gain.value = 1;
-		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
-		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
-	} else {
+	
+	panPos[0] = Math.min(Math.max(panPos[0], -999), 999);
+	panPos[1] = Math.min(Math.max(panPos[1], -999), 999);
+
+	// Mute players if distancte between two players is too big
+	if (Math.sqrt(Math.pow(panPos[0], 2) + Math.pow(panPos[1], 2)) > 7) {
 		gain.gain.value = 0;
 	}
-	if (
-		gain.gain.value === 1 &&
-		Math.sqrt(Math.pow(panPos[0], 2) + Math.pow(panPos[1], 2)) > 7
-	) {
-		gain.gain.value = 0;
-	}
+
+	// Apply position's to PanNode
+	pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
+	pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
+	pan.positionZ.setValueAtTime(-0.5, audioContext.currentTime);
 }
 
 export interface VoiceProps {
