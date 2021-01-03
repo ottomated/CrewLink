@@ -1,5 +1,3 @@
-import analyserFrequency from 'analyser-frequency-average';
-
 interface VADOptions {
 	fftSize: number;
 	bufferLen: number;
@@ -16,27 +14,81 @@ interface VADOptions {
 	stereo: boolean;
 }
 
-export default function (audioContext: AudioContext, source: AudioNode, destination: AudioNode | undefined, opts: Partial<VADOptions>): {
-	connect: () => void,
-	destroy: () => void
-} {
+function clamp(value: number, min: number, max: number): number {
+	return min < max
+		? value < min
+			? min
+			: value > max
+			? max
+			: value
+		: value < max
+		? max
+		: value > min
+		? min
+		: value;
+}
 
+// https://github.com/Jam3/audio-frequency-to-index
+function frequencyToIndex(
+	frequency: number,
+	sampleRate: number,
+	frequencyBinCount: number
+): number {
+	const nyquist = sampleRate / 2;
+	const index = Math.round((frequency / nyquist) * frequencyBinCount);
+	return clamp(index, 0, frequencyBinCount);
+}
+
+// https://github.com/Jam3/analyser-frequency-average
+function analyserFrequency(
+	analyser: AnalyserNode,
+	frequencies: Uint8Array,
+	minHz: number,
+	maxHz: number
+): number {
+	const sampleRate = analyser.context.sampleRate;
+	const binCount = analyser.frequencyBinCount;
+	let start = frequencyToIndex(minHz, sampleRate, binCount);
+	const end = frequencyToIndex(maxHz, sampleRate, binCount);
+	const count = end - start;
+	let sum = 0;
+	for (; start < end; start++) {
+		sum += frequencies[start] / 255;
+	}
+	return count === 0 ? 0 : sum / count;
+}
+
+export default function (
+	audioContext: AudioContext,
+	source: AudioNode,
+	destination: AudioNode | undefined,
+	opts: Partial<VADOptions>
+): {
+	connect: () => void;
+	destroy: () => void;
+} {
 	opts = opts || {};
 
 	const defaults: VADOptions = {
 		fftSize: 1024,
 		bufferLen: 1024,
 		smoothingTimeConstant: 0.2,
-		minCaptureFreq: 85,         // in Hz
-		maxCaptureFreq: 255,        // in Hz
+		minCaptureFreq: 85, // in Hz
+		maxCaptureFreq: 255, // in Hz
 		noiseCaptureDuration: 1000, // in ms
-		minNoiseLevel: 0.3,         // from 0 to 1
-		maxNoiseLevel: 0.7,         // from 0 to 1
+		minNoiseLevel: 0.3, // from 0 to 1
+		maxNoiseLevel: 0.7, // from 0 to 1
 		avgNoiseMultiplier: 1.2,
-		onVoiceStart: function () { /* DO NOTHING */ },
-		onVoiceStop: function () { /* DO NOTHING */ },
-		onUpdate: function () { /* DO NOTHING */ },
-		stereo: true
+		onVoiceStart: function () {
+			/* DO NOTHING */
+		},
+		onVoiceStop: function () {
+			/* DO NOTHING */
+		},
+		onUpdate: function () {
+			/* DO NOTHING */
+		},
+		stereo: true,
 	};
 
 	const options: VADOptions = Object.assign({}, defaults, opts);
@@ -60,27 +112,42 @@ export default function (audioContext: AudioContext, source: AudioNode, destinat
 	analyser.fftSize = options.fftSize;
 
 	const channels = options.stereo ? 2 : 1;
-	const scriptProcessorNode = audioContext.createScriptProcessor(options.bufferLen, channels, channels);
+	const scriptProcessorNode = audioContext.createScriptProcessor(
+		options.bufferLen,
+		channels,
+		channels
+	);
 	connect();
 	scriptProcessorNode.onaudioprocess = monitor;
 
 	if (isNoiseCapturing) {
 		//console.log('VAD: start noise capturing');
-		captureTimeout = setTimeout(init, options.noiseCaptureDuration) as unknown as number;
+		captureTimeout = (setTimeout(
+			init,
+			options.noiseCaptureDuration
+		) as unknown) as number;
 	}
 
 	function init() {
 		//console.log('VAD: stop noise capturing');
 		isNoiseCapturing = false;
 
-		envFreqRange = envFreqRange.filter(function (val) {
-			return val;
-		}).sort();
-		const averageEnvFreq = envFreqRange.length ? envFreqRange.reduce(function (p, c) { return Math.min(p, c); }, 1) : (options.minNoiseLevel || 0.1);
+		envFreqRange = envFreqRange
+			.filter(function (val) {
+				return val;
+			})
+			.sort();
+		const averageEnvFreq = envFreqRange.length
+			? envFreqRange.reduce(function (p, c) {
+					return Math.min(p, c);
+			  }, 1)
+			: options.minNoiseLevel || 0.1;
 
 		baseLevel = averageEnvFreq * options.avgNoiseMultiplier;
-		if (options.minNoiseLevel && baseLevel < options.minNoiseLevel) baseLevel = options.minNoiseLevel;
-		if (options.maxNoiseLevel && baseLevel > options.maxNoiseLevel) baseLevel = options.maxNoiseLevel;
+		if (options.minNoiseLevel && baseLevel < options.minNoiseLevel)
+			baseLevel = options.minNoiseLevel;
+		if (options.maxNoiseLevel && baseLevel > options.maxNoiseLevel)
+			baseLevel = options.maxNoiseLevel;
 
 		voiceScale = 1 - baseLevel;
 
@@ -90,10 +157,8 @@ export default function (audioContext: AudioContext, source: AudioNode, destinat
 	function connect() {
 		source.connect(analyser);
 		analyser.connect(scriptProcessorNode);
-		if (destination)
-			scriptProcessorNode.connect(destination);
-		else
-			scriptProcessorNode.connect(audioContext.destination);
+		if (destination) scriptProcessorNode.connect(destination);
+		else scriptProcessorNode.connect(audioContext.destination);
 	}
 
 	function disconnect() {
@@ -114,8 +179,11 @@ export default function (audioContext: AudioContext, source: AudioNode, destinat
 
 	function monitor(event: AudioProcessingEvent) {
 		if (destination) {
-			for (let channel = 0; channel < event.outputBuffer.numberOfChannels; channel++) {
-
+			for (
+				let channel = 0;
+				channel < event.outputBuffer.numberOfChannels;
+				channel++
+			) {
 				const inputData = event.inputBuffer.getChannelData(channel);
 				const outputData = event.outputBuffer.getChannelData(channel);
 				for (let sample = 0; sample < event.inputBuffer.length; sample++) {
@@ -127,7 +195,12 @@ export default function (audioContext: AudioContext, source: AudioNode, destinat
 		const frequencies = new Uint8Array(analyser.frequencyBinCount);
 		analyser.getByteFrequencyData(frequencies);
 
-		const average = analyserFrequency(analyser, frequencies, options.minCaptureFreq, options.maxCaptureFreq);
+		const average = analyserFrequency(
+			analyser,
+			frequencies,
+			options.minCaptureFreq,
+			options.maxCaptureFreq
+		);
 		if (isNoiseCapturing) {
 			envFreqRange.push(average);
 			return;
