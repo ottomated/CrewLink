@@ -728,6 +728,8 @@ const Voice: React.FC<VoiceProps> = function ({
 
 	
 	const otherPlayers = useMemo(() => {
+		connectionStuff.current.socket?.emit('mobileAmongUsState', gameState);
+
 		let otherPlayers: Player[];
 		if (
 			!gameState ||
