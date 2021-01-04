@@ -140,6 +140,7 @@ export default function App(): JSX.Element {
 		muteShortcut: 'RAlt',
 		hideCode: false,
 		natFix: false,
+		mobileHost: false,
 		enableSpatialAudio: true,
 		overlayPosition: 'top',
 		compactOverlay: false,

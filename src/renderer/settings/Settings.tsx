@@ -247,6 +247,10 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: false,
 		},
+		mobileHost: {
+			type: 'boolean',
+			default: false,
+		},
 		localLobbySettings: {
 			type: 'object',
 			properties: {
@@ -624,7 +628,7 @@ const Settings: React.FC<SettingsProps> = function ({
 							}}
 						/>
 					</DisabledTooltip>
-				
+
 					<DisabledTooltip
 						disabled={!canChangeLobbySettings}
 						title={
@@ -914,6 +918,19 @@ const Settings: React.FC<SettingsProps> = function ({
 						});
 					}}
 					className={classes.urlDialog}
+				/>
+				<Divider />
+				<Typography variant="h6">BETA</Typography>
+				<FormControlLabel
+					label="Mobile host"
+					checked={settings.mobileHost}
+					onChange={(_, checked: boolean) => {
+						setSettings({
+							type: 'setOne',
+							action: ['mobileHost', checked],
+						});
+					}}
+					control={<Checkbox />}
 				/>
 				<Alert
 					className={classes.alert}
