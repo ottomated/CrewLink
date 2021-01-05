@@ -81,6 +81,18 @@ ipcMain.handle(IpcHandlerMessages.START_HOOK, async (event) => {
 			) {
 				event.sender.send(IpcRendererMessages.PUSH_TO_TALK, false);
 			}
+			if (
+				isMouseButton(store.get('deafenShortcut')) &&
+				mouseClickMatches(store.get('deafenShortcut') as M, ev)
+			) {
+				event.sender.send(IpcRendererMessages.TOGGLE_DEAFEN);
+			}
+			if (
+				isMouseButton(store.get('muteShortcut', 'RAlt')) &&
+				mouseClickMatches(store.get('muteShortcut', 'RAlt') as M, ev)
+			) {
+				event.sender.send(IpcRendererMessages.TOGGLE_MUTE);
+			}
 		});
 
 		iohook.start();
