@@ -183,7 +183,6 @@ export default class GameReader {
 			);
 			let impostors = 0,
 				crewmates = 0;
-		//	this.gameCode = 'DEV12345';
 
 			if (this.gameCode) {
 				for (let i = 0; i < Math.min(playerCount, 100); i++) {
@@ -452,12 +451,12 @@ export default class GameReader {
 			'float',
 			data.objectPtr,
 			positionOffsets[0]
-		).toFixed(4));
+		)?.toFixed(4));
 		const y = parseFloat(this.readMemory<number>(
 			'float',
 			data.objectPtr,
 			positionOffsets[1]
-		).toFixed(4));
+		)?.toFixed(4));
 
 		return {
 			ptr,
