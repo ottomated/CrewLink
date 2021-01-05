@@ -63,7 +63,7 @@ interface OtherTalking {
 }
 
 interface OtherDead {
-	[playerId: number]: boolean; // isTalking
+	[playerId: number]: boolean; // isDead
 }
 
 interface AudioConnected {
@@ -443,6 +443,7 @@ const Voice: React.FC<VoiceProps> = function ({
 						const context = new AudioContext();
 						const source = context.createMediaStreamSource(stream);
 						const gain = context.createGain();
+						gain.value = 0; // Mute to start, workaround to address duplicate sources aka "can be heard anywhere"
 						const pan = context.createPanner();
 						pan.refDistance = 0.1;
 						pan.panningModel = 'equalpower';
