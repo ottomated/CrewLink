@@ -447,16 +447,17 @@ export default class GameReader {
 			? [this.offsets.player.localX, this.offsets.player.localY]
 			: [this.offsets.player.remoteX, this.offsets.player.remoteY];
 
-		const x = parseFloat(this.readMemory<number>(
+		const x = this.readMemory<number>(
 			'float',
 			data.objectPtr,
 			positionOffsets[0]
-		)?.toFixed(4));
-		const y = parseFloat(this.readMemory<number>(
+		);
+
+		const y = this.readMemory<number>(
 			'float',
 			data.objectPtr,
 			positionOffsets[1]
-		)?.toFixed(4));
+		);
 
 		return {
 			ptr,
