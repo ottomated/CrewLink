@@ -46,6 +46,7 @@ function createMainWindow() {
 		maximizable: false,
 		transparent: true,
 		webPreferences: {
+			enableRemoteModule: true,
 			nodeIntegration: true,
 			webSecurity: false,
 		},

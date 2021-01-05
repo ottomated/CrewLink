@@ -329,9 +329,6 @@ const Voice: React.FC<VoiceProps> = function ({
 		});
 	}, [settings.localLobbySettings]);
 
-	// useEffect(() => {
-	// 	console.log(gameState);
-	// }, [gameState]);
 
 	useEffect(() => {
 		console.log('nnew max distance?', lobbySettings.maxDistance);
@@ -458,6 +455,7 @@ const Voice: React.FC<VoiceProps> = function ({
 			navigator.getUserMedia(
 				{ video: false, audio },
 				async (stream) => {
+					console.log("getuserMediacall");
 					connectionStuff.current.stream = stream;
 
 					stream.getAudioTracks()[0].enabled = !settings.pushToTalk;
@@ -548,6 +546,7 @@ const Voice: React.FC<VoiceProps> = function ({
 								? DEFAULT_ICE_CONFIG_TURN
 								: iceConfig,
 						});
+
 						setPeerConnections((connections) => {
 							connections[peer] = connection;
 							return connections;
@@ -775,6 +774,7 @@ const Voice: React.FC<VoiceProps> = function ({
 							: audio.gain.gain.value * playerVolume;
 
 					if (myPlayer.isDead && !player.isDead) {
+						console.log(settings.ghostVolume);
 						audio.gain.gain.value =
 							audio.gain.gain.value * (settings.ghostVolume / 100);
 					}
@@ -862,7 +862,7 @@ const Voice: React.FC<VoiceProps> = function ({
 		if (socketClients[k].playerId !== undefined)
 			playerSocketIds[socketClients[k].playerId] = k;
 	}
-	
+
 	return (
 		<div className={classes.root}>
 			{error && (

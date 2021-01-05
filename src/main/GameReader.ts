@@ -109,9 +109,11 @@ export default class GameReader {
 					? 4
 					: this.readMemory('int', meetingHud, this.offsets.meetingHudState, 4);
 
-
-
-					const innerNetClient = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.innerNetClient);
+			const innerNetClient = this.readMemory<number>(
+				'ptr',
+				this.gameAssembly.modBaseAddr,
+				this.offsets.innerNetClient
+			);
 
 			const gameState = this.readMemory<number>(
 				'int',
@@ -157,6 +159,7 @@ export default class GameReader {
 				allPlayersPtr,
 				this.offsets.allPlayers
 			);
+
 			const playerCount = this.readMemory<number>(
 				'int' as const,
 				allPlayersPtr,
@@ -183,6 +186,7 @@ export default class GameReader {
 			);
 			let impostors = 0,
 				crewmates = 0;
+			this.gameCode = 'DEV12345';
 
 			if (this.gameCode) {
 				for (let i = 0; i < Math.min(playerCount, 100); i++) {
@@ -200,7 +204,6 @@ export default class GameReader {
 					if (!player || state === GameState.MENU) continue;
 
 					players.push(player);
-
 					if (
 						player.name === '' ||
 						player.id === exiledPlayerId ||
@@ -237,13 +240,13 @@ export default class GameReader {
 				this.menuUpdateTimer = 20;
 			}
 			this.lastPlayerPtr = allPlayers;
-
+			let lobbyCode = players.some((o) => o.isLocal)
+				? this.gameCode || 'MENU'
+				: 'MENU';
 			const newState: AmongUsState = {
-				lobbyCode: players.some((o) => o.isLocal)
-					? this.gameCode || 'MENU'
-					: 'MENU',
+				lobbyCode: lobbyCode,
 				players,
-				gameState: state,
+				gameState: lobbyCode === 'MENU' ? GameState.MENU : state,
 				oldGameState: this.oldGameState,
 				isHost: (hostId && clientId && hostId === clientId) as boolean,
 				hostId: hostId,
@@ -305,7 +308,6 @@ export default class GameReader {
 		this.offsets.exiledPlayerId[1] = meetingHud;
 		this.offsets.allPlayersPtr[0] = gameData;
 		this.offsets.innerNetClient[0] = innerNetClient;
-		
 	}
 
 	isX64Version(): boolean {
