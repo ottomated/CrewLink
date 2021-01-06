@@ -15,6 +15,7 @@ export interface ISettings {
 	enableOverlay: boolean;
 	localLobbySettings: ILobbySettings;
 	ghostVolume: number;
+	mobileHost: boolean;
 }
 
 export interface ILobbySettings {

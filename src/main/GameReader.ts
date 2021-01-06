@@ -100,10 +100,10 @@ export default class GameReader {
 				meetingHud === 0
 					? 0
 					: this.readMemory<number>(
-							'pointer',
-							meetingHud,
-							this.offsets.meetingHudCachePtr
-					  );
+						'pointer',
+						meetingHud,
+						this.offsets.meetingHudCachePtr
+					);
 			const meetingHudState =
 				meetingHud_cachePtr === 0
 					? 4
@@ -142,12 +142,12 @@ export default class GameReader {
 				state === GameState.MENU
 					? ''
 					: this.IntToGameCode(
-							this.readMemory<number>(
-								'int32',
-								innerNetClient,
-								this.offsets.gameCode
-							)
-					  );
+						this.readMemory<number>(
+							'int32',
+							innerNetClient,
+							this.offsets.gameCode
+						)
+					);
 
 			const allPlayersPtr = this.readMemory<number>(
 				'ptr',
@@ -186,7 +186,6 @@ export default class GameReader {
 			);
 			let impostors = 0,
 				crewmates = 0;
-			this.gameCode = 'DEV12345';
 
 			if (this.gameCode) {
 				for (let i = 0; i < Math.min(playerCount, 100); i++) {
@@ -454,6 +453,7 @@ export default class GameReader {
 			data.objectPtr,
 			positionOffsets[0]
 		);
+
 		const y = this.readMemory<number>(
 			'float',
 			data.objectPtr,
