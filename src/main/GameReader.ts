@@ -12,7 +12,6 @@ import {
 import Struct from 'structron';
 import { IpcRendererMessages } from '../common/ipc-messages';
 import { GameState, AmongUsState, Player } from '../common/AmongUsState';
-import equal from 'deep-equal';
 import offsetStore, { IOffsets } from './offsetStore';
 import Errors from '../common/Errors';
 
@@ -100,10 +99,10 @@ export default class GameReader {
 				meetingHud === 0
 					? 0
 					: this.readMemory<number>(
-						'pointer',
-						meetingHud,
-						this.offsets.meetingHudCachePtr
-					);
+							'pointer',
+							meetingHud,
+							this.offsets.meetingHudCachePtr
+					  );
 			const meetingHudState =
 				meetingHud_cachePtr === 0
 					? 4
@@ -142,12 +141,12 @@ export default class GameReader {
 				state === GameState.MENU
 					? ''
 					: this.IntToGameCode(
-						this.readMemory<number>(
-							'int32',
-							innerNetClient,
-							this.offsets.gameCode
-						)
-					);
+							this.readMemory<number>(
+								'int32',
+								innerNetClient,
+								this.offsets.gameCode
+							)
+					  );
 
 			const allPlayersPtr = this.readMemory<number>(
 				'ptr',
@@ -239,9 +238,8 @@ export default class GameReader {
 				this.menuUpdateTimer = 20;
 			}
 			this.lastPlayerPtr = allPlayers;
-			let lobbyCode = players.some((o) => o.isLocal)
-				? this.gameCode || 'MENU'
-				: 'MENU';
+			let lobbyCode =
+				state !== GameState.MENU ? this.gameCode || 'MENU' : 'MENU';
 			const newState: AmongUsState = {
 				lobbyCode: lobbyCode,
 				players,
@@ -251,14 +249,14 @@ export default class GameReader {
 				hostId: hostId,
 				clientId: clientId,
 			};
-			const stateHasChanged = !equal(this.lastState, newState);
-			if (stateHasChanged) {
-				try {
-					this.sendIPC(IpcRendererMessages.NOTIFY_GAME_STATE_CHANGED, newState);
-				} catch (e) {
-					process.exit(0);
-				}
+			//	const stateHasChanged = !equal(this.lastState, newState);
+			//	if (stateHasChanged) {
+			try {
+				this.sendIPC(IpcRendererMessages.NOTIFY_GAME_STATE_CHANGED, newState);
+			} catch (e) {
+				process.exit(0);
 			}
+			//	}
 			this.lastState = newState;
 			this.oldGameState = state;
 		}
