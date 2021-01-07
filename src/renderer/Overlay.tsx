@@ -162,6 +162,7 @@ export default function Overlay(): JSX.Element {
 								<Avatar
 									key={player.id}
 									player={player}
+									showHat={false}
 									talking={!connected || otherTalking[player.id] || (player.isLocal && talking)}
 									showborder={isOnSide}
 									borderColor={connected ? '#2ecc71' : '#c0392b'}

@@ -62,6 +62,7 @@ export interface AvatarProps {
 	connectionState?: 'disconnected' | 'novoice' | 'connected';
 	socketConfig?: SocketConfig;
 	showborder?: boolean;
+	showHat?: boolean;
 }
 
 const Avatar: React.FC<AvatarProps> = function ({
@@ -75,6 +76,7 @@ const Avatar: React.FC<AvatarProps> = function ({
 	connectionState,
 	socketConfig,
 	showborder,
+	showHat,
 }: AvatarProps) {
 	const status = isAlive ? 'alive' : 'dead';
 	let image = players[status][player.colorId];
@@ -130,7 +132,7 @@ const Avatar: React.FC<AvatarProps> = function ({
 				<Canvas
 					className={classes.canvas}
 					src={image}
-					hat={player.hatId - 1}
+					hat={showHat === false ? -1 : player.hatId - 1}
 					skin={player.skinId - 1}
 					isAlive={isAlive}
 				/>
