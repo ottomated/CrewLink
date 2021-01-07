@@ -7,11 +7,7 @@ const SupportLink: React.FC = function () {
 	return (
 		<Typography align="center">
 			Need help?{' '}
-			<Link
-				href="#"
-				color="secondary"
-				onClick={() => shell.openExternal('https://discord.gg/fFurRtJsZj')}
-			>
+			<Link href="#" color="secondary" onClick={() => shell.openExternal('https://discord.gg/fFurRtJsZj')}>
 				Get support
 			</Link>
 		</Typography>

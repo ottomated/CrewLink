@@ -94,45 +94,12 @@ const Footer: React.FC = function () {
 							<stop offset="100%" style={{ stopColor: '#FF6663' }} />
 						</linearGradient>
 
-						<pattern
-							id="pattern"
-							x="0"
-							y="0"
-							width="300%"
-							height="100%"
-							patternUnits="userSpaceOnUse"
-						>
-							<rect
-								x="0"
-								y="0"
-								width="150%"
-								height="100%"
-								fill="url(#gradient)"
-							>
-								<animate
-									attributeType="XML"
-									attributeName="x"
-									from="0"
-									to="150%"
-									dur="2s"
-									repeatCount="indefinite"
-								/>
+						<pattern id="pattern" x="0" y="0" width="300%" height="100%" patternUnits="userSpaceOnUse">
+							<rect x="0" y="0" width="150%" height="100%" fill="url(#gradient)">
+								<animate attributeType="XML" attributeName="x" from="0" to="150%" dur="2s" repeatCount="indefinite" />
 							</rect>
-							<rect
-								x="-150%"
-								y="0"
-								width="150%"
-								height="100%"
-								fill="url(#gradient)"
-							>
-								<animate
-									attributeType="XML"
-									attributeName="x"
-									from="-150%"
-									to="0"
-									dur="2s"
-									repeatCount="indefinite"
-								/>
+							<rect x="-150%" y="0" width="150%" height="100%" fill="url(#gradient)">
+								<animate attributeType="XML" attributeName="x" from="-150%" to="0" dur="2s" repeatCount="indefinite" />
 							</rect>
 						</pattern>
 					</defs>

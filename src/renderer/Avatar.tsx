@@ -80,11 +80,7 @@ const Avatar: React.FC<AvatarProps> = function ({
 	let image = players[status][player.colorId];
 	if (!image) image = players[status][0];
 	const classes = useStyles({
-		borderColor: talking
-			? borderColor
-			: showborder === true
-			? '#ccbdcc86'
-			: 'transparent',
+		borderColor: talking ? borderColor : showborder === true ? '#ccbdcc86' : 'transparent',
 		size,
 	});
 
@@ -99,12 +95,7 @@ const Avatar: React.FC<AvatarProps> = function ({
 			}
 			break;
 		case 'novoice':
-			icon = (
-				<LinkOff
-					className={classes.icon}
-					style={{ background: '#e67e22', borderColor: '#694900' }}
-				/>
-			);
+			icon = <LinkOff className={classes.icon} style={{ background: '#e67e22', borderColor: '#694900' }} />;
 			break;
 		case 'disconnected':
 			icon = <WifiOff className={classes.icon} />;
@@ -127,8 +118,7 @@ const Avatar: React.FC<AvatarProps> = function ({
 							style={{ width: '50px' }}
 							step="any"
 							onChange={(ev): void => {
-								if (socketConfig)
-									socketConfig.volume = parseFloat(ev.target.value);
+								if (socketConfig) socketConfig.volume = parseFloat(ev.target.value);
 							}}
 						></input>
 					</div>{' '}
@@ -167,8 +157,7 @@ const useCanvasStyles = makeStyles(() => ({
 		left: '50%',
 		transform: 'translateX(calc(-50% + 4px)) scale(0.7)',
 		zIndex: ({ backLayerHat }: UseCanvasStylesParams) => (backLayerHat ? 1 : 4),
-		display: ({ isAlive }: UseCanvasStylesParams) =>
-			isAlive ? 'block' : 'none',
+		display: ({ isAlive }: UseCanvasStylesParams) => (isAlive ? 'block' : 'none'),
 	},
 	skin: {
 		position: 'absolute',
@@ -177,8 +166,7 @@ const useCanvasStyles = makeStyles(() => ({
 		width: '73.5%',
 		transform: 'scale(0.8)',
 		zIndex: 3,
-		display: ({ isAlive }: UseCanvasStylesParams) =>
-			isAlive ? 'block' : 'none',
+		display: ({ isAlive }: UseCanvasStylesParams) => (isAlive ? 'block' : 'none'),
 	},
 }));
 
@@ -195,12 +183,7 @@ function Canvas({ src, hat, skin, isAlive }: CanvasProps) {
 	return (
 		<>
 			<img src={src} ref={image} className={classes.base} />
-			<img
-				src={hats[hat]}
-				ref={hatImg}
-				className={classes.hat}
-				style={{ top: `${hatY}%` }}
-			/>
+			<img src={hats[hat]} ref={hatImg} className={classes.hat} style={{ top: `${hatY}%` }} />
 			<img src={skins[skin]} ref={skinImg} className={classes.skin} />
 		</>
 	);

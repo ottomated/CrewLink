@@ -14,18 +14,10 @@ declare module 'memoryjs' {
 		handle: number;
 	}
 
-	export function openProcess(
-		identifier: string,
-		callback?: Callback<ProcessObject>
-	): ProcessObject;
+	export function openProcess(identifier: string, callback?: Callback<ProcessObject>): ProcessObject;
 
-	export function getProcesses(
-		callback?: Callback<ProcessObject[]>
-	): ProcessObject[];
-	export function getProcesses(
-		processId: number,
-		callback?: Callback<ModuleObject[]>
-	): ModuleObject[];
+	export function getProcesses(callback?: Callback<ProcessObject[]>): ProcessObject[];
+	export function getProcesses(processId: number, callback?: Callback<ModuleObject[]>): ModuleObject[];
 
 	// Modules
 
@@ -37,11 +29,7 @@ declare module 'memoryjs' {
 		th32ProcessID: number;
 	}
 
-	export function findModule(
-		identifier: string,
-		processId: number,
-		callback?: Callback<ModuleObject>
-	): ModuleObject;
+	export function findModule(identifier: string, processId: number, callback?: Callback<ModuleObject>): ModuleObject;
 
 	// Memory
 
@@ -70,32 +58,13 @@ declare module 'memoryjs' {
 		| 'vec4'
 		| 'vector4';
 
-	export function readMemory<T>(
-		handle: number,
-		address: number,
-		dataType: DataType,
-		callback?: Callback<T>
-	): T;
+	export function readMemory<T>(handle: number, address: number, dataType: DataType, callback?: Callback<T>): T;
 
-	export function readBuffer(
-		handle: number,
-		address: number,
-		size: number,
-		callback?: Callback<Buffer>
-	): Buffer;
+	export function readBuffer(handle: number, address: number, size: number, callback?: Callback<Buffer>): Buffer;
 
-	export function writeMemory<T>(
-		handle: number,
-		address: number,
-		value: T,
-		dataType: DataType
-	): void;
+	export function writeMemory<T>(handle: number, address: number, value: T, dataType: DataType): void;
 
-	export function writeBuffer(
-		handle: number,
-		address: number,
-		buffer: Buffer
-	): void;
+	export function writeBuffer(handle: number, address: number, buffer: Buffer): void;
 
 	export function findPattern(
 		handle: number,

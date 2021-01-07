@@ -1,11 +1,7 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 import Avatar from './Avatar';
-import {
-	GameStateContext,
-	LobbySettingsContext,
-	SettingsContext,
-} from './contexts';
+import { GameStateContext, LobbySettingsContext, SettingsContext } from './contexts';
 import { AmongUsState, GameState, Player } from '../common/AmongUsState';
 import Peer from 'simple-peer';
 import { ipcRenderer, remote } from 'electron';
@@ -177,9 +173,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const Voice: React.FC<VoiceProps> = function ({
-	error: initialError,
-}: VoiceProps) {
+const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProps) {
 	const [error, setError] = useState(initialError);
 	const [settings, setSettings] = useContext(SettingsContext);
 	const settingsRef = useRef<ISettings>(settings);
@@ -187,8 +181,7 @@ const Voice: React.FC<VoiceProps> = function ({
 	const lobbySettingsRef = useRef(lobbySettings);
 	const gameState = useContext(GameStateContext);
 	let { lobbyCode: displayedLobbyCode } = gameState;
-	if (displayedLobbyCode !== 'MENU' && settings.hideCode)
-		displayedLobbyCode = 'LOBBY';
+	if (displayedLobbyCode !== 'MENU' && settings.hideCode) displayedLobbyCode = 'LOBBY';
 	const [talking, setTalking] = useState(false);
 	const [socketClients, setSocketClients] = useState<SocketClientMap>({});
 	const [playerConfigs] = useState<playerConfigMap>({});
@@ -209,10 +202,8 @@ const Voice: React.FC<VoiceProps> = function ({
 	const [connected, setConnected] = useState(false);
 
 	let reverbFile: any = null;
-	if (fs.existsSync('static/reverb.ogx'))
-		reverbFile = fs.readFileSync('static/reverb.ogx');
-	else if (fs.existsSync('resources/static/reverb.ogx'))
-		reverbFile = fs.readFileSync('resources/static/reverb.ogx');
+	if (fs.existsSync('static/reverb.ogx')) reverbFile = fs.readFileSync('static/reverb.ogx');
+	else if (fs.existsSync('resources/static/reverb.ogx')) reverbFile = fs.readFileSync('resources/static/reverb.ogx');
 	function calculateVoiceAudio(
 		state: AmongUsState,
 		settings: ISettings,
@@ -243,12 +234,7 @@ const Voice: React.FC<VoiceProps> = function ({
 					gain.gain.value = 0;
 				}
 
-				if (
-					!me.isDead &&
-					other.isDead &&
-					me.isImpostor &&
-					lobbySettings.haunting
-				) {
+				if (!me.isDead && other.isDead && me.isImpostor && lobbySettings.haunting) {
 					gain.gain.value = gain.gain.value * 0.02; //0.005;
 					if (reverbGain != null) reverbGain.gain.value = 1;
 				} else {
@@ -292,10 +278,8 @@ const Voice: React.FC<VoiceProps> = function ({
 			document.body.removeChild(audioElements.current[peer].element);
 			audioElements.current[peer].pan.disconnect();
 			audioElements.current[peer].gain.disconnect();
-			if (audioElements.current[peer].reverbGain != null)
-				audioElements.current[peer].reverbGain.disconnect();
-			if (audioElements.current[peer].reverb != null)
-				audioElements.current[peer].reverb.disconnect();
+			if (audioElements.current[peer].reverbGain != null) audioElements.current[peer].reverbGain.disconnect();
+			if (audioElements.current[peer].reverb != null) audioElements.current[peer].reverb.disconnect();
 			delete audioElements.current[peer];
 		}
 	}
@@ -399,13 +383,9 @@ const Voice: React.FC<VoiceProps> = function ({
 
 			if (
 				clientPeerConfig.forceRelayOnly &&
-				!clientPeerConfig.iceServers.some((server) =>
-					server.urls.toString().includes('turn:')
-				)
+				!clientPeerConfig.iceServers.some((server) => server.urls.toString().includes('turn:'))
 			) {
-				alert(
-					'Server has forced relay mode enabled but provides no relay servers. Default config will be used.'
-				);
+				alert('Server has forced relay mode enabled but provides no relay servers. Default config will be used.');
 				return;
 			}
 
@@ -430,8 +410,7 @@ const Voice: React.FC<VoiceProps> = function ({
 		};
 
 		// Get microphone settings
-		if (settingsRef.current.microphone.toLowerCase() !== 'default')
-			audio.deviceId = settingsRef.current.microphone;
+		if (settingsRef.current.microphone.toLowerCase() !== 'default') audio.deviceId = settingsRef.current.microphone;
 		navigator.getUserMedia(
 			{ video: false, audio },
 			async (stream) => {
@@ -442,8 +421,7 @@ const Voice: React.FC<VoiceProps> = function ({
 
 				ipcRenderer.on(IpcRendererMessages.TOGGLE_DEAFEN, () => {
 					connectionStuff.current.deafened = !connectionStuff.current.deafened;
-					stream.getAudioTracks()[0].enabled =
-						!connectionStuff.current.deafened && !connectionStuff.current.muted;
+					stream.getAudioTracks()[0].enabled = !connectionStuff.current.deafened && !connectionStuff.current.muted;
 					setDeafened(connectionStuff.current.deafened);
 				});
 				ipcRenderer.on(IpcRendererMessages.TOGGLE_MUTE, () => {
@@ -452,59 +430,42 @@ const Voice: React.FC<VoiceProps> = function ({
 						connectionStuff.current.deafened = false;
 						connectionStuff.current.muted = false;
 					}
-					stream.getAudioTracks()[0].enabled =
-						!connectionStuff.current.muted && !connectionStuff.current.deafened;
+					stream.getAudioTracks()[0].enabled = !connectionStuff.current.muted && !connectionStuff.current.deafened;
 					setMuted(connectionStuff.current.muted);
 					setDeafened(connectionStuff.current.deafened);
 				});
-				ipcRenderer.on(
-					IpcRendererMessages.PUSH_TO_TALK,
-					(_: unknown, pressing: boolean) => {
-						if (!connectionStuff.current.pushToTalk) return;
-						if (!connectionStuff.current.deafened) {
-							stream.getAudioTracks()[0].enabled = pressing;
-						}
+				ipcRenderer.on(IpcRendererMessages.PUSH_TO_TALK, (_: unknown, pressing: boolean) => {
+					if (!connectionStuff.current.pushToTalk) return;
+					if (!connectionStuff.current.deafened) {
+						stream.getAudioTracks()[0].enabled = pressing;
 					}
-				);
+				});
 
 				const ac = new AudioContext();
 				ac.createMediaStreamSource(stream);
 				if (VADENABLED) {
-					audioListener = VAD(
-						ac,
-						ac.createMediaStreamSource(stream),
-						undefined,
-						{
-							onVoiceStart: () => {
-								setTalking(true);
-								if (settings.enableOverlay) {
-									remote
-										.getGlobal('overlay')
-										?.webContents.send('overlayTalkingSelf', true);
-								}
-							},
-							onVoiceStop: () => {
-								setTalking(false);
-								if (settings.enableOverlay) {
-									remote
-										.getGlobal('overlay')
-										?.webContents.send('overlayTalkingSelf', false);
-								}
-							},
-							noiseCaptureDuration: 1,
-							stereo: false,
-						}
-					);
+					audioListener = VAD(ac, ac.createMediaStreamSource(stream), undefined, {
+						onVoiceStart: () => {
+							setTalking(true);
+							if (settings.enableOverlay) {
+								remote.getGlobal('overlay')?.webContents.send('overlayTalkingSelf', true);
+							}
+						},
+						onVoiceStop: () => {
+							setTalking(false);
+							if (settings.enableOverlay) {
+								remote.getGlobal('overlay')?.webContents.send('overlayTalkingSelf', false);
+							}
+						},
+						noiseCaptureDuration: 1,
+						stereo: false,
+					});
 				} else {
 				}
 
 				audioElements.current = {};
 
-				const connect = (
-					lobbyCode: string,
-					playerId: number,
-					clientId: number
-				) => {
+				const connect = (lobbyCode: string, playerId: number, clientId: number) => {
 					if (lobbyCode === 'MENU') {
 						Object.keys(peerConnections).forEach((k) => {
 							disconnectPeer(k);
@@ -522,9 +483,7 @@ const Voice: React.FC<VoiceProps> = function ({
 						stream,
 						initiator, // @ts-ignore-line
 						iceRestartEnabled: true,
-						config: settingsRef.current.natFix
-							? DEFAULT_ICE_CONFIG_TURN
-							: iceConfig,
+						config: settingsRef.current.natFix ? DEFAULT_ICE_CONFIG_TURN : iceConfig,
 					});
 
 					setPeerConnections((connections) => {
@@ -543,13 +502,10 @@ const Voice: React.FC<VoiceProps> = function ({
 					});
 					connection.on('stream', (stream: MediaStream) => {
 						setAudioConnected((old) => ({ ...old, [peer]: true }));
-						const audio = document.createElement(
-							'audio'
-						) as ExtendedAudioElement;
+						const audio = document.createElement('audio') as ExtendedAudioElement;
 						document.body.appendChild(audio);
 						audio.srcObject = stream;
-						if (settingsRef.current.speaker.toLowerCase() !== 'default')
-							audio.setSinkId(settingsRef.current.speaker);
+						if (settingsRef.current.speaker.toLowerCase() !== 'default') audio.setSinkId(settingsRef.current.speaker);
 
 						const context = new AudioContext();
 						const source = context.createMediaStreamSource(stream);
@@ -635,8 +591,7 @@ const Voice: React.FC<VoiceProps> = function ({
 						});
 					});
 					connection.on('data', (data) => {
-						if (gameState.hostId !== socketClientsRef.current[peer]?.clientId)
-							return;
+						if (gameState.hostId !== socketClientsRef.current[peer]?.clientId) return;
 						const settings = JSON.parse(data);
 						Object.keys(lobbySettings).forEach((field: string) => {
 							if (field in settings) {
@@ -661,18 +616,15 @@ const Voice: React.FC<VoiceProps> = function ({
 					setSocketClients((old) => ({ ...old, [peer]: client }));
 				});
 
-				socket.on(
-					'signal',
-					({ data, from }: { data: Peer.SignalData; from: string }) => {
-						let connection: Peer.Instance;
-						if (peerConnections[from]) {
-							connection = peerConnections[from];
-						} else {
-							connection = createPeerConnection(from, false);
-						}
-						connection.signal(data);
+				socket.on('signal', ({ data, from }: { data: Peer.SignalData; from: string }) => {
+					let connection: Peer.Instance;
+					if (peerConnections[from]) {
+						connection = peerConnections[from];
+					} else {
+						connection = createPeerConnection(from, false);
 					}
-				);
+					connection.signal(data);
+				});
 				socket.on('setClient', (socketId: string, client: Client) => {
 					setSocketClients((old) => ({ ...old, [socketId]: client }));
 				});
@@ -712,13 +664,7 @@ const Voice: React.FC<VoiceProps> = function ({
 
 	const otherPlayers = useMemo(() => {
 		let otherPlayers: Player[];
-		if (
-			!gameState ||
-			!gameState.players ||
-			gameState.lobbyCode === 'MENU' ||
-			!myPlayer
-		)
-			return [];
+		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) return [];
 		else otherPlayers = gameState.players.filter((p) => !p.isLocal);
 
 		const playerSocketIds: {
@@ -728,22 +674,12 @@ const Voice: React.FC<VoiceProps> = function ({
 			playerSocketIds[socketClients[k].playerId] = k;
 		}
 		if (settings.enableOverlay) {
-			remote
-				?.getGlobal('overlay')
-				?.webContents.send('overlaySocketIds', socketClients);
+			remote?.getGlobal('overlay')?.webContents.send('overlaySocketIds', socketClients);
 		}
 		for (const player of otherPlayers) {
 			const audio = audioElements.current[playerSocketIds[player.id]];
 			if (audio) {
-				calculateVoiceAudio(
-					gameState,
-					settingsRef.current,
-					myPlayer,
-					player,
-					audio.gain,
-					audio.pan,
-					audio.reverbGain
-				);
+				calculateVoiceAudio(gameState, settingsRef.current, myPlayer, player, audio.gain, audio.pan, audio.reverbGain);
 
 				if (connectionStuff.current.deafened) {
 					audio.gain.gain.value = 0;
@@ -753,13 +689,10 @@ const Voice: React.FC<VoiceProps> = function ({
 					const playerVolume = playerConfigs[player.clientId]?.volume;
 
 					audio.gain.gain.value =
-						playerVolume === undefined
-							? audio.gain.gain.value
-							: audio.gain.gain.value * playerVolume;
+						playerVolume === undefined ? audio.gain.gain.value : audio.gain.gain.value * playerVolume;
 
 					if (myPlayer.isDead && !player.isDead) {
-						audio.gain.gain.value =
-							audio.gain.gain.value * (settings.ghostVolume / 100);
+						audio.gain.gain.value = audio.gain.gain.value * (settings.ghostVolume / 100);
 					}
 				}
 			}
@@ -800,8 +733,7 @@ const Voice: React.FC<VoiceProps> = function ({
 			gameState.lobbyCode &&
 			myPlayer?.id !== undefined &&
 			gameState.gameState === GameState.LOBBY &&
-			(gameState.oldGameState === GameState.DISCUSSION ||
-				gameState.oldGameState === GameState.TASKS)
+			(gameState.oldGameState === GameState.DISCUSSION || gameState.oldGameState === GameState.TASKS)
 		) {
 			remote?.getGlobal('overlay')?.webContents?.send('overlayState', 'VOICE');
 			connect.connect(gameState.lobbyCode, myPlayer.id, gameState.clientId);
@@ -831,16 +763,8 @@ const Voice: React.FC<VoiceProps> = function ({
 
 	// Emit player id to socket
 	useEffect(() => {
-		if (
-			connectionStuff.current.socket &&
-			myPlayer &&
-			myPlayer.id !== undefined
-		) {
-			connectionStuff.current.socket.emit(
-				'id',
-				myPlayer.id,
-				gameState.clientId
-			);
+		if (connectionStuff.current.socket && myPlayer && myPlayer.id !== undefined) {
+			connectionStuff.current.socket.emit('id', myPlayer.id, gameState.clientId);
 		}
 	}, [myPlayer?.id]);
 
@@ -849,8 +773,7 @@ const Voice: React.FC<VoiceProps> = function ({
 	} = {};
 
 	for (const k of Object.keys(socketClients)) {
-		if (socketClients[k].playerId !== undefined)
-			playerSocketIds[socketClients[k].playerId] = k;
+		if (socketClients[k].playerId !== undefined) playerSocketIds[socketClients[k].playerId] = k;
 	}
 
 	return (
@@ -889,8 +812,7 @@ const Voice: React.FC<VoiceProps> = function ({
 						<span
 							className={classes.code}
 							style={{
-								background:
-									gameState.lobbyCode === 'MENU' ? 'transparent' : '#3e4346',
+								background: gameState.lobbyCode === 'MENU' ? 'transparent' : '#3e4346',
 							}}
 						>
 							{displayedLobbyCode}
@@ -916,15 +838,9 @@ const Voice: React.FC<VoiceProps> = function ({
 					const socketConfig = playerConfigs[player.clientId];
 
 					return (
-						<Grid
-							item
-							key={player.id}
-							xs={getPlayersPerRow(otherPlayers.length)}
-						>
+						<Grid item key={player.id} xs={getPlayersPerRow(otherPlayers.length)}>
 							<Avatar
-								connectionState={
-									!connected ? 'disconnected' : audio ? 'connected' : 'novoice'
-								}
+								connectionState={!connected ? 'disconnected' : audio ? 'connected' : 'novoice'}
 								player={player}
 								talking={otherTalking[player.id]}
 								borderColor="#2ecc71"
@@ -943,11 +859,7 @@ const Voice: React.FC<VoiceProps> = function ({
 type ValidPlayersPerRow = 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 function getPlayersPerRow(playerCount: number): ValidPlayersPerRow {
 	if (playerCount <= 9) return (12 / 3) as ValidPlayersPerRow;
-	else
-		return Math.min(
-			12,
-			Math.floor(12 / Math.ceil(Math.sqrt(playerCount)))
-		) as ValidPlayersPerRow;
+	else return Math.min(12, Math.floor(12 / Math.ceil(Math.sqrt(playerCount)))) as ValidPlayersPerRow;
 }
 
 export default Voice;

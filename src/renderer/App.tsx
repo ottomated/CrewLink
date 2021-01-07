@@ -1,23 +1,10 @@
-import React, {
-	Dispatch,
-	SetStateAction,
-	useEffect,
-	useReducer,
-	useState,
-} from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useReducer, useState } from 'react';
 import Voice from './Voice';
 import Menu from './Menu';
 import { ipcRenderer, remote } from 'electron';
 import { AmongUsState } from '../common/AmongUsState';
-import Settings, {
-	settingsReducer,
-	lobbySettingsReducer,
-} from './settings/Settings';
-import {
-	GameStateContext,
-	SettingsContext,
-	LobbySettingsContext,
-} from './contexts';
+import Settings, { settingsReducer, lobbySettingsReducer } from './settings/Settings';
+import { GameStateContext, SettingsContext, LobbySettingsContext } from './contexts';
 import { ThemeProvider } from '@material-ui/core/styles';
 import {
 	AutoUpdaterState,
@@ -78,10 +65,7 @@ interface TitleBarProps {
 	setSettingsOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const TitleBar: React.FC<TitleBarProps> = function ({
-	settingsOpen,
-	setSettingsOpen,
-}: TitleBarProps) {
+const TitleBar: React.FC<TitleBarProps> = function ({ settingsOpen, setSettingsOpen }: TitleBarProps) {
 	const classes = useStyles();
 	return (
 		<div className={classes.root}>
@@ -149,13 +133,10 @@ export default function App(): JSX.Element {
 		localLobbySettings: {
 			maxDistance: 5.32,
 			haunting: false,
-			commsDisabled: false
+			commsDisabled: false,
 		},
 	});
-	const lobbySettings = useReducer(
-		lobbySettingsReducer,
-		settings[0].localLobbySettings
-	);
+	const lobbySettings = useReducer(lobbySettingsReducer, settings[0].localLobbySettings);
 
 	useEffect(() => {
 		const onOpen = (_: Electron.IpcRendererEvent, isOpen: boolean) => {
@@ -164,19 +145,14 @@ export default function App(): JSX.Element {
 		};
 		const onState = (_: Electron.IpcRendererEvent, newState: AmongUsState) => {
 			setGameState(newState);
-			remote
-				?.getGlobal('overlay')
-				?.webContents.send('overlayGameState', newState);
+			remote?.getGlobal('overlay')?.webContents.send('overlayGameState', newState);
 		};
 
 		const onError = (_: Electron.IpcRendererEvent, error: string) => {
 			shouldInit = false;
 			setError(error);
 		};
-		const onAutoUpdaterStateChange = (
-			_: Electron.IpcRendererEvent,
-			state: AutoUpdaterState
-		) => {
+		const onAutoUpdaterStateChange = (_: Electron.IpcRendererEvent, state: AutoUpdaterState) => {
 			setUpdaterState((old) => ({ ...old, ...state }));
 		};
 		let shouldInit = true;
@@ -193,18 +169,12 @@ export default function App(): JSX.Element {
 					setError(error.message);
 				}
 			});
-		ipcRenderer.on(
-			IpcRendererMessages.AUTO_UPDATER_STATE,
-			onAutoUpdaterStateChange
-		);
+		ipcRenderer.on(IpcRendererMessages.AUTO_UPDATER_STATE, onAutoUpdaterStateChange);
 		ipcRenderer.on(IpcRendererMessages.NOTIFY_GAME_OPENED, onOpen);
 		ipcRenderer.on(IpcRendererMessages.NOTIFY_GAME_STATE_CHANGED, onState);
 		ipcRenderer.on(IpcRendererMessages.ERROR, onError);
 		return () => {
-			ipcRenderer.off(
-				IpcRendererMessages.AUTO_UPDATER_STATE,
-				onAutoUpdaterStateChange
-			);
+			ipcRenderer.off(IpcRendererMessages.AUTO_UPDATER_STATE, onAutoUpdaterStateChange);
 			ipcRenderer.off(IpcRendererMessages.NOTIFY_GAME_OPENED, onOpen);
 			ipcRenderer.off(IpcRendererMessages.NOTIFY_GAME_STATE_CHANGED, onState);
 			ipcRenderer.off(IpcRendererMessages.ERROR, onError);
@@ -227,46 +197,30 @@ export default function App(): JSX.Element {
 			<LobbySettingsContext.Provider value={lobbySettings}>
 				<SettingsContext.Provider value={settings}>
 					<ThemeProvider theme={theme}>
-						<TitleBar
-							settingsOpen={settingsOpen}
-							setSettingsOpen={setSettingsOpen}
-						/>
-						<Settings
-							open={settingsOpen}
-							onClose={() => setSettingsOpen(false)}
-						/>
+						<TitleBar settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
+						<Settings open={settingsOpen} onClose={() => setSettingsOpen(false)} />
 						<Dialog fullWidth open={updaterState.state !== 'unavailable'}>
 							<DialogTitle>Updating...</DialogTitle>
 							<DialogContent>
-								{(updaterState.state === 'downloading' ||
-									updaterState.state === 'downloaded') &&
+								{(updaterState.state === 'downloading' || updaterState.state === 'downloaded') &&
 									updaterState.progress && (
 										<>
 											<LinearProgress
-												variant={
-													updaterState.state === 'downloaded'
-														? 'indeterminate'
-														: 'determinate'
-												}
+												variant={updaterState.state === 'downloaded' ? 'indeterminate' : 'determinate'}
 												value={updaterState.progress.percent}
 											/>
 											<DialogContentText>
-												{prettyBytes(updaterState.progress.transferred)} /{' '}
-												{prettyBytes(updaterState.progress.total)}
+												{prettyBytes(updaterState.progress.transferred)} / {prettyBytes(updaterState.progress.total)}
 											</DialogContentText>
 										</>
 									)}
 								{updaterState.state === 'error' && (
-									<DialogContentText color="error">
-										{updaterState.error}
-									</DialogContentText>
+									<DialogContentText color="error">{updaterState.error}</DialogContentText>
 								)}
 							</DialogContent>
 							{updaterState.state === 'error' && (
 								<DialogActions>
-									<Button href="https://github.com/ottomated/CrewLink/releases/latest">
-										Download Manually
-									</Button>
+									<Button href="https://github.com/ottomated/CrewLink/releases/latest">Download Manually</Button>
 								</DialogActions>
 							)}
 						</Dialog>

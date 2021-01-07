@@ -14,9 +14,7 @@ declare module 'structron' {
 		SIZE: number;
 	}
 
-	type Rule = (
-		...params: unknown[]
-	) => (dataObj: unknown, buffer: BufferSource) => boolean;
+	type Rule = (...params: unknown[]) => (dataObj: unknown, buffer: BufferSource) => boolean;
 	class Struct implements ValueType<Struct> {
 		constructor(name?: string);
 
@@ -28,19 +26,10 @@ declare module 'structron' {
 			countMemberName: string,
 			relative?: boolean
 		): this;
-		addReference<T>(
-			type: ValueType<T>,
-			name: string,
-			memberName: string,
-			relative?: boolean
-		): this;
+		addReference<T>(type: ValueType<T>, name: string, memberName: string, relative?: boolean): this;
 		addRule(rule: Rule): this;
 		read<T>(buffer: BufferSource, offset: number, report?: Report<T>): T;
-		report<T>(
-			buffer: BufferSource,
-			offset: number,
-			options: Partial<ReportOptions>
-		): Report<T>;
+		report<T>(buffer: BufferSource, offset: number, options: Partial<ReportOptions>): Report<T>;
 		validate(buffer: BufferSource, offset?: number): boolean;
 		getOffsetByName(name: string): number;
 

@@ -198,7 +198,7 @@ export default class GameReader {
 				this.menuUpdateTimer = 20;
 			}
 			this.lastPlayerPtr = allPlayers;
-			let lobbyCode = state !== GameState.MENU ? this.gameCode || 'MENU' : 'MENU';
+			const lobbyCode = state !== GameState.MENU ? this.gameCode || 'MENU' : 'MENU';
 			const newState: AmongUsState = {
 				lobbyCode: lobbyCode,
 				players,

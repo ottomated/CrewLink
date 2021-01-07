@@ -16,9 +16,7 @@ const useStyles = makeStyles(() => ({
 	},
 }));
 
-const TestSpeakersButton: React.FC<TestSpeakersProps> = ({
-	speaker,
-}: TestSpeakersProps) => {
+const TestSpeakersButton: React.FC<TestSpeakersProps> = ({ speaker }: TestSpeakersProps) => {
 	const classes = useStyles();
 	const [playing, setPlaying] = useState(false);
 	const testSpeakers = () => {

@@ -25,8 +25,8 @@ export interface IOffsets {
 	clientId: number[];
 	shipStatus: number[];
 	shipStatus_systems: number[];
-	shipStatus_map:number[];
-	hqHudSystemType_CompletedConsoles:number[];
+	shipStatus_map: number[];
+	hqHudSystemType_CompletedConsoles: number[];
 	HudOverrideSystemType_isActive: number[];
 	player: {
 		isLocal: number[];
@@ -80,8 +80,8 @@ export default {
 		playerCount: [0x18],
 		playerAddrPtr: 0x20,
 		exiledPlayerId: [0xff, 0x21d03e0, 0xb8, 0, 0xe0, 0x10],
-		shipStatus: [0x21D0CE0, 0xB8, 0x0],
-		shipStatus_systems: [0xC0],
+		shipStatus: [0x21d0ce0, 0xb8, 0x0],
+		shipStatus_systems: [0xc0],
 		shipStatus_map: [0x154],
 		hqHudSystemType_CompletedConsoles: [0x18, 0x20], // OAMJKPNKGBM
 		HudOverrideSystemType_isActive: [0x10],
@@ -118,29 +118,25 @@ export default {
 		},
 		signatures: {
 			innerNetClient: {
-				sig:
-					'48 8B 05 ? ? ? ? 48 8B 88 ? ? ? ? 48 8B 01 48 85 C0 0F 84 ? ? ? ? 66 66 66 0F 1F 84 00 ? ? ? ?',
+				sig: '48 8B 05 ? ? ? ? 48 8B 88 ? ? ? ? 48 8B 01 48 85 C0 0F 84 ? ? ? ? 66 66 66 0F 1F 84 00 ? ? ? ?',
 				patternOffset: 3,
 				addressOffset: 4,
 			},
 			meetingHud: {
-				sig:
-					'48 8B 05 ? ? ? ? 48 8B 88 ? ? ? ? 74 72 48 8B 39 48 8B 0D ? ? ? ? F6 81 ? ? ? ? ?',
+				sig: '48 8B 05 ? ? ? ? 48 8B 88 ? ? ? ? 74 72 48 8B 39 48 8B 0D ? ? ? ? F6 81 ? ? ? ? ?',
 				patternOffset: 3,
 				addressOffset: 4,
 			},
 			gameData: {
-				sig:
-					'48 8B 05 ? ? ? ? 48 8B 88 ? ? ? ? 48 8B 01 48 85 C0 0F 84 ? ? ? ? BE ? ? ? ?',
+				sig: '48 8B 05 ? ? ? ? 48 8B 88 ? ? ? ? 48 8B 01 48 85 C0 0F 84 ? ? ? ? BE ? ? ? ?',
 				patternOffset: 3,
 				addressOffset: 4,
 			},
 			shipStatus: {
-				sig:
-					'48 8B 05 ? ? ? ? 48 8B 5C 24 ? 48 8B 6C 24 ? 48 8B 74 24 ? 48 8B 88 ? ? ? ? 48 89 39 48 83 C4 20 5F',
+				sig: '48 8B 05 ? ? ? ? 48 8B 5C 24 ? 48 8B 6C 24 ? 48 8B 74 24 ? 48 8B 88 ? ? ? ? 48 89 39 48 83 C4 20 5F',
 				patternOffset: 3,
 				addressOffset: 4,
-			}
+			},
 		},
 	},
 	x86: {
@@ -159,8 +155,8 @@ export default {
 		exiledPlayerId: [0xff, 0x1c573a4, 0x5c, 0, 0x94, 0x08],
 		shipStatus: [0x1c57cac, 0x5c, 0x0],
 		shipStatus_systems: [0x84],
-		shipStatus_map: [0xD4],
-		hqHudSystemType_CompletedConsoles: [0xC, 0x10],
+		shipStatus_map: [0xd4],
+		hqHudSystemType_CompletedConsoles: [0xc, 0x10],
 		HudOverrideSystemType_isActive: [0x8],
 		player: {
 			struct: [
@@ -190,8 +186,7 @@ export default {
 		},
 		signatures: {
 			innerNetClient: {
-				sig:
-					'8B 0D ? ? ? ? 83 C4 08 8B F0 8B 49 5C 8B 11 85 D2 74 15 8B 4D 0C 8B 49 18 8B 01 50 56 52 8B 00 FF D0',
+				sig: '8B 0D ? ? ? ? 83 C4 08 8B F0 8B 49 5C 8B 11 85 D2 74 15 8B 4D 0C 8B 49 18 8B 01 50 56 52 8B 00 FF D0',
 				patternOffset: 2,
 				addressOffset: 0,
 			},
@@ -208,12 +203,10 @@ export default {
 				addressOffset: 0,
 			},
 			shipStatus: {
-				sig:
-					'A1 ? ? ? ? 8B 40 5C 8B 00 85 C0 74 5A 8B 80 ? ? ? ? 85 C0 74 50 6A 00 6A 00',
+				sig: 'A1 ? ? ? ? 8B 40 5C 8B 00 85 C0 74 5A 8B 80 ? ? ? ? 85 C0 74 50 6A 00 6A 00',
 				patternOffset: 1,
 				addressOffset: 0,
-			}
-
+			},
 		},
 	},
 } as IOffsetsStore;

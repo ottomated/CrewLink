@@ -1,16 +1,6 @@
 import Store from 'electron-store';
-import React, {
-	ReactChild,
-	useContext,
-	useEffect,
-	useReducer,
-	useState,
-} from 'react';
-import {
-	SettingsContext,
-	LobbySettingsContext,
-	GameStateContext,
-} from '../contexts';
+import React, { ReactChild, useContext, useEffect, useReducer, useState } from 'react';
+import { SettingsContext, LobbySettingsContext, GameStateContext } from '../contexts';
 import MicrophoneSoundBar from './MicrophoneSoundBar';
 import TestSpeakersButton from './TestSpeakersButton';
 import { ISettings, ILobbySettings } from '../../common/ISettings';
@@ -65,8 +55,7 @@ const useStyles = makeStyles((theme) => ({
 		marginTop: theme.spacing(3),
 		transition: 'transform .1s ease-in-out',
 		WebkitAppRegion: 'no-drag',
-		transform: ({ open }: StyleInput) =>
-			open ? 'translateX(0)' : 'translateX(-100%)',
+		transform: ({ open }: StyleInput) => (open ? 'translateX(0)' : 'translateX(-100%)'),
 	},
 	header: {
 		display: 'flex',
@@ -142,9 +131,7 @@ const store = new Store<ISettings>({
 				if (validateServerUrl(serverURL)) {
 					store.set('serverURL', serverURL);
 				} else {
-					console.warn(
-						'Error while parsing the old serverIP property. Default URL will be used instead.'
-					);
+					console.warn('Error while parsing the old serverIP property. Default URL will be used instead.');
 				}
 
 				// @ts-ignore: Old serverIP property no longer exists in ISettings
@@ -270,7 +257,7 @@ const store = new Store<ISettings>({
 			default: {
 				maxDistance: 5.32,
 				haunting: false,
-				commsDisabled: false
+				commsDisabled: false,
 			},
 		},
 	},
@@ -346,11 +333,7 @@ type URLInputProps = {
 	className: string;
 };
 
-const URLInput: React.FC<URLInputProps> = function ({
-	initialURL,
-	onValidURL,
-	className,
-}: URLInputProps) {
+const URLInput: React.FC<URLInputProps> = function ({ initialURL, onValidURL, className }: URLInputProps) {
 	const [isValidURL, setURLValid] = useState(true);
 	const [currentURL, setCurrentURL] = useState(initialURL);
 	const [open, setOpen] = useState(false);
@@ -371,11 +354,7 @@ const URLInput: React.FC<URLInputProps> = function ({
 
 	return (
 		<>
-			<Button
-				variant="contained"
-				color="secondary"
-				onClick={() => setOpen(true)}
-			>
+			<Button variant="contained" color="secondary" onClick={() => setOpen(true)}>
 				Change Voice Server
 			</Button>
 			<Dialog fullScreen open={open} onClose={() => setOpen(false)}>
@@ -393,8 +372,7 @@ const URLInput: React.FC<URLInputProps> = function ({
 						helperText={isValidURL ? '' : 'Invalid URL'}
 					/>
 					<Alert severity="error">
-						This option is for advanced users only. Other servers can steal your
-						info or crash CrewLink.
+						This option is for advanced users only. Other servers can steal your info or crash CrewLink.
 					</Alert>
 					<Button
 						color="primary"
@@ -443,11 +421,7 @@ interface DisabledTooltipProps {
 	children: ReactChild;
 }
 
-const DisabledTooltip: React.FC<DisabledTooltipProps> = function ({
-	disabled,
-	children,
-	title,
-}: DisabledTooltipProps) {
+const DisabledTooltip: React.FC<DisabledTooltipProps> = function ({ disabled, children, title }: DisabledTooltipProps) {
 	if (disabled)
 		return (
 			<Tooltip placement="top" arrow title={title}>
@@ -457,10 +431,7 @@ const DisabledTooltip: React.FC<DisabledTooltipProps> = function ({
 	else return <>{children}</>;
 };
 
-const Settings: React.FC<SettingsProps> = function ({
-	open,
-	onClose,
-}: SettingsProps) {
+const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsProps) {
 	const classes = useStyles({ open });
 	const [settings, setSettings] = useContext(SettingsContext);
 	const gameState = useContext(GameStateContext);
@@ -480,18 +451,10 @@ const Settings: React.FC<SettingsProps> = function ({
 
 	useEffect(() => {
 		setUnsavedCount((s) => s + 1);
-	}, [
-		settings.microphone,
-		settings.speaker,
-		settings.serverURL,
-		settings.enableSpatialAudio,
-		settings.natFix,
-	]);
+	}, [settings.microphone, settings.speaker, settings.serverURL, settings.enableSpatialAudio, settings.natFix]);
 
 	useEffect(() => {
-		remote
-			.getCurrentWindow()
-			.setAlwaysOnTop(settings.alwaysOnTop, 'screen-saver');
+		remote.getCurrentWindow().setAlwaysOnTop(settings.alwaysOnTop, 'screen-saver');
 	}, [settings.alwaysOnTop]);
 
 	useEffect(() => {
@@ -529,8 +492,7 @@ const Settings: React.FC<SettingsProps> = function ({
 		else if (k.startsWith('Arrow')) k = k.substring(5);
 		if (k === ' ') k = 'Space';
 
-		if (k === 'Control' || k === 'Alt' || k === 'Shift')
-			k = (ev.location === 1 ? 'L' : 'R') + k;
+		if (k === 'Control' || k === 'Alt' || k === 'Shift') k = (ev.location === 1 ? 'L' : 'R') + k;
 
 		if (/^[0-9A-Z]$/.test(k) || /^F[0-9]{1, 2}$/.test(k) || keys.has(k)) {
 			setSettings({
@@ -540,10 +502,7 @@ const Settings: React.FC<SettingsProps> = function ({
 		}
 	};
 
-	const setMouseShortcut = (
-		ev: React.MouseEvent<HTMLDivElement>,
-		shortcut: string
-	) => {
+	const setMouseShortcut = (ev: React.MouseEvent<HTMLDivElement>, shortcut: string) => {
 		if (ev.button > 2) {
 			// this makes our button start at 1 instead of 0
 			// React Mouse event starts at 0, but IOHooks starts at 1
@@ -557,20 +516,15 @@ const Settings: React.FC<SettingsProps> = function ({
 
 	const microphones = devices.filter((d) => d.kind === 'audioinput');
 	const speakers = devices.filter((d) => d.kind === 'audiooutput');
-	const [localLobbySettings, setLocalLobbySettings] = useState(
-		settings.localLobbySettings
-	);
+	const [localLobbySettings, setLocalLobbySettings] = useState(settings.localLobbySettings);
 
 	useEffect(() => {
 		setLocalLobbySettings(settings.localLobbySettings);
 	}, [settings.localLobbySettings]);
 
-	const isInMenuOrLobby =
-		gameState?.gameState === GameState.LOBBY ||
-		gameState?.gameState === GameState.MENU;
+	const isInMenuOrLobby = gameState?.gameState === GameState.LOBBY || gameState?.gameState === GameState.MENU;
 	const canChangeLobbySettings =
-		gameState?.gameState === GameState.MENU ||
-		(gameState?.isHost && gameState?.gameState === GameState.LOBBY);
+		gameState?.gameState === GameState.MENU || (gameState?.isHost && gameState?.gameState === GameState.LOBBY);
 	//gittest
 	return (
 		<Box className={classes.root}>
@@ -598,26 +552,15 @@ const Settings: React.FC<SettingsProps> = function ({
 				<div>
 					<Typography variant="h6">Lobby Settings</Typography>
 					<Typography gutterBottom>
-						Voice Distance:{' '}
-						{canChangeLobbySettings
-							? localLobbySettings.maxDistance
-							: lobbySettings.maxDistance}
+						Voice Distance: {canChangeLobbySettings ? localLobbySettings.maxDistance : lobbySettings.maxDistance}
 					</Typography>
 					<DisabledTooltip
 						disabled={!canChangeLobbySettings}
-						title={
-							isInMenuOrLobby
-								? 'Only the game host can change this!'
-								: 'You can only change this in the lobby!'
-						}
+						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
 					>
 						<Slider
 							disabled={!canChangeLobbySettings}
-							value={
-								canChangeLobbySettings
-									? localLobbySettings.maxDistance
-									: lobbySettings.maxDistance
-							}
+							value={canChangeLobbySettings ? localLobbySettings.maxDistance : lobbySettings.maxDistance}
 							min={1}
 							max={10}
 							step={0.1}
@@ -636,11 +579,7 @@ const Settings: React.FC<SettingsProps> = function ({
 
 					<DisabledTooltip
 						disabled={!canChangeLobbySettings}
-						title={
-							isInMenuOrLobby
-								? 'Only the game host can change this!'
-								: 'You can only change this in the lobby!'
-						}
+						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
 					>
 						<FormControlLabel
 							label="Haunting"
@@ -654,28 +593,15 @@ const Settings: React.FC<SettingsProps> = function ({
 									action: ['haunting', newValue],
 								});
 							}}
-							value={
-								canChangeLobbySettings
-									? localLobbySettings.haunting
-									: lobbySettings.haunting
-							}
-							checked={
-								canChangeLobbySettings
-									? localLobbySettings.haunting
-									: lobbySettings.haunting
-							}
+							value={canChangeLobbySettings ? localLobbySettings.haunting : lobbySettings.haunting}
+							checked={canChangeLobbySettings ? localLobbySettings.haunting : lobbySettings.haunting}
 							control={<Checkbox />}
 						/>
-						
 					</DisabledTooltip>
 
 					<DisabledTooltip
 						disabled={!canChangeLobbySettings}
-						title={
-							isInMenuOrLobby
-								? 'Only the game host can change this!'
-								: 'You can only change this in the lobby!'
-						}
+						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
 					>
 						<FormControlLabel
 							label="Comms sabotage"
@@ -689,19 +615,10 @@ const Settings: React.FC<SettingsProps> = function ({
 									action: ['commsDisabled', newValue],
 								});
 							}}
-							value={
-								canChangeLobbySettings
-									? localLobbySettings.commsDisabled
-									: lobbySettings.commsDisabled
-							}
-							checked={
-								canChangeLobbySettings
-									? localLobbySettings.commsDisabled
-									: lobbySettings.commsDisabled
-							}
+							value={canChangeLobbySettings ? localLobbySettings.commsDisabled : lobbySettings.commsDisabled}
+							checked={canChangeLobbySettings ? localLobbySettings.commsDisabled : lobbySettings.commsDisabled}
 							control={<Checkbox />}
 						/>
-						
 					</DisabledTooltip>
 				</div>
 				<Divider />
@@ -763,16 +680,8 @@ const Settings: React.FC<SettingsProps> = function ({
 						});
 					}}
 				>
-					<FormControlLabel
-						label="Voice Activity"
-						value={false}
-						control={<Radio />}
-					/>
-					<FormControlLabel
-						label="Push To Talk"
-						value={true}
-						control={<Radio />}
-					/>
+					<FormControlLabel label="Voice Activity" value={false} control={<Radio />} />
+					<FormControlLabel label="Push To Talk" value={true} control={<Radio />} />
 					<Divider />
 				</RadioGroup>
 				<div>
@@ -966,11 +875,7 @@ const Settings: React.FC<SettingsProps> = function ({
 					}}
 					control={<Checkbox />}
 				/>
-				<Alert
-					className={classes.alert}
-					severity="info"
-					style={{ display: unsaved ? undefined : 'none' }}
-				>
+				<Alert className={classes.alert} severity="info" style={{ display: unsaved ? undefined : 'none' }}>
 					Exit Settings to apply changes
 				</Alert>
 			</div>

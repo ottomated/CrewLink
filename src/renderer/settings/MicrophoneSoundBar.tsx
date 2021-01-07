@@ -23,9 +23,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const TestMicrophoneButton: React.FC<TestMicProps> = function ({
-	microphone,
-}: TestMicProps) {
+const TestMicrophoneButton: React.FC<TestMicProps> = function ({ microphone }: TestMicProps) {
 	const classes = useStyles();
 	const [error, setError] = useState<boolean>(false);
 	const [rms, setRms] = useState<number>(0);
@@ -73,9 +71,7 @@ const TestMicrophoneButton: React.FC<TestMicProps> = function ({
 	}, [microphone]);
 
 	if (error) {
-		return (
-			<Typography color="error">Could not connect to microphone</Typography>
-		);
+		return <Typography color="error">Could not connect to microphone</Typography>;
 	} else {
 		return (
 			<div className={classes.root}>
