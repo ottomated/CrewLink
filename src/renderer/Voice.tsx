@@ -465,6 +465,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				audioElements.current = {};
 
 				const connect = (lobbyCode: string, playerId: number, clientId: number) => {
+					console.log("connect called..", lobbyCode);
 					if (lobbyCode === 'MENU') {
 						Object.keys(peerConnections).forEach((k) => {
 							disconnectPeer(k);
@@ -719,8 +720,8 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 	// Connect to P2P negotiator, when lobby and connect code change
 	useEffect(() => {
-		if (connect?.connect && gameState.lobbyCode && myPlayer?.id !== undefined) {
-			connect.connect(gameState.lobbyCode, myPlayer.id, gameState.clientId);
+		if (connect?.connect ) {
+			connect.connect(gameState?.lobbyCode ?? 'MENU', myPlayer?.id ?? 0, gameState.clientId);
 		}
 	}, [connect?.connect, gameState?.lobbyCode]);
 
@@ -747,6 +748,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				disconnectPeer(k);
 			});
 			setOtherDead({});
+			
 		}
 	}, [gameState.gameState]);
 
