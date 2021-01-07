@@ -253,6 +253,10 @@ const store = new Store<ISettings>({
 					type: 'boolean',
 					default: false,
 				},
+				ventTalk: {
+					type: 'boolean',
+					default: false,
+				},
 			},
 			default: {
 				maxDistance: 5.32,
@@ -617,6 +621,27 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 							}}
 							value={canChangeLobbySettings ? localLobbySettings.commsDisabled : lobbySettings.commsDisabled}
 							checked={canChangeLobbySettings ? localLobbySettings.commsDisabled : lobbySettings.commsDisabled}
+							control={<Checkbox />}
+						/>
+					</DisabledTooltip>
+					<DisabledTooltip
+						disabled={!canChangeLobbySettings}
+						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
+					>
+						<FormControlLabel
+							label="Talk in vents"
+							disabled={!canChangeLobbySettings}
+							onChange={(_, newValue: boolean) => {
+								localLobbySettings.ventTalk = newValue;
+								setLocalLobbySettings(localLobbySettings);
+
+								setSettings({
+									type: 'setLobbySetting',
+									action: ['ventTalk', newValue],
+								});
+							}}
+							value={canChangeLobbySettings ? localLobbySettings.ventTalk : lobbySettings.ventTalk}
+							checked={canChangeLobbySettings ? localLobbySettings.ventTalk : lobbySettings.ventTalk}
 							control={<Checkbox />}
 						/>
 					</DisabledTooltip>

@@ -230,7 +230,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 				// Mute other players which are in a vent
 				if (other.inVent) {
-					gain.gain.value = 0;
+					gain.gain.value = me.inVent && lobbySettings.ventTalk? 1 : 0;
 				}
 
 				if (!me.isDead && other.isDead && me.isImpostor && lobbySettings.haunting) {

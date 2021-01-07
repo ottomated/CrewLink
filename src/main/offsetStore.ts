@@ -181,7 +181,7 @@ export default {
 			remoteY: [96, 64],
 			bufferLength: 56,
 			offsets: [0, 0],
-			inVent: [49],
+			inVent: [0x31],
 			clientId: [28],
 		},
 		signatures: {

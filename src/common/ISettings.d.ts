@@ -22,5 +22,7 @@ export interface ISettings {
 export interface ILobbySettings {
 	maxDistance: number;
 	haunting: boolean;
+	ventTalk: boolean;
+
 	commsDisabled: boolean;
 }
