@@ -4,11 +4,7 @@ import GameReader from './GameReader';
 import { keyboardWatcher } from 'node-keyboard-watcher';
 import Store from 'electron-store';
 import { ISettings } from '../common/ISettings';
-import {
-	IpcHandlerMessages,
-	IpcRendererMessages,
-	IpcSyncMessages,
-} from '../common/ipc-messages';
+import { IpcHandlerMessages, IpcRendererMessages, IpcSyncMessages } from '../common/ipc-messages';
 import { overlayWindow } from 'electron-overlay-window';
 
 const store = new Store<ISettings>({ watch: true });
@@ -25,9 +21,7 @@ function resetKeyHooks(): void {
 
 ipcMain.on(IpcSyncMessages.GET_INITIAL_STATE, (event) => {
 	if (!readingGame) {
-		console.error(
-			'Recieved GET_INITIAL_STATE message before the START_HOOK message was received'
-		);
+		console.error('Recieved GET_INITIAL_STATE message before the START_HOOK message was received');
 		event.returnValue = null;
 		return;
 	}
@@ -62,7 +56,6 @@ ipcMain.handle(IpcHandlerMessages.START_HOOK, async (event) => {
 		// Read game memory
 		gameReader = new GameReader(event.sender.send.bind(event.sender));
 		const frame = () => {
-
 			const err = gameReader.loop();
 			if (err) {
 				readingGame = false;

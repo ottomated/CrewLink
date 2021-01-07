@@ -23,6 +23,11 @@ export interface IOffsets {
 	gameCode: number[];
 	hostId: number[];
 	clientId: number[];
+	shipStatus: number[];
+	shipStatus_systems: number[];
+	shipStatus_map:number[];
+	hqHudSystemType_CompletedConsoles:number[];
+	HudOverrideSystemType_isActive: number[];
 	player: {
 		isLocal: number[];
 		localX: number[];
@@ -55,6 +60,7 @@ export interface IOffsets {
 		innerNetClient: ISignature;
 		meetingHud: ISignature;
 		gameData: ISignature;
+		shipStatus: ISignature;
 	};
 }
 
@@ -74,6 +80,11 @@ export default {
 		playerCount: [0x18],
 		playerAddrPtr: 0x20,
 		exiledPlayerId: [0xff, 0x21d03e0, 0xb8, 0, 0xe0, 0x10],
+		shipStatus: [0x21D0CE0, 0xB8, 0x0],
+		shipStatus_systems: [0xC0],
+		shipStatus_map: [0x154],
+		hqHudSystemType_CompletedConsoles: [0x18, 0x20], // OAMJKPNKGBM
+		HudOverrideSystemType_isActive: [0x10],
 		player: {
 			struct: [
 				{ type: 'SKIP', skip: 16, name: 'unused' },
@@ -124,6 +135,12 @@ export default {
 				patternOffset: 3,
 				addressOffset: 4,
 			},
+			shipStatus: {
+				sig:
+					'48 8B 05 ? ? ? ? 48 8B 5C 24 ? 48 8B 6C 24 ? 48 8B 74 24 ? 48 8B 88 ? ? ? ? 48 89 39 48 83 C4 20 5F',
+				patternOffset: 3,
+				addressOffset: 4,
+			}
 		},
 	},
 	x86: {
@@ -140,6 +157,11 @@ export default {
 		playerCount: [0x0c],
 		playerAddrPtr: 0x10,
 		exiledPlayerId: [0xff, 0x1c573a4, 0x5c, 0, 0x94, 0x08],
+		shipStatus: [0x1c57cac, 0x5c, 0x0],
+		shipStatus_systems: [0x84],
+		shipStatus_map: [0xD4],
+		hqHudSystemType_CompletedConsoles: [0xC, 0x10],
+		HudOverrideSystemType_isActive: [0x8],
 		player: {
 			struct: [
 				{ type: 'SKIP', skip: 8, name: 'unused' },
@@ -185,6 +207,13 @@ export default {
 				patternOffset: 2,
 				addressOffset: 0,
 			},
+			shipStatus: {
+				sig:
+					'A1 ? ? ? ? 8B 40 5C 8B 00 85 C0 74 5A 8B 80 ? ? ? ? 85 C0 74 50 6A 00 6A 00',
+				patternOffset: 1,
+				addressOffset: 0,
+			}
+
 		},
 	},
 } as IOffsetsStore;

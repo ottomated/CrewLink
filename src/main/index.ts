@@ -65,9 +65,7 @@ function createMainWindow() {
 	let crewlinkVersion: string;
 	if (isDevelopment) {
 		crewlinkVersion = '0.0.0';
-		window.loadURL(
-			`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=DEV&view=app`
-		);
+		window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=DEV&view=app`);
 	} else {
 		crewlinkVersion = autoUpdater.currentVersion.version;
 		window.loadURL(
@@ -119,12 +117,12 @@ function createOverlay() {
 			webSecurity: false,
 		},
 		fullscreenable: true,
-        skipTaskbar: false,
-        frame: false,
-        show: true,
-        transparent: true,
-        resizable: true
-	//	...overlayWindow.WINDOW_OPTS,
+		skipTaskbar: false,
+		frame: false,
+		show: true,
+		transparent: true,
+		resizable: true,
+		//	...overlayWindow.WINDOW_OPTS,
 	});
 
 	if (isDevelopment) {
@@ -159,38 +157,26 @@ if (!gotTheLock) {
 } else {
 	autoUpdater.checkForUpdates();
 	autoUpdater.on('update-available', () => {
-		global.mainWindow?.webContents.send(
-			IpcRendererMessages.AUTO_UPDATER_STATE,
-			{
-				state: 'available',
-			}
-		);
+		global.mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
+			state: 'available',
+		});
 	});
 	autoUpdater.on('error', (err: string) => {
-		global.mainWindow?.webContents.send(
-			IpcRendererMessages.AUTO_UPDATER_STATE,
-			{
-				state: 'error',
-				error: err,
-			}
-		);
+		global.mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
+			state: 'error',
+			error: err,
+		});
 	});
 	autoUpdater.on('download-progress', (progress: ProgressInfo) => {
-		global.mainWindow?.webContents.send(
-			IpcRendererMessages.AUTO_UPDATER_STATE,
-			{
-				state: 'downloading',
-				progress,
-			}
-		);
+		global.mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
+			state: 'downloading',
+			progress,
+		});
 	});
 	autoUpdater.on('update-downloaded', () => {
-		global.mainWindow?.webContents.send(
-			IpcRendererMessages.AUTO_UPDATER_STATE,
-			{
-				state: 'downloaded',
-			}
-		);
+		global.mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
+			state: 'downloaded',
+		});
 		app.relaunch();
 		autoUpdater.quitAndInstall();
 	});

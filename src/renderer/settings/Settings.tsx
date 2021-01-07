@@ -262,10 +262,15 @@ const store = new Store<ISettings>({
 					type: 'boolean',
 					default: false,
 				},
+				commsDisabled: {
+					type: 'boolean',
+					default: false,
+				},
 			},
 			default: {
 				maxDistance: 5.32,
 				haunting: false,
+				commsDisabled: false
 			},
 		},
 	},
@@ -648,13 +653,6 @@ const Settings: React.FC<SettingsProps> = function ({
 									type: 'setLobbySetting',
 									action: ['haunting', newValue],
 								});
-
-								// if (gameState?.isHost) {
-								// 	setLobbySettings({
-								// 		type: 'setOne',
-								// 		action: ['', newValue as boolean],
-								// 	});
-								// }
 							}}
 							value={
 								canChangeLobbySettings
@@ -668,6 +666,42 @@ const Settings: React.FC<SettingsProps> = function ({
 							}
 							control={<Checkbox />}
 						/>
+						
+					</DisabledTooltip>
+
+					<DisabledTooltip
+						disabled={!canChangeLobbySettings}
+						title={
+							isInMenuOrLobby
+								? 'Only the game host can change this!'
+								: 'You can only change this in the lobby!'
+						}
+					>
+						<FormControlLabel
+							label="Comms sabotage"
+							disabled={!canChangeLobbySettings}
+							onChange={(_, newValue: boolean) => {
+								localLobbySettings.commsDisabled = newValue;
+								setLocalLobbySettings(localLobbySettings);
+
+								setSettings({
+									type: 'setLobbySetting',
+									action: ['commsDisabled', newValue],
+								});
+							}}
+							value={
+								canChangeLobbySettings
+									? localLobbySettings.commsDisabled
+									: lobbySettings.commsDisabled
+							}
+							checked={
+								canChangeLobbySettings
+									? localLobbySettings.commsDisabled
+									: lobbySettings.commsDisabled
+							}
+							control={<Checkbox />}
+						/>
+						
 					</DisabledTooltip>
 				</div>
 				<Divider />

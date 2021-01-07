@@ -24,7 +24,7 @@ export interface ExtendedAudioElement extends HTMLAudioElement {
 	setSinkId: (sinkId: string) => Promise<void>;
 }
 
-const VADENABLED = true;
+const VADENABLED = false;
 interface PeerConnections {
 	[peer: string]: Peer.Instance;
 }
@@ -243,18 +243,18 @@ const Voice: React.FC<VoiceProps> = function ({
 					gain.gain.value = 0;
 				}
 
-				// Mute dead players for still living players
-				if (!me.isDead && other.isDead) {
-					gain.gain.value = 0;
-				}
 				if (
 					!me.isDead &&
 					other.isDead &&
 					me.isImpostor &&
 					lobbySettings.haunting
 				) {
-					gain.gain.value = gain.gain.value * 0.015; //0.005;
+					gain.gain.value = gain.gain.value * 0.02; //0.005;
 					if (reverbGain != null) reverbGain.gain.value = 1;
+				} else {
+					if (!me.isDead && (other.isDead || state.comsSabotaged)) {
+						gain.gain.value = 0;
+					}
 				}
 				break;
 			case GameState.DISCUSSION:
@@ -495,8 +495,7 @@ const Voice: React.FC<VoiceProps> = function ({
 							stereo: false,
 						}
 					);
-				}else{
-					
+				} else {
 				}
 
 				audioElements.current = {};
@@ -557,7 +556,7 @@ const Voice: React.FC<VoiceProps> = function ({
 						const gain = context.createGain();
 						const pan = context.createPanner();
 						const compressor = context.createDynamicsCompressor();
-						gain.gain.value = 1;
+						gain.gain.value = 0;
 						pan.refDistance = 0.1;
 						pan.panningModel = 'equalpower';
 						pan.distanceModel = 'linear';
@@ -570,7 +569,7 @@ const Voice: React.FC<VoiceProps> = function ({
 
 						let reverb: any = null;
 						let reverbGain: any = null;
-						if ( reverbFile) {
+						if (reverbFile) {
 							reverb = context.createConvolver();
 							reverbGain = context.createGain();
 							reverbGain.gain.value = 0;
@@ -597,7 +596,7 @@ const Voice: React.FC<VoiceProps> = function ({
 								onVoiceStop: () => setTalking(false),
 								stereo: settingsRef.current.enableSpatialAudio,
 							});
-						}else{
+						} else {
 							compressor.connect(context.destination);
 						}
 

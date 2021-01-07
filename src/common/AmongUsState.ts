@@ -6,6 +6,7 @@ export interface AmongUsState {
 	isHost: boolean;
 	clientId: number;
 	hostId: number;
+	comsSabotaged : boolean;
 }
 
 export interface Player {
