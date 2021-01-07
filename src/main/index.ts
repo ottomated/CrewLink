@@ -31,6 +31,7 @@ function createMainWindow() {
 	const mainWindowState = windowStateKeeper({});
 
 	const window = new BrowserWindow({
+		title: 'Bettercrewlink-GUI',
 		width: 250,
 		height: 350,
 		maxWidth: 250,
@@ -109,6 +110,7 @@ function createMainWindow() {
 
 function createOverlay() {
 	const overlay = new BrowserWindow({
+		title: 'Bettercrewlink-overlay',
 		width: 400,
 		height: 300,
 		webPreferences: {
@@ -116,7 +118,13 @@ function createOverlay() {
 			enableRemoteModule: true,
 			webSecurity: false,
 		},
-		...overlayWindow.WINDOW_OPTS,
+		fullscreenable: true,
+        skipTaskbar: false,
+        frame: false,
+        show: true,
+        transparent: true,
+        resizable: true
+	//	...overlayWindow.WINDOW_OPTS,
 	});
 
 	if (isDevelopment) {

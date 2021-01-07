@@ -24,6 +24,7 @@ export interface ExtendedAudioElement extends HTMLAudioElement {
 	setSinkId: (sinkId: string) => Promise<void>;
 }
 
+const VADENABLED = true;
 interface PeerConnections {
 	[peer: string]: Peer.Instance;
 }
@@ -210,7 +211,8 @@ const Voice: React.FC<VoiceProps> = function ({
 	let reverbFile: any = null;
 	if (fs.existsSync('static/reverb.ogx'))
 		reverbFile = fs.readFileSync('static/reverb.ogx');
-
+	else if (fs.existsSync('resources/static/reverb.ogx'))
+		reverbFile = fs.readFileSync('resources/static/reverb.ogx');
 	function calculateVoiceAudio(
 		state: AmongUsState,
 		settings: ISettings,
@@ -249,7 +251,7 @@ const Voice: React.FC<VoiceProps> = function ({
 					!me.isDead &&
 					other.isDead &&
 					me.isImpostor &&
-					lobbySettings.maxDistance
+					lobbySettings.haunting
 				) {
 					gain.gain.value = gain.gain.value * 0.015; //0.005;
 					if (reverbGain != null) reverbGain.gain.value = 1;
@@ -467,26 +469,35 @@ const Voice: React.FC<VoiceProps> = function ({
 
 				const ac = new AudioContext();
 				ac.createMediaStreamSource(stream);
-				audioListener = VAD(ac, ac.createMediaStreamSource(stream), undefined, {
-					onVoiceStart: () => {
-						setTalking(true);
-						if (settings.enableOverlay) {
-							remote
-								.getGlobal('overlay')
-								?.webContents.send('overlayTalkingSelf', true);
+				if (VADENABLED) {
+					audioListener = VAD(
+						ac,
+						ac.createMediaStreamSource(stream),
+						undefined,
+						{
+							onVoiceStart: () => {
+								setTalking(true);
+								if (settings.enableOverlay) {
+									remote
+										.getGlobal('overlay')
+										?.webContents.send('overlayTalkingSelf', true);
+								}
+							},
+							onVoiceStop: () => {
+								setTalking(false);
+								if (settings.enableOverlay) {
+									remote
+										.getGlobal('overlay')
+										?.webContents.send('overlayTalkingSelf', false);
+								}
+							},
+							noiseCaptureDuration: 1,
+							stereo: false,
 						}
-					},
-					onVoiceStop: () => {
-						setTalking(false);
-						if (settings.enableOverlay) {
-							remote
-								.getGlobal('overlay')
-								?.webContents.send('overlayTalkingSelf', false);
-						}
-					},
-					noiseCaptureDuration: 1,
-					stereo: false,
-				});
+					);
+				}else{
+					
+				}
 
 				audioElements.current = {};
 
@@ -546,7 +557,7 @@ const Voice: React.FC<VoiceProps> = function ({
 						const gain = context.createGain();
 						const pan = context.createPanner();
 						const compressor = context.createDynamicsCompressor();
-						gain.gain.value = 0;
+						gain.gain.value = 1;
 						pan.refDistance = 0.1;
 						pan.panningModel = 'equalpower';
 						pan.distanceModel = 'linear';
@@ -559,7 +570,7 @@ const Voice: React.FC<VoiceProps> = function ({
 
 						let reverb: any = null;
 						let reverbGain: any = null;
-						if (lobbySettingsRef.current.haunting) {
+						if ( reverbFile) {
 							reverb = context.createConvolver();
 							reverbGain = context.createGain();
 							reverbGain.gain.value = 0;
@@ -579,12 +590,16 @@ const Voice: React.FC<VoiceProps> = function ({
 							reverb.connect(compressor);
 						}
 
-						// Source -> pan -> gain -> VAD -> destination
-						VAD(context, compressor, context.destination, {
-							onVoiceStart: () => setTalking(true),
-							onVoiceStop: () => setTalking(false),
-							stereo: settingsRef.current.enableSpatialAudio,
-						});
+						if (VADENABLED) {
+							// Source -> pan -> gain -> VAD -> destination
+							VAD(context, compressor, context.destination, {
+								onVoiceStart: () => setTalking(true),
+								onVoiceStop: () => setTalking(false),
+								stereo: settingsRef.current.enableSpatialAudio,
+							});
+						}else{
+							compressor.connect(context.destination);
+						}
 
 						const setTalking = (talking: boolean) => {
 							if (!socketClientsRef.current[peer]) {
@@ -682,7 +697,8 @@ const Voice: React.FC<VoiceProps> = function ({
 				disconnectPeer(k);
 			});
 			connectionStuff.current.socket?.close();
-			audioListener.destroy();
+
+			audioListener?.destroy();
 		};
 		// })();
 	}, []);
