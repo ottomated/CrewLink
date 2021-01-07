@@ -145,10 +145,10 @@ const store = new Store<ISettings>({
 			}
 		},
 		'1.1.6': (store) => {
-			const enableSpatialAudio = store.get('stereoInLobby');
-			if (typeof enableSpatialAudio === 'boolean') {
-				store.set('enableSpatialAudio', enableSpatialAudio);
-			}
+			// const enableSpatialAudio = store.get('stereoInLobby');
+			// if (typeof enableSpatialAudio === 'boolean') {
+			// 	store.set('enableSpatialAudio', enableSpatialAudio);
+			// }
 			// @ts-ignore
 			store.delete('stereoInLobby');
 		},
@@ -210,10 +210,6 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: false,
 		},
-		enableSpatialAudio: {
-			type: 'boolean',
-			default: true,
-		},
 		compactOverlay: {
 			type: 'boolean',
 			default: false,
@@ -237,6 +233,10 @@ const store = new Store<ISettings>({
 		mobileHost: {
 			type: 'boolean',
 			default: false,
+		},
+		vadEnabled: {
+			type: 'boolean',
+			default: true,
 		},
 		localLobbySettings: {
 			type: 'object',
@@ -451,7 +451,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 
 	useEffect(() => {
 		setUnsavedCount((s) => s + 1);
-	}, [settings.microphone, settings.speaker, settings.serverURL, settings.enableSpatialAudio, settings.natFix]);
+	}, [settings.microphone, settings.speaker, settings.serverURL, settings.vadEnabled, settings.natFix]);
 
 	useEffect(() => {
 		remote.getCurrentWindow().setAlwaysOnTop(settings.alwaysOnTop, 'screen-saver');
@@ -840,13 +840,14 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					}}
 					control={<Checkbox />}
 				/>
+
 				<FormControlLabel
-					label="Enable Spatial Audio"
-					checked={settings.enableSpatialAudio}
+					label="VAD enabled"
+					checked={settings.vadEnabled}
 					onChange={(_, checked: boolean) => {
 						setSettings({
 							type: 'setOne',
-							action: ['enableSpatialAudio', checked],
+							action: ['vadEnabled', checked],
 						});
 					}}
 					control={<Checkbox />}

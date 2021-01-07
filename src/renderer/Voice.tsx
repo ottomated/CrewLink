@@ -20,7 +20,6 @@ export interface ExtendedAudioElement extends HTMLAudioElement {
 	setSinkId: (sinkId: string) => Promise<void>;
 }
 
-const VADENABLED = false;
 interface PeerConnections {
 	[peer: string]: Peer.Instance;
 }
@@ -443,7 +442,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 				const ac = new AudioContext();
 				ac.createMediaStreamSource(stream);
-				if (VADENABLED) {
+				if (settingsRef.current.vadEnabled) {
 					audioListener = VAD(ac, ac.createMediaStreamSource(stream), undefined, {
 						onVoiceStart: () => {
 							setTalking(true);
@@ -545,12 +544,11 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 							reverb.connect(compressor);
 						}
 
-						if (VADENABLED) {
-							// Source -> pan -> gain -> VAD -> destination
+						if (settingsRef.current.vadEnabled) {
 							VAD(context, compressor, context.destination, {
 								onVoiceStart: () => setTalking(true),
 								onVoiceStop: () => setTalking(false),
-								stereo: settingsRef.current.enableSpatialAudio,
+								stereo: true,
 							});
 						} else {
 							compressor.connect(context.destination);

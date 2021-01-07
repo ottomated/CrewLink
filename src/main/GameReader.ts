@@ -159,7 +159,7 @@ export default class GameReader {
 				const map: MapType = this.readMemory<number>('int32', shipPtr, this.offsets.shipStatus_map, MapType.UNKNOWN);
 
 				if (systemsPtr !== 0 && (state === GameState.TASKS || state === GameState.DISCUSSION)) {
-					this.readDictionary(systemsPtr, 32, (k, v, i) => {
+					this.readDictionary(systemsPtr, 32, (k, v) => {
 						const key = this.readMemory<number>('int32', k);
 						if (key === 14) {
 							const value = this.readMemory<number>('ptr', v);
@@ -314,7 +314,11 @@ export default class GameReader {
 		return buffer.toString('binary').replace(/\0/g, '');
 	}
 
-	readDictionary(address: number, maxLen: number, callback: (keyPtr: number, valPtr: number, index: number) => void) {
+	readDictionary(
+		address: number,
+		maxLen: number,
+		callback: (keyPtr: number, valPtr: number, index: number) => void
+	): void {
 		const entries = this.readMemory<number>('ptr', address + (this.is_64bit ? 0x18 : 0xc));
 		const len = this.readMemory<number>('uint32', entries + (this.is_64bit ? 0x18 : 0xc));
 

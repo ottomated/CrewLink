@@ -8,7 +8,6 @@ export interface ISettings {
 	deafenShortcut: string;
 	muteShortcut: string;
 	hideCode: boolean;
-	enableSpatialAudio: boolean;
 	natFix: boolean;
 	compactOverlay: boolean;
 	overlayPosition: string;
@@ -16,6 +15,8 @@ export interface ISettings {
 	localLobbySettings: ILobbySettings;
 	ghostVolume: number;
 	mobileHost: boolean;
+	vadEnabled: boolean;
+
 }
 
 export interface ILobbySettings {

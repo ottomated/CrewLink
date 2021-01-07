@@ -125,11 +125,11 @@ export default function App(): JSX.Element {
 		hideCode: false,
 		natFix: false,
 		mobileHost: false,
-		enableSpatialAudio: true,
 		overlayPosition: 'top',
 		compactOverlay: false,
 		enableOverlay: false,
 		ghostVolume: 100,
+		vadEnabled:true,
 		localLobbySettings: {
 			maxDistance: 5.32,
 			haunting: false,
