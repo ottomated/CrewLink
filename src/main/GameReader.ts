@@ -136,7 +136,6 @@ export default class GameReader {
 			);
 			let impostors = 0,
 				crewmates = 0;
-			this.gameCode = 'DEV';
 			let comsSabotaged = false;
 			if (this.gameCode) {
 				for (let i = 0; i < Math.min(playerCount, 100); i++) {
