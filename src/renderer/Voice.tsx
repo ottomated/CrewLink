@@ -95,10 +95,16 @@ const DEFAULT_ICE_CONFIG_TURN: RTCConfiguration = {
 		// 	urls: 'stun:stun.l.google.com:19302',
 		// },
 		{
-			urls: 'turn:crewlink.guus.info:3478',
+			urls: 'turn:turn.bettercrewl.ink:3478',
 			username: 'M9DRVaByiujoXeuYAAAG',
 			credential: 'TpHR9HQNZ8taxjb3',
-		},
+		}
+		// ,
+		// {
+		// 	urls: 'turn:crewlink.guus.info:3478',
+		// 	username: 'M9DRVaByiujoXeuYAAAG',
+		// 	credential: 'TpHR9HQNZ8taxjb3',
+		// },
 	],
 };
 
