@@ -294,7 +294,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		if (gameState.isHost !== true) return;
 		Object.values(peerConnections).forEach((peer) => {
 			try {
-
 				peer.send(JSON.stringify(settings.localLobbySettings));
 			} catch (e) {
 				console.warn('failed to update lobby settings: ', e);
@@ -510,13 +509,15 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 					});
 
 					connection.on('connect', () => {
-						if (gameState.isHost) {
-							try {
-								connection.send(JSON.stringify(lobbySettingsRef.current));
-							} catch (e) {
-								console.warn('failed to update lobby settings: ', e);
+						setTimeout(() => {
+							if (gameState.isHost) {
+								try {
+									connection.send(JSON.stringify(lobbySettingsRef.current));
+								} catch (e) {
+									console.warn('failed to update lobby settings: ', e);
+								}
 							}
-						}
+						}, 2000);
 					});
 					connection.on('stream', (stream: MediaStream) => {
 						setAudioConnected((old) => ({ ...old, [peer]: true }));
@@ -609,7 +610,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 					});
 
 					connection.on('data', (data) => {
-						if (gameState.hostId !== socketClientsRef.current[peer]?.clientId) return;
+						if (!gameState?.hostId || gameState.hostId !== socketClientsRef.current[peer]?.clientId) return;
 						const settings = JSON.parse(data);
 						Object.keys(lobbySettings).forEach((field: string) => {
 							if (field in settings) {

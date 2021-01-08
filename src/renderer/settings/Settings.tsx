@@ -538,7 +538,6 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					className={classes.back}
 					size="small"
 					onClick={() => {
-						console.log("setlobbysettings: ", lobbySettings)
 						// setSettings({
 						// 	type: 'setOne',
 						// 	action: ['localLobbySettings', lobbySettings],
