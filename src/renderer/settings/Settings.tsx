@@ -262,6 +262,7 @@ const store = new Store<ISettings>({
 				maxDistance: 5.32,
 				haunting: false,
 				commsDisabled: false,
+				ventTalk: false
 			},
 		},
 	},
@@ -537,10 +538,11 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					className={classes.back}
 					size="small"
 					onClick={() => {
-						setSettings({
-							type: 'setOne',
-							action: ['localLobbySettings', lobbySettings],
-						});
+						console.log("setlobbysettings: ", lobbySettings)
+						// setSettings({
+						// 	type: 'setOne',
+						// 	action: ['localLobbySettings', lobbySettings],
+						// });
 						if (unsaved) {
 							onClose();
 							location.reload();

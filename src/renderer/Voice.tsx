@@ -230,7 +230,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 				// Mute other players which are in a vent
 				if (other.inVent) {
-					gain.gain.value = me.inVent && lobbySettings.ventTalk? 1 : 0;
+					gain.gain.value = me.inVent && lobbySettings.ventTalk ? 1 : 0;
 				}
 
 				if (!me.isDead && other.isDead && me.isImpostor && lobbySettings.haunting) {
@@ -294,9 +294,18 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		if (gameState.isHost !== true) return;
 		Object.values(peerConnections).forEach((peer) => {
 			try {
+
 				peer.send(JSON.stringify(settings.localLobbySettings));
 			} catch (e) {
 				console.warn('failed to update lobby settings: ', e);
+			}
+		});
+		Object.keys(lobbySettings).forEach((field: string) => {
+			if (field in lobbySettings) {
+				setLobbySettings({
+					type: 'set',
+					action: settings.localLobbySettings,
+				});
 			}
 		});
 	}, [settings.localLobbySettings]);
@@ -306,6 +315,15 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			audioElements.current[peer].pan.maxDistance = lobbySettings.maxDistance;
 		}
 	}, [lobbySettings.maxDistance]);
+
+	useEffect(() => {
+		if (settingsRef.current.mobileHost) {
+			connectionStuff.current.socket?.emit('signal', {
+				to: gameState.lobbyCode + '_mobile',
+				data: { gameState, lobbySettings },
+			});
+		}
+	}, [gameState]);
 
 	// Add settings to settingsRef
 	useEffect(() => {
@@ -465,7 +483,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				audioElements.current = {};
 
 				const connect = (lobbyCode: string, playerId: number, clientId: number) => {
-					console.log("connect called..", lobbyCode);
+					console.log('connect called..', lobbyCode);
 					if (lobbyCode === 'MENU') {
 						Object.keys(peerConnections).forEach((k) => {
 							disconnectPeer(k);
@@ -589,6 +607,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 							to: peer,
 						});
 					});
+
 					connection.on('data', (data) => {
 						if (gameState.hostId !== socketClientsRef.current[peer]?.clientId) return;
 						const settings = JSON.parse(data);
@@ -701,15 +720,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 	}, [gameState]);
 
 	useEffect(() => {
-		if (settingsRef.current.mobileHost) {
-			connectionStuff.current.socket?.emit('signal', {
-				to: gameState.lobbyCode + '_mobile',
-				data: gameState,
-			});
-		}
-	}, [gameState]);
-
-	useEffect(() => {
 		if (!gameState.players) return;
 		for (const player of gameState.players) {
 			if (playerConfigs[player.clientId] === undefined) {
@@ -720,7 +730,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 	// Connect to P2P negotiator, when lobby and connect code change
 	useEffect(() => {
-		if (connect?.connect ) {
+		if (connect?.connect) {
 			connect.connect(gameState?.lobbyCode ?? 'MENU', myPlayer?.id ?? 0, gameState.clientId);
 		}
 	}, [connect?.connect, gameState?.lobbyCode]);
@@ -748,7 +758,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				disconnectPeer(k);
 			});
 			setOtherDead({});
-			
 		}
 	}, [gameState.gameState]);
 
