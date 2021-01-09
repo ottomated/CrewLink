@@ -82,29 +82,22 @@ interface ClientPeerConfig {
 }
 
 const DEFAULT_ICE_CONFIG: RTCConfiguration = {
+	iceTransportPolicy: 'all',
 	iceServers: [
 		{
 			urls: 'stun:stun.l.google.com:19302',
 		},
 	],
 };
+
 const DEFAULT_ICE_CONFIG_TURN: RTCConfiguration = {
 	iceTransportPolicy: 'relay',
 	iceServers: [
-		// {
-		// 	urls: 'stun:stun.l.google.com:19302',
-		// },
 		{
 			urls: 'turn:turn.bettercrewl.ink:3478',
 			username: 'M9DRVaByiujoXeuYAAAG',
 			credential: 'TpHR9HQNZ8taxjb3',
 		}
-		// ,
-		// {
-		// 	urls: 'turn:crewlink.guus.info:3478',
-		// 	username: 'M9DRVaByiujoXeuYAAAG',
-		// 	credential: 'TpHR9HQNZ8taxjb3',
-		// },
 	],
 };
 
@@ -512,6 +505,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						iceRestartEnabled: true,
 						config: settingsRef.current.natFix ? DEFAULT_ICE_CONFIG_TURN : iceConfig,
 					});
+					console.log("ONCREATEPEERCONNECTION");
 
 					setPeerConnections((connections) => {
 						connections[peer] = connection;
@@ -519,6 +513,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 					});
 
 					connection.on('connect', () => {
+						console.log("ONCONNECT");
 						setTimeout(() => {
 							if (gameState.isHost) {
 								try {
@@ -530,6 +525,8 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						}, 2000);
 					});
 					connection.on('stream', (stream: MediaStream) => {
+						console.log("ONSTREAM");
+
 						setAudioConnected((old) => ({ ...old, [peer]: true }));
 						const audio = document.createElement('audio') as ExtendedAudioElement;
 						document.body.appendChild(audio);
@@ -613,6 +610,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						};
 					});
 					connection.on('signal', (data) => {
+						console.log('signal', JSON.stringify(data));
 						socket.emit('signal', {
 							data,
 							to: peer,
@@ -636,6 +634,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						disconnectPeer(peer);
 					});
 					connection.on('error', () => {
+						console.log("ONERROR")
 						/*empty*/
 					});
 					return connection;
@@ -646,6 +645,8 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				});
 
 				socket.on('signal', ({ data, from }: { data: Peer.SignalData; from: string }) => {
+					console.log('onsignal', JSON.stringify(data));
+
 					let connection: Peer.Instance;
 					if (peerConnections[from]) {
 						connection = peerConnections[from];
