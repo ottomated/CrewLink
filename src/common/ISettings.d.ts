@@ -9,8 +9,8 @@ export interface ISettings {
 	muteShortcut: string;
 	hideCode: boolean;
 	enableSpatialAudio: boolean;
-	compactOverlay: boolean;
-	overlayPosition: string;
+	meetingOverlay: boolean;
+	overlayPosition: 'left' | 'right' | 'hidden';
 	localLobbySettings: ILobbySettings;
 }
 

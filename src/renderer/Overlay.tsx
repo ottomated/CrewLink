@@ -6,6 +6,7 @@ import ReactDOM from 'react-dom';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import './css/overlay.css'
 import Avatar from './Avatar';
+import { ISettings } from '../common/ISettings';
 
 interface UseStylesProps {
 	hudHeight: number;
@@ -78,8 +79,9 @@ const playerColors = [
 const iPadRatio = 854 / 579;
 
 export default function Overlay() {
-	const [gameState, setGameState] = useState<AmongUsState>({} as AmongUsState);
-	const [voiceState, setVoiceState] = useState<VoiceState>({} as VoiceState);
+	const [gameState, setGameState] = useState<AmongUsState>(undefined as unknown as AmongUsState);
+	const [voiceState, setVoiceState] = useState<VoiceState>(undefined as unknown as VoiceState);
+	const [settings, setSettings] = useState<ISettings>(undefined as unknown as ISettings);
 	useEffect(() => {
 		const onState = (_: Electron.IpcRendererEvent, newState: AmongUsState) => {
 			setGameState(newState);
@@ -87,18 +89,30 @@ export default function Overlay() {
 		const onVoiceState = (_: Electron.IpcRendererEvent, newState: VoiceState) => {
 			setVoiceState(newState);
 		};
+		const onSettings = (_: Electron.IpcRendererEvent, newState: ISettings) => {
+			setSettings(newState);
+		};
 		ipcRenderer.on(IpcOverlayMessages.NOTIFY_GAME_STATE_CHANGED, onState);
 		ipcRenderer.on(IpcOverlayMessages.NOTIFY_VOICE_STATE_CHANGED, onVoiceState);
+		ipcRenderer.on(IpcOverlayMessages.NOTIFY_SETTINGS_CHANGED, onSettings);
 		return () => {
 			ipcRenderer.off(IpcOverlayMessages.NOTIFY_GAME_STATE_CHANGED, onState);
 			ipcRenderer.off(IpcOverlayMessages.NOTIFY_VOICE_STATE_CHANGED, onVoiceState);
+			ipcRenderer.off(IpcOverlayMessages.NOTIFY_SETTINGS_CHANGED, onSettings);
 		}
 	}, []);
 
+	if (!settings || !voiceState || !gameState) return null;
 	return (
 		<>
-			<MeetingHud gameState={gameState} otherTalking={voiceState.otherTalking} />
-			<AvatarOverlay voiceState={voiceState} gameState={gameState} />
+			{
+				settings.meetingOverlay &&
+				<MeetingHud gameState={gameState} otherTalking={voiceState.otherTalking} />
+			}
+			{
+				settings.overlayPosition !== 'hidden' &&
+				<AvatarOverlay voiceState={voiceState} gameState={gameState} position={settings.overlayPosition} />
+			}
 		</>
 	);
 }
@@ -106,24 +120,24 @@ export default function Overlay() {
 interface AvatarOverlayProps {
 	voiceState: VoiceState;
 	gameState: AmongUsState;
+	position: ISettings["overlayPosition"]
 }
 
 const useOverlayStyles = makeStyles((theme) => ({
 	root: {
 		width: '5%',
 		position: 'absolute',
-		top: '50%',
-		right: 0,
-		transform: 'translateY(-50%)',
 		background: '#25232ac0',
 		padding: theme.spacing(2),
-		borderTopLeftRadius: 20,
-		borderBottomLeftRadius: 20,
+		'&>*': {
+			marginTop: 4,
+			marginBottom: 4
+		}
 	}
 }));
-const AvatarOverlay: React.FC<AvatarOverlayProps> = ({ voiceState, gameState }: AvatarOverlayProps) => {
+const AvatarOverlay: React.FC<AvatarOverlayProps> = ({ voiceState, gameState, position }: AvatarOverlayProps) => {
 	if (!gameState.players) return null;
-	const classes = useOverlayStyles();
+	const classes = useOverlayStyles({ position });
 	const avatars: JSX.Element[] = [];
 
 	gameState.players.forEach(player => {
@@ -149,7 +163,16 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({ voiceState, gameState }: 
 	});
 	if (avatars.length === 0) return null;
 	return (
-		<div className={classes.root}>
+		<div className={classes.root} style={{
+			top: '50%',
+			left: position === 'left' ? 0 : undefined,
+			right: position === 'right' ? 0 : undefined,
+			transform:'translateY(-50%)',
+			borderTopLeftRadius: position === 'right' ? 20 : undefined,
+			borderBottomLeftRadius:  position === 'right' ? 20 : undefined,
+			borderTopRightRadius: position === 'left' ? 20 : undefined,
+			borderBottomRightRadius:  position === 'left' ? 20 : undefined,
+		}}>
 			{avatars}
 		</div>
 	)

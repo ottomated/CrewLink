@@ -132,7 +132,7 @@ const keys = new Set([
 	'RAlt',
 ]);
 
-const store = new Store<ISettings>({
+const storeConfig : Store.Options<ISettings> = {
 	migrations: {
 		'1.1.3': (store) => {
 			const serverIP = store.get('serverIP');
@@ -226,16 +226,19 @@ const store = new Store<ISettings>({
 				maxDistance: 5.32,
 			},
 		},
-		compactOverlay: {
+		meetingOverlay: {
 			type: 'boolean',
-			default: false
+			default: true
 		},
 		overlayPosition: {
 			type: 'string',
-			default: 'top'
+			enum: ['left', 'right', 'hidden'],
+			default: 'right'
 		}
 	},
-});
+};
+
+const store = new Store<ISettings>(storeConfig);
 
 export interface SettingsProps {
 	open: boolean;
@@ -333,7 +336,7 @@ const URLInput: React.FC<URLInputProps> = function ({
 	return (
 		<>
 			<Button
-				variant="contained"
+				variant="text"
 				color="secondary"
 				onClick={() => setOpen(true)}
 			>
@@ -707,6 +710,42 @@ const Settings: React.FC<SettingsProps> = function ({
 						/>
 					</Grid>
 				</Grid>
+				<Divider />
+				<Typography variant="h6">Overlay</Typography>
+				<TextField
+					select
+					fullWidth
+					label="Position"
+					variant="outlined"
+					color="secondary"
+					value={settings.overlayPosition}
+					className={classes.shortcutField}
+					SelectProps={{ native: true }}
+					InputLabelProps={{ shrink: true }}
+					onChange={(ev) => {
+						setSettings({
+							type: 'setOne',
+							action: ['overlayPosition', ev.target.value],
+						});
+					}}
+				>
+					{(storeConfig.schema?.overlayPosition?.enum as string[]).map((position) => (
+						<option key={position} value={position}>
+							{position[0].toUpperCase()}{position.substring(1)}
+						</option>
+					))}
+				</TextField>
+				<FormControlLabel
+					label="Meeting Overlay"
+					checked={settings.meetingOverlay}
+					onChange={(_, checked: boolean) => {
+						setSettings({
+							type: 'setOne',
+							action: ['meetingOverlay', checked],
+						});
+					}}
+					control={<Checkbox />}
+				/>
 				<Divider />
 				<Typography variant="h6">Advanced</Typography>
 				<FormControlLabel

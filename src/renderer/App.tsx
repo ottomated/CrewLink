@@ -132,8 +132,8 @@ export default function App() {
 		muteShortcut: 'RAlt',
 		hideCode: false,
 		enableSpatialAudio: true,
-		compactOverlay: false,
-		overlayPosition: 'top',
+		meetingOverlay: true,
+		overlayPosition: 'right',
 		localLobbySettings: {
 			maxDistance: 5.32,
 		},
@@ -196,6 +196,10 @@ export default function App() {
 	useEffect(() => {
 		ipcRenderer.send(IpcMessages.SEND_TO_OVERLAY, IpcOverlayMessages.NOTIFY_GAME_STATE_CHANGED, gameState);
 	}, [gameState]);
+
+	useEffect(() => {
+		ipcRenderer.send(IpcMessages.SEND_TO_OVERLAY, IpcOverlayMessages.NOTIFY_SETTINGS_CHANGED, settings[0]);
+	}, [settings]);
 
 	let page;
 	switch (state) {

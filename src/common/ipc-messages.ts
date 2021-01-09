@@ -12,7 +12,8 @@ export enum IpcMessages {
 // Renderer 1 --> Overlay Window (send/on)
 export enum IpcOverlayMessages {
 	NOTIFY_GAME_STATE_CHANGED = 'NOTIFY_GAME_STATE_CHANGED',
-	NOTIFY_VOICE_STATE_CHANGED = 'NOTIFY_VOICE_STATE_CHANGED'
+	NOTIFY_VOICE_STATE_CHANGED = 'NOTIFY_VOICE_STATE_CHANGED',
+	NOTIFY_SETTINGS_CHANGED = 'NOTIFY_SETTINGS_CHANGED'
 }
 
 // Renderer --> Main (sendSync/on)
