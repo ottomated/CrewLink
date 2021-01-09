@@ -214,9 +214,9 @@ if (!gotTheLock) {
 
 	// create main BrowserWindow when electron is ready
 	app.whenReady().then(() => {
-		initializeIpcListeners();
-		initializeIpcHandlers();
 		mainWindow = createMainWindow();
 		overlayWindow = createOverlay();
+		initializeIpcListeners(overlayWindow);
+		initializeIpcHandlers();
 	});
 }

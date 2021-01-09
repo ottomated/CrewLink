@@ -24,6 +24,7 @@ import {
 	AutoUpdaterState,
 	IpcHandlerMessages,
 	IpcMessages,
+	IpcOverlayMessages,
 	IpcRendererMessages,
 	IpcSyncMessages,
 } from '../common/ipc-messages';
@@ -40,6 +41,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import prettyBytes from 'pretty-bytes';
+import './css/index.css';
 
 let appVersion = '';
 if (typeof window !== 'undefined' && window.location) {
@@ -190,6 +192,10 @@ export default function App() {
 			shouldInit = false;
 		};
 	}, []);
+
+	useEffect(() => {
+		ipcRenderer.send(IpcMessages.SEND_TO_OVERLAY, IpcOverlayMessages.NOTIFY_GAME_STATE_CHANGED, gameState);
+	}, [gameState]);
 
 	let page;
 	switch (state) {
