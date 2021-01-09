@@ -17,7 +17,7 @@ interface UseStylesProps {
 	hudHeight: number;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
 	meetingHud: {
 		position: 'absolute',
 		top: '50%',
@@ -81,7 +81,7 @@ const playerColors = [
 
 const iPadRatio = 854 / 579;
 
-export default function Overlay() {
+const Overlay: React.FC = function () {
 	const [gameState, setGameState] = useState<AmongUsState>(
 		(undefined as unknown) as AmongUsState
 	);
@@ -135,7 +135,7 @@ export default function Overlay() {
 			)}
 		</>
 	);
-}
+};
 
 interface AvatarOverlayProps {
 	voiceState: VoiceState;
@@ -278,3 +278,5 @@ const MeetingHud: React.FC<MeetingHudProps> = ({
 };
 
 ReactDOM.render(<Overlay />, document.getElementById('app'));
+
+export default Overlay;

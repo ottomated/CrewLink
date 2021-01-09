@@ -78,7 +78,9 @@ function createMainWindow() {
 		if (overlayWindow != null) {
 			try {
 				overlayWindow.close();
-			} catch (_) {}
+			} catch (_) {
+				console.error(_);
+			}
 			overlayWindow = null;
 		}
 	});
@@ -90,6 +92,46 @@ function createMainWindow() {
 		});
 	});
 
+	return window;
+}
+
+function createOverlay() {
+	const window = new BrowserWindow({
+		width: 400,
+		height: 300,
+		webPreferences: {
+			nodeIntegration: true,
+			webSecurity: false,
+		},
+		...electronOverlayWindow.WINDOW_OPTS,
+	});
+
+	if (isDevelopment) {
+		window.loadURL(
+			`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`
+		);
+	} else {
+		window.loadURL(
+			formatUrl({
+				pathname: joinPath(__dirname, 'index.html'),
+				protocol: 'file',
+				query: {
+					version: autoUpdater.currentVersion.version,
+					view: 'overlay',
+				},
+				slashes: true,
+			})
+		);
+	}
+	window.setIgnoreMouseEvents(true);
+	electronOverlayWindow.attachTo(window, 'Among Us');
+
+	if (isDevelopment) {
+		// Force devtools into detached mode otherwise they are unusable
+		window.webContents.openDevTools({
+			mode: 'detach',
+		});
+	}
 	return window;
 }
 
@@ -158,46 +200,6 @@ if (!gotTheLock) {
 			mainWindow.focus();
 		}
 	});
-
-	function createOverlay() {
-		const window = new BrowserWindow({
-			width: 400,
-			height: 300,
-			webPreferences: {
-				nodeIntegration: true,
-				webSecurity: false,
-			},
-			...electronOverlayWindow.WINDOW_OPTS,
-		});
-
-		if (isDevelopment) {
-			window.loadURL(
-				`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`
-			);
-		} else {
-			window.loadURL(
-				formatUrl({
-					pathname: joinPath(__dirname, 'index.html'),
-					protocol: 'file',
-					query: {
-						version: autoUpdater.currentVersion.version,
-						view: 'overlay',
-					},
-					slashes: true,
-				})
-			);
-		}
-		window.setIgnoreMouseEvents(true);
-		electronOverlayWindow.attachTo(window, 'Among Us');
-
-		if (isDevelopment) {
-			// Force devtools into detached mode otherwise they are unusable
-			window.webContents.openDevTools({
-				mode: 'detach',
-			});
-		}
-		return window;
-	}
 
 	// quit application when all windows are closed
 	app.on('window-all-closed', () => {

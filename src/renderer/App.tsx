@@ -1,6 +1,7 @@
 import React, {
 	Dispatch,
 	ErrorInfo,
+	ReactChild,
 	SetStateAction,
 	useEffect,
 	useReducer,
@@ -116,12 +117,18 @@ enum AppState {
 	VOICE,
 }
 
+interface ErrorBoundaryProps {
+	children: ReactChild;
+}
 interface ErrorBoundaryState {
 	error?: Error;
 }
 
-class ErrorBoundary extends React.Component<{}, ErrorBoundaryState> {
-	constructor(props: {}) {
+class ErrorBoundary extends React.Component<
+	ErrorBoundaryProps,
+	ErrorBoundaryState
+> {
+	constructor(props: ErrorBoundaryProps) {
 		super(props);
 		this.state = {};
 	}
@@ -135,7 +142,7 @@ class ErrorBoundary extends React.Component<{}, ErrorBoundaryState> {
 		console.error('React Error: ', error, errorInfo);
 	}
 
-	render() {
+	render(): ReactChild {
 		if (this.state.error) {
 			return (
 				<div style={{ paddingTop: 16 }}>
@@ -170,7 +177,7 @@ class ErrorBoundary extends React.Component<{}, ErrorBoundaryState> {
 	}
 }
 
-export default function App() {
+const App: React.FC = function () {
 	const [state, setState] = useState<AppState>(AppState.MENU);
 	const [gameState, setGameState] = useState<AmongUsState>({} as AmongUsState);
 	const [settingsOpen, setSettingsOpen] = useState(false);
@@ -289,52 +296,54 @@ export default function App() {
 							setSettingsOpen={setSettingsOpen}
 						/>
 						<ErrorBoundary>
-							<Settings
-								open={settingsOpen}
-								onClose={() => setSettingsOpen(false)}
-							/>
-							<Dialog fullWidth open={updaterState.state !== 'unavailable'}>
-								<DialogTitle>Updating...</DialogTitle>
-								<DialogContent>
-									{(updaterState.state === 'downloading' ||
-										updaterState.state === 'downloaded') &&
-										updaterState.progress && (
-											<>
-												<LinearProgress
-													variant={
-														updaterState.state === 'downloaded'
-															? 'indeterminate'
-															: 'determinate'
-													}
-													value={updaterState.progress.percent}
-												/>
-												<DialogContentText>
-													{prettyBytes(updaterState.progress.transferred)} /{' '}
-													{prettyBytes(updaterState.progress.total)}
-												</DialogContentText>
-											</>
+							<>
+								<Settings
+									open={settingsOpen}
+									onClose={() => setSettingsOpen(false)}
+								/>
+								<Dialog fullWidth open={updaterState.state !== 'unavailable'}>
+									<DialogTitle>Updating...</DialogTitle>
+									<DialogContent>
+										{(updaterState.state === 'downloading' ||
+											updaterState.state === 'downloaded') &&
+											updaterState.progress && (
+												<>
+													<LinearProgress
+														variant={
+															updaterState.state === 'downloaded'
+																? 'indeterminate'
+																: 'determinate'
+														}
+														value={updaterState.progress.percent}
+													/>
+													<DialogContentText>
+														{prettyBytes(updaterState.progress.transferred)} /{' '}
+														{prettyBytes(updaterState.progress.total)}
+													</DialogContentText>
+												</>
+											)}
+										{updaterState.state === 'error' && (
+											<DialogContentText color="error">
+												{updaterState.error}
+											</DialogContentText>
 										)}
+									</DialogContent>
 									{updaterState.state === 'error' && (
-										<DialogContentText color="error">
-											{updaterState.error}
-										</DialogContentText>
+										<DialogActions>
+											<Button href="https://github.com/ottomated/CrewLink/releases/latest">
+												Download Manually
+											</Button>
+										</DialogActions>
 									)}
-								</DialogContent>
-								{updaterState.state === 'error' && (
-									<DialogActions>
-										<Button href="https://github.com/ottomated/CrewLink/releases/latest">
-											Download Manually
-										</Button>
-									</DialogActions>
-								)}
-							</Dialog>
-							{page}
+								</Dialog>
+								{page}
+							</>
 						</ErrorBoundary>
 					</ThemeProvider>
 				</SettingsContext.Provider>
 			</LobbySettingsContext.Provider>
 		</GameStateContext.Provider>
 	);
-}
+};
 
 ReactDOM.render(<App />, document.getElementById('app'));
