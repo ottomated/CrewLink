@@ -9,6 +9,7 @@ export interface AmongUsState {
 	comsSabotaged: boolean;
 }
 
+
 export interface Player {
 	ptr: number;
 	id: number;
@@ -36,4 +37,30 @@ export enum GameState {
 	DISCUSSION,
 	MENU,
 	UNKNOWN,
+}
+
+
+export interface Client {
+	playerId: number;
+	clientId: number;
+}
+export interface SocketClientMap {
+	[socketId: string]: Client;
+}
+export interface OtherTalking {
+	[playerId: number]: boolean; // isTalking
+}
+
+export interface AudioConnected {
+	[peer: string]: boolean; // isConnected
+}
+
+export interface VoiceState {
+	otherTalking: OtherTalking;
+	playerSocketIds: {
+		[index: number]: string;
+	};
+	otherDead: OtherTalking;
+	socketClients: SocketClientMap;
+	audioConnected: AudioConnected;
 }

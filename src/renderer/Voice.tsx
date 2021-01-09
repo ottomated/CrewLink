@@ -2,12 +2,12 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 import Avatar from './Avatar';
 import { GameStateContext, LobbySettingsContext, SettingsContext } from './contexts';
-import { AmongUsState, GameState, Player } from '../common/AmongUsState';
+import { AmongUsState, GameState, Player, SocketClientMap, AudioConnected, OtherTalking, Client, VoiceState } from '../common/AmongUsState';
 import Peer from 'simple-peer';
 import { ipcRenderer, remote } from 'electron';
 import VAD from './vad';
 import { ISettings } from '../common/ISettings';
-import { IpcRendererMessages } from '../common/ipc-messages';
+import { IpcRendererMessages, IpcMessages, IpcOverlayMessages } from '../common/ipc-messages';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import makeStyles from '@material-ui/core/styles/makeStyles';
@@ -35,10 +35,6 @@ interface AudioElements {
 	};
 }
 
-interface SocketClientMap {
-	[socketId: string]: Client;
-}
-
 interface playerConfigMap {
 	[socketId: number]: SocketConfig;
 }
@@ -55,21 +51,8 @@ interface ConnectionStuff {
 	muted: boolean;
 }
 
-interface OtherTalking {
-	[playerId: number]: boolean; // isTalking
-}
-
 interface OtherDead {
 	[playerId: number]: boolean; // isTalking
-}
-
-interface AudioConnected {
-	[peer: string]: boolean; // isConnected
-}
-
-interface Client {
-	playerId: number;
-	clientId: number;
 }
 
 interface SocketError {
@@ -466,15 +449,9 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 					audioListener = VAD(ac, ac.createMediaStreamSource(stream), undefined, {
 						onVoiceStart: () => {
 							setTalking(true);
-							if (settings.enableOverlay) {
-								remote.getGlobal('overlay')?.webContents.send('overlayTalkingSelf', true);
-							}
 						},
 						onVoiceStop: () => {
 							setTalking(false);
-							if (settings.enableOverlay) {
-								remote.getGlobal('overlay')?.webContents.send('overlayTalkingSelf', false);
-							}
 						},
 						noiseCaptureDuration: 1,
 						stereo: false,
@@ -684,6 +661,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		// })();
 	}, []);
 
+
 	const myPlayer = useMemo(() => {
 		if (!gameState || !gameState.players) {
 			return undefined;
@@ -796,6 +774,22 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 	for (const k of Object.keys(socketClients)) {
 		if (socketClients[k].playerId !== undefined) playerSocketIds[socketClients[k].playerId] = k;
 	}
+
+	// Pass voice state to overlay
+	useEffect(() => {
+		ipcRenderer.send(
+			IpcMessages.SEND_TO_OVERLAY,
+			IpcOverlayMessages.NOTIFY_VOICE_STATE_CHANGED,
+			{
+				otherTalking,
+				playerSocketIds,
+				otherDead,
+				socketClients,
+				audioConnected,
+			} as VoiceState
+		);
+	}, [otherTalking, playerSocketIds, otherDead, socketClients, audioConnected]);
+
 
 	return (
 		<div className={classes.root}>
