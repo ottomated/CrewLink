@@ -132,7 +132,7 @@ const keys = new Set([
 	'RAlt',
 ]);
 
-const storeConfig : Store.Options<ISettings> = {
+const storeConfig: Store.Options<ISettings> = {
 	migrations: {
 		'1.1.3': (store) => {
 			const serverIP = store.get('serverIP');
@@ -221,9 +221,14 @@ const storeConfig : Store.Options<ISettings> = {
 					type: 'number',
 					default: 5.32,
 				},
+				haunting: {
+					type: 'boolean',
+					default: false,
+				},
 			},
 			default: {
 				maxDistance: 5.32,
+				haunting: false
 			},
 		},
 		meetingOverlay: {
@@ -584,6 +589,36 @@ const Settings: React.FC<SettingsProps> = function ({
 									});
 								}
 							}}
+						/>
+					</DisabledTooltip>
+					<DisabledTooltip
+						disabled={!canChangeLobbySettings}
+						title={
+							isInMenuOrLobby
+								? 'Only the game host can change this!'
+								: 'You can only change this in the lobby!'
+						}
+					>
+						<FormControlLabel
+							label="Ghosts Haunt Impostors"
+							value={
+								canChangeLobbySettings
+									? settings.localLobbySettings.maxDistance
+									: lobbySettings.maxDistance
+							}
+							onChange={(_, checked: boolean) => {
+								setSettings({
+									type: 'setLobbySetting',
+									action: ['haunting', checked],
+								});
+								if (gameState?.isHost) {
+									setLobbySettings({
+										type: 'setOne',
+										action: ['haunting', checked],
+									});
+								}
+							}}
+							control={<Checkbox />}
 						/>
 					</DisabledTooltip>
 				</div>
