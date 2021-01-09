@@ -124,7 +124,7 @@ function calculateVoiceAudio(
 	panPos[1] = Math.min(Math.max(panPos[1], -999), 999);
 
 	// Mute players if distancte between two players is too big
-	if (Math.sqrt(Math.pow(panPos[0], 2) + Math.pow(panPos[1], 2)) > 7) {
+	if (Math.pow(panPos[0], 2) + Math.pow(panPos[1], 2) > 7 * 7) {
 		gain.gain.value = 0;
 	}
 
