@@ -181,7 +181,8 @@ export default function App() {
 		localLobbySettings: {
 			maxDistance: 5.32,
 			haunting: false,
-			hearImpostorsInVents: false
+			hearImpostorsInVents: false,
+			commsSabotage: true
 		},
 	});
 	const lobbySettings = useReducer(

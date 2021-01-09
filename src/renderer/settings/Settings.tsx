@@ -228,12 +228,17 @@ const storeConfig: Store.Options<ISettings> = {
 				hearImpostorsInVents: {
 					type: 'boolean',
 					default: false
+				},
+				commsSabotage: {
+					type: 'boolean',
+					default: true
 				}
 			},
 			default: {
 				maxDistance: 5.32,
 				haunting: false,
-				hearImpostorsInVents: false
+				hearImpostorsInVents: false,
+				commsSabotage: true
 			},
 		},
 		meetingOverlay: {
@@ -652,6 +657,37 @@ const Settings: React.FC<SettingsProps> = function ({
 									setLobbySettings({
 										type: 'setOne',
 										action: ['hearImpostorsInVents', checked],
+									});
+								}
+							}}
+							control={<Checkbox />}
+						/>
+					</DisabledTooltip>
+					<DisabledTooltip
+						disabled={!canChangeLobbySettings}
+						title={
+							isInMenuOrLobby
+								? 'Only the game host can change this!'
+								: 'You can only change this in the lobby!'
+						}
+					>
+						<FormControlLabel
+							label="Comms Sabotage Disables Voice"
+							disabled={!canChangeLobbySettings}
+							checked={
+								canChangeLobbySettings
+									? settings.localLobbySettings.commsSabotage
+									: lobbySettings.commsSabotage
+							}
+							onChange={(_, checked: boolean) => {
+								setSettings({
+									type: 'setLobbySetting',
+									action: ['commsSabotage', checked],
+								});
+								if (gameState?.isHost) {
+									setLobbySettings({
+										type: 'setOne',
+										action: ['commsSabotage', checked],
 									});
 								}
 							}}

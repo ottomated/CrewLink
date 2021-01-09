@@ -86,6 +86,11 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, lobbySett
 		case GameState.TASKS:
 			gain.gain.value = 1;
 
+			// Mute all alive crewmates when comms is sabotaged
+			if (!me.isDead && lobbySettings.commsSabotage && state.commsSabotaged && !me.isImpostor) {
+				gain.gain.value = 0;
+			}
+
 			// Mute other players which are in a vent
 			if (other.inVent && !lobbySettings.hearImpostorsInVents) {
 				gain.gain.value = 0;
@@ -96,8 +101,13 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, lobbySett
 				gain.gain.value = 0;
 			}
 
-			break;
+			// Haunting
+			if (!me.isDead && me.isImpostor && other.isDead && !other.isImpostor && lobbySettings.haunting) {
+				gain.gain.value = .075;
+				reverbGain.gain.value = 1;
+			}
 
+			break;
 		case GameState.DISCUSSION:
 			panPos = [0, 0];
 			gain.gain.value = 1;
@@ -108,7 +118,6 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, lobbySett
 			}
 
 			break;
-
 		case GameState.UNKNOWN:
 		default:
 			gain.gain.value = 0;
@@ -126,11 +135,6 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, lobbySett
 		muffle.Q.value = 0;
 	}
 
-	// Haunting
-	if (!me.isDead && me.isImpostor && other.isDead && !other.isImpostor && lobbySettings.haunting && state.gameState === GameState.TASKS) {
-		gain.gain.value = .075;
-		reverbGain.gain.value = 1;
-	}
 
 	// Reset panning position if the setting is disabled
 	if (!settings.enableSpatialAudio) {

@@ -6,6 +6,7 @@ export interface AmongUsState {
 	isHost: boolean;
 	clientId: number;
 	hostId: number;
+	commsSabotaged: boolean;
 }
 
 export interface Player {
@@ -27,6 +28,13 @@ export interface Player {
 	x: number;
 	y: number;
 	inVent: boolean;
+}
+
+export enum MapType {
+	THE_SKELD,
+	MIRA_HQ,
+	POLUS,
+	UNKNOWN,
 }
 
 export enum GameState {

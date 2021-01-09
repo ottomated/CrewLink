@@ -10,6 +10,7 @@ import { overlayWindow as electronOverlayWindow } from 'electron-overlay-window'
 import { initializeIpcHandlers, initializeIpcListeners } from './ipc-handlers';
 import { IpcRendererMessages } from '../common/ipc-messages';
 import { ProgressInfo } from 'builder-util-runtime';
+import iohook from 'iohook';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -205,6 +206,10 @@ if (!gotTheLock) {
 			app.quit();
 		}
 	});
+
+	app.on('before-quit', () => {
+		iohook.stop();
+	})
 
 	app.on('activate', () => {
 		// on macOS it is common to re-create a window even after all windows have been closed
