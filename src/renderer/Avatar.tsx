@@ -70,7 +70,7 @@ const Avatar: React.FC<AvatarProps> = function ({
 	player,
 	size,
 	connectionState,
-	style
+	style,
 }: AvatarProps) {
 	const status = isAlive ? 'alive' : 'dead';
 	let image = players[status][player.colorId];

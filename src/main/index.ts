@@ -65,7 +65,7 @@ function createMainWindow() {
 				protocol: 'file',
 				query: {
 					version: autoUpdater.currentVersion.version,
-					view: 'app'
+					view: 'app',
 				},
 				slashes: true,
 			})
@@ -78,7 +78,7 @@ function createMainWindow() {
 		if (overlayWindow != null) {
 			try {
 				overlayWindow.close();
-			} catch (_) { }
+			} catch (_) {}
 			overlayWindow = null;
 		}
 	});
@@ -165,23 +165,27 @@ if (!gotTheLock) {
 			height: 300,
 			webPreferences: {
 				nodeIntegration: true,
-				webSecurity: false
+				webSecurity: false,
 			},
-			...electronOverlayWindow.WINDOW_OPTS
+			...electronOverlayWindow.WINDOW_OPTS,
 		});
 
 		if (isDevelopment) {
-			window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`)
+			window.loadURL(
+				`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`
+			);
 		} else {
-			window.loadURL(formatUrl({
-				pathname: joinPath(__dirname, 'index.html'),
-				protocol: 'file',
-				query: {
-					version: autoUpdater.currentVersion.version,
-					view: "overlay"
-				},
-				slashes: true
-			}))
+			window.loadURL(
+				formatUrl({
+					pathname: joinPath(__dirname, 'index.html'),
+					protocol: 'file',
+					query: {
+						version: autoUpdater.currentVersion.version,
+						view: 'overlay',
+					},
+					slashes: true,
+				})
+			);
 		}
 		window.setIgnoreMouseEvents(true);
 		electronOverlayWindow.attachTo(window, 'Among Us');
@@ -200,7 +204,7 @@ if (!gotTheLock) {
 		// on macOS it is common for applications to stay open until the user explicitly quits
 		if (process.platform !== 'darwin') {
 			if (overlayWindow != null) {
-				overlayWindow.close()
+				overlayWindow.close();
 				overlayWindow = null;
 			}
 			app.quit();
@@ -209,7 +213,7 @@ if (!gotTheLock) {
 
 	app.on('before-quit', () => {
 		iohook.stop();
-	})
+	});
 
 	app.on('activate', () => {
 		// on macOS it is common to re-create a window even after all windows have been closed

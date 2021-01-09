@@ -6,12 +6,25 @@ import {
 	LobbySettingsContext,
 	SettingsContext,
 } from './contexts';
-import { AmongUsState, AudioConnected, Client, GameState, OtherTalking, Player, SocketClientMap, VoiceState } from '../common/AmongUsState';
+import {
+	AmongUsState,
+	AudioConnected,
+	Client,
+	GameState,
+	OtherTalking,
+	Player,
+	SocketClientMap,
+	VoiceState,
+} from '../common/AmongUsState';
 import Peer from 'simple-peer';
 import { ipcRenderer } from 'electron';
 import VAD from './vad';
 import { ILobbySettings, ISettings } from '../common/ISettings';
-import { IpcMessages, IpcOverlayMessages, IpcRendererMessages } from '../common/ipc-messages';
+import {
+	IpcMessages,
+	IpcOverlayMessages,
+	IpcRendererMessages,
+} from '../common/ipc-messages';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import makeStyles from '@material-ui/core/styles/makeStyles';
@@ -54,7 +67,6 @@ interface AudioElements {
 	[peer: string]: AudioNodes;
 }
 
-
 interface ConnectionStuff {
 	socket?: typeof Socket;
 	stream?: MediaStream;
@@ -67,7 +79,14 @@ interface SocketError {
 	message?: string;
 }
 
-function calculateVoiceAudio(state: AmongUsState, settings: ISettings, lobbySettings: ILobbySettings, me: Player, other: Player, audio: AudioNodes): void {
+function calculateVoiceAudio(
+	state: AmongUsState,
+	settings: ISettings,
+	lobbySettings: ILobbySettings,
+	me: Player,
+	other: Player,
+	audio: AudioNodes
+): void {
 	const { pan, gain, muffle, reverbGain } = audio;
 	const audioContext = pan.context;
 	let panPos = [other.x - me.x, other.y - me.y];
@@ -87,7 +106,12 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, lobbySett
 			gain.gain.value = 1;
 
 			// Mute all alive crewmates when comms is sabotaged
-			if (!me.isDead && lobbySettings.commsSabotage && state.commsSabotaged && !me.isImpostor) {
+			if (
+				!me.isDead &&
+				lobbySettings.commsSabotage &&
+				state.commsSabotaged &&
+				!me.isImpostor
+			) {
 				gain.gain.value = 0;
 			}
 
@@ -102,8 +126,14 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, lobbySett
 			}
 
 			// Haunting
-			if (!me.isDead && me.isImpostor && other.isDead && !other.isImpostor && lobbySettings.haunting) {
-				gain.gain.value = .075;
+			if (
+				!me.isDead &&
+				me.isImpostor &&
+				other.isDead &&
+				!other.isImpostor &&
+				lobbySettings.haunting
+			) {
+				gain.gain.value = 0.075;
 				reverbGain.gain.value = 1;
 			}
 
@@ -128,13 +158,11 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, lobbySett
 	if (me.inVent || other.inVent) {
 		muffle.frequency.value = 1200;
 		muffle.Q.value = 20;
-		if (gain.gain.value === 1)
-			gain.gain.value = 0.7; // Too loud at 1
+		if (gain.gain.value === 1) gain.gain.value = 0.7; // Too loud at 1
 	} else {
 		muffle.frequency.value = 20000;
 		muffle.Q.value = 0;
 	}
-
 
 	// Reset panning position if the setting is disabled
 	if (!settings.enableSpatialAudio) {
@@ -230,8 +258,7 @@ const Voice: React.FC<VoiceProps> = function ({
 	const lobbySettingsRef = useRef(lobbySettings);
 	const gameState = useContext(GameStateContext);
 	let displayedLobbyCode = '';
-	if (gameState)
-		displayedLobbyCode = gameState.lobbyCode;
+	if (gameState) displayedLobbyCode = gameState.lobbyCode;
 	if (displayedLobbyCode !== 'MENU' && settings.hideCode)
 		displayedLobbyCode = 'LOBBY';
 	const [talking, setTalking] = useState(false);
@@ -547,7 +574,15 @@ const Voice: React.FC<VoiceProps> = function ({
 									talking && gain.gain.value > 0,
 							}));
 						};
-						audioElements.current[peer] = { element: audio, gain, pan, muffle, reverb, reverbGain, compressor };
+						audioElements.current[peer] = {
+							element: audio,
+							gain,
+							pan,
+							muffle,
+							reverb,
+							reverbGain,
+							compressor,
+						};
 					});
 					connection.on('signal', (data) => {
 						socket.emit('signal', {
@@ -741,14 +776,17 @@ const Voice: React.FC<VoiceProps> = function ({
 
 	// Pass voice state to overlay
 	useEffect(() => {
-		ipcRenderer.send(IpcMessages.SEND_TO_OVERLAY, IpcOverlayMessages.NOTIFY_VOICE_STATE_CHANGED,
+		ipcRenderer.send(
+			IpcMessages.SEND_TO_OVERLAY,
+			IpcOverlayMessages.NOTIFY_VOICE_STATE_CHANGED,
 			{
 				otherTalking,
 				playerSocketIds,
 				otherDead,
 				socketClients,
-				audioConnected
-			} as VoiceState);
+				audioConnected,
+			} as VoiceState
+		);
 	}, [otherTalking, playerSocketIds, otherDead, socketClients, audioConnected]);
 
 	return (

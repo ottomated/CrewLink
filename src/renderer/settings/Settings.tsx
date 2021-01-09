@@ -227,29 +227,29 @@ const storeConfig: Store.Options<ISettings> = {
 				},
 				hearImpostorsInVents: {
 					type: 'boolean',
-					default: false
+					default: false,
 				},
 				commsSabotage: {
 					type: 'boolean',
-					default: true
-				}
+					default: true,
+				},
 			},
 			default: {
 				maxDistance: 5.32,
 				haunting: false,
 				hearImpostorsInVents: false,
-				commsSabotage: true
+				commsSabotage: true,
 			},
 		},
 		meetingOverlay: {
 			type: 'boolean',
-			default: true
+			default: true,
 		},
 		overlayPosition: {
 			type: 'string',
 			enum: ['left', 'right', 'hidden'],
-			default: 'right'
-		}
+			default: 'right',
+		},
 	},
 };
 
@@ -350,11 +350,7 @@ const URLInput: React.FC<URLInputProps> = function ({
 
 	return (
 		<>
-			<Button
-				variant="text"
-				color="secondary"
-				onClick={() => setOpen(true)}
-			>
+			<Button variant="text" color="secondary" onClick={() => setOpen(true)}>
 				Change Voice Server
 			</Button>
 			<Dialog fullScreen open={open} onClose={() => setOpen(false)}>
@@ -837,11 +833,14 @@ const Settings: React.FC<SettingsProps> = function ({
 						});
 					}}
 				>
-					{(storeConfig.schema?.overlayPosition?.enum as string[]).map((position) => (
-						<option key={position} value={position}>
-							{position[0].toUpperCase()}{position.substring(1)}
-						</option>
-					))}
+					{(storeConfig.schema?.overlayPosition?.enum as string[]).map(
+						(position) => (
+							<option key={position} value={position}>
+								{position[0].toUpperCase()}
+								{position.substring(1)}
+							</option>
+						)
+					)}
 				</TextField>
 				<FormControlLabel
 					label="Meeting Overlay"

@@ -131,7 +131,8 @@ export default {
 				addressOffset: 4,
 			},
 			shipStatus: {
-				sig: '48 8B 05 ? ? ? ? 48 8B 5C 24 ? 48 8B 6C 24 ? 48 8B 74 24 ? 48 8B 88 ? ? ? ? 48 89 39 48 83 C4 20 5F',
+				sig:
+					'48 8B 05 ? ? ? ? 48 8B 5C 24 ? 48 8B 6C 24 ? 48 8B 74 24 ? 48 8B 88 ? ? ? ? 48 89 39 48 83 C4 20 5F',
 				patternOffset: 3,
 				addressOffset: 4,
 			},
@@ -200,7 +201,8 @@ export default {
 				addressOffset: 0,
 			},
 			shipStatus: {
-				sig: 'A1 ? ? ? ? 8B 40 5C 8B 00 85 C0 74 5A 8B 80 ? ? ? ? 85 C0 74 50 6A 00 6A 00',
+				sig:
+					'A1 ? ? ? ? 8B 40 5C 8B 00 85 C0 74 5A 8B 80 ? ? ? ? 85 C0 74 50 6A 00 6A 00',
 				patternOffset: 1,
 				addressOffset: 0,
 			},

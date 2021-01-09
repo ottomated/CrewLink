@@ -126,15 +126,13 @@ class ErrorBoundary extends React.Component<{}, ErrorBoundaryState> {
 		this.state = {};
 	}
 
-	
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    // Update state so the next render will show the fallback UI.
-    return { error };
-  }
-
+	static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+		// Update state so the next render will show the fallback UI.
+		return { error };
+	}
 
 	componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-		console.error("React Error: ", error, errorInfo);
+		console.error('React Error: ', error, errorInfo);
 	}
 
 	render() {
@@ -144,11 +142,26 @@ class ErrorBoundary extends React.Component<{}, ErrorBoundaryState> {
 					<Typography align="center" variant="h6" color="error">
 						REACT ERROR
 					</Typography>
-					<Typography align="center" style={{ whiteSpace: 'pre-wrap', fontSize: 12, maxHeight: 200, overflowY: 'auto' }}>
+					<Typography
+						align="center"
+						style={{
+							whiteSpace: 'pre-wrap',
+							fontSize: 12,
+							maxHeight: 200,
+							overflowY: 'auto',
+						}}
+					>
 						{this.state.error.stack}
 					</Typography>
 					<SupportLink />
-					<Button style={{margin: '10px auto', display: 'block'}} variant="contained" color="secondary" onClick={() => window.location.reload()}>Reload App</Button>
+					<Button
+						style={{ margin: '10px auto', display: 'block' }}
+						variant="contained"
+						color="secondary"
+						onClick={() => window.location.reload()}
+					>
+						Reload App
+					</Button>
 				</div>
 			);
 		}
@@ -182,7 +195,7 @@ export default function App() {
 			maxDistance: 5.32,
 			haunting: false,
 			hearImpostorsInVents: false,
-			commsSabotage: true
+			commsSabotage: true,
 		},
 	});
 	const lobbySettings = useReducer(
@@ -241,11 +254,19 @@ export default function App() {
 	}, []);
 
 	useEffect(() => {
-		ipcRenderer.send(IpcMessages.SEND_TO_OVERLAY, IpcOverlayMessages.NOTIFY_GAME_STATE_CHANGED, gameState);
+		ipcRenderer.send(
+			IpcMessages.SEND_TO_OVERLAY,
+			IpcOverlayMessages.NOTIFY_GAME_STATE_CHANGED,
+			gameState
+		);
 	}, [gameState]);
 
 	useEffect(() => {
-		ipcRenderer.send(IpcMessages.SEND_TO_OVERLAY, IpcOverlayMessages.NOTIFY_SETTINGS_CHANGED, settings[0]);
+		ipcRenderer.send(
+			IpcMessages.SEND_TO_OVERLAY,
+			IpcOverlayMessages.NOTIFY_SETTINGS_CHANGED,
+			settings[0]
+		);
 	}, [settings]);
 
 	let page;
@@ -303,7 +324,7 @@ export default function App() {
 									<DialogActions>
 										<Button href="https://github.com/ottomated/CrewLink/releases/latest">
 											Download Manually
-									</Button>
+										</Button>
 									</DialogActions>
 								)}
 							</Dialog>

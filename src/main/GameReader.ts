@@ -11,7 +11,12 @@ import {
 } from 'memoryjs';
 import Struct from 'structron';
 import { IpcRendererMessages } from '../common/ipc-messages';
-import { GameState, AmongUsState, Player, MapType } from '../common/AmongUsState';
+import {
+	GameState,
+	AmongUsState,
+	Player,
+	MapType,
+} from '../common/AmongUsState';
 import equal from 'deep-equal';
 import offsetStore, { IOffsets } from './offsetStore';
 import Errors from '../common/Errors';
@@ -78,7 +83,6 @@ export default class GameReader {
 	}
 
 	loop(): string | null {
-
 		try {
 			this.checkProcessOpen();
 		} catch (e) {
@@ -100,10 +104,10 @@ export default class GameReader {
 				meetingHud === 0
 					? 0
 					: this.readMemory<number>(
-						'pointer',
-						meetingHud,
-						this.offsets.meetingHudCachePtr
-					);
+							'pointer',
+							meetingHud,
+							this.offsets.meetingHudCachePtr
+					  );
 			const meetingHudState =
 				meetingHud_cachePtr === 0
 					? 4
@@ -135,12 +139,12 @@ export default class GameReader {
 				state === GameState.MENU
 					? ''
 					: this.IntToGameCode(
-						this.readMemory<number>(
-							'int32',
-							this.gameAssembly.modBaseAddr,
-							this.offsets.gameCode
-						)
-					);
+							this.readMemory<number>(
+								'int32',
+								this.gameAssembly.modBaseAddr,
+								this.offsets.gameCode
+							)
+					  );
 
 			const hostId = this.readMemory<number>(
 				'uint32',
@@ -210,17 +214,41 @@ export default class GameReader {
 					else crewmates++;
 				}
 
-				const shipPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.shipStatus);
+				const shipPtr = this.readMemory<number>(
+					'ptr',
+					this.gameAssembly.modBaseAddr,
+					this.offsets.shipStatus
+				);
 
-				const systemsPtr = this.readMemory<number>('ptr', shipPtr, this.offsets.shipStatusSystems);
-				const map: MapType = this.readMemory<number>('int32', shipPtr, this.offsets.shipStatusMap, MapType.UNKNOWN);
+				const systemsPtr = this.readMemory<number>(
+					'ptr',
+					shipPtr,
+					this.offsets.shipStatusSystems
+				);
+				const map: MapType = this.readMemory<number>(
+					'int32',
+					shipPtr,
+					this.offsets.shipStatusMap,
+					MapType.UNKNOWN
+				);
 
-				if (systemsPtr !== 0 && (state === GameState.TASKS || state === GameState.DISCUSSION)) {
-					const entries = this.readMemory<number>('ptr', systemsPtr + (this.is64Bit ? 0x18 : 0xc));
-					const len = this.readMemory<number>('uint32', entries + (this.is64Bit ? 0x18 : 0xc));
+				if (
+					systemsPtr !== 0 &&
+					(state === GameState.TASKS || state === GameState.DISCUSSION)
+				) {
+					const entries = this.readMemory<number>(
+						'ptr',
+						systemsPtr + (this.is64Bit ? 0x18 : 0xc)
+					);
+					const len = this.readMemory<number>(
+						'uint32',
+						entries + (this.is64Bit ? 0x18 : 0xc)
+					);
 
 					for (let i = 0; i < Math.min(len, 32); i++) {
-						const keyPtr = entries + ((this.is64Bit ? 0x20 : 0x10) + i * (this.is64Bit ? 0x18 : 0x10));
+						const keyPtr =
+							entries +
+							((this.is64Bit ? 0x20 : 0x10) + i * (this.is64Bit ? 0x18 : 0x10));
 						const valPtr = keyPtr + (this.is64Bit ? 0x10 : 0xc);
 						const key = this.readMemory<number>('int32', keyPtr);
 						if (key === 14) {
@@ -229,12 +257,20 @@ export default class GameReader {
 								case MapType.POLUS:
 								case MapType.THE_SKELD: {
 									commsSabotaged =
-										this.readMemory<number>('uint32', value, this.offsets.commsSabotaged) === 1;
+										this.readMemory<number>(
+											'uint32',
+											value,
+											this.offsets.commsSabotaged
+										) === 1;
 									break;
 								}
 								case MapType.MIRA_HQ: {
 									commsSabotaged =
-										this.readMemory<number>('uint32', value, this.offsets.miraCompletedCommsConsoles) < 2;
+										this.readMemory<number>(
+											'uint32',
+											value,
+											this.offsets.miraCompletedCommsConsoles
+										) < 2;
 								}
 							}
 						}
@@ -274,7 +310,7 @@ export default class GameReader {
 				isHost: (hostId && clientId && hostId === clientId) as boolean,
 				hostId: hostId,
 				clientId: clientId,
-				commsSabotaged
+				commsSabotaged,
 			};
 			const stateHasChanged = !equal(this.lastState, newState);
 			if (stateHasChanged) {

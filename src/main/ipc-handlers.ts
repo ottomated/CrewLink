@@ -57,9 +57,12 @@ export const initializeIpcListeners = (overlayWindow: BrowserWindow): void => {
 		app.quit();
 	});
 
-	ipcMain.on(IpcMessages.SEND_TO_OVERLAY, (_, event: IpcOverlayMessages, ...args: unknown[]) => {
-		overlayWindow.webContents.send(event, ...args);
-	});
+	ipcMain.on(
+		IpcMessages.SEND_TO_OVERLAY,
+		(_, event: IpcOverlayMessages, ...args: unknown[]) => {
+			overlayWindow.webContents.send(event, ...args);
+		}
+	);
 };
 
 // Handlers are async cross-process instructions, they should have a return value

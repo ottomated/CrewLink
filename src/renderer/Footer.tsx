@@ -19,8 +19,8 @@ const useStyles = makeStyles(() => ({
 		justifyContent: 'space-evenly',
 		margin: 5,
 		'&>svg': {
-			cursor: 'pointer'
-		}
+			cursor: 'pointer',
+		},
 	},
 }));
 
