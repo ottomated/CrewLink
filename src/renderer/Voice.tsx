@@ -87,7 +87,7 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, lobbySett
 			gain.gain.value = 1;
 
 			// Mute other players which are in a vent
-			if (other.inVent) {
+			if (other.inVent && !lobbySettings.hearImpostorsInVents) {
 				gain.gain.value = 0;
 			}
 
@@ -116,7 +116,7 @@ function calculateVoiceAudio(state: AmongUsState, settings: ISettings, lobbySett
 	}
 
 	// Muffling in vents
-	if (me.inVent) {
+	if (me.inVent || other.inVent) {
 		muffle.frequency.value = 1200;
 		muffle.Q.value = 20;
 		if (gain.gain.value === 1)

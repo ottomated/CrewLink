@@ -17,4 +17,5 @@ export interface ISettings {
 export interface ILobbySettings {
 	maxDistance: number;
 	haunting: boolean;
+	hearImpostorsInVents: boolean;
 }

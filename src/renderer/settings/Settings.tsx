@@ -225,10 +225,15 @@ const storeConfig: Store.Options<ISettings> = {
 					type: 'boolean',
 					default: false,
 				},
+				hearImpostorsInVents: {
+					type: 'boolean',
+					default: false
+				}
 			},
 			default: {
 				maxDistance: 5.32,
-				haunting: false
+				haunting: false,
+				hearImpostorsInVents: false
 			},
 		},
 		meetingOverlay: {
@@ -600,11 +605,12 @@ const Settings: React.FC<SettingsProps> = function ({
 						}
 					>
 						<FormControlLabel
-							label="Ghosts Haunt Impostors"
-							value={
+							label="Impostors Hear Dead"
+							disabled={!canChangeLobbySettings}
+							checked={
 								canChangeLobbySettings
-									? settings.localLobbySettings.maxDistance
-									: lobbySettings.maxDistance
+									? settings.localLobbySettings.haunting
+									: lobbySettings.haunting
 							}
 							onChange={(_, checked: boolean) => {
 								setSettings({
@@ -615,6 +621,37 @@ const Settings: React.FC<SettingsProps> = function ({
 									setLobbySettings({
 										type: 'setOne',
 										action: ['haunting', checked],
+									});
+								}
+							}}
+							control={<Checkbox />}
+						/>
+					</DisabledTooltip>
+					<DisabledTooltip
+						disabled={!canChangeLobbySettings}
+						title={
+							isInMenuOrLobby
+								? 'Only the game host can change this!'
+								: 'You can only change this in the lobby!'
+						}
+					>
+						<FormControlLabel
+							label="Hear Impostors In Vents"
+							disabled={!canChangeLobbySettings}
+							checked={
+								canChangeLobbySettings
+									? settings.localLobbySettings.hearImpostorsInVents
+									: lobbySettings.hearImpostorsInVents
+							}
+							onChange={(_, checked: boolean) => {
+								setSettings({
+									type: 'setLobbySetting',
+									action: ['hearImpostorsInVents', checked],
+								});
+								if (gameState?.isHost) {
+									setLobbySettings({
+										type: 'setOne',
+										action: ['hearImpostorsInVents', checked],
 									});
 								}
 							}}

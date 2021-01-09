@@ -144,12 +144,11 @@ class ErrorBoundary extends React.Component<{}, ErrorBoundaryState> {
 					<Typography align="center" variant="h6" color="error">
 						REACT ERROR
 					</Typography>
-					<Typography align="center" style={{ whiteSpace: 'pre-wrap', fontSize: 8 }}>
-						{this.state.error.message}
-						{'\n'}
+					<Typography align="center" style={{ whiteSpace: 'pre-wrap', fontSize: 12, maxHeight: 200, overflowY: 'auto' }}>
 						{this.state.error.stack}
 					</Typography>
 					<SupportLink />
+					<Button style={{margin: '10px auto', display: 'block'}} variant="contained" color="secondary" onClick={() => window.location.reload()}>Reload App</Button>
 				</div>
 			);
 		}
@@ -181,7 +180,8 @@ export default function App() {
 		overlayPosition: 'right',
 		localLobbySettings: {
 			maxDistance: 5.32,
-			haunting: false
+			haunting: false,
+			hearImpostorsInVents: false
 		},
 	});
 	const lobbySettings = useReducer(
