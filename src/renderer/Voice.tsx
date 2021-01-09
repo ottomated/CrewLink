@@ -225,7 +225,9 @@ const Voice: React.FC<VoiceProps> = function ({
 	const [lobbySettings, setLobbySettings] = useContext(LobbySettingsContext);
 	const lobbySettingsRef = useRef(lobbySettings);
 	const gameState = useContext(GameStateContext);
-	let { lobbyCode: displayedLobbyCode } = gameState;
+	let displayedLobbyCode = '';
+	if (gameState)
+		displayedLobbyCode = gameState.lobbyCode;
 	if (displayedLobbyCode !== 'MENU' && settings.hideCode)
 		displayedLobbyCode = 'LOBBY';
 	const [talking, setTalking] = useState(false);
@@ -611,7 +613,7 @@ const Voice: React.FC<VoiceProps> = function ({
 				disconnectPeer(k);
 			});
 			connectionStuff.current.socket?.close();
-			audioListener.destroy();
+			audioListener?.destroy();
 		};
 	}, []);
 

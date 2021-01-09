@@ -162,7 +162,6 @@ if (!gotTheLock) {
 			height: 300,
 			webPreferences: {
 				nodeIntegration: true,
-				enableRemoteModule: true,
 				webSecurity: false
 			},
 			...electronOverlayWindow.WINDOW_OPTS

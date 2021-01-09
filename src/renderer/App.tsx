@@ -1,5 +1,6 @@
 import React, {
 	Dispatch,
+	ErrorInfo,
 	SetStateAction,
 	useEffect,
 	useReducer,
@@ -42,6 +43,8 @@ import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import prettyBytes from 'pretty-bytes';
 import './css/index.css';
+import Typography from '@material-ui/core/Typography';
+import SupportLink from './SupportLink';
 
 let appVersion = '';
 if (typeof window !== 'undefined' && window.location) {
@@ -113,6 +116,48 @@ enum AppState {
 	VOICE,
 }
 
+interface ErrorBoundaryState {
+	error?: Error;
+}
+
+class ErrorBoundary extends React.Component<{}, ErrorBoundaryState> {
+	constructor(props: {}) {
+		super(props);
+		this.state = {};
+	}
+
+	
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    // Update state so the next render will show the fallback UI.
+    return { error };
+  }
+
+
+	componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+		console.error("React Error: ", error, errorInfo);
+	}
+
+	render() {
+		if (this.state.error) {
+			return (
+				<div style={{ paddingTop: 16 }}>
+					<Typography align="center" variant="h6" color="error">
+						REACT ERROR
+					</Typography>
+					<Typography align="center" style={{ whiteSpace: 'pre-wrap', fontSize: 8 }}>
+						{this.state.error.message}
+						{'\n'}
+						{this.state.error.stack}
+					</Typography>
+					<SupportLink />
+				</div>
+			);
+		}
+
+		return this.props.children;
+	}
+}
+
 export default function App() {
 	const [state, setState] = useState<AppState>(AppState.MENU);
 	const [gameState, setGameState] = useState<AmongUsState>({} as AmongUsState);
@@ -146,7 +191,7 @@ export default function App() {
 
 	useEffect(() => {
 		const onOpen = (_: Electron.IpcRendererEvent, isOpen: boolean) => {
-			setState(isOpen ? AppState.VOICE : AppState.MENU);	
+			setState(isOpen ? AppState.VOICE : AppState.MENU);
 		};
 		const onState = (_: Electron.IpcRendererEvent, newState: AmongUsState) => {
 			setGameState(newState);
@@ -221,46 +266,48 @@ export default function App() {
 							settingsOpen={settingsOpen}
 							setSettingsOpen={setSettingsOpen}
 						/>
-						<Settings
-							open={settingsOpen}
-							onClose={() => setSettingsOpen(false)}
-						/>
-						<Dialog fullWidth open={updaterState.state !== 'unavailable'}>
-							<DialogTitle>Updating...</DialogTitle>
-							<DialogContent>
-								{(updaterState.state === 'downloading' ||
-									updaterState.state === 'downloaded') &&
-									updaterState.progress && (
-										<>
-											<LinearProgress
-												variant={
-													updaterState.state === 'downloaded'
-														? 'indeterminate'
-														: 'determinate'
-												}
-												value={updaterState.progress.percent}
-											/>
-											<DialogContentText>
-												{prettyBytes(updaterState.progress.transferred)} /{' '}
-												{prettyBytes(updaterState.progress.total)}
-											</DialogContentText>
-										</>
+						<ErrorBoundary>
+							<Settings
+								open={settingsOpen}
+								onClose={() => setSettingsOpen(false)}
+							/>
+							<Dialog fullWidth open={updaterState.state !== 'unavailable'}>
+								<DialogTitle>Updating...</DialogTitle>
+								<DialogContent>
+									{(updaterState.state === 'downloading' ||
+										updaterState.state === 'downloaded') &&
+										updaterState.progress && (
+											<>
+												<LinearProgress
+													variant={
+														updaterState.state === 'downloaded'
+															? 'indeterminate'
+															: 'determinate'
+													}
+													value={updaterState.progress.percent}
+												/>
+												<DialogContentText>
+													{prettyBytes(updaterState.progress.transferred)} /{' '}
+													{prettyBytes(updaterState.progress.total)}
+												</DialogContentText>
+											</>
+										)}
+									{updaterState.state === 'error' && (
+										<DialogContentText color="error">
+											{updaterState.error}
+										</DialogContentText>
 									)}
+								</DialogContent>
 								{updaterState.state === 'error' && (
-									<DialogContentText color="error">
-										{updaterState.error}
-									</DialogContentText>
-								)}
-							</DialogContent>
-							{updaterState.state === 'error' && (
-								<DialogActions>
-									<Button href="https://github.com/ottomated/CrewLink/releases/latest">
-										Download Manually
+									<DialogActions>
+										<Button href="https://github.com/ottomated/CrewLink/releases/latest">
+											Download Manually
 									</Button>
-								</DialogActions>
-							)}
-						</Dialog>
-						{page}
+									</DialogActions>
+								)}
+							</Dialog>
+							{page}
+						</ErrorBoundary>
 					</ThemeProvider>
 				</SettingsContext.Provider>
 			</LobbySettingsContext.Provider>
