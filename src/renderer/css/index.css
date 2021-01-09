@@ -1,155 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Varela&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@500&display=swap');
 body {
-	background-color: #23272A;
+	background-color: #25232a;
 	color: white;
 	font-family: 'Varela', sans-serif;
 	margin: 0;
 	overflow: hidden;
 }
 
-#app, .root {
+#app {
 	width: 100vw;
 	height: 100vh;
-}
-
-.root {
-	padding-top: 24px;
-}
-
-.avatar {
-	/* width: 200px; */
-	/* height: 200px; */
-	border-radius: 50%;
-	/* background: white; */
-	/* margin: 0 25px 12.5px 25px; */
-	overflow: hidden;
-	position: relative;
-	/* border-width: 5px; */
-	border-style: solid;
-	transition: border-color .2s ease-out;
-}
-
-.avatar>svg {
-	position: absolute;
-	top: 10px;
-	right: 10px;
-	background: #ea3c2a;
-	border-radius: 50%;
-	padding: 2px;
-}
-
-.username {
-	display: block;
-	text-align: center;
-	font-size: 20px;
-}
-
-.code {
-	font-family: 'Source Code Pro', monospace;
-	display: block;
-	width: fit-content;
-	margin: 5px auto;
-	padding: 5px;
-	border-radius: 5px;
-	font-size: 28px;
-}
-
-.titlebar {
-	position: absolute;
-	width: 100vw;
-	height: 24px;
-	background-color: #2C2F33;
-	top: 0;
-	-webkit-app-region: drag;
-}
-
-.titlebar-button {
-	-webkit-app-region: no-drag;
-	margin-left: auto;
-	padding: 0px;
-	position: absolute;
-	top: 2px;
-	border-radius: 50%;
-	cursor: pointer;
-}
-
-.close {
-	right: 2px;
-}
-
-.settings {
-	left: 2px;
-}
-
-.canvas {
-	/* image-rendering: pixelated; */
-	width: 100%;
-	/* transform: translateY(30%); */
-}
-
-.otherplayers {
-	display: flex;
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	width: '100%';
-	flex-wrap: wrap;
-}
-
-.otherplayers>* {
-	margin: 5px;
-}
-
-.top {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-
-.top>* {
-	margin: 5px;
-}
-
-.right {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-}
-
-hr {
-	margin: 5px 10px;
-	border: 1px solid #313738;
-	border-radius: 2px;
-}
-
-.react-tooltip-lite {
-	background: #23272A;
-	border: 2px solid white;
-	border-radius: 5px;
-}
-
-.rainbow-text {
-	background-image: repeating-linear-gradient(90deg, #FF6663, #FEB144, #FDFD97, #9EE09E, #9EC1CF, #CC99C9);
-	-webkit-background-clip: text;
-	background-clip: text;
-	-webkit-text-fill-color: transparent;
-	animation: rainbow 4s ease infinite;
-	background-size: 400% 400%;
-	animation-direction: normal;
-}
-
-@keyframes rainbow {
-	0% {
-		background-position: 0% 50%;
-	}
-	50% {
-		background-position: 100% 50%;
-	}
-	100% {
-		background-position: 0% 50%;
-	}
 }
 
 ::-webkit-scrollbar {
