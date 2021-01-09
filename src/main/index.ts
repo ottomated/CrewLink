@@ -75,7 +75,9 @@ function createMainWindow() {
 	window.on('closed', () => {
 		mainWindow = null;
 		if (overlayWindow != null) {
-			overlayWindow.close()
+			try {
+				overlayWindow.close();
+			} catch (_) { }
 			overlayWindow = null;
 		}
 	});
