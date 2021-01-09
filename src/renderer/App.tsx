@@ -133,8 +133,8 @@ export default function App(): JSX.Element {
 		localLobbySettings: {
 			maxDistance: 5.32,
 			haunting: false,
-			ventTalk: false,
-			commsDisabled: false,
+			hearImpostorsInVents: false,
+			commsSabotage: false,
 		},
 	});
 	const lobbySettings = useReducer(lobbySettingsReducer, settings[0].localLobbySettings);

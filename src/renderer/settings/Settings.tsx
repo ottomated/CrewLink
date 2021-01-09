@@ -249,11 +249,11 @@ const store = new Store<ISettings>({
 					type: 'boolean',
 					default: false,
 				},
-				commsDisabled: {
+				commsSabotage: {
 					type: 'boolean',
 					default: false,
 				},
-				ventTalk: {
+				hearImpostorsInVents: {
 					type: 'boolean',
 					default: false,
 				},
@@ -261,8 +261,8 @@ const store = new Store<ISettings>({
 			default: {
 				maxDistance: 5.32,
 				haunting: false,
-				commsDisabled: false,
-				ventTalk: false
+				commsSabotage: false,
+				hearImpostorsInVents: false
 			},
 		},
 	},
@@ -612,16 +612,16 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 							label="Comms sabotage"
 							disabled={!canChangeLobbySettings}
 							onChange={(_, newValue: boolean) => {
-								localLobbySettings.commsDisabled = newValue;
+								localLobbySettings.commsSabotage = newValue;
 								setLocalLobbySettings(localLobbySettings);
 
 								setSettings({
 									type: 'setLobbySetting',
-									action: ['commsDisabled', newValue],
+									action: ['commsSabotage', newValue],
 								});
 							}}
-							value={canChangeLobbySettings ? localLobbySettings.commsDisabled : lobbySettings.commsDisabled}
-							checked={canChangeLobbySettings ? localLobbySettings.commsDisabled : lobbySettings.commsDisabled}
+							value={canChangeLobbySettings ? localLobbySettings.commsSabotage : lobbySettings.commsSabotage}
+							checked={canChangeLobbySettings ? localLobbySettings.commsSabotage : lobbySettings.commsSabotage}
 							control={<Checkbox />}
 						/>
 					</DisabledTooltip>
@@ -633,16 +633,16 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 							label="Talk in vents"
 							disabled={!canChangeLobbySettings}
 							onChange={(_, newValue: boolean) => {
-								localLobbySettings.ventTalk = newValue;
+								localLobbySettings.hearImpostorsInVents = newValue;
 								setLocalLobbySettings(localLobbySettings);
 
 								setSettings({
 									type: 'setLobbySetting',
-									action: ['ventTalk', newValue],
+									action: ['hearImpostorsInVents', newValue],
 								});
 							}}
-							value={canChangeLobbySettings ? localLobbySettings.ventTalk : lobbySettings.ventTalk}
-							checked={canChangeLobbySettings ? localLobbySettings.ventTalk : lobbySettings.ventTalk}
+							value={canChangeLobbySettings ? localLobbySettings.hearImpostorsInVents : lobbySettings.hearImpostorsInVents}
+							checked={canChangeLobbySettings ? localLobbySettings.hearImpostorsInVents : lobbySettings.hearImpostorsInVents}
 							control={<Checkbox />}
 						/>
 					</DisabledTooltip>

@@ -227,13 +227,13 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			case GameState.TASKS:
 				gain.gain.value = 1;
 
-				if (!me.isDead && lobbySettings.commsDisabled && state.comsSabotaged) {
+				if (!me.isDead && lobbySettings.commsSabotage && state.comsSabotaged) {
 					gain.gain.value = 0;
 				}
 
 				// Mute other players which are in a vent
 				if (other.inVent) {
-					gain.gain.value = me.inVent && lobbySettings.ventTalk ? 1 : 0;
+					gain.gain.value = me.inVent && lobbySettings.hearImpostorsInVents ? 1 : 0;
 				}
 
 				if (!me.isDead && other.isDead && me.isImpostor && lobbySettings.haunting) {
