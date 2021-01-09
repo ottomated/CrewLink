@@ -6,12 +6,12 @@ import {
 	LobbySettingsContext,
 	SettingsContext,
 } from './contexts';
-import { AmongUsState, GameState, Player } from '../common/AmongUsState';
+import { AmongUsState, AudioConnected, Client, GameState, OtherTalking, Player, SocketClientMap, VoiceState } from '../common/AmongUsState';
 import Peer from 'simple-peer';
 import { ipcRenderer } from 'electron';
 import VAD from './vad';
 import { ISettings } from '../common/ISettings';
-import { IpcRendererMessages } from '../common/ipc-messages';
+import { IpcMessages, IpcOverlayMessages, IpcRendererMessages } from '../common/ipc-messages';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import makeStyles from '@material-ui/core/styles/makeStyles';
@@ -46,9 +46,6 @@ interface AudioElements {
 	};
 }
 
-interface SocketClientMap {
-	[socketId: string]: Client;
-}
 
 interface ConnectionStuff {
 	socket?: typeof Socket;
@@ -56,23 +53,6 @@ interface ConnectionStuff {
 	pushToTalk: boolean;
 	deafened: boolean;
 	muted: boolean;
-}
-
-interface OtherTalking {
-	[playerId: number]: boolean; // isTalking
-}
-
-interface OtherDead {
-	[playerId: number]: boolean; // isDead
-}
-
-interface AudioConnected {
-	[peer: string]: boolean; // isConnected
-}
-
-interface Client {
-	playerId: number;
-	clientId: number;
 }
 
 interface SocketError {
@@ -217,7 +197,7 @@ const Voice: React.FC<VoiceProps> = function ({
 		connect: (lobbyCode: string, playerId: number, clientId: number) => void;
 	} | null>(null);
 	const [otherTalking, setOtherTalking] = useState<OtherTalking>({});
-	const [otherDead, setOtherDead] = useState<OtherDead>({});
+	const [otherDead, setOtherDead] = useState<OtherTalking>({});
 	const audioElements = useRef<AudioElements>({});
 	const [audioConnected, setAudioConnected] = useState<AudioConnected>({});
 	const classes = useStyles();
@@ -242,6 +222,7 @@ const Voice: React.FC<VoiceProps> = function ({
 			delete audioElements.current[peer];
 		}
 	}
+
 	// Handle pushToTalk, if set
 	useEffect(() => {
 		if (!connectionStuff.current.stream) return;
@@ -461,6 +442,7 @@ const Voice: React.FC<VoiceProps> = function ({
 						});
 
 						const setTalking = (talking: boolean) => {
+							if (!socketClientsRef.current[peer]) return;
 							setOtherTalking((old) => ({
 								...old,
 								[socketClientsRef.current[peer].playerId]:
@@ -649,7 +631,7 @@ const Voice: React.FC<VoiceProps> = function ({
 			);
 		}
 	}, [myPlayer?.id]);
-
+	
 	const playerSocketIds: {
 		[index: number]: string;
 	} = {};
@@ -658,6 +640,19 @@ const Voice: React.FC<VoiceProps> = function ({
 		if (socketClients[k].playerId !== undefined)
 			playerSocketIds[socketClients[k].playerId] = k;
 	}
+
+	// Pass voice state to overlay
+	useEffect(() => {
+		ipcRenderer.send(IpcMessages.SEND_TO_OVERLAY, IpcOverlayMessages.NOTIFY_VOICE_STATE_CHANGED,
+			{
+				otherTalking,
+				playerSocketIds,
+				otherDead,
+				socketClients,
+				audioConnected
+			} as VoiceState);
+	}, [otherTalking, playerSocketIds, otherDead, socketClients, audioConnected]);
+
 	return (
 		<div className={classes.root}>
 			{error && (

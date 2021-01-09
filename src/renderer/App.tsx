@@ -24,6 +24,7 @@ import {
 	AutoUpdaterState,
 	IpcHandlerMessages,
 	IpcMessages,
+	IpcOverlayMessages,
 	IpcRendererMessages,
 	IpcSyncMessages,
 } from '../common/ipc-messages';
@@ -40,6 +41,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import prettyBytes from 'pretty-bytes';
+import './css/index.css';
 
 let appVersion = '';
 if (typeof window !== 'undefined' && window.location) {
@@ -111,7 +113,7 @@ enum AppState {
 	VOICE,
 }
 
-function App() {
+export default function App() {
 	const [state, setState] = useState<AppState>(AppState.MENU);
 	const [gameState, setGameState] = useState<AmongUsState>({} as AmongUsState);
 	const [settingsOpen, setSettingsOpen] = useState(false);
@@ -130,6 +132,8 @@ function App() {
 		muteShortcut: 'RAlt',
 		hideCode: false,
 		enableSpatialAudio: true,
+		meetingOverlay: true,
+		overlayPosition: 'right',
 		localLobbySettings: {
 			maxDistance: 5.32,
 		},
@@ -141,7 +145,7 @@ function App() {
 
 	useEffect(() => {
 		const onOpen = (_: Electron.IpcRendererEvent, isOpen: boolean) => {
-			setState(isOpen ? AppState.VOICE : AppState.MENU);
+			setState(isOpen ? AppState.VOICE : AppState.MENU);	
 		};
 		const onState = (_: Electron.IpcRendererEvent, newState: AmongUsState) => {
 			setGameState(newState);
@@ -188,6 +192,14 @@ function App() {
 			shouldInit = false;
 		};
 	}, []);
+
+	useEffect(() => {
+		ipcRenderer.send(IpcMessages.SEND_TO_OVERLAY, IpcOverlayMessages.NOTIFY_GAME_STATE_CHANGED, gameState);
+	}, [gameState]);
+
+	useEffect(() => {
+		ipcRenderer.send(IpcMessages.SEND_TO_OVERLAY, IpcOverlayMessages.NOTIFY_SETTINGS_CHANGED, settings[0]);
+	}, [settings]);
 
 	let page;
 	switch (state) {

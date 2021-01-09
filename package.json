@@ -47,6 +47,7 @@
     "deep-equal": "^2.0.5",
     "electron-store": "^6.0.1",
     "electron-updater": "^4.3.5",
+    "electron-overlay-window": "^1.0.4",
     "electron-window-state": "^5.0.3",
     "iohook": "^0.7.1",
     "memoryjs": "git://github.com/Rob--/memoryjs",
