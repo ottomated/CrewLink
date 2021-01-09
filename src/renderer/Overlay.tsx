@@ -124,8 +124,8 @@ const useOverlayStyles = makeStyles((theme) => ({
 const AvatarOverlay: React.FC<AvatarOverlayProps> = ({ voiceState, gameState }: AvatarOverlayProps) => {
 	if (!gameState.players) return null;
 	const classes = useOverlayStyles();
-	const avatars : JSX.Element[] = [];
-	
+	const avatars: JSX.Element[] = [];
+
 	gameState.players.forEach(player => {
 		if (!voiceState.otherTalking[player.id]) return;
 		const peer = voiceState.playerSocketIds[player.id];
@@ -135,6 +135,7 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({ voiceState, gameState }: 
 		const audio = voiceState.audioConnected[peer];
 		avatars.push(
 			<Avatar
+				key={player.id}
 				connectionState={
 					!connected ? 'disconnected' : audio ? 'connected' : 'novoice'
 				}
@@ -187,13 +188,20 @@ const MeetingHud: React.FC<MeetingHudProps> = ({ otherTalking, gameState }: Meet
 	if (!players || gameState.gameState !== GameState.DISCUSSION) return null;
 	const overlays = gameState.players.map((player) => {
 		return (
-			<div className={classes.icon}
+			<div key={player.id} className={classes.icon}
 				style={{
 					opacity: otherTalking[player.id] ? 1 : 0,
 					boxShadow: `0 0 ${hudHeight / 100}px ${hudHeight / 100}px ${playerColors[player.colorId][0]}`
 				}} />
 		);
 	});
+
+	while (overlays.length < 10) {
+		overlays.push(<div key={`spacer-${overlays.length}`} className={classes.icon}
+			style={{
+				opacity: 0
+			}} />);
+	}
 
 	return <div className={classes.meetingHud} style={{ width: hudWidth, height: hudHeight }}>
 		<div className={classes.playerIcons}>
