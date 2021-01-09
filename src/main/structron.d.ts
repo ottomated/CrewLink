@@ -1,8 +1,8 @@
 declare module 'structron' {
 	type ReportOptions = {
 		monitorUsage: boolean;
-	}
-	
+	};
+
 	class Report<T> {
 		constructor(buffer: BufferSource, options: ReportOptions);
 		toString(): string;
@@ -14,17 +14,33 @@ declare module 'structron' {
 		SIZE: number;
 	}
 
-	type Rule = (...params: unknown[]) => (dataObj: unknown, buffer: BufferSource) => boolean;
+	type Rule = (
+		...params: unknown[]
+	) => (dataObj: unknown, buffer: BufferSource) => boolean;
 	class Struct implements ValueType<Struct> {
-
 		constructor(name?: string);
 
 		addMember<T>(type: ValueType<T>, name: string): this;
-		addArray<T>(type: ValueType<T>, name: string, offsetMemberName: string, countMemberName: string, relative?: boolean): this;
-		addReference<T>(type: ValueType<T>, name: string, memberName: string, relative?: boolean): this;
+		addArray<T>(
+			type: ValueType<T>,
+			name: string,
+			offsetMemberName: string,
+			countMemberName: string,
+			relative?: boolean
+		): this;
+		addReference<T>(
+			type: ValueType<T>,
+			name: string,
+			memberName: string,
+			relative?: boolean
+		): this;
 		addRule(rule: Rule): this;
 		read<T>(buffer: BufferSource, offset: number, report?: Report<T>): T;
-		report<T>(buffer: BufferSource, offset: number, options: Partial<ReportOptions>): Report<T>;
+		report<T>(
+			buffer: BufferSource,
+			offset: number,
+			options: Partial<ReportOptions>
+		): Report<T>;
 		validate(buffer: BufferSource, offset?: number): boolean;
 		getOffsetByName(name: string): number;
 
@@ -32,7 +48,7 @@ declare module 'structron' {
 
 		static RULES: {
 			EQUAL: Rule;
-		}
+		};
 
 		static TYPES: {
 			INT: ValueType<number>;
@@ -49,7 +65,7 @@ declare module 'structron' {
 			STRING(length: number, encoding: string | 'ascii'): ValueType<string>;
 			NULL_TERMINATED_STRING(encoding: string | 'ascii'): ValueType<string>;
 			SKIP(length: number): ValueType<void>;
-		}
+		};
 	}
 	export = Struct;
 }

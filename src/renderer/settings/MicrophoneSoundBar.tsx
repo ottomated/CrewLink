@@ -1,10 +1,32 @@
+import LinearProgress from '@material-ui/core/LinearProgress';
+import Typography from '@material-ui/core/Typography';
 import React, { useEffect, useState } from 'react';
+import makeStyles from '@material-ui/core/styles/makeStyles';
 
 interface TestMicProps {
-	microphone: string
+	microphone: string;
 }
 
-const TestMicrophoneButton: React.FC<TestMicProps> = function ({ microphone } : TestMicProps) {
+const useStyles = makeStyles((theme) => ({
+	root: {
+		display: 'flex',
+		width: '100%',
+		marginBottom: theme.spacing(2),
+	},
+	bar: {
+		height: 8,
+		margin: '5px auto',
+		width: 200,
+	},
+	inner: {
+		transition: 'transform .05s linear',
+	},
+}));
+
+const TestMicrophoneButton: React.FC<TestMicProps> = function ({
+	microphone,
+}: TestMicProps) {
+	const classes = useStyles();
 	const [error, setError] = useState<boolean>(false);
 	const [rms, setRms] = useState<number>(0);
 
@@ -29,11 +51,15 @@ const TestMicrophoneButton: React.FC<TestMicProps> = function ({ microphone } : 
 
 			const input = event.inputBuffer.getChannelData(0);
 			const total = input.reduce((acc, val) => acc + Math.abs(val), 0);
-			const rms = Math.min(50, Math.sqrt(total / input.length));
+			const rms = Math.min(0.5, Math.sqrt(total / input.length));
 			setRms(rms);
 		};
 
-		navigator.mediaDevices.getUserMedia({ audio: { deviceId: microphone ?? 'default' } })
+		navigator.mediaDevices
+			.getUserMedia({
+				audio: { deviceId: microphone ?? 'default' },
+				video: false,
+			})
 			.then((stream) => {
 				const src = ctx.createMediaStreamSource(stream);
 				src.connect(processor);
@@ -46,9 +72,25 @@ const TestMicrophoneButton: React.FC<TestMicProps> = function ({ microphone } : 
 		};
 	}, [microphone]);
 
-	if (error) return <p style={{ fontSize: 14, color: '#e74c3c' }}>Could not connect to microphone</p>;
-
-	return <div className="microphone-bar"><div className="microphone-bar-inner" style={{ width: `${rms * 2 * 100}%` }}></div></div>;
+	if (error) {
+		return (
+			<Typography color="error">Could not connect to microphone</Typography>
+		);
+	} else {
+		return (
+			<div className={classes.root}>
+				<LinearProgress
+					classes={{
+						root: classes.bar,
+						bar: classes.inner,
+					}}
+					color="secondary"
+					variant="determinate"
+					value={rms * 2 * 100}
+				/>
+			</div>
+		);
+	}
 };
 
 export default TestMicrophoneButton;
