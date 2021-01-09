@@ -519,7 +519,15 @@ const Voice: React.FC<VoiceProps> = function ({
 						reverbGain.gain.value = 0;
 						reverb.buffer = convolverBuffer.current;
 
-						gain.connect(compressor);
+						if (lobbySettingsRef.current.haunting) {
+							gain.connect(compressor);
+							gain.connect(reverbGain);
+							reverbGain.connect(reverb);
+							reverb.connect(compressor);
+						} else {
+							gain.connect(compressor);
+						}
+
 						// Source -> pan -> muffle -> gain -> VAD -> destination
 						VAD(context, compressor, context.destination, {
 							onVoiceStart: () => setTalking(true),
