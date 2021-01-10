@@ -164,11 +164,6 @@ function calculateVoiceAudio(
 		muffle.Q.value = 0;
 	}
 
-	// Reset panning position if the setting is disabled
-	if (!settings.enableSpatialAudio) {
-		panPos = [0, 0];
-	}
-
 	// Clamp panning position
 	if (isNaN(panPos[0])) panPos[0] = 999;
 	if (isNaN(panPos[1])) panPos[1] = 999;
@@ -177,8 +172,13 @@ function calculateVoiceAudio(
 	panPos[1] = Math.min(Math.max(panPos[1], -999), 999);
 
 	// Mute players if distancte between two players is too big
-	if (Math.pow(panPos[0], 2) + Math.pow(panPos[1], 2) > 7 * 7) {
+	if (Math.pow(panPos[0], 2) + Math.pow(panPos[1], 2) > pan.maxDistance * pan.maxDistance) {
 		gain.gain.value = 0;
+	}
+
+	// Reset panning position if the setting is disabled
+	if (!settings.enableSpatialAudio) {
+		panPos = [0, 0];
 	}
 
 	// Apply position's to PanNode
