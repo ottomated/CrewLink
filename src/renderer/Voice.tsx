@@ -211,15 +211,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			case GameState.TASKS:
 				gain.gain.value = 1;
 
-				if (
-					lobbySettings.hearThroughCameras &&
-					state.currentCamera !== CameraLocation.NONE &&
-					state.currentCamera !== CameraLocation.Skeld
-				) {
-					const camerapos = PolusMap.cameras[state.currentCamera];
-					panPos = [other.x - camerapos.x, other.y - camerapos.y];
-				}
-
 				if (!me.isDead && lobbySettings.commsSabotage && state.comsSabotaged && !me.isImpostor) {
 					gain.gain.value = 0;
 				}
@@ -278,7 +269,19 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		// Mute players if distancte between two players is too big
 
 		if (Math.pow(panPos[0], 2) + Math.pow(panPos[1], 2) > lobbySettings.maxDistance * lobbySettings.maxDistance) {
-			gain.gain.value = 0;
+			if (
+				lobbySettings.hearThroughCameras &&
+				state.currentCamera !== CameraLocation.NONE &&
+				state.currentCamera !== CameraLocation.Skeld
+			) {
+				const camerapos = PolusMap.cameras[state.currentCamera];
+				panPos = [other.x - camerapos.x, other.y - camerapos.y];
+				if (Math.pow(panPos[0], 2) + Math.pow(panPos[1], 2) > lobbySettings.maxDistance * lobbySettings.maxDistance) {
+					gain.gain.value = 0;
+				}
+			} else {
+				gain.gain.value = 0;
+			}
 		}
 
 		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);

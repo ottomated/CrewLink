@@ -414,9 +414,9 @@ export default class GameReader {
 		const y = this.readMemory<number>('float', data.objectPtr, positionOffsets[1]);
 
 
-		if(isLocal){
-			console.log("Current position: ", {x, y});
-		}
+		// if(isLocal){
+		// 	console.log("Current position: ", {x, y});
+		// }
 		return {
 			ptr,
 			id: data.id,
