@@ -1,11 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ipcRenderer } from 'electron';
-import {
-	AmongUsState,
-	GameState,
-	VoiceState,
-	OtherTalking,
-} from '../common/AmongUsState';
+import { AmongUsState, GameState, VoiceState, OtherTalking } from '../common/AmongUsState';
 import { IpcOverlayMessages } from '../common/ipc-messages';
 import ReactDOM from 'react-dom';
 import makeStyles from '@material-ui/core/styles/makeStyles';
@@ -82,23 +77,14 @@ const playerColors = [
 const iPadRatio = 854 / 579;
 
 const Overlay: React.FC = function () {
-	const [gameState, setGameState] = useState<AmongUsState>(
-		(undefined as unknown) as AmongUsState
-	);
-	const [voiceState, setVoiceState] = useState<VoiceState>(
-		(undefined as unknown) as VoiceState
-	);
-	const [settings, setSettings] = useState<ISettings>(
-		(undefined as unknown) as ISettings
-	);
+	const [gameState, setGameState] = useState<AmongUsState>((undefined as unknown) as AmongUsState);
+	const [voiceState, setVoiceState] = useState<VoiceState>((undefined as unknown) as VoiceState);
+	const [settings, setSettings] = useState<ISettings>((undefined as unknown) as ISettings);
 	useEffect(() => {
 		const onState = (_: Electron.IpcRendererEvent, newState: AmongUsState) => {
 			setGameState(newState);
 		};
-		const onVoiceState = (
-			_: Electron.IpcRendererEvent,
-			newState: VoiceState
-		) => {
+		const onVoiceState = (_: Electron.IpcRendererEvent, newState: VoiceState) => {
 			setVoiceState(newState);
 		};
 		const onSettings = (_: Electron.IpcRendererEvent, newState: ISettings) => {
@@ -109,10 +95,7 @@ const Overlay: React.FC = function () {
 		ipcRenderer.on(IpcOverlayMessages.NOTIFY_SETTINGS_CHANGED, onSettings);
 		return () => {
 			ipcRenderer.off(IpcOverlayMessages.NOTIFY_GAME_STATE_CHANGED, onState);
-			ipcRenderer.off(
-				IpcOverlayMessages.NOTIFY_VOICE_STATE_CHANGED,
-				onVoiceState
-			);
+			ipcRenderer.off(IpcOverlayMessages.NOTIFY_VOICE_STATE_CHANGED, onVoiceState);
 			ipcRenderer.off(IpcOverlayMessages.NOTIFY_SETTINGS_CHANGED, onSettings);
 		};
 	}, []);
@@ -120,17 +103,13 @@ const Overlay: React.FC = function () {
 	if (!settings || !voiceState || !gameState) return null;
 	return (
 		<>
-			{settings.meetingOverlay && (
-				<MeetingHud
-					gameState={gameState}
-					otherTalking={voiceState.otherTalking}
-				/>
-			)}
+			{settings.meetingOverlay && <MeetingHud gameState={gameState} otherTalking={voiceState.otherTalking} />}
 			{settings.overlayPosition !== 'hidden' && (
 				<AvatarOverlay
 					voiceState={voiceState}
 					gameState={gameState}
 					position={settings.overlayPosition}
+					compactOverlay={settings.compactOverlay}
 				/>
 			)}
 		</>
@@ -141,66 +120,70 @@ interface AvatarOverlayProps {
 	voiceState: VoiceState;
 	gameState: AmongUsState;
 	position: ISettings['overlayPosition'];
+	compactOverlay: boolean;
 }
 
-const useOverlayStyles = makeStyles((theme) => ({
-	root: {
-		width: '5%',
-		position: 'absolute',
-		background: '#25232ac0',
-		padding: theme.spacing(2),
-		'&>*': {
-			marginTop: 4,
-			marginBottom: 4,
-		},
-	},
-}));
 const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 	voiceState,
 	gameState,
 	position,
+	compactOverlay,
 }: AvatarOverlayProps) => {
 	if (!gameState.players) return null;
-	const classes = useOverlayStyles({ position });
+
 	const avatars: JSX.Element[] = [];
+	const isOnSide = position == 'right' || position == 'left';
+
+	const classnames: string[] = ['overlay-wrapper'];
+	if (gameState.gameState == GameState.UNKNOWN || gameState.gameState == GameState.MENU) {
+		classnames.push('gamestate_menu');
+	} else {
+		classnames.push('gamestate_game');
+		classnames.push('overlay_postion_' + position);
+		if (compactOverlay) {
+			classnames.push('compactoverlay');
+		}
+	}
 
 	gameState.players.forEach((player) => {
-		if (!voiceState.otherTalking[player.id]) return;
-		const peer = voiceState.playerSocketIds[player.id];
+		if (!voiceState.otherTalking[player.id] && compactOverlay) return;
+		// const peer = voiceState.playerSocketIds[player.id];
 		const connected = Object.values(voiceState.socketClients)
 			.map(({ playerId }) => playerId)
 			.includes(player.id);
-		const audio = voiceState.audioConnected[peer];
+		if (!connected && !player.isLocal) return;
+		// const audio = voiceState.audioConnected[peer];
 		avatars.push(
-			<Avatar
-				key={player.id}
-				connectionState={
-					!connected ? 'disconnected' : audio ? 'connected' : 'novoice'
-				}
-				player={player}
-				talking={voiceState.otherTalking[player.id]}
-				borderColor="#2ecc71"
-				isAlive={!voiceState.otherDead[player.id]}
-				size={50}
-			/>
+			<div key={player.id} className="player_wrapper">
+				<div>
+					<Avatar
+						key={player.id}
+						// connectionState={!connected ? 'disconnected' : audio ? 'connected' : 'novoice'}
+						player={player}
+						showborder={isOnSide && !compactOverlay}
+						talking={voiceState.otherTalking[player.id] || (player.isLocal && voiceState.localTalking)}
+						borderColor="#2ecc71"
+						isAlive={!voiceState.otherDead[player.id] || (player.isLocal && !player.isDead)}
+						size={100}
+						showHat={false}
+					/>
+				</div>
+				{!compactOverlay && isOnSide && (
+					<span className="playername">
+						<small>{player.name}</small>
+					</span>
+				)}
+			</div>
 		);
 	});
 	if (avatars.length === 0) return null;
 	return (
-		<div
-			className={classes.root}
-			style={{
-				top: '50%',
-				left: position === 'left' ? 0 : undefined,
-				right: position === 'right' ? 0 : undefined,
-				transform: 'translateY(-50%)',
-				borderTopLeftRadius: position === 'right' ? 20 : undefined,
-				borderBottomLeftRadius: position === 'right' ? 20 : undefined,
-				borderTopRightRadius: position === 'left' ? 20 : undefined,
-				borderBottomRightRadius: position === 'left' ? 20 : undefined,
-			}}
-		>
-			{avatars}
+		<div>
+			<div className={classnames.join(' ')}>
+				<div className="otherplayers">
+					<div className="players_container playerContainerBack">{avatars}</div>
+				</div>
+			</div>
 		</div>
 	);
 };
@@ -210,10 +193,7 @@ interface MeetingHudProps {
 	gameState: AmongUsState;
 }
 
-const MeetingHud: React.FC<MeetingHudProps> = ({
-	otherTalking,
-	gameState,
-}: MeetingHudProps) => {
+const MeetingHud: React.FC<MeetingHudProps> = ({ otherTalking, gameState }: MeetingHudProps) => {
 	const [width, height] = useWindowSize();
 
 	let hudWidth = 0,
@@ -247,9 +227,7 @@ const MeetingHud: React.FC<MeetingHudProps> = ({
 				className={classes.icon}
 				style={{
 					opacity: otherTalking[player.id] ? 1 : 0,
-					boxShadow: `0 0 ${hudHeight / 100}px ${hudHeight / 100}px ${
-						playerColors[player.colorId][0]
-					}`,
+					boxShadow: `0 0 ${hudHeight / 100}px ${hudHeight / 100}px ${playerColors[player.colorId][0]}`,
 				}}
 			/>
 		);
@@ -268,10 +246,7 @@ const MeetingHud: React.FC<MeetingHudProps> = ({
 	}
 
 	return (
-		<div
-			className={classes.meetingHud}
-			style={{ width: hudWidth, height: hudHeight }}
-		>
+		<div className={classes.meetingHud} style={{ width: hudWidth, height: hudHeight }}>
 			<div className={classes.playerIcons}>{overlays}</div>
 		</div>
 	);

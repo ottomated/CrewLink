@@ -218,6 +218,10 @@ const store = new Store<ISettings>({
 			type: 'string',
 			default: 'top',
 		},
+		meetingOverlay: {
+			type: 'boolean',
+			default: true,
+		},
 		enableOverlay: {
 			type: 'boolean',
 			default: true,
@@ -262,7 +266,7 @@ const store = new Store<ISettings>({
 				maxDistance: 5.32,
 				haunting: false,
 				commsSabotage: false,
-				hearImpostorsInVents: false
+				hearImpostorsInVents: false,
 			},
 		},
 	},
@@ -466,8 +470,6 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 		ipcRenderer.send('enableOverlay', settings.enableOverlay);
 	}, [settings.enableOverlay]);
 
-	remote?.getGlobal('overlay')?.webContents.send('overlaySettings', settings);
-
 	const [devices, setDevices] = useState<MediaDevice[]>([]);
 	const [_, updateDevices] = useReducer((state) => state + 1, 0);
 	useEffect(() => {
@@ -587,7 +589,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
 					>
 						<FormControlLabel
-							label="Haunting"
+							label="Impostors Hear Dead"
 							disabled={!canChangeLobbySettings}
 							onChange={(_, newValue: boolean) => {
 								localLobbySettings.haunting = newValue;
@@ -609,7 +611,32 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
 					>
 						<FormControlLabel
-							label="Comms sabotage"
+							label="Hear Impostors In Vents"
+							disabled={!canChangeLobbySettings}
+							onChange={(_, newValue: boolean) => {
+								localLobbySettings.hearImpostorsInVents = newValue;
+								setLocalLobbySettings(localLobbySettings);
+
+								setSettings({
+									type: 'setLobbySetting',
+									action: ['hearImpostorsInVents', newValue],
+								});
+							}}
+							value={
+								canChangeLobbySettings ? localLobbySettings.hearImpostorsInVents : lobbySettings.hearImpostorsInVents
+							}
+							checked={
+								canChangeLobbySettings ? localLobbySettings.hearImpostorsInVents : lobbySettings.hearImpostorsInVents
+							}
+							control={<Checkbox />}
+						/>
+					</DisabledTooltip>
+					<DisabledTooltip
+						disabled={!canChangeLobbySettings}
+						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
+					>
+						<FormControlLabel
+							label="Comms Sabotage Disables Voice"
 							disabled={!canChangeLobbySettings}
 							onChange={(_, newValue: boolean) => {
 								localLobbySettings.commsSabotage = newValue;
@@ -622,27 +649,6 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 							}}
 							value={canChangeLobbySettings ? localLobbySettings.commsSabotage : lobbySettings.commsSabotage}
 							checked={canChangeLobbySettings ? localLobbySettings.commsSabotage : lobbySettings.commsSabotage}
-							control={<Checkbox />}
-						/>
-					</DisabledTooltip>
-					<DisabledTooltip
-						disabled={!canChangeLobbySettings}
-						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
-					>
-						<FormControlLabel
-							label="Talk in vents"
-							disabled={!canChangeLobbySettings}
-							onChange={(_, newValue: boolean) => {
-								localLobbySettings.hearImpostorsInVents = newValue;
-								setLocalLobbySettings(localLobbySettings);
-
-								setSettings({
-									type: 'setLobbySetting',
-									action: ['hearImpostorsInVents', newValue],
-								});
-							}}
-							value={canChangeLobbySettings ? localLobbySettings.hearImpostorsInVents : lobbySettings.hearImpostorsInVents}
-							checked={canChangeLobbySettings ? localLobbySettings.hearImpostorsInVents : lobbySettings.hearImpostorsInVents}
 							control={<Checkbox />}
 						/>
 					</DisabledTooltip>

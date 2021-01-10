@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction, useEffect, useReducer, useState } from 'react';
 import Voice from './Voice';
 import Menu from './Menu';
-import { ipcRenderer, remote } from 'electron';
+import { ipcRenderer } from 'electron';
 import { AmongUsState } from '../common/AmongUsState';
 import Settings, { settingsReducer, lobbySettingsReducer } from './settings/Settings';
 import { GameStateContext, SettingsContext, LobbySettingsContext } from './contexts';
@@ -27,6 +27,9 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import prettyBytes from 'pretty-bytes';
+import { IpcOverlayMessages } from '../common/ipc-messages';
+import ReactDOM from 'react-dom';
+import './css/index.css';
 
 let appVersion = '';
 if (typeof window !== 'undefined' && window.location) {
@@ -128,6 +131,7 @@ export default function App(): JSX.Element {
 		overlayPosition: 'top',
 		compactOverlay: false,
 		enableOverlay: false,
+		meetingOverlay: true,
 		ghostVolume: 100,
 		vadEnabled:true,
 		localLobbySettings: {
@@ -142,11 +146,9 @@ export default function App(): JSX.Element {
 	useEffect(() => {
 		const onOpen = (_: Electron.IpcRendererEvent, isOpen: boolean) => {
 			setState(isOpen ? AppState.VOICE : AppState.MENU);
-			remote?.getGlobal('overlay')?.send('overlayState', 'MENU');
 		};
 		const onState = (_: Electron.IpcRendererEvent, newState: AmongUsState) => {
 			setGameState(newState);
-			remote?.getGlobal('overlay')?.webContents.send('overlayGameState', newState);
 		};
 
 		const onError = (_: Electron.IpcRendererEvent, error: string) => {
@@ -182,6 +184,23 @@ export default function App(): JSX.Element {
 			shouldInit = false;
 		};
 	}, []);
+
+	useEffect(() => {
+		ipcRenderer.send(
+			IpcMessages.SEND_TO_OVERLAY,
+			IpcOverlayMessages.NOTIFY_GAME_STATE_CHANGED,
+			gameState
+		);
+	}, [gameState]);
+
+	useEffect(() => {
+		ipcRenderer.send(
+			IpcMessages.SEND_TO_OVERLAY,
+			IpcOverlayMessages.NOTIFY_SETTINGS_CHANGED,
+			settings[0]
+		);
+	}, [settings]);
+
 
 	let page;
 	switch (state) {
@@ -232,3 +251,4 @@ export default function App(): JSX.Element {
 		</GameStateContext.Provider>
 	);
 }
+ReactDOM.render(<App />, document.getElementById('app'));

@@ -3,7 +3,7 @@ import { HKEY, enumerateValues } from 'registry-js';
 import spawn from 'cross-spawn';
 import path from 'path';
 
-import { IpcMessages } from '../common/ipc-messages';
+import { IpcMessages, IpcOverlayMessages } from '../common/ipc-messages';
 
 // Listeners are fire and forget, they do not have "responses" or return values
 export const initializeIpcListeners = (): void => {
@@ -41,6 +41,7 @@ export const initializeIpcListeners = (): void => {
 	ipcMain.on(
 		IpcMessages.SEND_TO_OVERLAY,
 		(_, event: IpcOverlayMessages, ...args: unknown[]) => {
+			if(global.overlay)
 			global.overlay.webContents.send(event, ...args);
 		}
 	);

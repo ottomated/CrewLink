@@ -2595,6 +2595,13 @@ array.prototype.flatmap@^1.2.3:
     es-abstract "^1.18.0-next.1"
     function-bind "^1.1.1"
 
+arraybuffer-loader@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/arraybuffer-loader/-/arraybuffer-loader-1.0.8.tgz#3e326be5cdf6454782362823d43a8c33bb1dd276"
+  integrity sha512-CwUVCcxCgcgZUu2w741OV6Xj1tvRVQebq22RCyGXiLgJOJ4e4M/59EPYdtK2MLfIN28t1TDvuh2ojstNq3Kh5g==
+  dependencies:
+    loader-utils "^1.1.0"
+
 arraybuffer.slice@~0.0.7:
   version "0.0.7"
   resolved "https://registry.yarnpkg.com/arraybuffer.slice/-/arraybuffer.slice-0.0.7.tgz#3bbc4275dd584cc1b10809b89d4e8b63a69e7675"

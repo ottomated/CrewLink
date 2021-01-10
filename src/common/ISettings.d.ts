@@ -12,6 +12,8 @@ export interface ISettings {
 	compactOverlay: boolean;
 	overlayPosition: string;
 	enableOverlay: boolean;
+	meetingOverlay: boolean;
+
 	localLobbySettings: ILobbySettings;
 	ghostVolume: number;
 	mobileHost: boolean;

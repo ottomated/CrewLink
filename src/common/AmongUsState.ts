@@ -63,4 +63,5 @@ export interface VoiceState {
 	otherDead: OtherTalking;
 	socketClients: SocketClientMap;
 	audioConnected: AudioConnected;
+	localTalking: boolean
 }
