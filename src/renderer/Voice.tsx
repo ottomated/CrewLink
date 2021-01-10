@@ -563,14 +563,14 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						reverbGain.gain.value = 0;
 						reverb.buffer = convolverBuffer.current;
 
-						if (lobbySettingsRef.current.haunting) {
+						// if (lobbySettingsRef.current.haunting) {
 							gain.connect(compressor);
 							gain.connect(reverbGain);
 							reverbGain.connect(reverb);
 							reverb.connect(compressor);
-						} else {
-							gain.connect(compressor);
-						}
+						// } else {
+						// 	gain.connect(compressor);
+						// }
 
 						if (settingsRef.current.vadEnabled) {
 							VAD(context, compressor, context.destination, {
