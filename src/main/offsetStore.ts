@@ -11,7 +11,7 @@ interface ISignature {
 
 export interface IOffsets {
 	meetingHud: number[];
-	meetingHudCachePtr: number[];
+	objectCachePtr: number[];
 	meetingHudState: number[];
 	gameState: number[];
 	innerNetClient: number[];
@@ -28,6 +28,9 @@ export interface IOffsets {
 	shipStatus_map: number[];
 	hqHudSystemType_CompletedConsoles: number[];
 	HudOverrideSystemType_isActive: number[];
+	miniGame: number[];
+	planetSurveillanceMinigame_currentCamera: number[];
+	planetSurveillanceMinigame_camarasCount: number[];
 	player: {
 		isLocal: number[];
 		localX: number[];
@@ -61,13 +64,14 @@ export interface IOffsets {
 		meetingHud: ISignature;
 		gameData: ISignature;
 		shipStatus: ISignature;
+		miniGame: ISignature;
 	};
 }
 
 export default {
 	x64: {
 		meetingHud: [0x21d03e0, 0xb8, 0],
-		meetingHudCachePtr: [0x10],
+		objectCachePtr: [0x10],
 		meetingHudState: [0xc0],
 		innerNetClient: [0x1c57f54, 0xb8, 0x0],
 
@@ -85,6 +89,9 @@ export default {
 		shipStatus_map: [0x154],
 		hqHudSystemType_CompletedConsoles: [0x18, 0x20], // OAMJKPNKGBM
 		HudOverrideSystemType_isActive: [0x10],
+		miniGame: [0x1c57cac, 0xb8, 0x0],
+		planetSurveillanceMinigame_currentCamera: [0xC8], 
+		planetSurveillanceMinigame_camarasCount: [0xA0, 0x18], 
 		player: {
 			struct: [
 				{ type: 'SKIP', skip: 16, name: 'unused' },
@@ -137,11 +144,17 @@ export default {
 				patternOffset: 3,
 				addressOffset: 4,
 			},
+			miniGame: {
+				sig:
+					'48 8B 05 ? ? ? ? 48 8B 90 ? ? ? ? 48 C7 02 ? ? ? ? ',
+				patternOffset: 3,
+				addressOffset: 4,
+			},
 		},
 	},
 	x86: {
 		meetingHud: [0x1c573a4, 0x5c, 0],
-		meetingHudCachePtr: [0x8],
+		objectCachePtr: [0x8],
 		meetingHudState: [0x84],
 		innerNetClient: [0x1c57f54, 0x5c, 0x0],
 		gameState: [0x64],
@@ -158,6 +171,9 @@ export default {
 		shipStatus_map: [0xd4],
 		hqHudSystemType_CompletedConsoles: [0xc, 0x10],
 		HudOverrideSystemType_isActive: [0x8],
+		miniGame: [0x1c57cac, 0x5c, 0x0],
+		planetSurveillanceMinigame_currentCamera: [0x64], 
+		planetSurveillanceMinigame_camarasCount: [0x50, 0x0c], 
 		player: {
 			struct: [
 				{ type: 'SKIP', skip: 8, name: 'unused' },
@@ -198,12 +214,18 @@ export default {
 			},
 			gameData: {
 				sig:
-					'8B 0D ? ? ? ? 8B F0 83 C4 10 8B 49 5C 8B 01 85 C0 0F 84 ? ? ? ? 6A 00 FF 75 F4 50 E8 ? ? ? ? 83 C4 0C 89 45 E8 85 C0',
-				patternOffset: 2,
+					'A1 ? ? ? ? 8B 40 5C 8B 38 A1 ? ? ? ? F6 80 ? ? ? ? ? 74 0F 83 78 74 00 75 09 50 E8 ? ? ? ? 83 C4 04 6A 00 56',
+				patternOffset: 1,
 				addressOffset: 0,
 			},
 			shipStatus: {
 				sig: 'A1 ? ? ? ? 8B 40 5C 8B 00 85 C0 74 5A 8B 80 ? ? ? ? 85 C0 74 50 6A 00 6A 00',
+				patternOffset: 1,
+				addressOffset: 0,
+			},
+			miniGame: {
+				sig:
+					'A1 ? ? ? ? 8B 40 5C 8B 08 85 C9 0F 84 ? ? ? ? 8B 01 FF B0 ? ? ? ? 8B 80 ? ? ? ? 51 FF D0 83 C4 08 A1 ? ? ? ? 8B 40 5C',
 				patternOffset: 1,
 				addressOffset: 0,
 			},

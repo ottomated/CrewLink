@@ -7,6 +7,7 @@ export interface AmongUsState {
 	clientId: number;
 	hostId: number;
 	comsSabotaged: boolean;
+	currentCamera: CameraLocation;
 }
 
 
@@ -37,6 +38,18 @@ export enum GameState {
 	DISCUSSION,
 	MENU,
 	UNKNOWN,
+}
+
+
+export enum CameraLocation {
+	East,
+	Central,
+	Northeast,
+	South,
+	SouthWest,
+	NorthWest,
+	Skeld,
+	NONE,
 }
 
 

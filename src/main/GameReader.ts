@@ -11,7 +11,7 @@ import {
 } from 'memoryjs';
 import Struct from 'structron';
 import { IpcRendererMessages } from '../common/ipc-messages';
-import { GameState, AmongUsState, Player } from '../common/AmongUsState';
+import { GameState, AmongUsState, Player, CameraLocation } from '../common/AmongUsState';
 import offsetStore, { IOffsets } from './offsetStore';
 import Errors from '../common/Errors';
 
@@ -89,7 +89,7 @@ export default class GameReader {
 			let state = GameState.UNKNOWN;
 			const meetingHud = this.readMemory<number>('pointer', this.gameAssembly.modBaseAddr, this.offsets.meetingHud);
 			const meetingHud_cachePtr =
-				meetingHud === 0 ? 0 : this.readMemory<number>('pointer', meetingHud, this.offsets.meetingHudCachePtr);
+				meetingHud === 0 ? 0 : this.readMemory<number>('pointer', meetingHud, this.offsets.objectCachePtr);
 			const meetingHudState =
 				meetingHud_cachePtr === 0 ? 4 : this.readMemory('int', meetingHud, this.offsets.meetingHudState, 4);
 
@@ -137,7 +137,9 @@ export default class GameReader {
 			let impostors = 0,
 				crewmates = 0;
 			let comsSabotaged = false;
-			if (this.gameCode) {
+			let currentCamera = CameraLocation.NONE;
+			this.gameCode = 'DEV123';
+			if (this.gameCode && playerCount) {
 				for (let i = 0; i < Math.min(playerCount, 100); i++) {
 					const { address, last } = this.offsetAddress(playerAddrPtr, this.offsets.player.offsets);
 					const playerData = readBuffer(this.amongUs.handle, address + last, this.offsets.player.bufferLength);
@@ -177,6 +179,27 @@ export default class GameReader {
 						}
 					});
 				}
+				const minigamePtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets?.miniGame);
+				const minigameCachePtr = this.readMemory<number>('ptr', minigamePtr, this.offsets?.objectCachePtr);
+
+				if (minigameCachePtr && minigameCachePtr !== 0) {
+					if (map === MapType.POLUS) {
+						const currentCameraId = this.readMemory<number>(
+							'uint32',
+							minigamePtr,
+							this.offsets?.planetSurveillanceMinigame_currentCamera
+						);
+						const camarasCount = this.readMemory<number>(
+							'uint32',
+							minigamePtr,
+							this.offsets?.planetSurveillanceMinigame_camarasCount
+						);
+
+						if (currentCameraId >= 0 && currentCameraId <= 5 && camarasCount === 6) {
+							currentCamera = currentCameraId as CameraLocation;
+						}
+					}
+				}
 			}
 
 			if (this.oldGameState === GameState.DISCUSSION && state === GameState.TASKS) {
@@ -207,6 +230,7 @@ export default class GameReader {
 				hostId: hostId,
 				clientId: clientId,
 				comsSabotaged,
+				currentCamera
 			};
 			//	const stateHasChanged = !equal(this.lastState, newState);
 			//	if (stateHasChanged) {
@@ -261,12 +285,19 @@ export default class GameReader {
 			this.offsets.signatures.shipStatus.patternOffset,
 			this.offsets.signatures.shipStatus.addressOffset
 		);
+		const miniGame = this.findPattern(
+			this.offsets.signatures.miniGame.sig,
+			this.offsets.signatures.miniGame.patternOffset,
+			this.offsets.signatures.miniGame.addressOffset
+		);
 
 		this.offsets.meetingHud[0] = meetingHud;
 		this.offsets.exiledPlayerId[1] = meetingHud;
+
 		this.offsets.allPlayersPtr[0] = gameData;
 		this.offsets.innerNetClient[0] = innerNetClient;
 		this.offsets.shipStatus[0] = shipStatus;
+		this.offsets.miniGame[0] = miniGame;
 	}
 
 	isX64Version(): boolean {
