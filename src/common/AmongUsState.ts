@@ -1,3 +1,5 @@
+import { CameraLocation } from './AmongusMap';
+
 export interface AmongUsState {
 	gameState: GameState;
 	oldGameState: GameState;
@@ -9,7 +11,6 @@ export interface AmongUsState {
 	comsSabotaged: boolean;
 	currentCamera: CameraLocation;
 }
-
 
 export interface Player {
 	ptr: number;
@@ -40,17 +41,6 @@ export enum GameState {
 	UNKNOWN,
 }
 
-
-export enum CameraLocation {
-	East,
-	Central,
-	Northeast,
-	South,
-	SouthWest,
-	NorthWest,
-	Skeld,
-	NONE,
-}
 
 
 export interface Client {

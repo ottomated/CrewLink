@@ -261,12 +261,22 @@ const store = new Store<ISettings>({
 					type: 'boolean',
 					default: false,
 				},
+				deadOnly: {
+					type: 'boolean',
+					default: false,
+				},
+				hearThroughCameras: {
+					type: 'boolean',
+					default: false,
+				},
 			},
 			default: {
 				maxDistance: 5.32,
 				haunting: false,
 				commsSabotage: false,
 				hearImpostorsInVents: false,
+				hearThroughCameras : false,
+				deadOnly: false,
 			},
 		},
 	},
@@ -649,6 +659,48 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 							}}
 							value={canChangeLobbySettings ? localLobbySettings.commsSabotage : lobbySettings.commsSabotage}
 							checked={canChangeLobbySettings ? localLobbySettings.commsSabotage : lobbySettings.commsSabotage}
+							control={<Checkbox />}
+						/>
+					</DisabledTooltip>
+					<DisabledTooltip
+						disabled={!canChangeLobbySettings}
+						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
+					>
+						<FormControlLabel
+							label="Hear through cameras"
+							disabled={!canChangeLobbySettings}
+							onChange={(_, newValue: boolean) => {
+								localLobbySettings.hearThroughCameras = newValue;
+								setLocalLobbySettings(localLobbySettings);
+
+								setSettings({
+									type: 'setLobbySetting',
+									action: ['hearThroughCameras', newValue],
+								});
+							}}
+							value={canChangeLobbySettings ? localLobbySettings.hearThroughCameras : lobbySettings.hearThroughCameras}
+							checked={canChangeLobbySettings ? localLobbySettings.hearThroughCameras : lobbySettings.hearThroughCameras}
+							control={<Checkbox />}
+						/>
+					</DisabledTooltip>
+					<DisabledTooltip
+						disabled={!canChangeLobbySettings}
+						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
+					>
+						<FormControlLabel
+							label="Dead people can only talk/hear"
+							disabled={!canChangeLobbySettings}
+							onChange={(_, newValue: boolean) => {
+								localLobbySettings.deadOnly = newValue;
+								setLocalLobbySettings(localLobbySettings);
+
+								setSettings({
+									type: 'setLobbySetting',
+									action: ['deadOnly', newValue],
+								});
+							}}
+							value={canChangeLobbySettings ? localLobbySettings.deadOnly : lobbySettings.deadOnly}
+							checked={canChangeLobbySettings ? localLobbySettings.deadOnly : lobbySettings.deadOnly}
 							control={<Checkbox />}
 						/>
 					</DisabledTooltip>

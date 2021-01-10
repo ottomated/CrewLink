@@ -18,7 +18,6 @@ export interface ISettings {
 	ghostVolume: number;
 	mobileHost: boolean;
 	vadEnabled: boolean;
-
 }
 
 export interface ILobbySettings {
@@ -26,4 +25,7 @@ export interface ILobbySettings {
 	haunting: boolean;
 	hearImpostorsInVents: boolean;
 	commsSabotage: boolean;
+	deadOnly: boolean;
+	hearThroughCameras: boolean;
+
 }

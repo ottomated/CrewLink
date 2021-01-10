@@ -139,6 +139,8 @@ export default function App(): JSX.Element {
 			haunting: false,
 			hearImpostorsInVents: false,
 			commsSabotage: false,
+			deadOnly: false,
+			hearThroughCameras: false
 		},
 	});
 	const lobbySettings = useReducer(lobbySettingsReducer, settings[0].localLobbySettings);

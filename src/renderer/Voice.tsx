@@ -25,6 +25,7 @@ import Divider from '@material-ui/core/Divider';
 import { validateClientPeerConfig } from './validateClientPeerConfig';
 // @ts-ignore
 import reverbOgx from 'arraybuffer-loader!../../static/reverb.ogx';
+import { CameraLocation, PolusMap } from '../common/AmongusMap';
 
 export interface ExtendedAudioElement extends HTMLAudioElement {
 	setSinkId: (sinkId: string) => Promise<void>;
@@ -210,6 +211,15 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			case GameState.TASKS:
 				gain.gain.value = 1;
 
+				if (
+					lobbySettings.hearThroughCameras &&
+					state.currentCamera !== CameraLocation.NONE &&
+					state.currentCamera !== CameraLocation.Skeld
+				) {
+					const camerapos = PolusMap.cameras[state.currentCamera];
+					panPos = [other.x - camerapos.x, other.y - camerapos.y];
+				}
+
 				if (!me.isDead && lobbySettings.commsSabotage && state.comsSabotaged && !me.isImpostor) {
 					gain.gain.value = 0;
 				}
@@ -244,10 +254,16 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				break;
 		}
 
-		if(!other.isDead){
+		if (!other.isDead) {
 			reverbGain.gain.value = 0;
 		}
 
+		if (lobbySettings.deadOnly) {
+			panPos = [0, 0];
+			if (!me.isDead || !other.isDead) {
+				gain.gain.value = 0;
+			}
+		}
 
 		// Muffling in vents
 		if (me.inVent || other.inVent) {

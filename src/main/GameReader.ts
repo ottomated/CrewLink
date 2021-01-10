@@ -11,9 +11,10 @@ import {
 } from 'memoryjs';
 import Struct from 'structron';
 import { IpcRendererMessages } from '../common/ipc-messages';
-import { GameState, AmongUsState, Player, CameraLocation } from '../common/AmongUsState';
+import { GameState, AmongUsState, Player } from '../common/AmongUsState';
 import offsetStore, { IOffsets } from './offsetStore';
 import Errors from '../common/Errors';
+import { CameraLocation } from '../common/AmongusMap';
 
 interface ValueType<T> {
 	read(buffer: BufferSource, offset: number): T;
@@ -138,7 +139,6 @@ export default class GameReader {
 				crewmates = 0;
 			let comsSabotaged = false;
 			let currentCamera = CameraLocation.NONE;
-			this.gameCode = 'DEV123';
 			if (this.gameCode && playerCount) {
 				for (let i = 0; i < Math.min(playerCount, 100); i++) {
 					const { address, last } = this.offsetAddress(playerAddrPtr, this.offsets.player.offsets);
@@ -208,6 +208,7 @@ export default class GameReader {
 					state = GameState.LOBBY;
 				}
 			}
+			
 			if (
 				this.oldGameState === GameState.MENU &&
 				state === GameState.LOBBY &&
@@ -412,6 +413,10 @@ export default class GameReader {
 
 		const y = this.readMemory<number>('float', data.objectPtr, positionOffsets[1]);
 
+
+		if(isLocal){
+			console.log("Current position: ", {x, y});
+		}
 		return {
 			ptr,
 			id: data.id,
