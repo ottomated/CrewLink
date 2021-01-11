@@ -190,7 +190,7 @@ export default class GameReader {
 							minigamePtr,
 							this.offsets?.planetSurveillanceMinigame_currentCamera
 						);
-						const camarasCount = this.readMemory<number>(
+						const camarasCount = this.readMemory<number>( 
 							'uint32',
 							minigamePtr,
 							this.offsets?.planetSurveillanceMinigame_camarasCount
@@ -415,10 +415,10 @@ export default class GameReader {
 		const y = this.readMemory<number>('float', data.objectPtr, positionOffsets[1]);
 
 		const x_round = Math.round(x * 1000) / 1000;
-		const y_round = Math.round(x * 1000) / 1000;
+		const y_round = Math.round(y * 1000) / 1000;
 
-		// if(isLocal){
-		// 	console.log("Current position: ", {x_low: x_round, y_low: y_round});
+		// if (isLocal) {
+		// 	console.log('Current position: ', { x_low: x_round, y_low: y_round });
 		// }
 		return {
 			ptr,
