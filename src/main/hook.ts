@@ -96,12 +96,9 @@ const keycodeMap = {
 	PageUp: 0x21,
 	PageDown: 0x22,
 	Escape: 0x1b,
-	LControl: 0x11,
-	LShift: 0x10,
-	LAlt: 0x12,
-	RControl: 0x11,
-	RShift: 0x10,
-	RAlt: 0x12,
+	Control: 0x11,
+	Shift: 0x10,
+	Alt: 0x12,
 	F1: 0x70,
 	F2: 0x71,
 	F3: 0x72,
@@ -116,6 +113,18 @@ const keycodeMap = {
 	F12: 0x7b,
 	MouseButton4: 0x05,
 	MouseButton5: 0x06,
+	Numpad0: 0x60,
+	Numpad1: 0x61,
+	Numpad2: 0x62,
+	Numpad3: 0x63,
+	Numpad4: 0x64,
+	Numpad5: 0x65,
+	Numpad6: 0x66,
+	Numpad7: 0x67,
+	Numpad8: 0x68,
+	Numpad9: 0x69,
+
+
 };
 type K = keyof typeof keycodeMap;
 

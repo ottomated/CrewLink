@@ -114,12 +114,9 @@ const keys = new Set([
 	'PageUp',
 	'PageDown',
 	'Escape',
-	'LControl',
-	'LShift',
-	'LAlt',
-	'RControl',
-	'RShift',
-	'RAlt',
+	'Control',
+	'Shift',
+	'Alt',
 ]);
 
 const store = new Store<ISettings>({
@@ -200,11 +197,11 @@ const store = new Store<ISettings>({
 		},
 		deafenShortcut: {
 			type: 'string',
-			default: 'RControl',
+			default: 'Control',
 		},
 		muteShortcut: {
 			type: 'string',
-			default: 'RAlt',
+			default: 'Alt',
 		},
 		hideCode: {
 			type: 'boolean',
@@ -275,7 +272,7 @@ const store = new Store<ISettings>({
 				haunting: false,
 				commsSabotage: false,
 				hearImpostorsInVents: false,
-				hearThroughCameras : false,
+				hearThroughCameras: false,
 				deadOnly: false,
 			},
 		},
@@ -504,14 +501,19 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 	}, [_]);
 
 	const setShortcut = (ev: React.KeyboardEvent, shortcut: string) => {
+		console.log(ev, shortcut);
 		let k = ev.key;
 		if (k.length === 1) k = k.toUpperCase();
 		else if (k.startsWith('Arrow')) k = k.substring(5);
 		if (k === ' ') k = 'Space';
 
-		if (k === 'Control' || k === 'Alt' || k === 'Shift') k = (ev.location === 1 ? 'L' : 'R') + k;
+		/* @ts-ignore */
+		let c = ev.code as string;
+		if (c && c.startsWith('Numpad')) {
+			k = c;
+		}
 
-		if (/^[0-9A-Z]$/.test(k) || /^F[0-9]{1, 2}$/.test(k) || keys.has(k)) {
+		if (/^[0-9A-Z]$/.test(k) || /^F[0-9]{1,2}$/.test(k) || keys.has(k) || k.startsWith('Numpad')) {
 			setSettings({
 				type: 'setOne',
 				action: [shortcut, k],
@@ -679,7 +681,9 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 								});
 							}}
 							value={canChangeLobbySettings ? localLobbySettings.hearThroughCameras : lobbySettings.hearThroughCameras}
-							checked={canChangeLobbySettings ? localLobbySettings.hearThroughCameras : lobbySettings.hearThroughCameras}
+							checked={
+								canChangeLobbySettings ? localLobbySettings.hearThroughCameras : lobbySettings.hearThroughCameras
+							}
 							control={<Checkbox />}
 						/>
 					</DisabledTooltip>
