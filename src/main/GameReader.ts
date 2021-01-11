@@ -414,8 +414,12 @@ export default class GameReader {
 		const y = this.readMemory<number>('float', data.objectPtr, positionOffsets[1]);
 
 
+
+		const x_round = Math.round(x * 1000) / 1000
+		const y_round = Math.round(x * 1000) / 1000
+
 		// if(isLocal){
-		// 	console.log("Current position: ", {x, y});
+		// 	console.log("Current position: ", {x_low: x_round, y_low: y_round});
 		// }
 		return {
 			ptr,
@@ -433,8 +437,8 @@ export default class GameReader {
 			objectPtr: data.objectPtr,
 			inVent: this.readMemory<number>('byte', data.objectPtr, this.offsets.player.inVent) > 0,
 			isLocal,
-			x,
-			y,
+			x : x_round || x,
+			y : y_round || y,
 		};
 	}
 }

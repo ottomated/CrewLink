@@ -100,7 +100,7 @@ const Overlay: React.FC = function () {
 		};
 	}, []);
 
-	if (!settings || !voiceState || !gameState) return null;
+	if (!settings || !voiceState || !gameState || !settings.enableOverlay || gameState.gameState == GameState.MENU) return null;
 	return (
 		<>
 			{settings.meetingOverlay && <MeetingHud gameState={gameState} otherTalking={voiceState.otherTalking} />}

@@ -117,9 +117,9 @@ function createOverlay() {
 			webSecurity: false,
 		},
 		fullscreenable: true,
-		skipTaskbar: false,
+		skipTaskbar: true,
 		frame: false,
-		show: true,
+		show: false,
 		transparent: true,
 		resizable: true,
 		//	...overlayWindow.WINDOW_OPTS,
@@ -237,7 +237,6 @@ if (!gotTheLock) {
 	app.whenReady().then(() => {
 		initializeIpcListeners();
 		initializeIpcHandlers();
-		global.overlay = createOverlay();
 		global.mainWindow = createMainWindow();
 	});
 
@@ -250,7 +249,19 @@ if (!gotTheLock) {
 	});
 
 	ipcMain.on('enableOverlay', async (_event, enable) => {
-		if (enable) overlayWindow.show();
-		else overlayWindow.hide();
+		if (enable) {
+			if (!global.overlay) {
+				global.overlay = createOverlay();
+			}
+			overlayWindow.show();
+		} else {
+			overlayWindow.hide();
+
+			if (global.overlay?.closable) {
+				overlayWindow.stop();
+				global.overlay?.close();
+				global.overlay = null;
+			}
+		}
 	});
 }
