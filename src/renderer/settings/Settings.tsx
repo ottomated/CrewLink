@@ -869,12 +869,23 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 				{settings.enableOverlay && (
 					<>
 						<FormControlLabel
-							label="compactOverlay"
+							label="compact Overlay"
 							checked={settings.compactOverlay}
 							onChange={(_, checked: boolean) => {
 								setSettings({
 									type: 'setOne',
 									action: ['compactOverlay', checked],
+								});
+							}}
+							control={<Checkbox />}
+						/>
+						<FormControlLabel
+							label="Meeting Overlay"
+							checked={settings.meetingOverlay}
+							onChange={(_, checked: boolean) => {
+								setSettings({
+									type: 'setOne',
+									action: ['meetingOverlay', checked],
 								});
 							}}
 							control={<Checkbox />}

@@ -38,13 +38,11 @@ export const initializeIpcListeners = (): void => {
 		app.quit();
 	});
 
-	ipcMain.on(
-		IpcMessages.SEND_TO_OVERLAY,
-		(_, event: IpcOverlayMessages, ...args: unknown[]) => {
-			if(global.overlay)
-			global.overlay.webContents.send(event, ...args);
-		}
-	);
+	ipcMain.on(IpcMessages.SEND_TO_OVERLAY, (_, event: IpcOverlayMessages, ...args: unknown[]) => {
+		try {
+			if (global.overlay) global.overlay.webContents.send(event, ...args);
+		} catch (e) {}
+	});
 
 	ipcMain.on(IpcMessages.QUIT_CREWLINK, () => {
 		try {

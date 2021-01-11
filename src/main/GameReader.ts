@@ -67,7 +67,6 @@ export default class GameReader {
 				this.amongUs = openProcess('Among Us.exe');
 				this.gameAssembly = findModule('GameAssembly.dll', this.amongUs.th32ProcessID);
 				this.initializeoffsets();
-
 				this.sendIPC(IpcRendererMessages.NOTIFY_GAME_OPENED, true);
 			} catch (e) {
 				if (processOpen && e.toString() === 'Error: unable to find process') throw Errors.OPEN_AS_ADMINISTRATOR;
@@ -75,7 +74,9 @@ export default class GameReader {
 			}
 		} else if (this.amongUs && !processOpen) {
 			this.amongUs = null;
-			this.sendIPC(IpcRendererMessages.NOTIFY_GAME_OPENED, false);
+			try {
+				this.sendIPC(IpcRendererMessages.NOTIFY_GAME_OPENED, false);
+			} catch (e) {}
 		}
 		return;
 	}
@@ -208,7 +209,7 @@ export default class GameReader {
 					state = GameState.LOBBY;
 				}
 			}
-			
+
 			if (
 				this.oldGameState === GameState.MENU &&
 				state === GameState.LOBBY &&
@@ -231,7 +232,7 @@ export default class GameReader {
 				hostId: hostId,
 				clientId: clientId,
 				comsSabotaged,
-				currentCamera
+				currentCamera,
 			};
 			//	const stateHasChanged = !equal(this.lastState, newState);
 			//	if (stateHasChanged) {
@@ -413,10 +414,8 @@ export default class GameReader {
 
 		const y = this.readMemory<number>('float', data.objectPtr, positionOffsets[1]);
 
-
-
-		const x_round = Math.round(x * 1000) / 1000
-		const y_round = Math.round(x * 1000) / 1000
+		const x_round = Math.round(x * 1000) / 1000;
+		const y_round = Math.round(x * 1000) / 1000;
 
 		// if(isLocal){
 		// 	console.log("Current position: ", {x_low: x_round, y_low: y_round});
@@ -437,8 +436,8 @@ export default class GameReader {
 			objectPtr: data.objectPtr,
 			inVent: this.readMemory<number>('byte', data.objectPtr, this.offsets.player.inVent) > 0,
 			isLocal,
-			x : x_round || x,
-			y : y_round || y,
+			x: x_round || x,
+			y: y_round || y,
 		};
 	}
 }

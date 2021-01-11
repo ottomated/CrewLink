@@ -131,7 +131,7 @@ export default function App(): JSX.Element {
 		overlayPosition: 'top',
 		compactOverlay: false,
 		enableOverlay: false,
-		meetingOverlay: true,
+		meetingOverlay: false,
 		ghostVolume: 100,
 		vadEnabled:true,
 		localLobbySettings: {
