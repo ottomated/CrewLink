@@ -46,17 +46,19 @@ This project implements proximity voice chat in Among Us. Everyone in an Among U
 
 Download the latest version from [releases](https://github.com/ottomated/CrewLink/releases) and run the `CrewLink-Setup-X.X.X.exe` file. You may get antivirus warnings, because this program hooks into the Among Us process to read game data.
 
-If you can, you should use a private server by deploying [this repository](https://github.com/ottomated/CrewLink-server).
-
 ### Setup Instructions (click)
 
 [![Setup Video](https://img.youtube.com/vi/_8F4f5iQEIc/0.jpg)](https://www.youtube.com/watch?v=_8F4f5iQEIc "CrewLink Setup Instructions")
+
+## Servers
+
+It is recommended to use the official CrewLink server. However, if you absolutely want to run your own, you can deploy [this repository](https://github.com/ottomated/CrewLink-server).
 
 ## Development
 
 You only need to follow the below instructions if you are trying to modify this software. Otherwise, please download the latest version from the [github releases](https://github.com/ottomated/CrewLink/releases).
 
-Server code is located at [ottomated/CrewLink-server](https://github.com/ottomated/CrewLink-server). Please use a local server for development purposes.
+Please use a local server for development purposes, which you can deploy from [ottomated/CrewLink-server](https://github.com/ottomated/CrewLink-server).
 
 ### Prerequisites
 
