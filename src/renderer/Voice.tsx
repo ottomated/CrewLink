@@ -810,6 +810,9 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 	// Pass voice state to overlay
 	useEffect(() => {
+		if (!settings.enableOverlay) {
+			return;
+		}
 		ipcRenderer.send(IpcMessages.SEND_TO_OVERLAY, IpcOverlayMessages.NOTIFY_VOICE_STATE_CHANGED, {
 			otherTalking,
 			playerSocketIds,
@@ -818,8 +821,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			audioConnected,
 			localTalking: talking,
 		} as VoiceState);
-	}, [otherTalking, playerSocketIds, otherDead, socketClients, audioConnected]);
-
+	}, [otherTalking, otherDead, socketClients, audioConnected, talking]);
 	return (
 		<div className={classes.root}>
 			{error && (
