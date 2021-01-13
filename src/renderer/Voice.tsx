@@ -41,7 +41,6 @@ interface AudioNodes {
 	pan: PannerNode;
 	reverbGain: GainNode;
 	reverb: ConvolverNode;
-	compressor: DynamicsCompressorNode;
 	muffle: BiquadFilterNode;
 }
 
@@ -220,9 +219,10 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 					gain.gain.value = 0;
 				}
 
+				
 				if (!me.isDead && other.isDead && me.isImpostor && lobbySettings.haunting) {
-					gain.gain.value = gain.gain.value * 0.02; //0.005;
-					if (reverbGain != null) reverbGain.gain.value = 1;
+					gain.gain.value = gain.gain.value * 0.04; //0.005;
+					if (reverbGain != null) reverbGain.gain.value = 2;
 				} else {
 					if (!me.isDead && (other.isDead || state.comsSabotaged)) {
 						gain.gain.value = 0;
@@ -305,6 +305,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			audioElements.current[peer].gain.disconnect();
 			if (audioElements.current[peer].reverbGain != null) audioElements.current[peer].reverbGain.disconnect();
 			if (audioElements.current[peer].reverb != null) audioElements.current[peer].reverb.disconnect();
+
 			delete audioElements.current[peer];
 		}
 	}
@@ -562,7 +563,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						const source = context.createMediaStreamSource(stream);
 						const gain = context.createGain();
 						const pan = context.createPanner();
-						const compressor = context.createDynamicsCompressor();
 						gain.gain.value = 0;
 						pan.refDistance = 0.1;
 						pan.panningModel = 'equalpower';
@@ -575,32 +575,25 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 						source.connect(pan);
 						pan.connect(muffle);
-
 						muffle.connect(gain);
-						gain.connect(compressor);
 
 						const reverb = context.createConvolver();
 						const reverbGain = context.createGain();
-						reverbGain.gain.value = 0;
+						reverbGain.gain.value = 1;
 						reverb.buffer = convolverBuffer.current;
 
-						// if (lobbySettingsRef.current.haunting) {
-						gain.connect(compressor);
 						gain.connect(reverbGain);
 						reverbGain.connect(reverb);
-						reverb.connect(compressor);
-						// } else {
-						// 	gain.connect(compressor);
-						// }
+						reverb.connect(context.destination);
 
 						if (settingsRef.current.vadEnabled) {
-							VAD(context, compressor, context.destination, {
+							VAD(context, gain, context.destination, {
 								onVoiceStart: () => setTalking(true),
 								onVoiceStop: () => setTalking(false),
-								stereo: true,
+								stereo: false,
 							});
-						} else {
-							compressor.connect(context.destination);
+						}else{
+							gain.connect(context.destination);
 						}
 
 						const setTalking = (talking: boolean) => {
@@ -620,7 +613,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 							pan,
 							reverbGain,
 							reverb,
-							compressor,
 							muffle,
 						};
 					});
