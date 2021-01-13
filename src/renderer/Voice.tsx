@@ -886,7 +886,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 								isAlive={!otherDead[player.id]}
 								size={50}
 								socketConfig={socketConfig}
-								onConfigChange={() => store.set('playerConfigMap', playerConfigs)}
+								 onConfigChange={() => store.set(`playerConfigMap.${player.clientId}`, playerConfigs[player.clientId])}
 							/>
 						</Grid>
 					);
