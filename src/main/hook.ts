@@ -7,17 +7,29 @@ import { ISettings } from '../common/ISettings';
 import { IpcHandlerMessages, IpcRendererMessages, IpcSyncMessages } from '../common/ipc-messages';
 import { overlayWindow } from 'electron-overlay-window';
 
-const store = new Store<ISettings>({ watch: true });
-store.onDidAnyChange(resetKeyHooks);
+const store = new Store<ISettings>();
+
+
 let readingGame = false;
 let gameReader: GameReader;
 
+let pushToTalkShortcut = store.get('pushToTalkShortcut') as K;
+let deafenShortcut = store.get('deafenShortcut') as K;
+let muteShortcut = store.get('muteShortcut') as K;
+
 function resetKeyHooks(): void {
+	pushToTalkShortcut = store.get('pushToTalkShortcut') as K;
+	deafenShortcut = store.get('deafenShortcut') as K;
+	muteShortcut = store.get('muteShortcut') as K;
 	keyboardWatcher.clearKeyHooks();
-	AddKeyHanlder(store.get('pushToTalkShortcut') as K);
-	AddKeyHanlder(store.get('deafenShortcut') as K);
-	AddKeyHanlder(store.get('muteShortcut') as K);
+	AddKeyHanlder(pushToTalkShortcut);
+	AddKeyHanlder(deafenShortcut);
+	AddKeyHanlder(muteShortcut);
 }
+
+ipcMain.on(IpcHandlerMessages.RESET_KEYHOOKS, (event) => {
+	resetKeyHooks();
+});
 
 ipcMain.on(IpcSyncMessages.GET_INITIAL_STATE, (event) => {
 	if (!readingGame) {
@@ -34,19 +46,19 @@ ipcMain.handle(IpcHandlerMessages.START_HOOK, async (event) => {
 		resetKeyHooks();
 
 		keyboardWatcher.on('keydown', (keyId: number) => {
-			if (keyCodeMatches(store.get('pushToTalkShortcut') as K, keyId)) {
+			if (keyCodeMatches(pushToTalkShortcut, keyId)) {
 				event.sender.send(IpcRendererMessages.PUSH_TO_TALK, true);
 			}
 		});
 
 		keyboardWatcher.on('keyup', (keyId: number) => {
-			if (keyCodeMatches(store.get('pushToTalkShortcut') as K, keyId)) {
+			if (keyCodeMatches(pushToTalkShortcut, keyId)) {
 				event.sender.send(IpcRendererMessages.PUSH_TO_TALK, false);
 			}
-			if (keyCodeMatches(store.get('deafenShortcut') as K, keyId)) {
+			if (keyCodeMatches(deafenShortcut, keyId)) {
 				event.sender.send(IpcRendererMessages.TOGGLE_DEAFEN);
 			}
-			if (keyCodeMatches(store.get('muteShortcut', 'RAlt') as K, keyId)) {
+			if (keyCodeMatches(muteShortcut, keyId)) {
 				event.sender.send(IpcRendererMessages.TOGGLE_MUTE);
 			}
 		});
@@ -123,8 +135,6 @@ const keycodeMap = {
 	Numpad7: 0x67,
 	Numpad8: 0x68,
 	Numpad9: 0x69,
-
-
 };
 type K = keyof typeof keycodeMap;
 

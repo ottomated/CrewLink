@@ -8,7 +8,7 @@ import WifiOff from '@material-ui/icons/WifiOff';
 import LinkOff from '@material-ui/icons/LinkOff';
 // import Tooltip from '@material-ui/core/Tooltip';
 import Tooltip from 'react-tooltip-lite';
-import { SocketConfig } from './Voice';
+import { SocketConfig } from '../common/ISettings';
 
 interface UseStylesParams {
 	size: number;
@@ -63,6 +63,7 @@ export interface AvatarProps {
 	socketConfig?: SocketConfig;
 	showborder?: boolean;
 	showHat?: boolean;
+	onConfigChange?: () => void;
 }
 
 const Avatar: React.FC<AvatarProps> = function ({
@@ -77,6 +78,7 @@ const Avatar: React.FC<AvatarProps> = function ({
 	socketConfig,
 	showborder,
 	showHat,
+	onConfigChange,
 }: AvatarProps) {
 	const status = isAlive ? 'alive' : 'dead';
 	let image = players[status][player.colorId];
@@ -110,7 +112,7 @@ const Avatar: React.FC<AvatarProps> = function ({
 			content={
 				<div>
 					<b>{player?.name}</b>
-					<div className="slidecontainer" style={{ minWidth: '55px' }}>
+					<div className="slidecontainer" style={{ minWidth: '55px' }} >
 						<input
 							type="range"
 							min="0"
@@ -119,8 +121,16 @@ const Avatar: React.FC<AvatarProps> = function ({
 							className="relativeGainSlider"
 							style={{ width: '50px' }}
 							step="any"
+							onMouseLeave={() => {
+								console.log("onmouseleave")
+								if (onConfigChange) {
+									onConfigChange();
+								}
+							}}
 							onChange={(ev): void => {
-								if (socketConfig) socketConfig.volume = parseFloat(ev.target.value);
+								if (socketConfig) {
+									socketConfig.volume = parseFloat(ev.target.value.substr(0,6));
+								}
 							}}
 						></input>
 					</div>{' '}

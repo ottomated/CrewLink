@@ -100,7 +100,8 @@ const Overlay: React.FC = function () {
 		};
 	}, []);
 
-	if (!settings || !voiceState || !gameState || !settings.enableOverlay || gameState.gameState == GameState.MENU) return null;
+	if (!settings || !voiceState || !gameState || !settings.enableOverlay || gameState.gameState == GameState.MENU)
+		return null;
 	return (
 		<>
 			{settings.meetingOverlay && <MeetingHud gameState={gameState} otherTalking={voiceState.otherTalking} />}
@@ -161,7 +162,9 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 						// connectionState={!connected ? 'disconnected' : audio ? 'connected' : 'novoice'}
 						player={player}
 						showborder={isOnSide && !compactOverlay}
-						talking={voiceState.otherTalking[player.id] || (player.isLocal && voiceState.localTalking)}
+						talking={
+							!player.inVent && (voiceState.otherTalking[player.id] || (player.isLocal && voiceState.localTalking))
+						}
 						borderColor="#2ecc71"
 						isAlive={!voiceState.otherDead[player.id] || (player.isLocal && !player.isDead)}
 						size={100}

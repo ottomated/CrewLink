@@ -121,7 +121,7 @@ export default function App(): JSX.Element {
 		microphone: 'Default',
 		speaker: 'Default',
 		pushToTalk: false,
-		serverURL: 'http://crewlink.guus.info',
+		serverURL: 'https://crewl.ink',
 		pushToTalkShortcut: 'V',
 		deafenShortcut: 'Control',
 		muteShortcut: 'Alt',
@@ -134,10 +134,12 @@ export default function App(): JSX.Element {
 		meetingOverlay: false,
 		ghostVolume: 100,
 		vadEnabled:true,
+		playerConfigMap: {},
 		localLobbySettings: {
 			maxDistance: 5.32,
 			haunting: false,
 			hearImpostorsInVents: false,
+			impostersHearImpostersInvent: false,
 			commsSabotage: false,
 			deadOnly: false,
 			hearThroughCameras: false

@@ -18,14 +18,24 @@ export interface ISettings {
 	ghostVolume: number;
 	mobileHost: boolean;
 	vadEnabled: boolean;
+	playerConfigMap : playerConfigMap;
 }
 
 export interface ILobbySettings {
 	maxDistance: number;
 	haunting: boolean;
 	hearImpostorsInVents: boolean;
+	impostersHearImpostersInvent: boolean;
+
 	commsSabotage: boolean;
 	deadOnly: boolean;
 	hearThroughCameras: boolean;
+}
 
+export interface SocketConfig {
+	volume: number;
+}
+
+export interface playerConfigMap {
+	[socketId: number]: SocketConfig;
 }

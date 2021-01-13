@@ -28,6 +28,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import { GameState } from '../../common/AmongUsState';
 import Button from '@material-ui/core/Button';
 import { ipcRenderer, remote } from 'electron';
+import { IpcHandlerMessages } from '../../common/ipc-messages';
 
 interface StyleInput {
 	open: boolean;
@@ -101,6 +102,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const keys = new Set([
+	'CapsLock',
 	'Space',
 	'Backspace',
 	'Delete',
@@ -121,52 +123,25 @@ const keys = new Set([
 
 const store = new Store<ISettings>({
 	migrations: {
-		'1.1.3': (store) => {
-			const serverIP = store.get('serverIP');
-			if (typeof serverIP === 'string') {
-				const serverURL = `http://${serverIP}`;
-				if (validateServerUrl(serverURL)) {
-					store.set('serverURL', serverURL);
-				} else {
-					console.warn('Error while parsing the old serverIP property. Default URL will be used instead.');
-				}
-
-				// @ts-ignore: Old serverIP property no longer exists in ISettings
-				store.delete('serverIP');
+		'2.0.6': (store) => {
+			if (
+				store.get('serverURL') === 'https://bettercrewl.ink:6523' ||
+				store.get('serverURL') === 'http://bettercrewl.ink' ||
+				store.get('serverURL') === 'http://crewlink.guus.info' ||
+				store.get('serverURL') === 'https://crewlink.guus.info'
+			) {
+				store.set('serverURL', 'https://bettercrewl.ink');
 			}
 		},
-		'1.1.5': (store) => {
-			const serverURL = store.get('serverURL');
-			if (serverURL === 'http://54.193.94.35:9736') {
-				store.set('serverURL', 'https://crewl.ink');
+		'2.0.7': (store) => {
+			if (
+				store.get('serverURL') === 'https://bettercrewl.ink:6523' ||
+				store.get('serverURL') === 'http://bettercrewl.ink' ||
+				store.get('serverURL') === 'http://crewlink.guus.info' ||
+				store.get('serverURL') === 'https://crewlink.guus.ninja'
+			) {
+				store.set('serverURL', 'https://bettercrewl.ink');
 			}
-		},
-		'1.1.6': (store) => {
-			// const enableSpatialAudio = store.get('stereoInLobby');
-			// if (typeof enableSpatialAudio === 'boolean') {
-			// 	store.set('enableSpatialAudio', enableSpatialAudio);
-			// }
-			// @ts-ignore
-			store.delete('stereoInLobby');
-		},
-		'1.2.0': (store) => {
-			// if (store.get('serverURL') !== 'http://bettercrewl.ink:6523') {
-			// 	store.set('serverURL', 'http://bettercrewl.ink:6523');
-			// }
-			// @ts-ignore
-			store.delete('offsets');
-		},
-		'1.2.1': (store) => {
-			// if (store.get('serverURL') !== 'http://bettercrewl.ink:6523') {
-			// 	store.set('serverURL', 'http://bettercrewl.ink:6523');
-			// }
-			// @ts-ignore
-			store.delete('offsets');
-		},
-		'1.2.15': (store) => {
-			// if (store.get('serverURL') === 'http://bettercrewl.ink:6523') {
-			// 	store.set('serverURL', 'https://crewl.ink');
-			// }
 		},
 	},
 	schema: {
@@ -221,7 +196,7 @@ const store = new Store<ISettings>({
 		},
 		enableOverlay: {
 			type: 'boolean',
-			default: true,
+			default: false,
 		},
 		ghostVolume: {
 			type: 'number',
@@ -238,6 +213,10 @@ const store = new Store<ISettings>({
 		vadEnabled: {
 			type: 'boolean',
 			default: true,
+		},
+		playerConfigMap: {
+			type: 'object',
+			default: {}
 		},
 		localLobbySettings: {
 			type: 'object',
@@ -257,6 +236,10 @@ const store = new Store<ISettings>({
 				hearImpostorsInVents: {
 					type: 'boolean',
 					default: false,
+				},
+				impostersHearImpostersInvent: {
+					type: 'boolean', 
+					default: false
 				},
 				deadOnly: {
 					type: 'boolean',
@@ -501,8 +484,9 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 	}, [_]);
 
 	const setShortcut = (ev: React.KeyboardEvent, shortcut: string) => {
-	//	console.log(ev, shortcut);
+		//	console.log(ev, shortcut);
 		let k = ev.key;
+		console.log(k);
 		if (k.length === 1) k = k.toUpperCase();
 		else if (k.startsWith('Arrow')) k = k.substring(5);
 		if (k === ' ') k = 'Space';
@@ -518,6 +502,8 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 				type: 'setOne',
 				action: [shortcut, k],
 			});
+
+			ipcRenderer.send(IpcHandlerMessages.RESET_KEYHOOKS);
 		}
 	};
 
@@ -530,6 +516,8 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 				type: 'setOne',
 				action: [shortcut, k],
 			});
+			ipcRenderer.send(IpcHandlerMessages.RESET_KEYHOOKS);
+
 		}
 	};
 
@@ -542,8 +530,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 	}, [settings.localLobbySettings]);
 
 	const isInMenuOrLobby = gameState?.gameState === GameState.LOBBY || gameState?.gameState === GameState.MENU;
-	const canChangeLobbySettings =
-		gameState?.gameState === GameState.MENU || (gameState?.isHost && gameState?.gameState === GameState.LOBBY);
+	const canChangeLobbySettings = gameState?.gameState === GameState.MENU || (gameState?.isHost && gameState?.gameState === GameState.LOBBY);
 	//gittest
 	return (
 		<Box className={classes.root}>
@@ -639,6 +626,31 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 							}
 							checked={
 								canChangeLobbySettings ? localLobbySettings.hearImpostorsInVents : lobbySettings.hearImpostorsInVents
+							}
+							control={<Checkbox />}
+						/>
+					</DisabledTooltip>
+					<DisabledTooltip
+						disabled={!canChangeLobbySettings}
+						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
+					>
+						<FormControlLabel
+							label="Private talk in vents"
+							disabled={!canChangeLobbySettings}
+							onChange={(_, newValue: boolean) => {
+								localLobbySettings.impostersHearImpostersInvent = newValue;
+								setLocalLobbySettings(localLobbySettings);
+
+								setSettings({
+									type: 'setLobbySetting',
+									action: ['impostersHearImpostersInvent', newValue],
+								});
+							}}
+							value={
+								canChangeLobbySettings ? localLobbySettings.impostersHearImpostersInvent : lobbySettings.impostersHearImpostersInvent
+							}
+							checked={
+								canChangeLobbySettings ? localLobbySettings.impostersHearImpostersInvent : lobbySettings.impostersHearImpostersInvent
 							}
 							control={<Checkbox />}
 						/>

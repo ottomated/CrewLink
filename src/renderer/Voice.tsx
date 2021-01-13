@@ -15,7 +15,7 @@ import {
 import Peer from 'simple-peer';
 import { ipcRenderer } from 'electron';
 import VAD from './vad';
-import { ISettings } from '../common/ISettings';
+import { ISettings, playerConfigMap } from '../common/ISettings';
 import { IpcRendererMessages, IpcMessages, IpcOverlayMessages } from '../common/ipc-messages';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
@@ -26,6 +26,7 @@ import { validateClientPeerConfig } from './validateClientPeerConfig';
 // @ts-ignore
 import reverbOgx from 'arraybuffer-loader!../../static/reverb.ogx';
 import { CameraLocation, PolusMap } from '../common/AmongusMap';
+import Store from 'electron-store';
 
 export interface ExtendedAudioElement extends HTMLAudioElement {
 	setSinkId: (sinkId: string) => Promise<void>;
@@ -46,14 +47,6 @@ interface AudioNodes {
 
 interface AudioElements {
 	[peer: string]: AudioNodes;
-}
-
-interface playerConfigMap {
-	[socketId: number]: SocketConfig;
-}
-
-export interface SocketConfig {
-	volume: number;
 }
 
 interface ConnectionStuff {
@@ -157,10 +150,11 @@ const useStyles = makeStyles((theme) => ({
 		padding: theme.spacing(1),
 	},
 }));
-
+const store = new Store<ISettings>();
 const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProps) {
 	const [error, setError] = useState(initialError);
 	const [settings, setSettings] = useContext(SettingsContext);
+
 	const settingsRef = useRef<ISettings>(settings);
 	const [lobbySettings, setLobbySettings] = useContext(LobbySettingsContext);
 	const lobbySettingsRef = useRef(lobbySettings);
@@ -169,7 +163,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 	if (displayedLobbyCode !== 'MENU' && settings.hideCode) displayedLobbyCode = 'LOBBY';
 	const [talking, setTalking] = useState(false);
 	const [socketClients, setSocketClients] = useState<SocketClientMap>({});
-	const [playerConfigs] = useState<playerConfigMap>({});
+	const [playerConfigs] = useState<playerConfigMap>(settingsRef.current.playerConfigMap);
 	const socketClientsRef = useRef(socketClients);
 	const [peerConnections, setPeerConnections] = useState<PeerConnections>({});
 	const convolverBuffer = useRef<AudioBuffer | null>(null);
@@ -196,7 +190,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 	): void {
 		const { pan, gain, muffle, reverbGain } = audio;
 		const audioContext = pan.context;
-
+		let maxdistance = lobbySettings.maxDistance + 1;
 		let panPos = [other.x - me.x, other.y - me.y];
 		switch (state.gameState) {
 			case GameState.MENU:
@@ -215,13 +209,15 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				}
 
 				// Mute other players which are in a vent
-				if (other.inVent && !lobbySettings.hearImpostorsInVents) {
+				if (
+					other.inVent &&
+					!(lobbySettings.hearImpostorsInVents || (lobbySettings.impostersHearImpostersInvent && me.inVent))
+				) {
 					gain.gain.value = 0;
 				}
 
-				
 				if (!me.isDead && other.isDead && me.isImpostor && lobbySettings.haunting) {
-					gain.gain.value = gain.gain.value * 0.04; //0.005;
+					gain.gain.value = gain.gain.value * 0.07; //0.005;
 					if (reverbGain != null) reverbGain.gain.value = 2;
 				} else {
 					if (!me.isDead && (other.isDead || state.comsSabotaged)) {
@@ -258,17 +254,18 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 		// Muffling in vents
 		if (me.inVent || other.inVent) {
+			maxdistance = 0.8;
 			muffle.frequency.value = 1200;
 			muffle.Q.value = 20;
-			if (gain.gain.value === 1) gain.gain.value = 0.7; // Too loud at 1
+			if (gain.gain.value === 1) gain.gain.value = 0.7787; // Too loud at 1
 		} else {
 			muffle.frequency.value = 20000;
 			muffle.Q.value = 0;
 		}
 
 		// Mute players if distancte between two players is too big
-
-		if (Math.pow(panPos[0], 2) + Math.pow(panPos[1], 2) > lobbySettings.maxDistance * lobbySettings.maxDistance) {
+		console.log(Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]));
+		if (Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]) > maxdistance) {
 			if (
 				lobbySettings.hearThroughCameras &&
 				state.currentCamera !== CameraLocation.NONE &&
@@ -276,11 +273,13 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			) {
 				const camerapos = PolusMap.cameras[state.currentCamera];
 				panPos = [other.x - camerapos.x, other.y - camerapos.y];
-				if (Math.pow(panPos[0], 2) + Math.pow(panPos[1], 2) > lobbySettings.maxDistance * lobbySettings.maxDistance) {
+				if (Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]) > maxdistance) {
 					gain.gain.value = 0;
+					return;
 				}
 			} else {
 				gain.gain.value = 0;
+				return;
 			}
 		}
 
@@ -592,7 +591,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 								onVoiceStop: () => setTalking(false),
 								stereo: false,
 							});
-						}else{
+						} else {
 							gain.connect(context.destination);
 						}
 
@@ -601,6 +600,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 								console.log('error with settalking: ', talking);
 								return;
 							}
+
 							const reallyTalking = talking && gain.gain.value > 0;
 							setOtherTalking((old) => ({
 								...old,
@@ -652,7 +652,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				});
 
 				socket.on('signal', ({ data, from }: { data: Peer.SignalData; from: string }) => {
-					console.log('onsignal', JSON.stringify(data));
+					//console.log('onsignal', JSON.stringify(data));
 
 					let connection: Peer.Instance;
 					if (peerConnections[from]) {
@@ -721,6 +721,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				}
 
 				if (audio.gain.gain.value > 0) {
+					console.log(player.name, player.clientId);
 					const playerVolume = playerConfigs[player.clientId]?.volume;
 
 					audio.gain.gain.value =
@@ -880,11 +881,12 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 							<Avatar
 								connectionState={!connected ? 'disconnected' : audio ? 'connected' : 'novoice'}
 								player={player}
-								talking={otherTalking[player.id]}
+								talking={!player.inVent && otherTalking[player.id]}
 								borderColor="#2ecc71"
 								isAlive={!otherDead[player.id]}
 								size={50}
 								socketConfig={socketConfig}
+								onConfigChange={() => store.set('playerConfigMap', playerConfigs)}
 							/>
 						</Grid>
 					);

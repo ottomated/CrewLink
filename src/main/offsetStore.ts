@@ -121,7 +121,7 @@ export default {
 			bufferLength: 80,
 			offsets: [0, 0],
 			inVent: [61],
-			clientId: [40],
+			clientId: [0x28],
 		},
 		signatures: {
 			innerNetClient: {

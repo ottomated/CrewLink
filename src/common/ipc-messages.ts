@@ -23,6 +23,8 @@ export enum IpcOverlayMessages {
 // Renderer --> Main (invoke/handle)
 export enum IpcHandlerMessages {
 	START_HOOK = 'START_HOOK',
+	RESET_KEYHOOKS = 'RESET_KEYHOOKS'
+
 }
 
 // Main --> Renderer (send/on)
