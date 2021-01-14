@@ -20,6 +20,7 @@ import {
 import equal from 'deep-equal';
 import offsetStore, { IOffsets } from './offsetStore';
 import Errors from '../common/Errors';
+import { StringDecoder } from 'string_decoder';
 
 interface ValueType<T> {
 	read(buffer: BufferSource, offset: number): T;
@@ -439,7 +440,9 @@ export default class GameReader {
 			address + (this.is64Bit ? 0x14 : 0xc),
 			length << 1
 		);
-		return buffer.toString('binary').replace(/\0/g, '');
+
+		const decoder = new StringDecoder('utf16le');
+		return decoder.write(buffer);
 	}
 
 	findPattern(
