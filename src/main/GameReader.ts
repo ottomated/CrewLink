@@ -141,7 +141,7 @@ export default class GameReader {
 			let comsSabotaged = false;
 			let currentCamera = CameraLocation.NONE;
 			if (this.gameCode && playerCount) {
-				for (let i = 0; i < Math.min(playerCount, 100); i++) {
+				for (let i = 0; i < Math.min(playerCount, 20); i++) {
 					const { address, last } = this.offsetAddress(playerAddrPtr, this.offsets.player.offsets);
 					const playerData = readBuffer(this.amongUs.handle, address + last, this.offsets.player.bufferLength);
 					const player = this.parsePlayer(address + last, playerData, clientId);
@@ -190,7 +190,7 @@ export default class GameReader {
 							minigamePtr,
 							this.offsets?.planetSurveillanceMinigame_currentCamera
 						);
-						const camarasCount = this.readMemory<number>( 
+						const camarasCount = this.readMemory<number>(
 							'uint32',
 							minigamePtr,
 							this.offsets?.planetSurveillanceMinigame_camarasCount
@@ -341,9 +341,12 @@ export default class GameReader {
 
 	readString(address: number): string {
 		if (address === 0 || !this.amongUs) return '';
-		const length = readMemoryRaw<number>(this.amongUs.handle, address + (this.is_64bit ? 0x10 : 0x8), 'int');
+		const length = Math.min(
+			readMemoryRaw<number>(this.amongUs.handle, address + (this.is_64bit ? 0x10 : 0x8), 'int'),
+			15
+		);
 		const buffer = readBuffer(this.amongUs.handle, address + (this.is_64bit ? 0x14 : 0xc), length << 1);
-		return buffer.toString('binary').replace(/\0/g, '');
+		return buffer.toString('utf16le').replace(/\0/g, '');
 	}
 
 	readDictionary(
@@ -414,8 +417,8 @@ export default class GameReader {
 
 		const y = this.readMemory<number>('float', data.objectPtr, positionOffsets[1]);
 
-		const x_round = Math.round(x * 1000) / 1000;
-		const y_round = Math.round(y * 1000) / 1000;
+		const x_round = parseFloat(x.toFixed(4));
+		const y_round = parseFloat(x.toFixed(4));
 
 		// if (isLocal) {
 		// 	console.log('Current position: ', { x_low: x_round, y_low: y_round });
@@ -436,8 +439,8 @@ export default class GameReader {
 			objectPtr: data.objectPtr,
 			inVent: this.readMemory<number>('byte', data.objectPtr, this.offsets.player.inVent) > 0,
 			isLocal,
-			x: x_round || x,
-			y: y_round || y,
+			x: x_round || x || 999,
+			y: y_round || y || 999,
 		};
 	}
 }

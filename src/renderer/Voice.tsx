@@ -264,7 +264,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		}
 
 		// Mute players if distancte between two players is too big
-		console.log(Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]));
+		// console.log(Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]));
 		if (Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]) > maxdistance) {
 			if (
 				lobbySettings.hearThroughCameras &&
@@ -584,7 +584,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						gain.connect(reverbGain);
 						reverbGain.connect(reverb);
 						reverb.connect(context.destination);
-
 						if (settingsRef.current.vadEnabled) {
 							VAD(context, gain, context.destination, {
 								onVoiceStart: () => setTalking(true),
@@ -815,6 +814,9 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			localTalking: talking,
 		} as VoiceState);
 	}, [otherTalking, otherDead, socketClients, audioConnected, talking]);
+
+
+
 	return (
 		<div className={classes.root}>
 			{error && (

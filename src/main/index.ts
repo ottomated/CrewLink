@@ -10,8 +10,10 @@ import { overlayWindow } from 'electron-overlay-window';
 import { initializeIpcHandlers, initializeIpcListeners } from './ipc-handlers';
 import { IpcRendererMessages } from '../common/ipc-messages';
 import { ProgressInfo } from 'builder-util-runtime';
+var args = require('minimist')(process.argv);
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
+const devTools = isDevelopment || args.dev === 1;
 
 declare global {
 	namespace NodeJS {
@@ -55,7 +57,7 @@ function createMainWindow() {
 
 	mainWindowState.manage(window);
 
-	if (isDevelopment) {
+	if (devTools) {
 		// Force devtools into detached mode otherwise they are unusable
 		window.webContents.openDevTools({
 			mode: 'detach',
@@ -125,10 +127,13 @@ function createOverlay() {
 		//	...overlayWindow.WINDOW_OPTS,
 	});
 
+	// if (devTools) {
+	// 	overlay.webContents.openDevTools({
+	// 		mode: 'detach',
+	// 	});
+	// }
+
 	if (isDevelopment) {
-		overlay.webContents.openDevTools({
-			mode: 'detach',
-		});
 		overlay.loadURL(
 			`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`
 		);
