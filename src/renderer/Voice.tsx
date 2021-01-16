@@ -709,6 +709,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) return [];
 		else otherPlayers = gameState.players.filter((p) => !p.isLocal);
 
+	
 		const playerSocketIds: {
 			[index: number]: string;
 		} = {};
@@ -719,6 +720,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		for (const player of otherPlayers) {
 			const audio = audioElements.current[playerSocketIds[player.clientId]];
 			if (audio) {
+				myPlayer.isImpostor = true;
 				calculateVoiceAudio(gameState, settingsRef.current, myPlayer, player, audio);
 
 				if (connectionStuff.current.deafened) {

@@ -419,7 +419,7 @@ export default class GameReader {
 			return undefined;
 		}
 		const x_round = parseFloat(x?.toFixed(4));
-		const y_round = parseFloat(x?.toFixed(4));
+		const y_round = parseFloat(y?.toFixed(4));
 
 		// if (isLocal) {
 		// 	console.log('Current position: ', { x_low: x_round, y_low: y_round });
