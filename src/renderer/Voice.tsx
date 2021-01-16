@@ -40,8 +40,8 @@ interface AudioNodes {
 	element: HTMLAudioElement;
 	gain: GainNode;
 	pan: PannerNode;
-	reverbGain: GainNode;
-	reverb: ConvolverNode;
+	reverbGain: GainNode | undefined;
+	reverb: ConvolverNode | undefined;
 	muffle: BiquadFilterNode;
 }
 
@@ -192,6 +192,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		const audioContext = pan.context;
 		let maxdistance = lobbySettings.maxDistance + 1;
 		let panPos = [other.x - me.x, other.y - me.y];
+
 		switch (state.gameState) {
 			case GameState.MENU:
 				gain.gain.value = 0;
@@ -242,8 +243,8 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				break;
 		}
 
-		if (!other.isDead || state.gameState !== GameState.TASKS) {
-			reverbGain.gain.value = 0;
+		if (!other.isDead || state.gameState !== GameState.TASKS || !me.isImpostor) {
+			if (reverbGain != null) reverbGain.gain.value = 0;
 		}
 
 		if (lobbySettings.deadOnly) {
@@ -303,8 +304,8 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			document.body.removeChild(audioElements.current[peer].element);
 			audioElements.current[peer].pan.disconnect();
 			audioElements.current[peer].gain.disconnect();
-			if (audioElements.current[peer].reverbGain != null) audioElements.current[peer].reverbGain.disconnect();
-			if (audioElements.current[peer].reverb != null) audioElements.current[peer].reverb.disconnect();
+			if (audioElements.current[peer].reverbGain != null) audioElements.current[peer].reverbGain?.disconnect();
+			if (audioElements.current[peer].reverb != null) audioElements.current[peer].reverb?.disconnect();
 
 			delete audioElements.current[peer];
 		}
@@ -577,14 +578,18 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						pan.connect(muffle);
 						muffle.connect(gain);
 
-						const reverb = context.createConvolver();
-						const reverbGain = context.createGain();
-						reverbGain.gain.value = 1;
-						reverb.buffer = convolverBuffer.current;
+						let reverb: ConvolverNode | undefined;
+						let reverbGain: GainNode | undefined;
+						if (!settings.noGhostSounds) {
+							const reverb = context.createConvolver();
+							const reverbGain = context.createGain();
+							reverbGain.gain.value = 0;
+							reverb.buffer = convolverBuffer.current;
 
-						gain.connect(reverbGain);
-						reverbGain.connect(reverb);
-						reverb.connect(context.destination);
+							gain.connect(reverbGain);
+							reverbGain.connect(reverb);
+							reverb.connect(context.destination);
+						}
 						if (settingsRef.current.vadEnabled) {
 							VAD(context, gain, context.destination, {
 								onVoiceStart: () => setTalking(true),
@@ -617,7 +622,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						};
 					});
 					connection.on('signal', (data) => {
-						console.log('signal', JSON.stringify(data));
+						// console.log('signal', JSON.stringify(data));
 						socket.emit('signal', {
 							data,
 							to: peer,
@@ -711,7 +716,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			playerSocketIds[socketClients[k].clientId] = k;
 		}
 
-		console.log(gameState.players.filter((p) => p.isImpostor));
 		for (const player of otherPlayers) {
 			const audio = audioElements.current[playerSocketIds[player.clientId]];
 			if (audio) {
@@ -816,8 +820,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		} as VoiceState);
 	}, [otherTalking, otherDead, socketClients, audioConnected, talking]);
 
-
-
 	return (
 		<div className={classes.root}>
 			{error && (
@@ -889,7 +891,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 								isAlive={!otherDead[player.clientId]}
 								size={50}
 								socketConfig={socketConfig}
-								 onConfigChange={() => store.set(`playerConfigMap.${player.clientId}`, playerConfigs[player.clientId])}
+								onConfigChange={() => store.set(`playerConfigMap.${player.clientId}`, playerConfigs[player.clientId])}
 							/>
 						</Grid>
 					);

@@ -214,9 +214,13 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: true,
 		},
+		noGhostSounds: {
+			type: 'boolean',
+			default: false,
+		},
 		playerConfigMap: {
 			type: 'object',
-			default: {}
+			default: {},
 		},
 		localLobbySettings: {
 			type: 'object',
@@ -238,8 +242,8 @@ const store = new Store<ISettings>({
 					default: false,
 				},
 				impostersHearImpostersInvent: {
-					type: 'boolean', 
-					default: false
+					type: 'boolean',
+					default: false,
 				},
 				deadOnly: {
 					type: 'boolean',
@@ -450,7 +454,14 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 
 	useEffect(() => {
 		setUnsavedCount((s) => s + 1);
-	}, [settings.microphone, settings.speaker, settings.serverURL, settings.vadEnabled, settings.natFix]);
+	}, [
+		settings.microphone,
+		settings.speaker,
+		settings.serverURL,
+		settings.vadEnabled,
+		settings.noGhostSounds,
+		settings.natFix,
+	]);
 
 	useEffect(() => {
 		remote.getCurrentWindow().setAlwaysOnTop(settings.alwaysOnTop, 'screen-saver');
@@ -517,7 +528,6 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 				action: [shortcut, k],
 			});
 			ipcRenderer.send(IpcHandlerMessages.RESET_KEYHOOKS);
-
 		}
 	};
 
@@ -530,7 +540,8 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 	}, [settings.localLobbySettings]);
 
 	const isInMenuOrLobby = gameState?.gameState === GameState.LOBBY || gameState?.gameState === GameState.MENU;
-	const canChangeLobbySettings = gameState?.gameState === GameState.MENU || (gameState?.isHost && gameState?.gameState === GameState.LOBBY);
+	const canChangeLobbySettings =
+		gameState?.gameState === GameState.MENU || (gameState?.isHost && gameState?.gameState === GameState.LOBBY);
 	//gittest
 	return (
 		<Box className={classes.root}>
@@ -647,10 +658,14 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 								});
 							}}
 							value={
-								canChangeLobbySettings ? localLobbySettings.impostersHearImpostersInvent : lobbySettings.impostersHearImpostersInvent
+								canChangeLobbySettings
+									? localLobbySettings.impostersHearImpostersInvent
+									: lobbySettings.impostersHearImpostersInvent
 							}
 							checked={
-								canChangeLobbySettings ? localLobbySettings.impostersHearImpostersInvent : lobbySettings.impostersHearImpostersInvent
+								canChangeLobbySettings
+									? localLobbySettings.impostersHearImpostersInvent
+									: lobbySettings.impostersHearImpostersInvent
 							}
 							control={<Checkbox />}
 						/>
@@ -952,6 +967,29 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					control={<Checkbox />}
 				/>
 
+				<URLInput
+					initialURL={settings.serverURL}
+					onValidURL={(url: string) => {
+						setSettings({
+							type: 'setOne',
+							action: ['serverURL', url],
+						});
+					}}
+					className={classes.urlDialog}
+				/>
+				<Divider />
+				<Typography variant="h6">BETA/DEBUG</Typography>
+				<FormControlLabel
+					label="Mobile host"
+					checked={settings.mobileHost}
+					onChange={(_, checked: boolean) => {
+						setSettings({
+							type: 'setOne',
+							action: ['mobileHost', checked],
+						});
+					}}
+					control={<Checkbox />}
+				/>
 				<FormControlLabel
 					label="VAD enabled"
 					checked={settings.vadEnabled}
@@ -964,29 +1002,18 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					control={<Checkbox />}
 				/>
 
-				<URLInput
-					initialURL={settings.serverURL}
-					onValidURL={(url: string) => {
-						setSettings({
-							type: 'setOne',
-							action: ['serverURL', url],
-						});
-					}}
-					className={classes.urlDialog}
-				/>
-				<Divider />
-				<Typography variant="h6">BETA</Typography>
 				<FormControlLabel
-					label="Mobile host"
-					checked={settings.mobileHost}
+					label="Ghost effect disabled"
+					checked={settings.noGhostSounds}
 					onChange={(_, checked: boolean) => {
 						setSettings({
 							type: 'setOne',
-							action: ['mobileHost', checked],
+							action: ['noGhostSounds', checked],
 						});
 					}}
 					control={<Checkbox />}
 				/>
+
 				<Alert className={classes.alert} severity="info" style={{ display: unsaved ? undefined : 'none' }}>
 					Exit Settings to apply changes
 				</Alert>

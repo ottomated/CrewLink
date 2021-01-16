@@ -18,6 +18,8 @@ export interface ISettings {
 	ghostVolume: number;
 	mobileHost: boolean;
 	vadEnabled: boolean;
+	noGhostSounds: boolean;
+
 	playerConfigMap : playerConfigMap;
 }
 
