@@ -414,11 +414,12 @@ export default class GameReader {
 			: [this.offsets.player.remoteX, this.offsets.player.remoteY];
 
 		const x = this.readMemory<number>('float', data.objectPtr, positionOffsets[0]);
-
 		const y = this.readMemory<number>('float', data.objectPtr, positionOffsets[1]);
-
-		const x_round = parseFloat(x.toFixed(4));
-		const y_round = parseFloat(x.toFixed(4));
+		if (x === undefined || y === undefined) {
+			return undefined;
+		}
+		const x_round = parseFloat(x?.toFixed(4));
+		const y_round = parseFloat(x?.toFixed(4));
 
 		// if (isLocal) {
 		// 	console.log('Current position: ', { x_low: x_round, y_low: y_round });

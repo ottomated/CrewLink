@@ -220,6 +220,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 					gain.gain.value = gain.gain.value * 0.07; //0.005;
 					if (reverbGain != null) reverbGain.gain.value = 2;
 				} else {
+					if (reverbGain != null) reverbGain.gain.value = 0;
 					if (!me.isDead && (other.isDead || state.comsSabotaged)) {
 						gain.gain.value = 0;
 					}
@@ -241,7 +242,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				break;
 		}
 
-		if (!other.isDead) {
+		if (!other.isDead || state.gameState !== GameState.TASKS) {
 			reverbGain.gain.value = 0;
 		}
 
@@ -373,7 +374,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			if (!gameState.players) return;
 			setOtherDead((old) => {
 				for (const player of gameState.players) {
-					old[player.id] = player.isDead || player.disconnected;
+					old[player.clientId] = player.isDead || player.disconnected;
 				}
 				return { ...old };
 			});
@@ -603,7 +604,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 							const reallyTalking = talking && gain.gain.value > 0;
 							setOtherTalking((old) => ({
 								...old,
-								[socketClientsRef.current[peer].playerId]: reallyTalking,
+								[socketClientsRef.current[peer].clientId]: reallyTalking,
 							}));
 						};
 						audioElements.current[peer] = {
@@ -707,11 +708,12 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			[index: number]: string;
 		} = {};
 		for (const k of Object.keys(socketClients)) {
-			playerSocketIds[socketClients[k].playerId] = k;
+			playerSocketIds[socketClients[k].clientId] = k;
 		}
 
+		console.log(gameState.players.filter((p) => p.isImpostor));
 		for (const player of otherPlayers) {
-			const audio = audioElements.current[playerSocketIds[player.id]];
+			const audio = audioElements.current[playerSocketIds[player.clientId]];
 			if (audio) {
 				calculateVoiceAudio(gameState, settingsRef.current, myPlayer, player, audio);
 
@@ -720,7 +722,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				}
 
 				if (audio.gain.gain.value > 0) {
-					console.log(player.name, player.clientId);
 					const playerVolume = playerConfigs[player.clientId]?.volume;
 
 					audio.gain.gain.value =
@@ -757,11 +758,11 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		if (
 			connect?.connect &&
 			gameState.lobbyCode &&
-			myPlayer?.id !== undefined &&
+			myPlayer?.clientId !== undefined &&
 			gameState.gameState === GameState.LOBBY &&
 			(gameState.oldGameState === GameState.DISCUSSION || gameState.oldGameState === GameState.TASKS)
 		) {
-			connect.connect(gameState.lobbyCode, myPlayer.id, gameState.clientId);
+			connect.connect(gameState.lobbyCode, myPlayer.clientId, gameState.clientId);
 		} else if (
 			gameState.oldGameState !== GameState.UNKNOWN &&
 			gameState.oldGameState !== GameState.MENU &&
@@ -787,7 +788,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 	// Emit player id to socket
 	useEffect(() => {
-		if (connectionStuff.current.socket && myPlayer && myPlayer.id !== undefined) {
+		if (connectionStuff.current.socket && myPlayer && myPlayer.clientId !== undefined) {
 			connectionStuff.current.socket.emit('id', myPlayer.id, gameState.clientId);
 		}
 	}, [myPlayer?.id]);
@@ -797,7 +798,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 	} = {};
 
 	for (const k of Object.keys(socketClients)) {
-		if (socketClients[k].playerId !== undefined) playerSocketIds[socketClients[k].playerId] = k;
+		if (socketClients[k].clientId !== undefined) playerSocketIds[socketClients[k].clientId] = k;
 	}
 
 	// Pass voice state to overlay
@@ -871,10 +872,10 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				justify="flex-start"
 			>
 				{otherPlayers.map((player) => {
-					const peer = playerSocketIds[player.id];
+					const peer = playerSocketIds[player.clientId];
 					const connected = Object.values(socketClients)
-						.map(({ playerId }) => playerId)
-						.includes(player.id);
+						.map(({ clientId }) => clientId)
+						.includes(player.clientId);
 					const audio = audioConnected[peer];
 					const socketConfig = playerConfigs[player.clientId];
 
@@ -883,9 +884,9 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 							<Avatar
 								connectionState={!connected ? 'disconnected' : audio ? 'connected' : 'novoice'}
 								player={player}
-								talking={!player.inVent && otherTalking[player.id]}
+								talking={!player.inVent && otherTalking[player.clientId]}
 								borderColor="#2ecc71"
-								isAlive={!otherDead[player.id]}
+								isAlive={!otherDead[player.clientId]}
 								size={50}
 								socketConfig={socketConfig}
 								 onConfigChange={() => store.set(`playerConfigMap.${player.clientId}`, playerConfigs[player.clientId])}

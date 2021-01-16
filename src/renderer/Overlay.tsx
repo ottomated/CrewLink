@@ -147,11 +147,11 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 	}
 
 	gameState.players.forEach((player) => {
-		if (!voiceState.otherTalking[player.id] && compactOverlay) return;
-		// const peer = voiceState.playerSocketIds[player.id];
+		if (!voiceState.otherTalking[player.clientId] && compactOverlay) return;
+		// const peer = voiceState.playerSocketIds[player.clientId];
 		const connected = Object.values(voiceState.socketClients)
-			.map(({ playerId }) => playerId)
-			.includes(player.id);
+			.map(({ clientId }) => clientId)
+			.includes(player.clientId);
 		if (!connected && !player.isLocal) return;
 		// const audio = voiceState.audioConnected[peer];
 		avatars.push(
@@ -163,10 +163,10 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 						player={player}
 						showborder={isOnSide && !compactOverlay}
 						talking={
-							!player.inVent && (voiceState.otherTalking[player.id] || (player.isLocal && voiceState.localTalking))
+							!player.inVent && (voiceState.otherTalking[player.clientId] || (player.isLocal && voiceState.localTalking))
 						}
 						borderColor="#2ecc71"
-						isAlive={!voiceState.otherDead[player.id] || (player.isLocal && !player.isDead)}
+						isAlive={!voiceState.otherDead[player.clientId] || (player.isLocal && !player.isDead)}
 						size={100}
 						showHat={false}
 					/>
@@ -229,7 +229,7 @@ const MeetingHud: React.FC<MeetingHudProps> = ({ otherTalking, gameState }: Meet
 				key={player.id}
 				className={classes.icon}
 				style={{
-					opacity: otherTalking[player.id] ? 1 : 0,
+					opacity: otherTalking[player.clientId] ? 1 : 0,
 					boxShadow: `0 0 ${hudHeight / 100}px ${hudHeight / 100}px ${playerColors[player.colorId][0]}`,
 				}}
 			/>
