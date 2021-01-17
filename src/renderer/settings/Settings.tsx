@@ -214,10 +214,7 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: true,
 		},
-		noGhostSounds: {
-			type: 'boolean',
-			default: false,
-		},
+	
 		playerConfigMap: {
 			type: 'object',
 			default: {},
@@ -459,7 +456,6 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 		settings.speaker,
 		settings.serverURL,
 		settings.vadEnabled,
-		settings.noGhostSounds,
 		settings.natFix,
 	]);
 
@@ -1002,17 +998,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					control={<Checkbox />}
 				/>
 
-				<FormControlLabel
-					label="Ghost effect disabled"
-					checked={settings.noGhostSounds}
-					onChange={(_, checked: boolean) => {
-						setSettings({
-							type: 'setOne',
-							action: ['noGhostSounds', checked],
-						});
-					}}
-					control={<Checkbox />}
-				/>
+		
 
 				<Alert className={classes.alert} severity="info" style={{ display: unsaved ? undefined : 'none' }}>
 					Exit Settings to apply changes

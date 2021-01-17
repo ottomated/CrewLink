@@ -134,7 +134,6 @@ export default function App(): JSX.Element {
 		meetingOverlay: false,
 		ghostVolume: 100,
 		vadEnabled:true,
-		noGhostSounds: false,
 		playerConfigMap: {},
 		localLobbySettings: {
 			maxDistance: 5.32,
