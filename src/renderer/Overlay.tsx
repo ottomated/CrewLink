@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ipcRenderer } from 'electron';
-import { AmongUsState, GameState, VoiceState, OtherTalking } from '../common/AmongUsState';
+import { AmongUsState, GameState, VoiceState } from '../common/AmongUsState';
 import { IpcOverlayMessages } from '../common/ipc-messages';
 import ReactDOM from 'react-dom';
 import makeStyles from '@material-ui/core/styles/makeStyles';
@@ -104,7 +104,7 @@ const Overlay: React.FC = function () {
 		return null;
 	return (
 		<>
-			{settings.meetingOverlay && <MeetingHud gameState={gameState} otherTalking={voiceState.otherTalking} />}
+			{settings.meetingOverlay && <MeetingHud gameState={gameState} voiceState={voiceState} />}
 			{settings.overlayPosition !== 'hidden' && (
 				<AvatarOverlay
 					voiceState={voiceState}
@@ -163,7 +163,8 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 						player={player}
 						showborder={isOnSide && !compactOverlay}
 						talking={
-							!player.inVent && (voiceState.otherTalking[player.clientId] || (player.isLocal && voiceState.localTalking))
+							!player.inVent &&
+							(voiceState.otherTalking[player.clientId] || (player.isLocal && voiceState.localTalking))
 						}
 						borderColor="#2ecc71"
 						isAlive={!voiceState.otherDead[player.clientId] || (player.isLocal && !player.isDead)}
@@ -192,11 +193,11 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 };
 
 interface MeetingHudProps {
-	otherTalking: OtherTalking;
 	gameState: AmongUsState;
+	voiceState: VoiceState;
 }
 
-const MeetingHud: React.FC<MeetingHudProps> = ({ otherTalking, gameState }: MeetingHudProps) => {
+const MeetingHud: React.FC<MeetingHudProps> = ({ voiceState, gameState }: MeetingHudProps) => {
 	const [width, height] = useWindowSize();
 
 	let hudWidth = 0,
@@ -229,7 +230,7 @@ const MeetingHud: React.FC<MeetingHudProps> = ({ otherTalking, gameState }: Meet
 				key={player.id}
 				className={classes.icon}
 				style={{
-					opacity: otherTalking[player.clientId] ? 1 : 0,
+					opacity: voiceState.otherTalking[player.clientId] || (player.isLocal && voiceState.localTalking) ? 1 : 0,
 					boxShadow: `0 0 ${hudHeight / 100}px ${hudHeight / 100}px ${playerColors[player.colorId][0]}`,
 				}}
 			/>

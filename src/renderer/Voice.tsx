@@ -40,9 +40,9 @@ interface AudioNodes {
 	element: HTMLAudioElement;
 	gain: GainNode;
 	pan: PannerNode;
-	reverb: ConvolverNode ;
+	reverb: ConvolverNode;
 	muffle: BiquadFilterNode;
-	destination: AudioDestinationNode;
+	destination: AudioNode;
 	reverbConnected: boolean;
 	muffleConnected: boolean;
 }
@@ -183,23 +183,23 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 	const [mutedState, setMuted] = useState(false);
 	const [connected, setConnected] = useState(false);
 
-	function applyEffect(gain: AudioNode, effectNode: AudioNode, destination: AudioNode) {
+	function applyEffect(gain: AudioNode, effectNode: AudioNode, destination: AudioNode, player: Player) {
 		try {
 			gain.disconnect(destination);
 			gain.connect(effectNode);
 			effectNode.connect(destination);
 		} catch {
-			console.log('error with applying effect');
+			console.log('error with applying effect: ', player.name, effectNode);
 		}
 	}
 
-	function restoreEffect(gain: AudioNode, effectNode: AudioNode, destination: AudioNode) {
+	function restoreEffect(gain: AudioNode, effectNode: AudioNode, destination: AudioNode, player: Player) {
 		try {
 			effectNode.disconnect(destination);
 			gain.disconnect(effectNode);
 			gain.connect(destination);
 		} catch {
-			console.log('error with resoring effect');
+			console.log('error with applying effect: ', player.name, effectNode);
 		}
 	}
 
@@ -241,9 +241,9 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				if (!me.isDead && other.isDead && me.isImpostor && lobbySettings.haunting) {
 					if (!audio.reverbConnected) {
 						audio.reverbConnected = true;
-						applyEffect(gain, reverb, destination);
+						applyEffect(gain, reverb, destination, other);
 					}
-					gain.gain.value = 0.04;
+					gain.gain.value = 0.15;
 				} else {
 					if (other.isDead && !me.isDead) {
 						gain.gain.value = 0;
@@ -268,7 +268,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		if (!other.isDead || state.gameState !== GameState.TASKS || !me.isImpostor) {
 			if (audio.reverbConnected && reverb) {
 				audio.reverbConnected = false;
-				restoreEffect(gain, reverb, destination);
+				restoreEffect(gain, reverb, destination, other);
 			}
 		}
 
@@ -280,10 +280,10 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		}
 
 		// Muffling in vents
-		if (me.inVent || (other.inVent && state.gameState === GameState.TASKS)) {
+		if (((me.inVent && !me.isDead) || (other.inVent && !other.isDead)) && state.gameState === GameState.TASKS) {
 			if (!audio.muffleConnected) {
 				audio.muffleConnected = true;
-				applyEffect(gain, muffle, destination);
+				applyEffect(gain, muffle, destination, other);
 			}
 			maxdistance = 0.8;
 			muffle.frequency.value = 2000;
@@ -292,7 +292,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		} else {
 			if (audio.muffleConnected) {
 				audio.muffleConnected = false;
-				restoreEffect(gain, muffle, destination);
+				restoreEffect(gain, muffle, destination, other);
 			}
 		}
 
@@ -610,13 +610,13 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 						const reverb = context.createConvolver();
 						reverb.buffer = convolverBuffer.current;
-
+						let destination: AudioNode = context.destination;
 						if (settingsRef.current.vadEnabled) {
-							VAD(context, gain, context.destination, {
+							destination = VAD(context, gain, context.destination, {
 								onVoiceStart: () => setTalking(true),
 								onVoiceStop: () => setTalking(false),
 								stereo: false,
-							});
+							}).destination;
 						} else {
 							gain.connect(context.destination);
 						}
@@ -641,7 +641,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 							muffle,
 							muffleConnected: false,
 							reverbConnected: false,
-							destination: context.destination,
+							destination,
 						};
 					});
 					connection.on('signal', (data) => {

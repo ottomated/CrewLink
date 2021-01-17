@@ -45,6 +45,7 @@ export default function (
 	destination: AudioNode | undefined,
 	opts: Partial<VADOptions>
 ): {
+	destination: AudioNode;
 	connect: () => void;
 	destroy: () => void;
 } {
@@ -192,5 +193,5 @@ export default function (
 		options.onVoiceStop();
 	}
 
-	return { connect, destroy };
+	return { destination: analyser, connect, destroy };
 }
