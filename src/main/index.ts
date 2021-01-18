@@ -227,7 +227,9 @@ if (!gotTheLock) {
 	// create main BrowserWindow when electron is ready
 	app.whenReady().then(() => {
 		mainWindow = createMainWindow();
+		mainWindow.title = "CrewLink App"
 		overlayWindow = createOverlay();
+		overlayWindow.title = "CrewLink Overlay"
 		initializeIpcListeners(overlayWindow);
 		initializeIpcHandlers();
 	});
