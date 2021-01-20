@@ -243,7 +243,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						audio.reverbConnected = true;
 						applyEffect(gain, reverb, destination, other);
 					}
-					gain.gain.value = 0.15;
+					gain.gain.value = 0.2;
 				} else {
 					if (other.isDead && !me.isDead) {
 						gain.gain.value = 0;
@@ -353,6 +353,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		if (gameState.isHost !== true) return;
 		Object.values(peerConnections).forEach((peer) => {
 			try {
+				console.log("sendxx > ", JSON.stringify(settings.localLobbySettings))
 				peer.send(JSON.stringify(settings.localLobbySettings));
 			} catch (e) {
 				console.warn('failed to update lobby settings: ', e);
@@ -490,6 +491,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			echoCancellation: true,
 			latency: 0,
 			noiseSuppression: true,
+			
 		};
 
 		// Get microphone settings
@@ -534,11 +536,10 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						onVoiceStop: () => {
 							setTalking(false);
 						},
-						noiseCaptureDuration: 1,
+						noiseCaptureDuration: 300,
 						stereo: false,
 					});
-				} else {
-				}
+				} 
 
 				audioElements.current = {};
 

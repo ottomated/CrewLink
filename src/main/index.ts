@@ -10,7 +10,9 @@ import { overlayWindow } from 'electron-overlay-window';
 import { initializeIpcHandlers, initializeIpcListeners } from './ipc-handlers';
 import { IpcRendererMessages } from '../common/ipc-messages';
 import { ProgressInfo } from 'builder-util-runtime';
+
 var args = require('minimist')(process.argv);
+
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const devTools = isDevelopment || args.dev === 1;
@@ -127,11 +129,11 @@ function createOverlay() {
 		//	...overlayWindow.WINDOW_OPTS,
 	});
 
-	// if (devTools) {
-	// 	overlay.webContents.openDevTools({
-	// 		mode: 'detach',
-	// 	});
-	// }
+	if (devTools) {
+		overlay.webContents.openDevTools({
+			mode: 'detach',
+		});
+	}
 
 	if (isDevelopment) {
 		overlay.loadURL(

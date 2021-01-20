@@ -58,7 +58,7 @@ export default function (
 		minCaptureFreq: 85, // in Hz
 		maxCaptureFreq: 255, // in Hz
 		noiseCaptureDuration: 1000, // in ms
-		minNoiseLevel: 0.3, // from 0 to 1
+		minNoiseLevel: 0.1, // from 0 to 1
 		maxNoiseLevel: 0.7, // from 0 to 1
 		avgNoiseMultiplier: 1.2,
 		onVoiceStart: function () {
@@ -169,7 +169,6 @@ export default function (
 			envFreqRange.push(average);
 			return;
 		}
-
 		if (average >= baseLevel && activityCounter < activityCounterMax) {
 			activityCounter++;
 		} else if (average < baseLevel && activityCounter > activityCounterMin) {
