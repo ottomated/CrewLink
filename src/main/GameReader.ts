@@ -405,8 +405,8 @@ export default class GameReader {
 			data.objectPtr = this.readMemory('pointer', ptr, [this.PlayerStruct.getOffsetByName('objectPtr')]);
 			data.name = this.readMemory('pointer', ptr, [this.PlayerStruct.getOffsetByName('name')]);
 		}
-		const clientId = this.readMemory<number>('uint32', data.objectPtr, this.offsets.player.clientId);
 
+		const clientId = this.readMemory<number>('uint32', data.objectPtr, this.offsets.player.clientId);
 		const isLocal = clientId === LocalclientId && data.disconnected === 0;
 
 		const positionOffsets = isLocal
@@ -415,16 +415,14 @@ export default class GameReader {
 
 		let x = this.readMemory<number>('float', data.objectPtr, positionOffsets[0]);
 		let y = this.readMemory<number>('float', data.objectPtr, positionOffsets[1]);
+		let bugged = false;
 		if (x === undefined || y === undefined) {
-			console.log('error parsing ->: ', this.readString(data.name), x, y);
-			if (data.dead > 0 || data.disconnected) {
-				x = 9999;
-				y = 9999;
-			}else{
-				return undefined;
-			}
+			console.log('error parsing ->: ', this.readString(data.name), x, y, ptr.toString(16));
+			x = 9999;
+			y = 9999;
+			bugged = true;
 		}
-		
+
 		const x_round = parseFloat(x?.toFixed(4));
 		const y_round = parseFloat(y?.toFixed(4));
 
@@ -445,6 +443,7 @@ export default class GameReader {
 			isDead: data.dead > 0,
 			taskPtr: data.taskPtr,
 			objectPtr: data.objectPtr,
+			bugged,
 			inVent: this.readMemory<number>('byte', data.objectPtr, this.offsets.player.inVent) > 0,
 			isLocal,
 			x: x_round || x || 999,

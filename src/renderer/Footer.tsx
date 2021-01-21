@@ -1,7 +1,6 @@
 import { shell } from 'electron';
 import React from 'react';
 import makeStyles from '@material-ui/core/styles/makeStyles';
-import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles(() => ({
 	footer: {
@@ -25,7 +24,6 @@ const Footer: React.FC = function () {
 	const classes = useStyles();
 	return (
 		<div className={classes.footer}>
-			<Typography>Made by Ottomated</Typography>
 			<div className={classes.row}>
 				<svg
 					width={36}

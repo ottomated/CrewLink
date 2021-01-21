@@ -626,15 +626,15 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 						const reverb = context.createConvolver();
 						reverb.buffer = convolverBuffer.current;
-						let destination: AudioNode = context.destination;
+						let destination: AudioNode = dest;
 						if (settingsRef.current.vadEnabled) {
-							destination = VAD(context, gain, context.destination, {
+							destination = VAD(context, gain, destination, {
 								onVoiceStart: () => setTalking(true),
 								onVoiceStop: () => setTalking(false),
 								stereo: false,
 							}).destination;
 						} else {
-							gain.connect(dest);
+							gain.connect(destination);
 						}
 						const audio = new Audio() as ExtendedAudioElement;
 						audio.setAttribute('autoplay','');
@@ -754,9 +754,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		let otherPlayers: Player[];
 		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) return [];
 		else otherPlayers = gameState.players.filter((p) => !p.isLocal);
-
 		hostRef.current = { hostId: gameState.hostId, isHost: gameState.isHost };
-
 		const playerSocketIds: {
 			[index: number]: string;
 		} = {};

@@ -27,7 +27,7 @@ export interface Player {
 	taskPtr: number;
 	objectPtr: number;
 	isLocal: boolean;
-
+	bugged: boolean;
 	x: number;
 	y: number;
 	inVent: boolean;

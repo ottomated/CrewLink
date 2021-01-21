@@ -6,6 +6,8 @@ import MicOff from '@material-ui/icons/MicOff';
 import VolumeOff from '@material-ui/icons/VolumeOff';
 import WifiOff from '@material-ui/icons/WifiOff';
 import LinkOff from '@material-ui/icons/LinkOff';
+import ErrorOutlIne from '@material-ui/icons/ErrorOutlIne';
+
 // import Tooltip from '@material-ui/core/Tooltip';
 import Tooltip from 'react-tooltip-lite';
 import { SocketConfig } from '../common/ISettings';
@@ -105,6 +107,9 @@ const Avatar: React.FC<AvatarProps> = function ({
 			icon = <WifiOff className={classes.icon} />;
 			break;
 	}
+	if (player.bugged) {
+		icon = <ErrorOutlIne className={classes.icon} style={{ background: 'red', borderColor: '' }} />;
+	}
 
 	return (
 		<Tooltip
@@ -112,7 +117,7 @@ const Avatar: React.FC<AvatarProps> = function ({
 			content={
 				<div>
 					<b>{player?.name}</b>
-					<div className="slidecontainer" style={{ minWidth: '55px' }} >
+					<div className="slidecontainer" style={{ minWidth: '55px' }}>
 						<input
 							type="range"
 							min="0"
@@ -122,14 +127,14 @@ const Avatar: React.FC<AvatarProps> = function ({
 							style={{ width: '50px' }}
 							step="any"
 							onMouseLeave={() => {
-								console.log("onmouseleave")
+								console.log('onmouseleave');
 								if (onConfigChange) {
 									onConfigChange();
 								}
 							}}
 							onChange={(ev): void => {
 								if (socketConfig) {
-									socketConfig.volume = parseFloat(ev.target.value.substr(0,6));
+									socketConfig.volume = parseFloat(ev.target.value.substr(0, 6));
 								}
 							}}
 						></input>
