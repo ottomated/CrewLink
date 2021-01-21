@@ -9,12 +9,12 @@
   },
   "funding": {
     "type": "individual",
-    "url": "https://paypal.me/ottomated"
+    "url": "https://www.paypal.com/donate?hosted_button_id=KS43BDTGN76JQ"
   },
   "author": {
-    "name": "Ottomated",
-    "email": "otto@ottomated.net",
-    "url": "https://ottomated.net"
+    "name": "OhMyGuus",
+    "email": "info@guus.ninja",
+    "url": "https://bettercrewlink.app"
   },
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
