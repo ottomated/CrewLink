@@ -489,9 +489,9 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			deviceId: (undefined as unknown) as string,
 			autoGainControl: false,
 			channelCount: 2,
-			echoCancellation: true,
+			echoCancellation: settings.echoCancellation,
 			latency: 0,
-			noiseSuppression: true,
+			noiseSuppression: settings.noiseSuppression,
 		};
 
 		// Get microphone settings
