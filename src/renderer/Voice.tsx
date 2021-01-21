@@ -326,6 +326,10 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 	function disconnectAudioHtmlElement(element : HTMLAudioElement){
 		console.log("disableing element?", element)
 		element.pause();
+		if(element.srcObject){
+			const mediaStream = element.srcObject as MediaStream;
+			mediaStream.getTracks().forEach((track) => track.stop());
+		}
 		element.removeAttribute('srcObject');
 		element.removeAttribute('src');
 		element.srcObject = null;
@@ -350,7 +354,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			audioElements.current[peer].gain.disconnect();
 			// if (audioElements.current[peer].reverbGain != null) audioElements.current[peer].reverbGain?.disconnect();
 			if (audioElements.current[peer].reverb != null) audioElements.current[peer].reverb?.disconnect();
-
 			delete audioElements.current[peer];
 		}
 	}
