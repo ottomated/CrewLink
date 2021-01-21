@@ -214,7 +214,15 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: true,
 		},
-	
+		echoCancellation: {
+			type: 'boolean',
+			default: true,
+		},
+		noiseSuppression: {
+			type: 'boolean',
+			default: true,
+		},
+
 		playerConfigMap: {
 			type: 'object',
 			default: {},
@@ -457,6 +465,8 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 		settings.serverURL,
 		settings.vadEnabled,
 		settings.natFix,
+		settings.noiseSuppression,
+		settings.echoCancellation,
 	]);
 
 	useEffect(() => {
@@ -997,8 +1007,29 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					}}
 					control={<Checkbox />}
 				/>
+				<FormControlLabel
+					label="Echo Cancellation"
+					checked={settings.echoCancellation}
+					onChange={(_, checked: boolean) => {
+						setSettings({
+							type: 'setOne',
+							action: ['echoCancellation', checked],
+						});
+					}}
+					control={<Checkbox />}
+				/>
 
-		
+				<FormControlLabel
+					label="Noise Suppression"
+					checked={settings.noiseSuppression}
+					onChange={(_, checked: boolean) => {
+						setSettings({
+							type: 'setOne',
+							action: ['noiseSuppression', checked],
+						});
+					}}
+					control={<Checkbox />}
+				/>
 
 				<Alert className={classes.alert} severity="info" style={{ display: unsaved ? undefined : 'none' }}>
 					Exit Settings to apply changes

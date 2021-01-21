@@ -19,16 +19,15 @@ export const initializeIpcListeners = (): void => {
 			(v) => v.name === 'InstallPath'
 		);
 		// Check if Steam is installed
+		const error = () => dialog.showErrorBox('Error', 'Start the game manually. \r\n(this button is only for steam)');
 		if (!steamPath) {
-			dialog.showErrorBox('Error', 'Could not find your Steam install path.');
+			error();
 		} else {
 			try {
 				const process = spawn(path.join(steamPath.data as string, 'steam.exe'), ['-applaunch', '945360']);
-				process.on('error', () => {
-					dialog.showErrorBox('Error', 'Please launch the game through Steam.');
-				});
+				process.on('error', error);
 			} catch (e) {
-				dialog.showErrorBox('Error', 'Please launch the game through Steam.');
+				error();
 			}
 		}
 	});

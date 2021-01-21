@@ -161,6 +161,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 	const [lobbySettings, setLobbySettings] = useContext(LobbySettingsContext);
 	const lobbySettingsRef = useRef(lobbySettings);
 	const gameState = useContext(GameStateContext);
+	const hostRef = useRef({ hostId: gameState.hostId, isHost: gameState.isHost });
 	let { lobbyCode: displayedLobbyCode } = gameState;
 	if (displayedLobbyCode !== 'MENU' && settings.hideCode) displayedLobbyCode = 'LOBBY';
 	const [talking, setTalking] = useState(false);
@@ -243,7 +244,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						audio.reverbConnected = true;
 						applyEffect(gain, reverb, destination, other);
 					}
-					gain.gain.value = 0.15;
+					gain.gain.value = 0.2;
 				} else {
 					if (other.isDead && !me.isDead) {
 						gain.gain.value = 0;
@@ -353,6 +354,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		if (gameState.isHost !== true) return;
 		Object.values(peerConnections).forEach((peer) => {
 			try {
+				console.log('sendxx > ', JSON.stringify(settings.localLobbySettings));
 				peer.send(JSON.stringify(settings.localLobbySettings));
 			} catch (e) {
 				console.warn('failed to update lobby settings: ', e);
@@ -487,9 +489,9 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			deviceId: (undefined as unknown) as string,
 			autoGainControl: false,
 			channelCount: 2,
-			echoCancellation: true,
+			echoCancellation: settings.echoCancellation,
 			latency: 0,
-			noiseSuppression: true,
+			noiseSuppression: settings.noiseSuppression,
 		};
 
 		// Get microphone settings
@@ -534,10 +536,9 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						onVoiceStop: () => {
 							setTalking(false);
 						},
-						noiseCaptureDuration: 1,
+						noiseCaptureDuration: 300,
 						stereo: false,
 					});
-				} else {
 				}
 
 				audioElements.current = {};
@@ -571,16 +572,16 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 					});
 
 					connection.on('connect', () => {
-						console.log('ONCONNECT');
 						setTimeout(() => {
-							if (gameState.isHost) {
+							if (hostRef.current.isHost) {
 								try {
+									console.log('sending settings..');
 									connection.send(JSON.stringify(lobbySettingsRef.current));
 								} catch (e) {
 									console.warn('failed to update lobby settings: ', e);
 								}
 							}
-						}, 2000);
+						}, 1000);
 					});
 					connection.on('stream', (stream: MediaStream) => {
 						console.log('ONSTREAM');
@@ -653,7 +654,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 					});
 
 					connection.on('data', (data) => {
-						if (!gameState?.hostId || gameState.hostId !== socketClientsRef.current[peer]?.clientId) return;
+						if (!hostRef.current || hostRef.current.hostId !== socketClientsRef.current[peer]?.clientId) return;
 						const settings = JSON.parse(data);
 						Object.keys(lobbySettings).forEach((field: string) => {
 							if (field in settings) {
@@ -731,6 +732,8 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		let otherPlayers: Player[];
 		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) return [];
 		else otherPlayers = gameState.players.filter((p) => !p.isLocal);
+
+		hostRef.current = { hostId: gameState.hostId, isHost: gameState.isHost };
 
 		const playerSocketIds: {
 			[index: number]: string;
@@ -888,6 +891,11 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 					)}
 				</div>
 			</div>
+			{lobbySettings.deadOnly && (
+				<div className={classes.top}>
+					<small style={{ padding: 0 }}>Be aware death only chat enabled.</small>
+				</div>
+			)}
 			{gameState.lobbyCode && <Divider />}
 			<Grid
 				container

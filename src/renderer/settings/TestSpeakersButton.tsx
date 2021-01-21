@@ -25,6 +25,7 @@ const TestSpeakersButton: React.FC<TestSpeakersProps> = ({ speaker }: TestSpeake
 
 		if (speaker.toLowerCase() !== 'default') audio.setSinkId(speaker);
 
+		console.log(speaker);
 		audio.play();
 		setPlaying(true);
 		audio.addEventListener('pause', () => {

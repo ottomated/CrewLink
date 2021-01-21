@@ -355,8 +355,8 @@ export default class GameReader {
 		callback: (keyPtr: number, valPtr: number, index: number) => void
 	): void {
 		const entries = this.readMemory<number>('ptr', address + (this.is_64bit ? 0x18 : 0xc));
-		const len = this.readMemory<number>('uint32', entries + (this.is_64bit ? 0x18 : 0xc));
-
+		let len = this.readMemory<number>('uint32', entries + (this.is_64bit ? 0x18 : 0xc));
+		len = len > maxLen ? maxLen : len;
 		for (let i = 0; i < len; i++) {
 			const offset = entries + ((this.is_64bit ? 0x20 : 0x10) + i * (this.is_64bit ? 0x18 : 0x10));
 			callback(offset, offset + (this.is_64bit ? 0x10 : 0xc), i);
@@ -413,11 +413,18 @@ export default class GameReader {
 			? [this.offsets.player.localX, this.offsets.player.localY]
 			: [this.offsets.player.remoteX, this.offsets.player.remoteY];
 
-		const x = this.readMemory<number>('float', data.objectPtr, positionOffsets[0]);
-		const y = this.readMemory<number>('float', data.objectPtr, positionOffsets[1]);
+		let x = this.readMemory<number>('float', data.objectPtr, positionOffsets[0]);
+		let y = this.readMemory<number>('float', data.objectPtr, positionOffsets[1]);
 		if (x === undefined || y === undefined) {
-			return undefined;
+			console.log('error parsing ->: ', this.readString(data.name), x, y);
+			if (data.dead > 0 || data.disconnected) {
+				x = 9999;
+				y = 9999;
+			}else{
+				return undefined;
+			}
 		}
+		
 		const x_round = parseFloat(x?.toFixed(4));
 		const y_round = parseFloat(y?.toFixed(4));
 

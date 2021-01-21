@@ -147,7 +147,8 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 	}
 
 	gameState.players.forEach((player) => {
-		if (!voiceState.otherTalking[player.clientId] && compactOverlay) return;
+		if (!voiceState.otherTalking[player.clientId] && !(player.isLocal && voiceState.localTalking) && compactOverlay)
+			return;
 		// const peer = voiceState.playerSocketIds[player.clientId];
 		const connected = Object.values(voiceState.socketClients)
 			.map(({ clientId }) => clientId)
