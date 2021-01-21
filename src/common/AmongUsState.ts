@@ -67,4 +67,5 @@ export interface VoiceState {
 	socketClients: SocketClientMap;
 	audioConnected: AudioConnected;
 	localTalking: boolean
+	localIsAlive: boolean;
 }

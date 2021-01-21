@@ -266,7 +266,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				break;
 		}
 
-		if (!other.isDead || state.gameState !== GameState.TASKS || !me.isImpostor) {
+		if (!other.isDead || state.gameState !== GameState.TASKS || !me.isImpostor || me.isDead) {
 			if (audio.reverbConnected && reverb) {
 				audio.reverbConnected = false;
 				restoreEffect(gain, reverb, destination, other);
@@ -590,7 +590,10 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						const audio = document.createElement('audio') as ExtendedAudioElement;
 						document.body.appendChild(audio);
 						audio.srcObject = stream;
-						if (settingsRef.current.speaker.toLowerCase() !== 'default') audio.setSinkId(settingsRef.current.speaker);
+						if (settingsRef.current.speaker.toLowerCase() !== 'default') {
+							console.log("setsinkId", settingsRef.current.speaker)
+							audio.setSinkId(settingsRef.current.speaker); //not working
+						}
 
 						const context = new AudioContext();
 						const source = context.createMediaStreamSource(stream);
@@ -844,6 +847,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			socketClients,
 			audioConnected,
 			localTalking: talking,
+			localIsAlive: !myPlayer?.isDead,
 		} as VoiceState);
 	}, [otherTalking, otherDead, socketClients, audioConnected, talking]);
 

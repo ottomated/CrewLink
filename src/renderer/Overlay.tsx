@@ -104,7 +104,7 @@ const Overlay: React.FC = function () {
 		return null;
 	return (
 		<>
-			{settings.meetingOverlay && <MeetingHud gameState={gameState} voiceState={voiceState} />}
+			{settings.meetingOverlay && gameState.gameState === GameState.DISCUSSION && <MeetingHud gameState={gameState} voiceState={voiceState} />}
 			{settings.overlayPosition !== 'hidden' && (
 				<AvatarOverlay
 					voiceState={voiceState}
@@ -145,8 +145,22 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 			classnames.push('compactoverlay');
 		}
 	}
+	const players = useMemo(() => {
+		if (!gameState.players) return null;
+		let playerss = gameState.players.filter(o => !voiceState.localIsAlive || !voiceState.otherDead[o.clientId]).slice().sort((a, b) => {
+			if ((a.disconnected || voiceState.otherDead[a.clientId]) && (b.disconnected || voiceState.otherDead[a.clientId])) {
+				return a.id - b.id;
+			} else if (a.disconnected || voiceState.otherDead[a.clientId]) {
+				return 1000;
+			} else if (b.disconnected || voiceState.otherDead[b.clientId]) {
+				return -1000;
+			}
+			return a.id - b.id;
+		});
+		return playerss;
+	}, [gameState.players]);
 
-	gameState.players.forEach((player) => {
+	players?.forEach((player) => {
 		if (!voiceState.otherTalking[player.clientId] && !(player.isLocal && voiceState.localTalking) && compactOverlay)
 			return;
 		// const peer = voiceState.playerSocketIds[player.clientId];
@@ -213,7 +227,7 @@ const MeetingHud: React.FC<MeetingHudProps> = ({ voiceState, gameState }: Meetin
 	const classes = useStyles({ hudHeight });
 	const players = useMemo(() => {
 		if (!gameState.players) return null;
-		return gameState.players.sort((a, b) => {
+		return gameState.players.slice().sort((a, b) => {
 			if ((a.disconnected || a.isDead) && (b.disconnected || b.isDead)) {
 				return a.id - b.id;
 			} else if (a.disconnected || a.isDead) {
@@ -225,7 +239,7 @@ const MeetingHud: React.FC<MeetingHudProps> = ({ voiceState, gameState }: Meetin
 		});
 	}, [gameState.players]);
 	if (!players || gameState.gameState !== GameState.DISCUSSION) return null;
-	const overlays = gameState.players.map((player) => {
+	const overlays = players.map((player) => {
 		return (
 			<div
 				key={player.id}
