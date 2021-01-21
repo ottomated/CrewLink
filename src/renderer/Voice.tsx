@@ -37,7 +37,8 @@ interface PeerConnections {
 }
 
 interface AudioNodes {
-	element: HTMLAudioElement;
+	dummyAudioElement: HTMLAudioElement;
+	audioElement: HTMLAudioElement;
 	gain: GainNode;
 	pan: PannerNode;
 	reverb: ConvolverNode;
@@ -322,6 +323,15 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		pan.positionZ.setValueAtTime(-0.5, audioContext.currentTime);
 	}
 
+	function disconnectAudioHtmlElement(element : HTMLAudioElement){
+		console.log("disableing element?", element)
+		element.pause();
+		element.removeAttribute('srcObject');
+		element.removeAttribute('src');
+		element.srcObject = null;
+		element.load();
+		element.remove();
+	}
 	function disconnectPeer(peer: string) {
 		const connection = peerConnections[peer];
 		if (!connection) {
@@ -333,7 +343,9 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			return connections;
 		});
 		if (audioElements.current[peer]) {
-			document.body.removeChild(audioElements.current[peer].element);
+			console.log("removing element..");
+			disconnectAudioHtmlElement(audioElements.current[peer].audioElement);
+			disconnectAudioHtmlElement(audioElements.current[peer].dummyAudioElement);
 			audioElements.current[peer].pan.disconnect();
 			audioElements.current[peer].gain.disconnect();
 			// if (audioElements.current[peer].reverbGain != null) audioElements.current[peer].reverbGain?.disconnect();
@@ -583,20 +595,16 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 							}
 						}, 1000);
 					});
-					connection.on('stream', (stream: MediaStream) => {
+					connection.on('stream', async (stream: MediaStream) => {
 						console.log('ONSTREAM');
 
 						setAudioConnected((old) => ({ ...old, [peer]: true }));
-						const audio = document.createElement('audio') as ExtendedAudioElement;
-						document.body.appendChild(audio);
-						audio.srcObject = stream;
-						if (settingsRef.current.speaker.toLowerCase() !== 'default') {
-							console.log("setsinkId", settingsRef.current.speaker)
-							audio.setSinkId(settingsRef.current.speaker); //not working
-						}
-
+						var dummyAudio = new Audio();
+						dummyAudio.srcObject = stream;
 						const context = new AudioContext();
 						const source = context.createMediaStreamSource(stream);
+						var dest = context.createMediaStreamDestination();
+
 						const gain = context.createGain();
 						const pan = context.createPanner();
 						gain.gain.value = 0;
@@ -610,6 +618,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						muffle.type = 'lowpass';
 
 						source.connect(pan);
+
 						pan.connect(gain);
 
 						const reverb = context.createConvolver();
@@ -622,7 +631,13 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 								stereo: false,
 							}).destination;
 						} else {
-							gain.connect(context.destination);
+							gain.connect(dest);
+						}
+						const audio = new Audio() as ExtendedAudioElement;
+						audio.setAttribute('autoplay','');
+						audio.srcObject = dest.stream;
+						if (settingsRef.current.speaker.toLowerCase() !== 'default') {
+							audio.setSinkId(settingsRef.current.speaker);
 						}
 
 						const setTalking = (talking: boolean) => {
@@ -638,7 +653,8 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 							}));
 						};
 						audioElements.current[peer] = {
-							element: audio,
+							dummyAudioElement: dummyAudio,
+							audioElement: audio,
 							gain,
 							pan,
 							reverb,
