@@ -1,12 +1,12 @@
 
-[![GPL-3.0 License][license-shield]][license-url] [![Appveyor Build][appveyor-shield]][appveyor-url]
+[![GPL-3.0 License][license-shield]][license-url] [![Appveyor Build][appveyor-shield]][appveyor-url] [![Donate][paypal-shield]](paypal-url)
 
 <br />
 <p align="center">
   <a href="https://github.com/ottomated/CrewLink">
     <img src="logo.png" alt="Logo" width="80" height="80">
   </a>
-  <h3 align="center">BetterCrewLink a Crewlink fork with extra features</h3>
+  <h3 align="center">BetterCrewLink a Crewlink fork with extra features & better support</h3>
 
 
   <p align="center">
@@ -19,8 +19,9 @@
     <a href="#installation"><b>INSTALLATION INSTRUCTIONS</b></a>
   </p>
   <p align="center">
-  <b><a href="https://paypal.me/ottomated">DONATE TO THE PROJECT</a></b>
-  (all donations will be used for server costs or paying for college)
+    <b><a href="https://www.paypal.com/donate?hosted_button_id=KS43BDTGN76JQ">DONATE TO BETTERCREWLINK</a></b></br>
+  (all donations will be used for the apple developer license and extra servers)</br>
+   <b><a href="https://paypal.me/ottomated">Donate to ottomated (offical crewlink)</a></b>
   </p>
 </p>
 <hr />
@@ -69,9 +70,9 @@ This project implements proximity voice chat in Among Us. Everyone in an Among U
 
 ## Installation
 
-Download the latest version from [releases](https://github.com/OhMyGuus/CrewLink/releases) and run the `CrewLink-Setup-X.X.X.exe` file. You may get antivirus warnings, because this program hooks into the Among Us process to read game data.
+Download the latest version from [releases](https://github.com/OhMyGuus/CrewLink/releases) and run the `BetterCrewLink-Setup-X.X.X.exe` file. You may get antivirus warnings, because this program hooks into the Among Us process to read game data.
 
-If you can, you should use a private server by deploying [this repository](https://github.com/OhMyGuus/CrewLink-server).
+If you can, you should use a private server by deploying [this repository](https://github.com/OhMyGuus/BetterCrewLink-server).
 
 ### Setup Instructions (click)
 
@@ -81,7 +82,7 @@ If you can, you should use a private server by deploying [this repository](https
 
 You only need to follow the below instructions if you are trying to modify this software. Otherwise, please download the latest version from the [github releases](https://github.com/OhMyGuus/CrewLink/releases).
 
-Server code is located at [ottomated/CrewLink-server](https://github.com/ottomated/CrewLink-server). Please use a local server for development purposes.
+Server code is located at [OhMyGuus/BetterCrewLink-server](https://github.com/OhMyGuus/BetterCrewLink-server). Please use a local server for development purposes.
 
 ### Prerequisites
 
@@ -97,7 +98,7 @@ npm install yarn -g
 
 1. Clone the repo
 ```sh
-git clone https://github.com/ottomated/CrewLink.git
+git clone https://github.com/OhMyGuus/BetterCrewLink.git
 cd CrewLink
 ```
 2. Install NPM packages
@@ -126,7 +127,9 @@ Any contributions you make are greatly appreciated.
 Distributed under the GNU General Public License v3.0. See `LICENSE` for more information.
 
 
-[license-shield]: https://img.shields.io/github/license/ottomated/CrewLink.svg?style=flat-square
-[license-url]: https://github.com/ottomated/CrewLink-server/blob/master/LICENSE
-[appveyor-shield]: https://img.shields.io/appveyor/build/ottomated/crewlink
-[appveyor-url]: https://ci.appveyor.com/project/ottomated/crewlink
+[license-shield]: https://img.shields.io/github/license/OhMyGuus/BetterCrewLink.svg?style=flat-square
+[license-url]: https://github.com/OhMyGuus/BetterCrewLink/blob/master/LICENSE
+[appveyor-shield]: https://img.shields.io/appveyor/build/OhMyGuus/bettercrewlink
+[appveyor-url]: https://ci.appveyor.com/project/OhMyGuus/bettercrewlink
+[paypal-url]: https://www.paypal.com/donate?hosted_button_id=KS43BDTGN76JQ
+[paypal-shield]: https://img.shields.io/badge/Donate-PayPal-green.svg
