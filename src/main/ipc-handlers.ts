@@ -15,7 +15,7 @@ export const initializeIpcListeners = (): void => {
 
 	ipcMain.on(IpcMessages.OPEN_AMONG_US_GAME, () => {
 		// Get steam path from registry
-		const steamPath = enumerateValues(HKEY.HKEY_LOCAL_MACHINE, 'SOFTWARE\\WOW6432Node\\Valve\\Steam1').find(
+		const steamPath = enumerateValues(HKEY.HKEY_LOCAL_MACHINE, 'SOFTWARE\\WOW6432Node\\Valve\\Steam').find(
 			(v) => v.name === 'InstallPath'
 		);
 		// Check if Steam is installed
