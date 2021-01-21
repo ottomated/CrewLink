@@ -18,7 +18,7 @@ version: '{build}'
 shallow_clone: true
 clone_depth: 1
 build_script:
-  - yarn run publish
+  - yarn run dist
 artifacts:
   - path: dist/win-unpacked
     name: unpacked
