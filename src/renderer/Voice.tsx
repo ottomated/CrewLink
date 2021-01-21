@@ -891,6 +891,11 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 					)}
 				</div>
 			</div>
+			{lobbySettings.deadOnly && (
+				<div className={classes.top}>
+					<small style={{ padding: 0 }}>Be aware death only chat enabled.</small>
+				</div>
+			)}
 			{gameState.lobbyCode && <Divider />}
 			<Grid
 				container
