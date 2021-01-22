@@ -20,7 +20,7 @@ export interface ISettings {
 	vadEnabled: boolean;
 	echoCancellation: boolean;
 	noiseSuppression: boolean;
-
+	enableSpatialAudio: boolean;
 	playerConfigMap : playerConfigMap;
 }
 

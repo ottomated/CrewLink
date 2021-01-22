@@ -225,7 +225,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 	): void {
 		const { pan, gain, muffle, reverb, destination } = audio;
 		const audioContext = pan.context;
-		let maxdistance = lobbySettings.maxDistance + 1;
+		let maxdistance = lobbySettings.maxDistance ;
 		let panPos = [other.x - me.x, other.y - me.y];
 		switch (state.gameState) {
 			case GameState.MENU:
@@ -329,6 +329,10 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			}
 		}
 
+		if (!settings.enableSpatialAudio) {
+			panPos = [0, 0];
+		}
+		
 		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
 		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
 		pan.positionZ.setValueAtTime(-0.5, audioContext.currentTime);

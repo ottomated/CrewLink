@@ -214,6 +214,10 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: true,
 		},
+		enableSpatialAudio: {
+			type: 'boolean',
+			default: true,
+		},
 		echoCancellation: {
 			type: 'boolean',
 			default: true,
@@ -1018,7 +1022,17 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					}}
 					control={<Checkbox />}
 				/>
-
+				<FormControlLabel
+					label="Spatial audio"
+					checked={settings.enableSpatialAudio}
+					onChange={(_, checked: boolean) => {
+						setSettings({
+							type: 'setOne',
+							action: ['enableSpatialAudio', checked],
+						});
+					}}
+					control={<Checkbox />}
+				/>
 				<FormControlLabel
 					label="Noise Suppression"
 					checked={settings.noiseSuppression}

@@ -135,6 +135,7 @@ export default function App(): JSX.Element {
 		ghostVolume: 100,
 		vadEnabled:true,
 		echoCancellation: true,
+		enableSpatialAudio: true,
 		noiseSuppression: true,
 		playerConfigMap: {},
 		localLobbySettings: {
