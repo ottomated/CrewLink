@@ -19,12 +19,13 @@ const useStyles = makeStyles(() => ({
 const audio = new Audio() as ExtendedAudioElement;
 audio.src = chime;
 
-const TestSpeakersButton: React.FC<TestSpeakersProps> = ({
-	speaker,
-}: TestSpeakersProps) => {
+const TestSpeakersButton: React.FC<TestSpeakersProps> = ({ speaker }: TestSpeakersProps) => {
 	const classes = useStyles();
 	const [playing, setPlaying] = useState(false);
 	if (speaker.toLowerCase() !== 'default') audio.setSinkId(speaker);
+	audio.onended = () => {
+		setPlaying(false);
+	};
 
 	const testSpeakers = () => {
 		if (playing) {
@@ -38,13 +39,7 @@ const TestSpeakersButton: React.FC<TestSpeakersProps> = ({
 	};
 
 	return (
-		<Button
-			variant="contained"
-			color="secondary"
-			size="small"
-			className={classes.button}
-			onClick={testSpeakers}
-		>
+		<Button variant="contained" color="secondary" size="small" className={classes.button} onClick={testSpeakers}>
 			{playing ? 'Stop Test Speaker' : 'Test speaker'}
 		</Button>
 	);

@@ -153,6 +153,17 @@ const useStyles = makeStyles((theme) => ({
 		padding: theme.spacing(1),
 	},
 }));
+
+const defaultlocalLobbySettings: ILobbySettings = {
+	maxDistance: 5.32,
+	haunting: false,
+	hearImpostorsInVents: false,
+	impostersHearImpostersInvent: false,
+	commsSabotage: false,
+	deadOnly: false,
+	hearThroughCameras: false,
+};
+
 const store = new Store<ISettings>();
 const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProps) {
 	const [error, setError] = useState(initialError);
@@ -173,7 +184,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 	const convolverBuffer = useRef<AudioBuffer | null>(null);
 
 	const [connect, setConnect] = useState<{
-		connect: (lobbyCode: string, playerId: number, clientId: number) => void;
+		connect: (lobbyCode: string, playerId: number, clientId: number, isHost: boolean) => void;
 	} | null>(null);
 	const [otherTalking, setOtherTalking] = useState<OtherTalking>({});
 	const [otherDead, setOtherDead] = useState<OtherDead>({});
@@ -558,7 +569,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 				audioElements.current = {};
 
-				const connect = (lobbyCode: string, playerId: number, clientId: number) => {
+				const connect = (lobbyCode: string, playerId: number, clientId: number, isHost: boolean) => {
 					console.log('connect called..', lobbyCode);
 					if (lobbyCode === 'MENU') {
 						Object.keys(peerConnections).forEach((k) => {
@@ -569,6 +580,18 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 					} else if (currentLobby !== lobbyCode) {
 						socket.emit('join', lobbyCode, playerId, clientId);
 						currentLobby = lobbyCode;
+						if (!isHost) {
+							// fix for buggy cross compatibility with offical crewlink (they aren't sending the host settings 9/10 times.)
+							Object.keys(lobbySettings).forEach((field: string) => {
+								const officalCrewlinkSettings = ['maxDistance', 'haunting', 'hearImpostorsInVents', 'commsSabotage'];
+								if (officalCrewlinkSettings.indexOf(field) === -1) {
+									setLobbySettings({
+										type: 'setOne',
+										action: [field, defaultlocalLobbySettings[field as keyof ILobbySettings]],
+									});
+								}
+							});
+						}
 					}
 				};
 				setConnect({ connect });
@@ -579,7 +602,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						iceRestartEnabled: true,
 						config: settingsRef.current.natFix ? DEFAULT_ICE_CONFIG_TURN : iceConfig,
 					});
-					console.log('ONCREATEPEERCONNECTION');
 
 					setPeerConnections((connections) => {
 						connections[peer] = connection;
@@ -628,14 +650,13 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						reverb.buffer = convolverBuffer.current;
 						let destination: AudioNode = dest;
 						if (settingsRef.current.vadEnabled) {
-							destination = VAD(context, gain, destination, {
+							VAD(context, gain, undefined, {
 								onVoiceStart: () => setTalking(true),
 								onVoiceStop: () => setTalking(false),
 								stereo: false,
-							}).destination;
-						} else {
-							gain.connect(destination);
+							});
 						}
+						gain.connect(destination);
 						const audio = new Audio() as ExtendedAudioElement;
 						audio.setAttribute('autoplay', '');
 						audio.srcObject = dest.stream;
@@ -675,16 +696,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						});
 					});
 
-					const defaultlocalLobbySettings: ILobbySettings = {
-						maxDistance: 5.32,
-						haunting: false,
-						hearImpostorsInVents: false,
-						impostersHearImpostersInvent: false,
-						commsSabotage: false,
-						deadOnly: false,
-						hearThroughCameras: false,
-					};
-
 					connection.on('data', (data) => {
 						if (!hostRef.current || hostRef.current.hostId !== socketClientsRef.current[peer]?.clientId) return;
 						const settings = JSON.parse(data);
@@ -696,7 +707,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 								});
 							} else {
 								if (field in defaultlocalLobbySettings) {
-									//set to default settings for non bettercrewlink host. 
 									setLobbySettings({
 										type: 'setOne',
 										action: [field, defaultlocalLobbySettings[field as keyof ILobbySettings]],
@@ -818,7 +828,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 	// Connect to P2P negotiator, when lobby and connect code change
 	useEffect(() => {
 		if (connect?.connect) {
-			connect.connect(gameState?.lobbyCode ?? 'MENU', myPlayer?.id ?? 0, gameState.clientId);
+			connect.connect(gameState?.lobbyCode ?? 'MENU', myPlayer?.id ?? 0, gameState.clientId, gameState.isHost);
 		}
 	}, [connect?.connect, gameState?.lobbyCode]);
 
@@ -831,7 +841,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			gameState.gameState === GameState.LOBBY &&
 			(gameState.oldGameState === GameState.DISCUSSION || gameState.oldGameState === GameState.TASKS)
 		) {
-			connect.connect(gameState.lobbyCode, myPlayer.clientId, gameState.clientId);
+			connect.connect(gameState.lobbyCode, myPlayer.clientId, gameState.clientId, gameState.isHost);
 		} else if (
 			gameState.oldGameState !== GameState.UNKNOWN &&
 			gameState.oldGameState !== GameState.MENU &&

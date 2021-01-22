@@ -9,6 +9,7 @@ import { overlayWindow } from 'electron-overlay-window';
 
 const store = new Store<ISettings>();
 
+store.set('playerConfigMap', {});
 
 let readingGame = false;
 let gameReader: GameReader;
