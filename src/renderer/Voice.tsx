@@ -15,7 +15,7 @@ import {
 import Peer from 'simple-peer';
 import { ipcRenderer } from 'electron';
 import VAD from './vad';
-import { ISettings, playerConfigMap } from '../common/ISettings';
+import { ISettings, playerConfigMap, ILobbySettings } from '../common/ISettings';
 import { IpcRendererMessages, IpcMessages, IpcOverlayMessages } from '../common/ipc-messages';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
@@ -323,10 +323,10 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		pan.positionZ.setValueAtTime(-0.5, audioContext.currentTime);
 	}
 
-	function disconnectAudioHtmlElement(element : HTMLAudioElement){
-		console.log("disableing element?", element)
+	function disconnectAudioHtmlElement(element: HTMLAudioElement) {
+		console.log('disableing element?', element);
 		element.pause();
-		if(element.srcObject){
+		if (element.srcObject) {
 			const mediaStream = element.srcObject as MediaStream;
 			mediaStream.getTracks().forEach((track) => track.stop());
 		}
@@ -347,7 +347,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			return connections;
 		});
 		if (audioElements.current[peer]) {
-			console.log("removing element..");
+			console.log('removing element..');
 			disconnectAudioHtmlElement(audioElements.current[peer].audioElement);
 			disconnectAudioHtmlElement(audioElements.current[peer].dummyAudioElement);
 			audioElements.current[peer].pan.disconnect();
@@ -637,7 +637,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 							gain.connect(destination);
 						}
 						const audio = new Audio() as ExtendedAudioElement;
-						audio.setAttribute('autoplay','');
+						audio.setAttribute('autoplay', '');
 						audio.srcObject = dest.stream;
 						if (settingsRef.current.speaker.toLowerCase() !== 'default') {
 							audio.setSinkId(settingsRef.current.speaker);
@@ -675,6 +675,16 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						});
 					});
 
+					const defaultlocalLobbySettings: ILobbySettings = {
+						maxDistance: 5.32,
+						haunting: false,
+						hearImpostorsInVents: false,
+						impostersHearImpostersInvent: false,
+						commsSabotage: false,
+						deadOnly: false,
+						hearThroughCameras: false,
+					};
+
 					connection.on('data', (data) => {
 						if (!hostRef.current || hostRef.current.hostId !== socketClientsRef.current[peer]?.clientId) return;
 						const settings = JSON.parse(data);
@@ -684,6 +694,14 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 									type: 'setOne',
 									action: [field, settings[field]],
 								});
+							} else {
+								if (field in defaultlocalLobbySettings) {
+									//set to default settings for non bettercrewlink host. 
+									setLobbySettings({
+										type: 'setOne',
+										action: [field, defaultlocalLobbySettings[field as keyof ILobbySettings]],
+									});
+								}
 							}
 						});
 					});
