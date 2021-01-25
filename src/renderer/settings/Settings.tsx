@@ -263,6 +263,10 @@ const store = new Store<ISettings>({
 					type: 'boolean',
 					default: false,
 				},
+				wallsBlockAudio : {
+					type: 'boolean',
+					default: false
+				}
 			},
 			default: {
 				maxDistance: 5.32,
@@ -270,6 +274,7 @@ const store = new Store<ISettings>({
 				commsSabotage: false,
 				hearImpostorsInVents: false,
 				hearThroughCameras: false,
+				wallsBlockAudio: false,
 				deadOnly: false,
 			},
 		},
@@ -729,6 +734,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 							control={<Checkbox />}
 						/>
 					</DisabledTooltip>
+					
 					<DisabledTooltip
 						disabled={!canChangeLobbySettings}
 						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
@@ -769,6 +775,35 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 							value={canChangeLobbySettings ? localLobbySettings.hearThroughCameras : lobbySettings.hearThroughCameras}
 							checked={
 								canChangeLobbySettings ? localLobbySettings.hearThroughCameras : lobbySettings.hearThroughCameras
+							}
+							control={<Checkbox />}
+						/>
+					</DisabledTooltip>
+					<DisabledTooltip
+						disabled={!canChangeLobbySettings}
+						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
+					>
+						<FormControlLabel
+							label="Walls block audio"
+							disabled={!canChangeLobbySettings}
+							onChange={(_, newValue: boolean) => {
+								localLobbySettings.wallsBlockAudio = newValue;
+								setLocalLobbySettings(localLobbySettings);
+
+								setSettings({
+									type: 'setLobbySetting',
+									action: ['wallsBlockAudio', newValue],
+								});
+							}}
+							value={
+								canChangeLobbySettings
+									? localLobbySettings.wallsBlockAudio
+									: lobbySettings.wallsBlockAudio
+							}
+							checked={
+								canChangeLobbySettings
+									? localLobbySettings.wallsBlockAudio
+									: lobbySettings.wallsBlockAudio
 							}
 							control={<Checkbox />}
 						/>

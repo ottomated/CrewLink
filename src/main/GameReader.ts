@@ -14,18 +14,11 @@ import { IpcRendererMessages } from '../common/ipc-messages';
 import { GameState, AmongUsState, Player } from '../common/AmongUsState';
 import offsetStore, { IOffsets } from './offsetStore';
 import Errors from '../common/Errors';
-import { CameraLocation } from '../common/AmongusMap';
+import { CameraLocation, MapType } from '../common/AmongusMap';
 
 interface ValueType<T> {
 	read(buffer: BufferSource, offset: number): T;
 	SIZE: number;
-}
-
-export enum MapType {
-	THE_SKELD,
-	MIRA_HQ,
-	POLUS,
-	UNKNOWN,
 }
 
 interface PlayerReport {
@@ -140,6 +133,7 @@ export default class GameReader {
 				crewmates = 0;
 			let comsSabotaged = false;
 			let currentCamera = CameraLocation.NONE;
+			let map = MapType.UNKNOWN;
 			if (this.gameCode && playerCount) {
 				for (let i = 0; i < Math.min(playerCount, 20); i++) {
 					const { address, last } = this.offsetAddress(playerAddrPtr, this.offsets.player.offsets);
@@ -158,7 +152,7 @@ export default class GameReader {
 				const shipPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.shipStatus);
 
 				const systemsPtr = this.readMemory<number>('ptr', shipPtr, this.offsets.shipStatus_systems);
-				const map: MapType = this.readMemory<number>('int32', shipPtr, this.offsets.shipStatus_map, MapType.UNKNOWN);
+				map = this.readMemory<number>('int32', shipPtr, this.offsets.shipStatus_map, MapType.UNKNOWN);
 
 				if (systemsPtr !== 0 && (state === GameState.TASKS || state === GameState.DISCUSSION)) {
 					this.readDictionary(systemsPtr, 32, (k, v) => {
@@ -233,6 +227,7 @@ export default class GameReader {
 				clientId: clientId,
 				comsSabotaged,
 				currentCamera,
+				map,
 			};
 			//	const stateHasChanged = !equal(this.lastState, newState);
 			//	if (stateHasChanged) {

@@ -25,7 +25,7 @@ import Divider from '@material-ui/core/Divider';
 import { validateClientPeerConfig } from './validateClientPeerConfig';
 // @ts-ignore
 import reverbOgx from 'arraybuffer-loader!../../static/reverb.ogx';
-import { CameraLocation, PolusMap } from '../common/AmongusMap';
+import { CameraLocation, PolusMap, poseCollide } from '../common/AmongusMap';
 import Store from 'electron-store';
 
 export interface ExtendedAudioElement extends HTMLAudioElement {
@@ -162,6 +162,7 @@ const defaultlocalLobbySettings: ILobbySettings = {
 	commsSabotage: false,
 	deadOnly: false,
 	hearThroughCameras: false,
+	wallsBlockAudio: false
 };
 
 const store = new Store<ISettings>();
@@ -222,25 +223,26 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		me: Player,
 		other: Player,
 		audio: AudioNodes
-	): void {
+	): number {
 		const { pan, gain, muffle, reverb, destination } = audio;
 		const audioContext = pan.context;
-		let maxdistance = lobbySettings.maxDistance ;
+		let maxdistance = lobbySettings.maxDistance;
 		let panPos = [other.x - me.x, other.y - me.y];
+		let endGain = 0;
 		switch (state.gameState) {
 			case GameState.MENU:
-				gain.gain.value = 0;
+				endGain = 0;
 				break;
 
 			case GameState.LOBBY:
-				gain.gain.value = 1;
+				endGain = 1;
 				break;
 
 			case GameState.TASKS:
-				gain.gain.value = 1;
+				endGain = 1;
 
 				if (!me.isDead && lobbySettings.commsSabotage && state.comsSabotaged && !me.isImpostor) {
-					gain.gain.value = 0;
+					endGain = 0;
 				}
 
 				// Mute other players which are in a vent
@@ -248,7 +250,11 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 					other.inVent &&
 					!(lobbySettings.hearImpostorsInVents || (lobbySettings.impostersHearImpostersInvent && me.inVent))
 				) {
-					gain.gain.value = 0;
+					endGain = 0;
+				}
+
+				if (lobbySettings.wallsBlockAudio && !me.isDead && poseCollide({ x: me.x, y: me.y }, { x: other.x, y: other.y }, gameState.map)) {
+					endGain = 0;
 				}
 
 				if (!me.isDead && other.isDead && me.isImpostor && lobbySettings.haunting) {
@@ -256,25 +262,25 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						audio.reverbConnected = true;
 						applyEffect(gain, reverb, destination, other);
 					}
-					gain.gain.value = 0.2;
+					endGain = 0.2;
 				} else {
 					if (other.isDead && !me.isDead) {
-						gain.gain.value = 0;
+						endGain = 0;
 					}
 				}
 				break;
 			case GameState.DISCUSSION:
 				panPos = [0, 0];
-				gain.gain.value = 1;
+				endGain = 1;
 				// Mute dead players for still living players
 				if (!me.isDead && other.isDead) {
-					gain.gain.value = 0;
+					endGain = 0;
 				}
 				break;
 
 			case GameState.UNKNOWN:
 			default:
-				gain.gain.value = 0;
+				endGain = 0;
 				break;
 		}
 
@@ -288,7 +294,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		if (lobbySettings.deadOnly) {
 			panPos = [0, 0];
 			if (!me.isDead || !other.isDead) {
-				gain.gain.value = 0;
+				endGain = 0;
 			}
 		}
 
@@ -301,7 +307,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			maxdistance = 0.8;
 			muffle.frequency.value = 2000;
 			muffle.Q.value = 20;
-			if (gain.gain.value === 1) gain.gain.value = 0.5; // Too loud at 1
+			if (endGain === 1) endGain = 0.5; // Too loud at 1
 		} else {
 			if (audio.muffleConnected) {
 				audio.muffleConnected = false;
@@ -320,22 +326,22 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				const camerapos = PolusMap.cameras[state.currentCamera];
 				panPos = [other.x - camerapos.x, other.y - camerapos.y];
 				if (Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]) > maxdistance) {
-					gain.gain.value = 0;
-					return;
+					endGain = 0;
+					return 0;
 				}
 			} else {
-				gain.gain.value = 0;
-				return;
+				endGain = 0;
+				return 0;
 			}
 		}
 
 		if (!settings.enableSpatialAudio) {
 			panPos = [0, 0];
 		}
-		
 		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
 		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
 		pan.positionZ.setValueAtTime(-0.5, audioContext.currentTime);
+		return endGain;
 	}
 
 	function disconnectAudioHtmlElement(element: HTMLAudioElement) {
@@ -798,22 +804,24 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			const audio =
 				player.clientId === myPlayer.clientId ? undefined : audioElements.current[playerSocketIds[player.clientId]];
 			if (audio) {
-				calculateVoiceAudio(gameState, settingsRef.current, myPlayer, player, audio);
+				let gain = calculateVoiceAudio(gameState, settingsRef.current, myPlayer, player, audio);
 
 				if (connectionStuff.current.deafened) {
-					audio.gain.gain.value = 0;
+					gain = 0;
 				}
 
-				if (audio.gain.gain.value > 0) {
+				if (gain > 0) {
 					const playerVolume = playerConfigs[player.clientId]?.volume;
 
-					audio.gain.gain.value =
-						playerVolume === undefined ? audio.gain.gain.value : audio.gain.gain.value * playerVolume;
+					gain =
+						playerVolume === undefined ? gain : gain * playerVolume;
 
 					if (myPlayer.isDead && !player.isDead) {
-						audio.gain.gain.value = audio.gain.gain.value * (settings.ghostVolume / 100);
+						gain = gain * (settings.ghostVolume / 100);
 					}
 				}
+				console.log(gain);
+				audio.gain.gain.value = gain;
 			}
 		}
 

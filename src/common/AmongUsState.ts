@@ -1,4 +1,4 @@
-import { CameraLocation } from './AmongusMap';
+import { CameraLocation, MapType } from './AmongusMap';
 
 export interface AmongUsState {
 	gameState: GameState;
@@ -10,6 +10,7 @@ export interface AmongUsState {
 	hostId: number;
 	comsSabotaged: boolean;
 	currentCamera: CameraLocation;
+	map: MapType;
 }
 
 export interface Player {

@@ -21,7 +21,7 @@ export interface ISettings {
 	echoCancellation: boolean;
 	noiseSuppression: boolean;
 	enableSpatialAudio: boolean;
-	playerConfigMap : playerConfigMap;
+	playerConfigMap: playerConfigMap;
 }
 
 export interface ILobbySettings {
@@ -33,6 +33,7 @@ export interface ILobbySettings {
 	commsSabotage: boolean;
 	deadOnly: boolean;
 	hearThroughCameras: boolean;
+	wallsBlockAudio: boolean;
 }
 
 export interface SocketConfig {

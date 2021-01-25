@@ -145,7 +145,8 @@ export default function App(): JSX.Element {
 			impostersHearImpostersInvent: false,
 			commsSabotage: false,
 			deadOnly: false,
-			hearThroughCameras: false
+			hearThroughCameras: false,
+			wallsBlockAudio: false
 		},
 	});
 	const lobbySettings = useReducer(lobbySettingsReducer, settings[0].localLobbySettings);

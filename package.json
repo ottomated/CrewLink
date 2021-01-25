@@ -40,6 +40,7 @@
     "memoryjs": "git://github.com/Rob--/memoryjs",
     "minimist": "^1.2.5",
     "node-keyboard-watcher": "git://github.com/OhMyGuus/node-keyboard-watcher",
+    "path-intersection": "^2.2.0",
     "pretty-bytes": "^5.5.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
