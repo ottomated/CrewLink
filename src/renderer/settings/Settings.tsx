@@ -266,6 +266,10 @@ const store = new Store<ISettings>({
 					type: 'boolean',
 					default: false,
 				},
+				meetingGhostOnly: {
+					type: 'boolean',
+					default: false,
+				},
 				hearThroughCameras: {
 					type: 'boolean',
 					default: false,
@@ -283,6 +287,7 @@ const store = new Store<ISettings>({
 				hearThroughCameras: false,
 				wallsBlockAudio: false,
 				deadOnly: false,
+				meetingGhostOnly: false
 			},
 		},
 	},
@@ -812,7 +817,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
 					>
 						<FormControlLabel
-							label="Only dead peole can talk/hear"
+							label="Only ghost can talk/hear"
 							disabled={!canChangeLobbySettings}
 							onChange={(_, newValue: boolean) => {
 								console.log('new vlaue of setting: ', newValue);
@@ -820,19 +825,56 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 									'Are you sure?',
 									'This disables the sound for alive players.',
 									() => {
+										localLobbySettings.meetingGhostOnly = false;
 										localLobbySettings.deadOnly = newValue;
-										setLocalLobbySettings(localLobbySettings);
-
+										setSettings({
+											type: 'setLobbySetting',
+											action: ['meetingGhostOnly', false],
+										});
 										setSettings({
 											type: 'setLobbySetting',
 											action: ['deadOnly', newValue],
 										});
+										setLocalLobbySettings(localLobbySettings);
 									},
 									newValue
 								);
 							}}
 							value={canChangeLobbySettings ? localLobbySettings.deadOnly : lobbySettings.deadOnly}
 							checked={canChangeLobbySettings ? localLobbySettings.deadOnly : lobbySettings.deadOnly}
+							control={<Checkbox />}
+						/>
+					</DisabledTooltip>
+					<DisabledTooltip
+						disabled={!canChangeLobbySettings}
+						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
+					>
+					<FormControlLabel
+							label="Meetings &amp; lobby only"
+							disabled={!canChangeLobbySettings}
+							onChange={(_, newValue: boolean) => {
+								console.log('new vlaue of setting: ', newValue);
+								openWarningDialog(
+									'Are you sure?',
+									'This disables the sound for alive players outside meetings',
+									() => {
+										localLobbySettings.meetingGhostOnly = newValue;
+										localLobbySettings.deadOnly = false;
+										setSettings({
+											type: 'setLobbySetting',
+											action: ['meetingGhostOnly', newValue],
+										});
+										setSettings({
+											type: 'setLobbySetting',
+											action: ['deadOnly', false],
+										});
+										setLocalLobbySettings(localLobbySettings);
+									},
+									newValue
+								);
+							}}
+							value={canChangeLobbySettings ? localLobbySettings.meetingGhostOnly : lobbySettings.meetingGhostOnly}
+							checked={canChangeLobbySettings ? localLobbySettings.meetingGhostOnly : lobbySettings.meetingGhostOnly}
 							control={<Checkbox />}
 						/>
 					</DisabledTooltip>

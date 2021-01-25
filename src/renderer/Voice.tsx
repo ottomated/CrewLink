@@ -163,6 +163,7 @@ const defaultlocalLobbySettings: ILobbySettings = {
 	deadOnly: false,
 	hearThroughCameras: false,
 	wallsBlockAudio: false,
+	meetingGhostOnly: false
 };
 
 const store = new Store<ISettings>();
@@ -242,6 +243,9 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			case GameState.TASKS:
 				endGain = 1;
 
+				if (lobbySettings.meetingGhostOnly) {
+					endGain = 0;
+				}
 				if (!me.isDead && lobbySettings.commsSabotage && state.comsSabotaged && !me.isImpostor) {
 					endGain = 0;
 				}
@@ -273,6 +277,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						endGain = 0;
 					}
 				}
+			
 				break;
 			case GameState.DISCUSSION:
 				panPos = [0, 0];
@@ -327,7 +332,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 		// Mute players if distancte between two players is too big
 		// console.log({ x: other.x, y: other.y }, Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]));
-		console.log(state.currentCamera);
+		//console.log(state.currentCamera);
 		if (Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]) > maxdistance) {
 			if (lobbySettings.hearThroughCameras && state.gameState === GameState.TASKS) {
 				if (state.currentCamera !== CameraLocation.NONE && state.currentCamera !== CameraLocation.Skeld) {
@@ -654,6 +659,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 					connection.on('stream', async (stream: MediaStream) => {
 						console.log('ONSTREAM');
 
+						console.log(connection); // @ts-ignore
 						setAudioConnected((old) => ({ ...old, [peer]: true }));
 						var dummyAudio = new Audio();
 						dummyAudio.srcObject = stream;
@@ -704,7 +710,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 							const reallyTalking = talking && gain.gain.value > 0;
 							setOtherTalking((old) => ({
 								...old,
-								[socketClientsRef.current[peer].clientId]: reallyTalking,
+								[socketClientsRef.current[peer]?.clientId]: reallyTalking,
 							}));
 						};
 						audioElements.current[peer] = {
@@ -974,7 +980,12 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			</div>
 			{lobbySettings.deadOnly && (
 				<div className={classes.top}>
-					<small style={{ padding: 0 }}>Be aware death only chat enabled.</small>
+					<small style={{ padding: 0 }}>Ghost can talk only enabled.</small>
+				</div>
+			)}
+			{lobbySettings.meetingGhostOnly && (
+				<div className={classes.top}>
+					<small style={{ padding: 0 }}>Talking in meetings only enabled.</small>
 				</div>
 			)}
 			{gameState.lobbyCode && <Divider />}

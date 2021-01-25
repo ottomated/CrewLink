@@ -146,6 +146,7 @@ export default function App(): JSX.Element {
 			impostersHearImpostersInvent: false,
 			commsSabotage: false,
 			deadOnly: false,
+			meetingGhostOnly: false,
 			hearThroughCameras: false,
 			wallsBlockAudio: false
 		},

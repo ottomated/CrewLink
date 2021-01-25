@@ -33,6 +33,7 @@ export interface ILobbySettings {
 
 	commsSabotage: boolean;
 	deadOnly: boolean;
+	meetingGhostOnly: boolean;
 	hearThroughCameras: boolean;
 	wallsBlockAudio: boolean;
 }
