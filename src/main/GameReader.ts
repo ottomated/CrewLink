@@ -109,7 +109,7 @@ export default class GameReader {
 					break;
 			}
 
-			this.gameCode =
+			this.gameCode = 
 				state === GameState.MENU
 					? ''
 					: this.IntToGameCode(this.readMemory<number>('int32', innerNetClient, this.offsets.gameCode));
@@ -134,17 +134,22 @@ export default class GameReader {
 			let comsSabotaged = false;
 			let currentCamera = CameraLocation.NONE;
 			let map = MapType.UNKNOWN;
+			let localPlayer = undefined;
 			if (this.gameCode && playerCount) {
 				for (let i = 0; i < Math.min(playerCount, 20); i++) {
 					const { address, last } = this.offsetAddress(playerAddrPtr, this.offsets.player.offsets);
 					const playerData = readBuffer(this.amongUs.handle, address + last, this.offsets.player.bufferLength);
 					const player = this.parsePlayer(address + last, playerData, clientId);
 					playerAddrPtr += this.is_64bit ? 8 : 4;
-					if (!player || state === GameState.MENU) continue;
+					if (!player || state === GameState.MENU || player.name === '') continue;
+
+					if (player.isLocal) {
+						localPlayer = player;
+					}
 
 					players.push(player);
-					if (player.name === '' || player.id === exiledPlayerId || player.isDead || player.disconnected) continue;
 
+					if (player.id === exiledPlayerId || player.isDead || player.disconnected) continue;
 					if (player.isImpostor) impostors++;
 					else crewmates++;
 				}
@@ -154,7 +159,7 @@ export default class GameReader {
 				const systemsPtr = this.readMemory<number>('ptr', shipPtr, this.offsets.shipStatus_systems);
 				map = this.readMemory<number>('int32', shipPtr, this.offsets.shipStatus_map, MapType.UNKNOWN);
 
-				if (systemsPtr !== 0 && (state === GameState.TASKS || state === GameState.DISCUSSION)) {
+				if (systemsPtr !== 0 && state === GameState.TASKS) {
 					this.readDictionary(systemsPtr, 32, (k, v) => {
 						const key = this.readMemory<number>('int32', k);
 						if (key === 14) {
@@ -177,7 +182,7 @@ export default class GameReader {
 				const minigamePtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets?.miniGame);
 				const minigameCachePtr = this.readMemory<number>('ptr', minigamePtr, this.offsets?.objectCachePtr);
 
-				if (minigameCachePtr && minigameCachePtr !== 0) {
+				if (minigameCachePtr && minigameCachePtr !== 0 && localPlayer) {
 					if (map === MapType.POLUS) {
 						const currentCameraId = this.readMemory<number>(
 							'uint32',
@@ -192,6 +197,18 @@ export default class GameReader {
 
 						if (currentCameraId >= 0 && currentCameraId <= 5 && camarasCount === 6) {
 							currentCamera = currentCameraId as CameraLocation;
+						}
+					} else if (map === MapType.THE_SKELD) {
+						const roomCount = this.readMemory<number>(
+							'uint32',
+							minigamePtr,
+							this.offsets?.surveillanceMinigame_FilteredRoomsCount
+						);
+						if (roomCount === 4) {
+							var dist = Math.sqrt(Math.pow(localPlayer.x - -12.9364, 2) + Math.pow(localPlayer.y - -2.7928, 2));
+							if (dist < 0.6) {
+								currentCamera = CameraLocation.Skeld;
+							}
 						}
 					}
 				}

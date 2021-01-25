@@ -42,6 +42,15 @@ export const PolusMap: AmongUsMap = {
 	},
 };
 
+export const SkeldMap: AmongUsMap = {
+	cameras: {
+		[0]: { x: 13.2417, y: -4.348 },
+		[1]: { x: 0.6216, y: -6.5642 },
+		[2]: { x: -7.1503, y: 1.6709 },
+		[3]: { x: -17.8098, y: -4.8983 },
+	},
+};
+
 // East: 29, -15.7
 // Central: 15.4, -15.4
 // Northeast: 24.4, -8.5

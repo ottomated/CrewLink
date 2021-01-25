@@ -31,6 +31,7 @@ export interface IOffsets {
 	miniGame: number[];
 	planetSurveillanceMinigame_currentCamera: number[];
 	planetSurveillanceMinigame_camarasCount: number[];
+	surveillanceMinigame_FilteredRoomsCount: number[];
 	player: {
 		isLocal: number[];
 		localX: number[];
@@ -92,6 +93,7 @@ export default {
 		miniGame: [0x1c57cac, 0xb8, 0x0],
 		planetSurveillanceMinigame_currentCamera: [0xC8], 
 		planetSurveillanceMinigame_camarasCount: [0xA0, 0x18], 
+		surveillanceMinigame_FilteredRoomsCount: [0x70, 0x18],
 		player: {
 			struct: [
 				{ type: 'SKIP', skip: 16, name: 'unused' },
@@ -174,6 +176,7 @@ export default {
 		miniGame: [0x1c57cac, 0x5c, 0x0],
 		planetSurveillanceMinigame_currentCamera: [0x64], 
 		planetSurveillanceMinigame_camarasCount: [0x50, 0x0c], 
+		surveillanceMinigame_FilteredRoomsCount: [0x38, 0x0C],
 		player: {
 			struct: [
 				{ type: 'SKIP', skip: 8, name: 'unused' },

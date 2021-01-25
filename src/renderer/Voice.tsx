@@ -25,7 +25,7 @@ import Divider from '@material-ui/core/Divider';
 import { validateClientPeerConfig } from './validateClientPeerConfig';
 // @ts-ignore
 import reverbOgx from 'arraybuffer-loader!../../static/reverb.ogx';
-import { CameraLocation, PolusMap, poseCollide } from '../common/AmongusMap';
+import { CameraLocation, PolusMap, poseCollide, SkeldMap } from '../common/AmongusMap';
 import Store from 'electron-store';
 
 export interface ExtendedAudioElement extends HTMLAudioElement {
@@ -162,7 +162,7 @@ const defaultlocalLobbySettings: ILobbySettings = {
 	commsSabotage: false,
 	deadOnly: false,
 	hearThroughCameras: false,
-	wallsBlockAudio: false
+	wallsBlockAudio: false,
 };
 
 const store = new Store<ISettings>();
@@ -229,6 +229,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		let maxdistance = lobbySettings.maxDistance;
 		let panPos = [other.x - me.x, other.y - me.y];
 		let endGain = 0;
+
 		switch (state.gameState) {
 			case GameState.MENU:
 				endGain = 0;
@@ -253,7 +254,11 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 					endGain = 0;
 				}
 
-				if (lobbySettings.wallsBlockAudio && !me.isDead && poseCollide({ x: me.x, y: me.y }, { x: other.x, y: other.y }, gameState.map)) {
+				if (
+					lobbySettings.wallsBlockAudio &&
+					!me.isDead &&
+					poseCollide({ x: me.x, y: me.y }, { x: other.x, y: other.y }, gameState.map)
+				) {
 					endGain = 0;
 				}
 
@@ -298,16 +303,21 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			}
 		}
 
+		const isOnCamera = state.currentCamera !== CameraLocation.NONE;
+
 		// Muffling in vents
-		if (((me.inVent && !me.isDead) || (other.inVent && !other.isDead)) && state.gameState === GameState.TASKS) {
+		if (
+			((me.inVent && !me.isDead) || (other.inVent && !other.isDead) || state.currentCamera !== CameraLocation.NONE) &&
+			state.gameState === GameState.TASKS
+		) {
 			if (!audio.muffleConnected) {
 				audio.muffleConnected = true;
 				applyEffect(gain, muffle, destination, other);
 			}
-			maxdistance = 0.8;
-			muffle.frequency.value = 2000;
-			muffle.Q.value = 20;
-			if (endGain === 1) endGain = 0.5; // Too loud at 1
+			maxdistance = isOnCamera ? 3 : 0.8;
+			muffle.frequency.value = isOnCamera ? 2300 : 2000;
+			muffle.Q.value = isOnCamera? -15 : 20;
+			if (endGain === 1) endGain = isOnCamera ? 0.8 : 0.5; // Too loud at 1
 		} else {
 			if (audio.muffleConnected) {
 				audio.muffleConnected = false;
@@ -317,20 +327,31 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 		// Mute players if distancte between two players is too big
 		// console.log({ x: other.x, y: other.y }, Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]));
+		console.log(state.currentCamera);
 		if (Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]) > maxdistance) {
-			if (
-				lobbySettings.hearThroughCameras &&
-				state.currentCamera !== CameraLocation.NONE &&
-				state.currentCamera !== CameraLocation.Skeld
-			) {
-				const camerapos = PolusMap.cameras[state.currentCamera];
-				panPos = [other.x - camerapos.x, other.y - camerapos.y];
+			if (lobbySettings.hearThroughCameras && state.gameState === GameState.TASKS) {
+				if (state.currentCamera !== CameraLocation.NONE && state.currentCamera !== CameraLocation.Skeld) {
+					const camerapos = PolusMap.cameras[state.currentCamera];
+					panPos = [other.x - camerapos.x, other.y - camerapos.y];
+				} else if (state.currentCamera === CameraLocation.Skeld) {
+					let distance = 999;
+					let camerapos = { x: 999, y: 999 };
+					for (let camera of Object.values(SkeldMap.cameras)) {
+						let cameraDist = Math.sqrt(Math.pow(other.x - camera.x, 2) + Math.pow(other.y - camera.y, 2));
+						if (distance > cameraDist) {
+							distance = cameraDist;
+							camerapos = camera;
+						}
+					}
+					if (distance != 999) {
+						panPos = [other.x - camerapos.x, other.y - camerapos.y];
+					}
+				}
+
 				if (Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]) > maxdistance) {
-					endGain = 0;
 					return 0;
 				}
 			} else {
-				endGain = 0;
 				return 0;
 			}
 		}
@@ -813,14 +834,12 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				if (gain > 0) {
 					const playerVolume = playerConfigs[player.clientId]?.volume;
 
-					gain =
-						playerVolume === undefined ? gain : gain * playerVolume;
+					gain = playerVolume === undefined ? gain : gain * playerVolume;
 
 					if (myPlayer.isDead && !player.isDead) {
 						gain = gain * (settings.ghostVolume / 100);
 					}
 				}
-				console.log(gain);
 				audio.gain.gain.value = gain;
 			}
 		}
