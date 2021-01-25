@@ -570,7 +570,12 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 		setWarningDialog({ open: false });
 	};
 
-	const openWarningDialog = (dialogTitle: string, dialogDescription: string, confirmCallback?: () => any, showDialog?: boolean) => {
+	const openWarningDialog = (
+		dialogTitle: string,
+		dialogDescription: string,
+		confirmCallback?: () => any,
+		showDialog?: boolean
+	) => {
 		if (!showDialog) {
 			if (confirmCallback) confirmCallback();
 		} else {
@@ -608,7 +613,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 						aria-labelledby="alert-dialog-title"
 						aria-describedby="alert-dialog-description"
 					>
-						        <DialogTitle id="alert-dialog-title">{warningDialog.title}</DialogTitle>
+						<DialogTitle id="alert-dialog-title">{warningDialog.title}</DialogTitle>
 						<DialogContent>
 							<DialogContentText id="alert-dialog-description">{warningDialog.description}</DialogContentText>
 						</DialogContent>
@@ -996,6 +1001,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 							}}
 							onClick={updateDevices}
 						>
+							<option value="hidden">Hidden</option>
 							<option value="top">Top Center</option>
 							<option value="bottom_left">Bottom Left</option>
 							<option value="right">Right</option>
