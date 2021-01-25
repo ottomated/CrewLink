@@ -54,14 +54,28 @@
 <!-- EXTRA FEATURES-->
 ## Extra features in this fork
 
- - 32 bit support
- - Other launcher support like Epic, Windows store, itch.io
- - Overlay
- - Always on top
- - Volume sliders for players
- - Support for TURN servers
- - Haunting
- - Hearing distance
+- Volume sliders
+- It doesn't break when someone leaves/disconnects
+- It works on any network even with upnp disabled (Strict NAT)
+- More fun settings like hearing through cameras 
+- You can actually disable the overlay
+- 32bit support, windows 7 support
+- U can change the volume of alive players after u died. 
+- U can set bettercrewlink to topmost
+- Settings actually sync between players and not half. 
+- CPU usage is lower than original Crewlink. 
+- U can actually press the mute key/deafen key while clicked on Bettercrewlink 
+- Your mouse doesn't start to lagg because of the buggy input hook. 
+- Changing the speaker setting does actually something unlike original crewlink where it is always using the default output. 
+- compatible with Crewlink 2.0 
+- Microphone echo cancellation 
+- Microphone noise suppression. 
+- more overlay positions and you can set the overlay to the top/bottom and you can set it so it shows everyone even when they aren't talking
+- You can set the lobby up so only death people can talk (normal lobbies but then with death talk)
+
+- Support for mobile (BETA)
+
+***If I missed something u can dm me it so I can add it ***
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
