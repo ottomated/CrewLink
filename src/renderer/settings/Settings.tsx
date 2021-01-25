@@ -29,6 +29,8 @@ import { GameState } from '../../common/AmongUsState';
 import Button from '@material-ui/core/Button';
 import { ipcRenderer, remote } from 'electron';
 import { IpcHandlerMessages } from '../../common/ipc-messages';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import Parser from 'html-react-parser';
 
 interface StyleInput {
 	open: boolean;
@@ -433,6 +435,13 @@ interface DisabledTooltipProps {
 	children: ReactChild;
 }
 
+interface IConfirmDialog {
+	confirmCallback?: () => any;
+	description?: String;
+	title?: string;
+	open: boolean;
+}
+
 const DisabledTooltip: React.FC<DisabledTooltipProps> = function ({ disabled, children, title }: DisabledTooltipProps) {
 	if (disabled)
 		return (
@@ -552,7 +561,24 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 	const isInMenuOrLobby = gameState?.gameState === GameState.LOBBY || gameState?.gameState === GameState.MENU;
 	const canChangeLobbySettings =
 		gameState?.gameState === GameState.MENU || (gameState?.isHost && gameState?.gameState === GameState.LOBBY);
-	//gittest
+
+	const [warningDialog, setWarningDialog] = React.useState({ open: false } as IConfirmDialog);
+
+	const handleWarningDialogClose = (confirm: boolean) => {
+		if (confirm && warningDialog.confirmCallback) {
+			warningDialog.confirmCallback();
+		}
+		setWarningDialog({ open: false });
+	};
+
+	const openWarningDialog = (dialogTitle: string, dialogDescription: string, confirmCallback?: () => any, showDialog?: boolean) => {
+		if (!showDialog) {
+			if (confirmCallback) confirmCallback();
+		} else {
+			setWarningDialog({ title: dialogTitle, description: dialogDescription, open: true, confirmCallback });
+		}
+	};
+
 	return (
 		<Box className={classes.root}>
 			<div className={classes.header}>
@@ -577,6 +603,25 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 			<div className={classes.scroll}>
 				{/* Lobby Settings */}
 				<div>
+					<Dialog
+						open={warningDialog.open}
+						onClose={handleWarningDialogClose}
+						aria-labelledby="alert-dialog-title"
+						aria-describedby="alert-dialog-description"
+					>
+						        <DialogTitle id="alert-dialog-title">{warningDialog.title}</DialogTitle>
+						<DialogContent>
+							<DialogContentText id="alert-dialog-description">{warningDialog.description}</DialogContentText>
+						</DialogContent>
+						<DialogActions>
+							<Button onClick={() => handleWarningDialogClose(true)} color="primary">
+								Confirm
+							</Button>
+							<Button onClick={() => handleWarningDialogClose(false)} color="primary" autoFocus>
+								Cancel
+							</Button>
+						</DialogActions>
+					</Dialog>
 					<Typography variant="h6">Lobby Settings</Typography>
 					<Typography gutterBottom>
 						Voice Distance: {canChangeLobbySettings ? localLobbySettings.maxDistance : lobbySettings.maxDistance}
@@ -729,16 +774,24 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
 					>
 						<FormControlLabel
-							label="Dead people can only talk/hear"
+							label="Only dead peole can talk/hear"
 							disabled={!canChangeLobbySettings}
 							onChange={(_, newValue: boolean) => {
-								localLobbySettings.deadOnly = newValue;
-								setLocalLobbySettings(localLobbySettings);
+								console.log('new vlaue of setting: ', newValue);
+								openWarningDialog(
+									'Are you sure?',
+									'This disables the sound for alive players.',
+									() => {
+										localLobbySettings.deadOnly = newValue;
+										setLocalLobbySettings(localLobbySettings);
 
-								setSettings({
-									type: 'setLobbySetting',
-									action: ['deadOnly', newValue],
-								});
+										setSettings({
+											type: 'setLobbySetting',
+											action: ['deadOnly', newValue],
+										});
+									},
+									newValue
+								);
 							}}
 							value={canChangeLobbySettings ? localLobbySettings.deadOnly : lobbySettings.deadOnly}
 							checked={canChangeLobbySettings ? localLobbySettings.deadOnly : lobbySettings.deadOnly}
@@ -1004,10 +1057,17 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					label="VAD enabled"
 					checked={settings.vadEnabled}
 					onChange={(_, checked: boolean) => {
-						setSettings({
-							type: 'setOne',
-							action: ['vadEnabled', checked],
-						});
+						openWarningDialog(
+							'Are you sure?',
+							"Are you sure? <br/> You won't see who's talking if deactivate.",
+							() => {
+								setSettings({
+									type: 'setOne',
+									action: ['vadEnabled', checked],
+								});
+							},
+							!checked
+						);
 					}}
 					control={<Checkbox />}
 				/>
