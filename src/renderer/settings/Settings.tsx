@@ -30,7 +30,6 @@ import Button from '@material-ui/core/Button';
 import { ipcRenderer, remote } from 'electron';
 import { IpcHandlerMessages } from '../../common/ipc-messages';
 import DialogContentText from '@material-ui/core/DialogContentText';
-import Parser from 'html-react-parser';
 
 interface StyleInput {
 	open: boolean;

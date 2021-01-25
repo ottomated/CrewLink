@@ -203,7 +203,7 @@ export const hatOffsets = [
 	27,
 	35,
 	41,
-	52,
+	46,
 	35,
 	29,
 	40,
@@ -223,7 +223,7 @@ export const hatOffsets = [
 	44,
 	39,
 	30,
-	32,
+	27,
 	37,
 	26,
 	61,
@@ -235,11 +235,11 @@ export const hatOffsets = [
 	37,
 	44 /*T*/,
 	30,
-	22,
-	40,
-	42,
+	20,
+	20,
 	8,
-	29,
+	8,
+	20,
 	32,
 	36,
 	28,
@@ -287,7 +287,7 @@ export const hatOffsets = [
 	43,
 ];
 
-export const backLayerHats = new Set([38, 3, 5, 14, 28]);
+export const backLayerHats = new Set([38, 3, 5, 14, 28, 41,74,84]);
 
 export const hats = [
 	hat1,
