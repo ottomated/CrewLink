@@ -69,6 +69,14 @@ ipcMain.handle(IpcHandlerMessages.START_HOOK, async (event) => {
 					event.sender.send(IpcRendererMessages.TOGGLE_MUTE);
 				} catch (_) {}
 			}
+			if (
+				!isMouseButton(store.get('deadOnlyShortcut')) &&
+				keyCodeMatches(store.get('deadOnlyShortcut') as K, ev)
+			) {
+				try {
+					event.sender.send(IpcRendererMessages.TOGGLE_DEAD);
+				} catch (_) {}
+			}
 		});
 
 		// Register mouse events
@@ -107,6 +115,14 @@ ipcMain.handle(IpcHandlerMessages.START_HOOK, async (event) => {
 			) {
 				try {
 					event.sender.send(IpcRendererMessages.TOGGLE_MUTE);
+				} catch (_) {}
+			}
+			if (
+				isMouseButton(store.get('deadOnlyShortcut')) &&
+				mouseClickMatches(store.get('deadOnlyShortcut') as M, ev)
+			) {
+				try {
+					event.sender.send(IpcRendererMessages.TOGGLE_DEAD);
 				} catch (_) {}
 			}
 		});

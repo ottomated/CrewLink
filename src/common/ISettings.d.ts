@@ -10,6 +10,8 @@ export interface ISettings {
 	hideCode: boolean;
 	enableSpatialAudio: boolean;
 	meetingOverlay: boolean;
+	deadOnlyShortcut: string;
+	deadOnlyChat: boolean;
 	overlayPosition: 'left' | 'right' | 'hidden';
 	localLobbySettings: ILobbySettings;
 }

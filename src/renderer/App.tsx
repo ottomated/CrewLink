@@ -46,6 +46,7 @@ import prettyBytes from 'pretty-bytes';
 import './css/index.css';
 import Typography from '@material-ui/core/Typography';
 import SupportLink from './SupportLink';
+import { TurnedInTwoTone } from '@material-ui/icons';
 
 let appVersion = '';
 if (typeof window !== 'undefined' && window.location) {
@@ -197,6 +198,8 @@ const App: React.FC = function () {
 		hideCode: false,
 		enableSpatialAudio: true,
 		meetingOverlay: true,
+		deadOnlyShortcut: 'B',
+		deadOnlyChat: false,
 		overlayPosition: 'right',
 		localLobbySettings: {
 			maxDistance: 5.32,

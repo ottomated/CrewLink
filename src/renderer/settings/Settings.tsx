@@ -198,6 +198,14 @@ const storeConfig: Store.Options<ISettings> = {
 			type: 'string',
 			default: 'V',
 		},
+		deadOnlyShortcut: {
+			type: 'string',
+			default: 'B',
+		},
+		deadOnlyChat: {
+			type: 'boolean',
+			default: false,
+		},
 		deafenShortcut: {
 			type: 'string',
 			default: 'RControl',
@@ -764,7 +772,7 @@ const Settings: React.FC<SettingsProps> = function ({
 				<Divider />
 				<Typography variant="h6">Keyboard Shortcuts</Typography>
 				<Grid container spacing={1}>
-					<Grid item xs={12}>
+					<Grid item xs={6}>
 						<TextField
 							fullWidth
 							spellCheck={false}
@@ -778,6 +786,23 @@ const Settings: React.FC<SettingsProps> = function ({
 							}}
 							onMouseDown={(ev) => {
 								setMouseShortcut(ev, 'pushToTalkShortcut');
+							}}
+						/>
+					</Grid>
+					<Grid item xs={6}>
+						<TextField
+							fullWidth
+							spellCheck={false}
+							color="secondary"
+							label="Dead Only Chat"
+							value={settings.deadOnlyShortcut}
+							className={classes.shortcutField}
+							variant="outlined"
+							onKeyDown={(ev) => {
+								setShortcut(ev, 'deadOnlyShortcut');
+							}}
+							onMouseDown={(ev) => {
+								setMouseShortcut(ev, 'deadOnlyShortcut');
 							}}
 						/>
 					</Grid>

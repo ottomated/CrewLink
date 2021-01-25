@@ -73,6 +73,7 @@ interface ConnectionStuff {
 	pushToTalk: boolean;
 	deafened: boolean;
 	muted: boolean;
+	deadOnlyChat: boolean;
 }
 
 interface SocketError {
@@ -85,7 +86,7 @@ function calculateVoiceAudio(
 	lobbySettings: ILobbySettings,
 	me: Player,
 	other: Player,
-	audio: AudioNodes
+	audio: AudioNodes,
 ): void {
 	const { pan, gain, muffle, reverbGain } = audio;
 	const audioContext = pan.context;
@@ -137,6 +138,11 @@ function calculateVoiceAudio(
 				reverbGain.gain.value = 1;
 			}
 
+			// Mute living players for dead players if that is toggled
+			if (me.isDead && !other.isDead && settings.deadOnlyChat) {
+				gain.gain.value = 0;
+			}
+
 			break;
 		case GameState.DISCUSSION:
 			panPos = [0, 0];
@@ -144,6 +150,11 @@ function calculateVoiceAudio(
 
 			// Mute dead players for still living players
 			if (!me.isDead && other.isDead) {
+				gain.gain.value = 0;
+			}
+
+			// Mute living players for dead players if that is toggled
+			if (me.isDead && !other.isDead && settings.deadOnlyChat) {
 				gain.gain.value = 0;
 			}
 
@@ -390,6 +401,7 @@ const Voice: React.FC<VoiceProps> = function ({
 		pushToTalk: settings.pushToTalk,
 		deafened: false,
 		muted: false,
+		deadOnlyChat: false,
 	});
 
 	useEffect(() => {
@@ -460,6 +472,10 @@ const Voice: React.FC<VoiceProps> = function ({
 						}
 					}
 				);
+				ipcRenderer.on(IpcRendererMessages.TOGGLE_DEAD, () => {
+					connectionStuff.current.deadOnlyChat = !connectionStuff.current.deadOnlyChat
+					settings.deadOnlyChat = connectionStuff.current.deadOnlyChat
+				});
 
 				const ac = new AudioContext();
 				ac.createMediaStreamSource(stream);
