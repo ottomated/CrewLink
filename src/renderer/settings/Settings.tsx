@@ -144,6 +144,9 @@ const store = new Store<ISettings>({
 				store.set('serverURL', 'https://bettercrewl.ink');
 			}
 		},
+		'2.1.3': (store) => {
+			store.set('playerConfigMap', {});
+		},
 	},
 	schema: {
 		alwaysOnTop: {
@@ -200,6 +203,10 @@ const store = new Store<ISettings>({
 			default: false,
 		},
 		ghostVolume: {
+			type: 'number',
+			default: 100,
+		},
+		masterVolume: {
 			type: 'number',
 			default: 100,
 		},
@@ -263,10 +270,10 @@ const store = new Store<ISettings>({
 					type: 'boolean',
 					default: false,
 				},
-				wallsBlockAudio : {
+				wallsBlockAudio: {
 					type: 'boolean',
-					default: false
-				}
+					default: false,
+				},
 			},
 			default: {
 				maxDistance: 5.32,
@@ -564,7 +571,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 
 	const isInMenuOrLobby = gameState?.gameState === GameState.LOBBY || gameState?.gameState === GameState.MENU;
 	const canChangeLobbySettings = true;
-		//gameState?.gameState === GameState.MENU || (gameState?.isHost && gameState?.gameState === GameState.LOBBY);
+	//gameState?.gameState === GameState.MENU || (gameState?.isHost && gameState?.gameState === GameState.LOBBY);
 
 	const [warningDialog, setWarningDialog] = React.useState({ open: false } as IConfirmDialog);
 
@@ -734,7 +741,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 							control={<Checkbox />}
 						/>
 					</DisabledTooltip>
-					
+
 					<DisabledTooltip
 						disabled={!canChangeLobbySettings}
 						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
@@ -795,16 +802,8 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 									action: ['wallsBlockAudio', newValue],
 								});
 							}}
-							value={
-								canChangeLobbySettings
-									? localLobbySettings.wallsBlockAudio
-									: lobbySettings.wallsBlockAudio
-							}
-							checked={
-								canChangeLobbySettings
-									? localLobbySettings.wallsBlockAudio
-									: lobbySettings.wallsBlockAudio
-							}
+							value={canChangeLobbySettings ? localLobbySettings.wallsBlockAudio : lobbySettings.wallsBlockAudio}
+							checked={canChangeLobbySettings ? localLobbySettings.wallsBlockAudio : lobbySettings.wallsBlockAudio}
 							control={<Checkbox />}
 						/>
 					</DisabledTooltip>
@@ -912,6 +911,21 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 							setSettings({
 								type: 'setOne',
 								action: ['ghostVolume', newValue],
+							});
+						}}
+						aria-labelledby="input-slider"
+					/>
+					<Typography id="input-slider" gutterBottom>
+						Master volume
+					</Typography>
+					<Slider
+						value={settings.masterVolume}
+						valueLabelDisplay="auto"
+						max={200}
+						onChange={(_, newValue: number | number[]) => {
+							setSettings({
+								type: 'setOne',
+								action: ['masterVolume', newValue],
 							});
 						}}
 						aria-labelledby="input-slider"

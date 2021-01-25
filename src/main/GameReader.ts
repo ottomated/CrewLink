@@ -109,7 +109,7 @@ export default class GameReader {
 					break;
 			}
 
-			this.gameCode = 
+			this.gameCode =
 				state === GameState.MENU
 					? ''
 					: this.IntToGameCode(this.readMemory<number>('int32', innerNetClient, this.offsets.gameCode));
@@ -408,6 +408,12 @@ export default class GameReader {
 		].join('');
 	}
 
+	hashCode(s: string): number {
+		let h = 0;
+		for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+		return h;
+	}
+
 	parsePlayer(ptr: number, buffer: Buffer, LocalclientId = -1): Player | undefined {
 		if (!this.PlayerStruct || !this.offsets) return undefined;
 
@@ -441,11 +447,14 @@ export default class GameReader {
 		// if (isLocal) {
 		// 	console.log('Current position: ', { x_low: x_round, y_low: y_round });
 		// }
+		const name = this.readString(data.name);
+		const nameHash = this.hashCode(name);
 		return {
 			ptr,
 			id: data.id,
 			clientId: clientId,
-			name: this.readString(data.name),
+			name,
+			nameHash,
 			colorId: data.color,
 			hatId: data.hat,
 			petId: data.pet,

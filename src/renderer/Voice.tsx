@@ -832,13 +832,14 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				}
 
 				if (gain > 0) {
-					const playerVolume = playerConfigs[player.clientId]?.volume;
+					const playerVolume = playerConfigs[player.nameHash]?.volume;
 
 					gain = playerVolume === undefined ? gain : gain * playerVolume;
 
 					if (myPlayer.isDead && !player.isDead) {
 						gain = gain * (settings.ghostVolume / 100);
 					}
+					gain = gain * (settings.masterVolume / 100);
 				}
 				audio.gain.gain.value = gain;
 			}
@@ -850,8 +851,8 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 	useEffect(() => {
 		if (!gameState.players) return;
 		for (const player of gameState.players) {
-			if (playerConfigs[player.clientId] === undefined) {
-				playerConfigs[player.clientId] = { volume: 1 };
+			if (playerConfigs[player.nameHash] === undefined) {
+				playerConfigs[player.nameHash] = { volume: 1 };
 			}
 		}
 	}, [gameState?.players?.length]); /* move the the other gamestate hooks */
@@ -991,7 +992,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						.map(({ clientId }) => clientId)
 						.includes(player.clientId);
 					const audio = audioConnected[peer];
-					const socketConfig = playerConfigs[player.clientId];
+					const socketConfig = playerConfigs[player.nameHash];
 
 					return (
 						<Grid item key={player.id} xs={getPlayersPerRow(otherPlayers.length)}>
@@ -1003,7 +1004,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 								isAlive={!otherDead[player.clientId]}
 								size={50}
 								socketConfig={socketConfig}
-								onConfigChange={() => store.set(`playerConfigMap.${player.clientId}`, playerConfigs[player.clientId])}
+								onConfigChange={() => store.set(`playerConfigMap.${player.nameHash}`, playerConfigs[player.nameHash])}
 							/>
 						</Grid>
 					);

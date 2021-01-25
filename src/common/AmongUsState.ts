@@ -18,6 +18,7 @@ export interface Player {
 	id: number;
 	clientId: number;
 	name: string;
+	nameHash: number;
 	colorId: number;
 	hatId: number;
 	petId: number;

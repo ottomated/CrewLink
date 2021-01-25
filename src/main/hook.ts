@@ -9,7 +9,12 @@ import { overlayWindow } from 'electron-overlay-window';
 
 const store = new Store<ISettings>();
 
-store.set('playerConfigMap', {});
+const currentPlayerConfigMap = store.get('playerConfigMap', {});
+const playerConfigMapLength = Object.keys(currentPlayerConfigMap).length;
+console.log('CONFIG: ', playerConfigMapLength);
+if (playerConfigMapLength > 50) {
+	store.set('playerConfigMap', {});
+}
 
 let readingGame = false;
 let gameReader: GameReader;
@@ -18,7 +23,7 @@ let pushToTalkShortcut = store.get('pushToTalkShortcut') as K;
 let deafenShortcut = store.get('deafenShortcut') as K;
 let muteShortcut = store.get('muteShortcut') as K;
 
-function resetKeyHooks(): void {
+function resetKeyHooks(): void { 
 	pushToTalkShortcut = store.get('pushToTalkShortcut') as K;
 	deafenShortcut = store.get('deafenShortcut') as K;
 	muteShortcut = store.get('muteShortcut') as K;

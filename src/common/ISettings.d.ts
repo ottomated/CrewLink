@@ -16,6 +16,7 @@ export interface ISettings {
 
 	localLobbySettings: ILobbySettings;
 	ghostVolume: number;
+	masterVolume: number;
 	mobileHost: boolean;
 	vadEnabled: boolean;
 	echoCancellation: boolean;

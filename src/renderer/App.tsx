@@ -133,6 +133,7 @@ export default function App(): JSX.Element {
 		enableOverlay: false,
 		meetingOverlay: false,
 		ghostVolume: 100,
+		masterVolume: 100,
 		vadEnabled:true,
 		echoCancellation: true,
 		enableSpatialAudio: true,
