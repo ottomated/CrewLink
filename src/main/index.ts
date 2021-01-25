@@ -6,14 +6,16 @@ import windowStateKeeper from 'electron-window-state';
 import { join as joinPath } from 'path';
 import { format as formatUrl } from 'url';
 import './hook';
+import { overlayWindow as electronOverlayWindow } from 'electron-overlay-window';
 import { initializeIpcHandlers, initializeIpcListeners } from './ipc-handlers';
 import { IpcRendererMessages } from '../common/ipc-messages';
 import { ProgressInfo } from 'builder-util-runtime';
+import iohook from 'iohook';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
-// global reference to mainWindow (necessary to prevent window from being garbage collected)
-let mainWindow: BrowserWindow | null;
+let mainWindow: BrowserWindow | null = null;
+let overlayWindow: BrowserWindow | null = null;
 
 app.commandLine.appendSwitch('disable-pinch');
 
@@ -53,7 +55,7 @@ function createMainWindow() {
 	if (isDevelopment) {
 		crewlinkVersion = '0.0.0';
 		window.loadURL(
-			`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=DEV`
+			`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=DEV&view=app`
 		);
 	} else {
 		crewlinkVersion = autoUpdater.currentVersion.version;
@@ -63,6 +65,7 @@ function createMainWindow() {
 				protocol: 'file',
 				query: {
 					version: autoUpdater.currentVersion.version,
+					view: 'app',
 				},
 				slashes: true,
 			})
@@ -72,6 +75,14 @@ function createMainWindow() {
 
 	window.on('closed', () => {
 		mainWindow = null;
+		if (overlayWindow != null) {
+			try {
+				overlayWindow.close();
+			} catch (_) {
+				console.error(_);
+			}
+			overlayWindow = null;
+		}
 	});
 
 	window.webContents.on('devtools-opened', () => {
@@ -81,6 +92,46 @@ function createMainWindow() {
 		});
 	});
 
+	return window;
+}
+
+function createOverlay() {
+	const window = new BrowserWindow({
+		width: 400,
+		height: 300,
+		webPreferences: {
+			nodeIntegration: true,
+			webSecurity: false,
+		},
+		...electronOverlayWindow.WINDOW_OPTS,
+	});
+
+	if (isDevelopment) {
+		window.loadURL(
+			`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?version=${autoUpdater.currentVersion.version}&view=overlay`
+		);
+	} else {
+		window.loadURL(
+			formatUrl({
+				pathname: joinPath(__dirname, 'index.html'),
+				protocol: 'file',
+				query: {
+					version: autoUpdater.currentVersion.version,
+					view: 'overlay',
+				},
+				slashes: true,
+			})
+		);
+	}
+	window.setIgnoreMouseEvents(true);
+	electronOverlayWindow.attachTo(window, 'Among Us');
+
+	if (isDevelopment) {
+		// Force devtools into detached mode otherwise they are unusable
+		window.webContents.openDevTools({
+			mode: 'detach',
+		});
+	}
 	return window;
 }
 
@@ -154,8 +205,16 @@ if (!gotTheLock) {
 	app.on('window-all-closed', () => {
 		// on macOS it is common for applications to stay open until the user explicitly quits
 		if (process.platform !== 'darwin') {
+			if (overlayWindow != null) {
+				overlayWindow.close();
+				overlayWindow = null;
+			}
 			app.quit();
 		}
+	});
+
+	app.on('before-quit', () => {
+		iohook.stop();
 	});
 
 	app.on('activate', () => {
@@ -167,8 +226,9 @@ if (!gotTheLock) {
 
 	// create main BrowserWindow when electron is ready
 	app.whenReady().then(() => {
-		initializeIpcListeners();
-		initializeIpcHandlers();
 		mainWindow = createMainWindow();
+		overlayWindow = createOverlay();
+		initializeIpcListeners(overlayWindow);
+		initializeIpcHandlers();
 	});
 }

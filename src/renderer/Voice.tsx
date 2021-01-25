@@ -6,17 +6,32 @@ import {
 	LobbySettingsContext,
 	SettingsContext,
 } from './contexts';
-import { AmongUsState, GameState, Player } from '../common/AmongUsState';
+import {
+	AmongUsState,
+	AudioConnected,
+	Client,
+	GameState,
+	OtherTalking,
+	Player,
+	SocketClientMap,
+	VoiceState,
+} from '../common/AmongUsState';
 import Peer from 'simple-peer';
 import { ipcRenderer } from 'electron';
 import VAD from './vad';
-import { ISettings } from '../common/ISettings';
-import { IpcRendererMessages } from '../common/ipc-messages';
+import { ILobbySettings, ISettings } from '../common/ISettings';
+import {
+	IpcMessages,
+	IpcOverlayMessages,
+	IpcRendererMessages,
+} from '../common/ipc-messages';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import SupportLink from './SupportLink';
 import Divider from '@material-ui/core/Divider';
+// @ts-ignore
+import reverbOgx from 'arraybuffer-loader!../../static/reverb.ogx';
 
 export interface ExtendedAudioElement extends HTMLAudioElement {
 	setSinkId: (sinkId: string) => Promise<void>;
@@ -38,16 +53,18 @@ type PeerErrorCode =
 	| 'ERR_DATA_CHANNEL'
 	| 'ERR_CONNECTION_FAILURE';
 
-interface AudioElements {
-	[peer: string]: {
-		element: HTMLAudioElement;
-		gain: GainNode;
-		pan: PannerNode;
-	};
+interface AudioNodes {
+	element: HTMLAudioElement;
+	gain: GainNode;
+	pan: PannerNode;
+	reverbGain: GainNode;
+	reverb: ConvolverNode;
+	compressor: DynamicsCompressorNode;
+	muffle: BiquadFilterNode;
 }
 
-interface SocketClientMap {
-	[socketId: string]: Client;
+interface AudioElements {
+	[peer: string]: AudioNodes;
 }
 
 interface ConnectionStuff {
@@ -58,23 +75,6 @@ interface ConnectionStuff {
 	muted: boolean;
 }
 
-interface OtherTalking {
-	[playerId: number]: boolean; // isTalking
-}
-
-interface OtherDead {
-	[playerId: number]: boolean; // isTalking
-}
-
-interface AudioConnected {
-	[peer: string]: boolean; // isConnected
-}
-
-interface Client {
-	playerId: number;
-	clientId: number;
-}
-
 interface SocketError {
 	message?: string;
 }
@@ -82,58 +82,112 @@ interface SocketError {
 function calculateVoiceAudio(
 	state: AmongUsState,
 	settings: ISettings,
+	lobbySettings: ILobbySettings,
 	me: Player,
 	other: Player,
-	gain: GainNode,
-	pan: PannerNode
+	audio: AudioNodes
 ): void {
+	const { pan, gain, muffle, reverbGain } = audio;
 	const audioContext = pan.context;
-	pan.positionZ.setValueAtTime(-0.5, audioContext.currentTime);
 	let panPos = [other.x - me.x, other.y - me.y];
-	if (
-		state.gameState === GameState.DISCUSSION ||
-		(state.gameState === GameState.LOBBY && !settings.enableSpatialAudio)
-	) {
-		panPos = [0, 0];
+
+	reverbGain.gain.value = 0;
+
+	switch (state.gameState) {
+		case GameState.MENU:
+			gain.gain.value = 0;
+			break;
+
+		case GameState.LOBBY:
+			gain.gain.value = 1;
+			break;
+
+		case GameState.TASKS:
+			gain.gain.value = 1;
+
+			// Mute all alive crewmates when comms is sabotaged
+			if (
+				!me.isDead &&
+				lobbySettings.commsSabotage &&
+				state.commsSabotaged &&
+				!me.isImpostor
+			) {
+				gain.gain.value = 0;
+			}
+
+			// Mute other players which are in a vent
+			if (other.inVent && !lobbySettings.hearImpostorsInVents) {
+				gain.gain.value = 0;
+			}
+
+			// Mute dead players for still living players
+			if (!me.isDead && other.isDead) {
+				gain.gain.value = 0;
+			}
+
+			// Haunting
+			if (
+				!me.isDead &&
+				me.isImpostor &&
+				other.isDead &&
+				!other.isImpostor &&
+				lobbySettings.haunting
+			) {
+				gain.gain.value = 0.075;
+				reverbGain.gain.value = 1;
+			}
+
+			break;
+		case GameState.DISCUSSION:
+			panPos = [0, 0];
+			gain.gain.value = 1;
+
+			// Mute dead players for still living players
+			if (!me.isDead && other.isDead) {
+				gain.gain.value = 0;
+			}
+
+			break;
+		case GameState.UNKNOWN:
+		default:
+			gain.gain.value = 0;
+			break;
 	}
+
+	// Muffling in vents
+	if (me.inVent || other.inVent) {
+		muffle.frequency.value = 1200;
+		muffle.Q.value = 20;
+		if (gain.gain.value === 1) gain.gain.value = 0.7; // Too loud at 1
+	} else {
+		muffle.frequency.value = 20000;
+		muffle.Q.value = 0;
+	}
+
+	// Clamp panning position
 	if (isNaN(panPos[0])) panPos[0] = 999;
 	if (isNaN(panPos[1])) panPos[1] = 999;
-	panPos[0] = Math.min(999, Math.max(-999, panPos[0]));
-	panPos[1] = Math.min(999, Math.max(-999, panPos[1]));
-	if (other.inVent) {
-		gain.gain.value = 0;
-		return;
-	}
-	if (me.isDead && other.isDead) {
-		gain.gain.value = 1;
-		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
-		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
-		return;
-	}
-	if (!me.isDead && other.isDead) {
-		gain.gain.value = 0;
-		return;
-	}
+
+	panPos[0] = Math.min(Math.max(panPos[0], -999), 999);
+	panPos[1] = Math.min(Math.max(panPos[1], -999), 999);
+
+	// Mute players if distance between two players is too big
 	if (
-		state.gameState === GameState.LOBBY ||
-		state.gameState === GameState.DISCUSSION
-	) {
-		gain.gain.value = 1;
-		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
-		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
-	} else if (state.gameState === GameState.TASKS) {
-		gain.gain.value = 1;
-		pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
-		pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
-	} else {
-		gain.gain.value = 0;
-	}
-	if (
-		gain.gain.value === 1 &&
-		Math.sqrt(Math.pow(panPos[0], 2) + Math.pow(panPos[1], 2)) > 7
+		Math.pow(panPos[0], 2) + Math.pow(panPos[1], 2) >
+		pan.maxDistance * pan.maxDistance
 	) {
 		gain.gain.value = 0;
 	}
+
+	// Reset panning position if the setting is disabled
+	if (!settings.enableSpatialAudio) {
+		panPos = [0, 0];
+	}
+
+	// Apply position's to PanNode
+	pan.positionX.setValueAtTime(panPos[0], audioContext.currentTime);
+	pan.positionY.setValueAtTime(panPos[1], audioContext.currentTime);
+	pan.positionZ.setValueAtTime(-0.5, audioContext.currentTime);
 }
 
 export interface VoiceProps {
@@ -206,7 +260,8 @@ const Voice: React.FC<VoiceProps> = function ({
 	const [lobbySettings, setLobbySettings] = useContext(LobbySettingsContext);
 	const lobbySettingsRef = useRef(lobbySettings);
 	const gameState = useContext(GameStateContext);
-	let { lobbyCode: displayedLobbyCode } = gameState;
+	let displayedLobbyCode = '';
+	if (gameState) displayedLobbyCode = gameState.lobbyCode;
 	if (displayedLobbyCode !== 'MENU' && settings.hideCode)
 		displayedLobbyCode = 'LOBBY';
 	const [talking, setTalking] = useState(false);
@@ -217,10 +272,11 @@ const Voice: React.FC<VoiceProps> = function ({
 		connect: (lobbyCode: string, playerId: number, clientId: number) => void;
 	} | null>(null);
 	const [otherTalking, setOtherTalking] = useState<OtherTalking>({});
-	const [otherDead, setOtherDead] = useState<OtherDead>({});
+	const [otherDead, setOtherDead] = useState<OtherTalking>({});
 	const audioElements = useRef<AudioElements>({});
 	const [audioConnected, setAudioConnected] = useState<AudioConnected>({});
 	const classes = useStyles();
+	const convolverBuffer = useRef<AudioBuffer | null>(null);
 
 	const [deafenedState, setDeafened] = useState(false);
 	const [mutedState, setMuted] = useState(false);
@@ -235,13 +291,27 @@ const Voice: React.FC<VoiceProps> = function ({
 			delete connections[peer];
 			return connections;
 		});
-		if (audioElements.current[peer]) {
-			document.body.removeChild(audioElements.current[peer].element);
-			audioElements.current[peer].pan.disconnect();
-			audioElements.current[peer].gain.disconnect();
+		const audio = audioElements.current[peer];
+		if (audio) {
+			document.body.removeChild(audio.element);
+			audio.pan.disconnect();
+			audio.muffle.disconnect();
+			audio.gain.disconnect();
+			audio.reverb?.disconnect();
+			audio.reverbGain?.disconnect();
+			audio.compressor.disconnect();
 			delete audioElements.current[peer];
 		}
 	}
+
+	useEffect(() => {
+		(async () => {
+			const context = new AudioContext();
+			convolverBuffer.current = await context.decodeAudioData(reverbOgx);
+			await context.close();
+		})();
+	}, []);
+
 	// Handle pushToTalk, if set
 	useEffect(() => {
 		if (!connectionStuff.current.stream) return;
@@ -266,6 +336,24 @@ const Voice: React.FC<VoiceProps> = function ({
 			audioElements.current[peer].pan.maxDistance = lobbySettings.maxDistance;
 		}
 	}, [lobbySettings.maxDistance]);
+
+	useEffect(() => {
+		for (const peer in audioElements.current) {
+			const audio = audioElements.current[peer];
+			if (lobbySettings.haunting) {
+				audio.gain.disconnect();
+				audio.gain.connect(audio.compressor);
+				audio.gain.connect(audio.reverbGain);
+				audio.reverbGain.connect(audio.reverb);
+				audio.reverb.connect(audio.compressor);
+			} else {
+				audio.gain.disconnect();
+				audio.gain.connect(audio.compressor);
+				audio.reverbGain.disconnect();
+				audio.reverb.disconnect();
+			}
+		}
+	}, [lobbySettings.haunting]);
 
 	// Add settings to settingsRef
 	useEffect(() => {
@@ -430,7 +518,7 @@ const Voice: React.FC<VoiceProps> = function ({
 							}
 						}
 					});
-					connection.on('stream', (stream: MediaStream) => {
+					connection.on('stream', async (stream: MediaStream) => {
 						setAudioConnected((old) => ({ ...old, [peer]: true }));
 						const audio = document.createElement(
 							'audio'
@@ -443,6 +531,7 @@ const Voice: React.FC<VoiceProps> = function ({
 						const context = new AudioContext();
 						const source = context.createMediaStreamSource(stream);
 						const gain = context.createGain();
+						gain.gain.value = 0; // Mute to start, workaround to address duplicate sources aka "can be heard anywhere"
 						const pan = context.createPanner();
 						pan.refDistance = 0.1;
 						pan.panningModel = 'equalpower';
@@ -450,23 +539,53 @@ const Voice: React.FC<VoiceProps> = function ({
 						pan.maxDistance = lobbySettingsRef.current.maxDistance;
 						pan.rolloffFactor = 1;
 
+						const muffle = context.createBiquadFilter();
+						muffle.type = 'lowpass';
+
+						const compressor = context.createDynamicsCompressor();
+
 						source.connect(pan);
-						pan.connect(gain);
-						// Source -> pan -> gain -> VAD -> destination
-						VAD(context, gain, context.destination, {
+						pan.connect(muffle);
+						muffle.connect(gain);
+
+						const reverb = context.createConvolver();
+						const reverbGain = context.createGain();
+						reverbGain.gain.value = 0;
+						reverb.buffer = convolverBuffer.current;
+
+						if (lobbySettingsRef.current.haunting) {
+							gain.connect(compressor);
+							gain.connect(reverbGain);
+							reverbGain.connect(reverb);
+							reverb.connect(compressor);
+						} else {
+							gain.connect(compressor);
+						}
+
+						// Source -> pan -> muffle -> gain -> VAD -> destination
+						VAD(context, compressor, context.destination, {
 							onVoiceStart: () => setTalking(true),
 							onVoiceStop: () => setTalking(false),
 							stereo: settingsRef.current.enableSpatialAudio,
 						});
 
 						const setTalking = (talking: boolean) => {
+							if (!socketClientsRef.current[peer]) return;
 							setOtherTalking((old) => ({
 								...old,
 								[socketClientsRef.current[peer].playerId]:
 									talking && gain.gain.value > 0,
 							}));
 						};
-						audioElements.current[peer] = { element: audio, gain, pan };
+						audioElements.current[peer] = {
+							element: audio,
+							gain,
+							pan,
+							muffle,
+							reverb,
+							reverbGain,
+							compressor,
+						};
 					});
 					connection.on('signal', (data) => {
 						socket.emit('signal', {
@@ -544,7 +663,7 @@ const Voice: React.FC<VoiceProps> = function ({
 				disconnectPeer(k);
 			});
 			connectionStuff.current.socket?.close();
-			audioListener.destroy();
+			audioListener?.destroy();
 		};
 	}, []);
 
@@ -579,10 +698,10 @@ const Voice: React.FC<VoiceProps> = function ({
 				calculateVoiceAudio(
 					gameState,
 					settingsRef.current,
+					lobbySettingsRef.current,
 					myPlayer,
 					player,
-					audio.gain,
-					audio.pan
+					audio
 				);
 				if (connectionStuff.current.deafened) {
 					audio.gain.gain.value = 0;
@@ -657,6 +776,22 @@ const Voice: React.FC<VoiceProps> = function ({
 		if (socketClients[k].playerId !== undefined)
 			playerSocketIds[socketClients[k].playerId] = k;
 	}
+
+	// Pass voice state to overlay
+	useEffect(() => {
+		ipcRenderer.send(
+			IpcMessages.SEND_TO_OVERLAY,
+			IpcOverlayMessages.NOTIFY_VOICE_STATE_CHANGED,
+			{
+				otherTalking,
+				playerSocketIds,
+				otherDead,
+				socketClients,
+				audioConnected,
+			} as VoiceState
+		);
+	}, [otherTalking, playerSocketIds, otherDead, socketClients, audioConnected]);
+
 	return (
 		<div className={classes.root}>
 			{error && (

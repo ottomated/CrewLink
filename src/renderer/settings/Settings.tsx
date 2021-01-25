@@ -132,7 +132,7 @@ const keys = new Set([
 	'RAlt',
 ]);
 
-const store = new Store<ISettings>({
+const storeConfig: Store.Options<ISettings> = {
 	migrations: {
 		'1.1.3': (store) => {
 			const serverIP = store.get('serverIP');
@@ -221,13 +221,39 @@ const store = new Store<ISettings>({
 					type: 'number',
 					default: 5.32,
 				},
+				haunting: {
+					type: 'boolean',
+					default: false,
+				},
+				hearImpostorsInVents: {
+					type: 'boolean',
+					default: false,
+				},
+				commsSabotage: {
+					type: 'boolean',
+					default: true,
+				},
 			},
 			default: {
 				maxDistance: 5.32,
+				haunting: false,
+				hearImpostorsInVents: false,
+				commsSabotage: true,
 			},
 		},
+		meetingOverlay: {
+			type: 'boolean',
+			default: true,
+		},
+		overlayPosition: {
+			type: 'string',
+			enum: ['left', 'right', 'hidden'],
+			default: 'right',
+		},
 	},
-});
+};
+
+const store = new Store<ISettings>(storeConfig);
 
 export interface SettingsProps {
 	open: boolean;
@@ -324,11 +350,7 @@ const URLInput: React.FC<URLInputProps> = function ({
 
 	return (
 		<>
-			<Button
-				variant="contained"
-				color="secondary"
-				onClick={() => setOpen(true)}
-			>
+			<Button variant="text" color="secondary" onClick={() => setOpen(true)}>
 				Change Voice Server
 			</Button>
 			<Dialog fullScreen open={open} onClose={() => setOpen(false)}>
@@ -575,6 +597,99 @@ const Settings: React.FC<SettingsProps> = function ({
 							}}
 						/>
 					</DisabledTooltip>
+					<DisabledTooltip
+						disabled={!canChangeLobbySettings}
+						title={
+							isInMenuOrLobby
+								? 'Only the game host can change this!'
+								: 'You can only change this in the lobby!'
+						}
+					>
+						<FormControlLabel
+							label="Impostors Hear Dead"
+							disabled={!canChangeLobbySettings}
+							checked={
+								canChangeLobbySettings
+									? settings.localLobbySettings.haunting
+									: lobbySettings.haunting
+							}
+							onChange={(_, checked: boolean) => {
+								setSettings({
+									type: 'setLobbySetting',
+									action: ['haunting', checked],
+								});
+								if (gameState?.isHost) {
+									setLobbySettings({
+										type: 'setOne',
+										action: ['haunting', checked],
+									});
+								}
+							}}
+							control={<Checkbox />}
+						/>
+					</DisabledTooltip>
+					<DisabledTooltip
+						disabled={!canChangeLobbySettings}
+						title={
+							isInMenuOrLobby
+								? 'Only the game host can change this!'
+								: 'You can only change this in the lobby!'
+						}
+					>
+						<FormControlLabel
+							label="Hear Impostors In Vents"
+							disabled={!canChangeLobbySettings}
+							checked={
+								canChangeLobbySettings
+									? settings.localLobbySettings.hearImpostorsInVents
+									: lobbySettings.hearImpostorsInVents
+							}
+							onChange={(_, checked: boolean) => {
+								setSettings({
+									type: 'setLobbySetting',
+									action: ['hearImpostorsInVents', checked],
+								});
+								if (gameState?.isHost) {
+									setLobbySettings({
+										type: 'setOne',
+										action: ['hearImpostorsInVents', checked],
+									});
+								}
+							}}
+							control={<Checkbox />}
+						/>
+					</DisabledTooltip>
+					<DisabledTooltip
+						disabled={!canChangeLobbySettings}
+						title={
+							isInMenuOrLobby
+								? 'Only the game host can change this!'
+								: 'You can only change this in the lobby!'
+						}
+					>
+						<FormControlLabel
+							label="Comms Sabotage Disables Voice"
+							disabled={!canChangeLobbySettings}
+							checked={
+								canChangeLobbySettings
+									? settings.localLobbySettings.commsSabotage
+									: lobbySettings.commsSabotage
+							}
+							onChange={(_, checked: boolean) => {
+								setSettings({
+									type: 'setLobbySetting',
+									action: ['commsSabotage', checked],
+								});
+								if (gameState?.isHost) {
+									setLobbySettings({
+										type: 'setOne',
+										action: ['commsSabotage', checked],
+									});
+								}
+							}}
+							control={<Checkbox />}
+						/>
+					</DisabledTooltip>
 				</div>
 				<Divider />
 				<Typography variant="h6">Audio</Typography>
@@ -699,6 +814,45 @@ const Settings: React.FC<SettingsProps> = function ({
 						/>
 					</Grid>
 				</Grid>
+				<Divider />
+				<Typography variant="h6">Overlay</Typography>
+				<TextField
+					select
+					fullWidth
+					label="Position"
+					variant="outlined"
+					color="secondary"
+					value={settings.overlayPosition}
+					className={classes.shortcutField}
+					SelectProps={{ native: true }}
+					InputLabelProps={{ shrink: true }}
+					onChange={(ev) => {
+						setSettings({
+							type: 'setOne',
+							action: ['overlayPosition', ev.target.value],
+						});
+					}}
+				>
+					{(storeConfig.schema?.overlayPosition?.enum as string[]).map(
+						(position) => (
+							<option key={position} value={position}>
+								{position[0].toUpperCase()}
+								{position.substring(1)}
+							</option>
+						)
+					)}
+				</TextField>
+				<FormControlLabel
+					label="Meeting Overlay"
+					checked={settings.meetingOverlay}
+					onChange={(_, checked: boolean) => {
+						setSettings({
+							type: 'setOne',
+							action: ['meetingOverlay', checked],
+						});
+					}}
+					control={<Checkbox />}
+				/>
 				<Divider />
 				<Typography variant="h6">Advanced</Typography>
 				<FormControlLabel

@@ -44,22 +44,30 @@ ipcMain.handle(IpcHandlerMessages.START_HOOK, async (event) => {
 		iohook.on('keydown', (ev: IOHookEvent) => {
 			const shortcutKey = store.get('pushToTalkShortcut');
 			if (!isMouseButton(shortcutKey) && keyCodeMatches(shortcutKey as K, ev)) {
-				event.sender.send(IpcRendererMessages.PUSH_TO_TALK, true);
+				try {
+					event.sender.send(IpcRendererMessages.PUSH_TO_TALK, true);
+				} catch (_) {}
 			}
 		});
 		iohook.on('keyup', (ev: IOHookEvent) => {
 			const shortcutKey = store.get('pushToTalkShortcut');
 			if (!isMouseButton(shortcutKey) && keyCodeMatches(shortcutKey as K, ev)) {
-				event.sender.send(IpcRendererMessages.PUSH_TO_TALK, false);
+				try {
+					event.sender.send(IpcRendererMessages.PUSH_TO_TALK, false);
+				} catch (_) {}
 			}
 			if (
 				!isMouseButton(store.get('deafenShortcut')) &&
 				keyCodeMatches(store.get('deafenShortcut') as K, ev)
 			) {
-				event.sender.send(IpcRendererMessages.TOGGLE_DEAFEN);
+				try {
+					event.sender.send(IpcRendererMessages.TOGGLE_DEAFEN);
+				} catch (_) {}
 			}
 			if (keyCodeMatches(store.get('muteShortcut', 'RAlt') as K, ev)) {
-				event.sender.send(IpcRendererMessages.TOGGLE_MUTE);
+				try {
+					event.sender.send(IpcRendererMessages.TOGGLE_MUTE);
+				} catch (_) {}
 			}
 		});
 
@@ -70,7 +78,9 @@ ipcMain.handle(IpcHandlerMessages.START_HOOK, async (event) => {
 				isMouseButton(shortcutMouse) &&
 				mouseClickMatches(shortcutMouse as M, ev)
 			) {
-				event.sender.send(IpcRendererMessages.PUSH_TO_TALK, true);
+				try {
+					event.sender.send(IpcRendererMessages.PUSH_TO_TALK, true);
+				} catch (_) {}
 			}
 		});
 		iohook.on('mouseup', (ev: IOHookEvent) => {
@@ -79,7 +89,25 @@ ipcMain.handle(IpcHandlerMessages.START_HOOK, async (event) => {
 				isMouseButton(shortcutMouse) &&
 				mouseClickMatches(shortcutMouse as M, ev)
 			) {
-				event.sender.send(IpcRendererMessages.PUSH_TO_TALK, false);
+				try {
+					event.sender.send(IpcRendererMessages.PUSH_TO_TALK, false);
+				} catch (_) {}
+			}
+			if (
+				isMouseButton(store.get('deafenShortcut')) &&
+				mouseClickMatches(store.get('deafenShortcut') as M, ev)
+			) {
+				try {
+					event.sender.send(IpcRendererMessages.TOGGLE_DEAFEN);
+				} catch (_) {}
+			}
+			if (
+				isMouseButton(store.get('muteShortcut', 'RAlt')) &&
+				mouseClickMatches(store.get('muteShortcut', 'RAlt') as M, ev)
+			) {
+				try {
+					event.sender.send(IpcRendererMessages.TOGGLE_MUTE);
+				} catch (_) {}
 			}
 		});
 
