@@ -53,7 +53,7 @@
 
 <!-- EXTRA FEATURES-->
 ## Extra features in this fork
-
+```
 - Volume sliders
 - It doesn't break when someone leaves/disconnects
 - It works on any network even with upnp disabled (Strict NAT)
@@ -74,7 +74,7 @@
 - You can set the lobby up so only death people can talk (normal lobbies but then with death talk)
 
 - Support for mobile (BETA)
-
+```
 ***If I missed something u can dm me it so I can add it ***
 
 <!-- ABOUT THE PROJECT -->
