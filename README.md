@@ -52,7 +52,7 @@
 * [License](#license)
 
 <!-- EXTRA FEATURES-->
-## Extra features in this fork
+## Extra features/fixes in this fork
 ```
 - Volume sliders
 - It doesn't break when someone leaves/disconnects
