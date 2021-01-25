@@ -473,8 +473,11 @@ const Voice: React.FC<VoiceProps> = function ({
 					}
 				);
 				ipcRenderer.on(IpcRendererMessages.TOGGLE_DEAD, () => {
-					connectionStuff.current.deadOnlyChat = !connectionStuff.current.deadOnlyChat
-					settings.deadOnlyChat = connectionStuff.current.deadOnlyChat
+					connectionStuff.current.deadOnlyChat = !connectionStuff.current.deadOnlyChat;
+					setSettings({
+						type: 'setOne',
+						action: ['deadOnlyChat', connectionStuff.current.deadOnlyChat],
+					})
 				});
 
 				const ac = new AudioContext();
