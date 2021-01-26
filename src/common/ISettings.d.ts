@@ -30,7 +30,6 @@ export interface ILobbySettings {
 	haunting: boolean;
 	hearImpostorsInVents: boolean;
 	impostersHearImpostersInvent: boolean;
-
 	commsSabotage: boolean;
 	deadOnly: boolean;
 	meetingGhostOnly: boolean;

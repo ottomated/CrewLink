@@ -230,6 +230,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		let maxdistance = lobbySettings.maxDistance;
 		let panPos = [other.x - me.x, other.y - me.y];
 		let endGain = 0;
+		let collided = false;
 		switch (state.gameState) {
 			case GameState.MENU:
 				endGain = 0;
@@ -259,10 +260,11 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 				if (
 					lobbySettings.wallsBlockAudio &&
+					state.currentCamera === CameraLocation.NONE &&
 					!me.isDead &&
 					poseCollide({ x: me.x, y: me.y }, { x: other.x, y: other.y }, gameState.map)
 				) {
-					endGain = 0;
+					collided = true;
 				}
 
 				if (!me.isDead && other.isDead && me.isImpostor && lobbySettings.haunting) {
@@ -270,6 +272,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						audio.reverbConnected = true;
 						applyEffect(gain, reverb, destination, other);
 					}
+					collided = false;
 					endGain = 0.2;
 				} else {
 					if (other.isDead && !me.isDead) {
@@ -356,6 +359,10 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 					return 0;
 				}
 			} else {
+				return 0;
+			}
+		}else{
+			if(collided){
 				return 0;
 			}
 		}
@@ -678,7 +685,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						muffle.type = 'lowpass';
 
 						source.connect(pan);
-
 						pan.connect(gain);
 
 						const reverb = context.createConvolver();
