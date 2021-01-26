@@ -260,7 +260,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 				if (
 					lobbySettings.wallsBlockAudio &&
-					state.currentCamera === CameraLocation.NONE &&
 					!me.isDead &&
 					poseCollide({ x: me.x, y: me.y }, { x: other.x, y: other.y }, gameState.map)
 				) {
@@ -361,8 +360,8 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			} else {
 				return 0;
 			}
-		}else{
-			if(collided){
+		} else {
+			if (collided) {
 				return 0;
 			}
 		}
