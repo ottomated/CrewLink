@@ -87,7 +87,6 @@ export const colliderMaps: { [key in MapType]: string[] | undefined } = {
 
 export function poseCollide(p1: Vector2, p2: Vector2, map: MapType) : boolean {
 	const colliderMap = colliderMaps[map];
-	console.log(map);
 	if (!colliderMap || map === MapType.UNKNOWN) {
 		return false;
 	}
