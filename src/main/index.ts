@@ -1,7 +1,7 @@
 'use strict';
 
 import { autoUpdater } from 'electron-updater';
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, session } from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import { join as joinPath } from 'path';
 import { format as formatUrl } from 'url';
@@ -252,6 +252,20 @@ if (!gotTheLock) {
 		if (global.mainWindow === null) {
 			global.mainWindow = createMainWindow();
 		}
+
+		session.fromPartition('default').setPermissionRequestHandler((webContents, permission, callback) => {
+			const allowedPermissions = ['audioCapture']; // Full list here: https://developer.chrome.com/extensions/declare_permissions#manifest
+			console.log('permission requested ', permission);
+			if (allowedPermissions.includes(permission)) {
+				callback(true); // Approve permission request
+			} else {
+				console.error(
+					`The application tried to request permission for '${permission}'. This permission was not whitelisted and has been blocked.`
+				);
+
+				callback(false); // Deny
+			}
+		});
 	});
 
 	// create main BrowserWindow when electron is ready
