@@ -43,8 +43,6 @@ export enum GameState {
 	UNKNOWN,
 }
 
-
-
 export interface Client {
 	playerId: number;
 	clientId: number;
@@ -68,6 +66,6 @@ export interface VoiceState {
 	otherDead: OtherTalking;
 	socketClients: SocketClientMap;
 	audioConnected: AudioConnected;
-	localTalking: boolean
+	localTalking: boolean;
 	localIsAlive: boolean;
 }

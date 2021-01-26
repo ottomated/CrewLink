@@ -11,8 +11,7 @@ import { initializeIpcHandlers, initializeIpcListeners } from './ipc-handlers';
 import { IpcRendererMessages } from '../common/ipc-messages';
 import { ProgressInfo } from 'builder-util-runtime';
 
-var args = require('minimist')(process.argv);
-
+const args = require('minimist')(process.argv);
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const devTools = (isDevelopment || args.dev === 1) && false;
@@ -176,7 +175,9 @@ if (!gotTheLock) {
 				state: 'error',
 				error: err,
 			});
-		} catch (e) {}
+		} catch (e) {
+			/*empty*/
+		}
 	});
 	autoUpdater.on('download-progress', (progress: ProgressInfo) => {
 		try {
@@ -184,14 +185,18 @@ if (!gotTheLock) {
 				state: 'downloading',
 				progress,
 			});
-		} catch (e) {}
+		} catch (e) {
+			/*empty*/
+		}
 	});
 	autoUpdater.on('update-downloaded', () => {
 		try {
 			global.mainWindow?.webContents.send(IpcRendererMessages.AUTO_UPDATER_STATE, {
 				state: 'downloaded',
 			});
-		} catch (e) {}
+		} catch (e) {
+			/*empty*/
+		}
 
 		app.relaunch();
 		autoUpdater.quitAndInstall();

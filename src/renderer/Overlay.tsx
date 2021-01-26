@@ -104,7 +104,9 @@ const Overlay: React.FC = function () {
 		return null;
 	return (
 		<>
-			{settings.meetingOverlay && gameState.gameState === GameState.DISCUSSION && <MeetingHud gameState={gameState} voiceState={voiceState} />}
+			{settings.meetingOverlay && gameState.gameState === GameState.DISCUSSION && (
+				<MeetingHud gameState={gameState} voiceState={voiceState} />
+			)}
 			{settings.overlayPosition !== 'hidden' && (
 				<AvatarOverlay
 					voiceState={voiceState}
@@ -147,16 +149,22 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 	}
 	const players = useMemo(() => {
 		if (!gameState.players) return null;
-		let playerss = gameState.players.filter(o => !voiceState.localIsAlive || !voiceState.otherDead[o.clientId]).slice().sort((a, b) => {
-			if ((a.disconnected || voiceState.otherDead[a.clientId]) && (b.disconnected || voiceState.otherDead[a.clientId])) {
+		const playerss = gameState.players
+			.filter((o) => !voiceState.localIsAlive || !voiceState.otherDead[o.clientId])
+			.slice()
+			.sort((a, b) => {
+				if (
+					(a.disconnected || voiceState.otherDead[a.clientId]) &&
+					(b.disconnected || voiceState.otherDead[a.clientId])
+				) {
+					return a.id - b.id;
+				} else if (a.disconnected || voiceState.otherDead[a.clientId]) {
+					return 1000;
+				} else if (b.disconnected || voiceState.otherDead[b.clientId]) {
+					return -1000;
+				}
 				return a.id - b.id;
-			} else if (a.disconnected || voiceState.otherDead[a.clientId]) {
-				return 1000;
-			} else if (b.disconnected || voiceState.otherDead[b.clientId]) {
-				return -1000;
-			}
-			return a.id - b.id;
-		});
+			});
 		return playerss;
 	}, [gameState.players]);
 

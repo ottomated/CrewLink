@@ -69,7 +69,7 @@ export default class GameReader {
 			this.amongUs = null;
 			try {
 				this.sendIPC(IpcRendererMessages.NOTIFY_GAME_OPENED, false);
-			} catch (e) {}
+			} catch (e) {/*empty*/}
 		}
 		return;
 	}
@@ -205,7 +205,7 @@ export default class GameReader {
 							this.offsets?.surveillanceMinigame_FilteredRoomsCount
 						);
 						if (roomCount === 4) {
-							var dist = Math.sqrt(Math.pow(localPlayer.x - -12.9364, 2) + Math.pow(localPlayer.y - -2.7928, 2));
+							const dist = Math.sqrt(Math.pow(localPlayer.x - -12.9364, 2) + Math.pow(localPlayer.y - -2.7928, 2));
 							if (dist < 0.6) {
 								currentCamera = CameraLocation.Skeld;
 							}

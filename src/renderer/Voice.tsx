@@ -163,7 +163,7 @@ const defaultlocalLobbySettings: ILobbySettings = {
 	deadOnly: false,
 	hearThroughCameras: false,
 	wallsBlockAudio: false,
-	meetingGhostOnly: false
+	meetingGhostOnly: false,
 };
 
 const store = new Store<ISettings>();
@@ -230,7 +230,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		let maxdistance = lobbySettings.maxDistance;
 		let panPos = [other.x - me.x, other.y - me.y];
 		let endGain = 0;
-
 		switch (state.gameState) {
 			case GameState.MENU:
 				endGain = 0;
@@ -277,7 +276,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						endGain = 0;
 					}
 				}
-			
+
 				break;
 			case GameState.DISCUSSION:
 				panPos = [0, 0];
@@ -321,7 +320,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			}
 			maxdistance = isOnCamera ? 3 : 0.8;
 			muffle.frequency.value = isOnCamera ? 2300 : 2000;
-			muffle.Q.value = isOnCamera? -15 : 20;
+			muffle.Q.value = isOnCamera ? -15 : 20;
 			if (endGain === 1) endGain = isOnCamera ? 0.8 : 0.5; // Too loud at 1
 		} else {
 			if (audio.muffleConnected) {
@@ -341,8 +340,8 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				} else if (state.currentCamera === CameraLocation.Skeld) {
 					let distance = 999;
 					let camerapos = { x: 999, y: 999 };
-					for (let camera of Object.values(SkeldMap.cameras)) {
-						let cameraDist = Math.sqrt(Math.pow(other.x - camera.x, 2) + Math.pow(other.y - camera.y, 2));
+					for (const camera of Object.values(SkeldMap.cameras)) {
+						const cameraDist = Math.sqrt(Math.pow(other.x - camera.x, 2) + Math.pow(other.y - camera.y, 2));
 						if (distance > cameraDist) {
 							distance = cameraDist;
 							camerapos = camera;
@@ -659,13 +658,12 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 					connection.on('stream', async (stream: MediaStream) => {
 						console.log('ONSTREAM');
 
-						console.log(connection); // @ts-ignore
 						setAudioConnected((old) => ({ ...old, [peer]: true }));
-						var dummyAudio = new Audio();
+						const dummyAudio = new Audio();
 						dummyAudio.srcObject = stream;
 						const context = new AudioContext();
 						const source = context.createMediaStreamSource(stream);
-						var dest = context.createMediaStreamDestination();
+						const dest = context.createMediaStreamDestination();
 
 						const gain = context.createGain();
 						const pan = context.createPanner();
@@ -685,7 +683,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 						const reverb = context.createConvolver();
 						reverb.buffer = convolverBuffer.current;
-						let destination: AudioNode = dest;
+						const destination: AudioNode = dest;
 						if (settingsRef.current.vadEnabled) {
 							VAD(context, gain, undefined, {
 								onVoiceStart: () => setTalking(true),

@@ -134,7 +134,7 @@ export default function App(): JSX.Element {
 		meetingOverlay: false,
 		ghostVolume: 100,
 		masterVolume: 100,
-		vadEnabled:true,
+		vadEnabled: true,
 		echoCancellation: true,
 		enableSpatialAudio: true,
 		noiseSuppression: true,
@@ -148,7 +148,7 @@ export default function App(): JSX.Element {
 			deadOnly: false,
 			meetingGhostOnly: false,
 			hearThroughCameras: false,
-			wallsBlockAudio: false
+			wallsBlockAudio: false,
 		},
 	});
 	const lobbySettings = useReducer(lobbySettingsReducer, settings[0].localLobbySettings);
@@ -196,21 +196,12 @@ export default function App(): JSX.Element {
 	}, []);
 
 	useEffect(() => {
-		ipcRenderer.send(
-			IpcMessages.SEND_TO_OVERLAY,
-			IpcOverlayMessages.NOTIFY_GAME_STATE_CHANGED,
-			gameState
-		);
+		ipcRenderer.send(IpcMessages.SEND_TO_OVERLAY, IpcOverlayMessages.NOTIFY_GAME_STATE_CHANGED, gameState);
 	}, [gameState]);
 
 	useEffect(() => {
-		ipcRenderer.send(
-			IpcMessages.SEND_TO_OVERLAY,
-			IpcOverlayMessages.NOTIFY_SETTINGS_CHANGED,
-			settings[0]
-		);
+		ipcRenderer.send(IpcMessages.SEND_TO_OVERLAY, IpcOverlayMessages.NOTIFY_SETTINGS_CHANGED, settings[0]);
 	}, [settings]);
-
 
 	let page;
 	switch (state) {

@@ -144,7 +144,7 @@ const store = new Store<ISettings>({
 				store.set('serverURL', 'https://bettercrewl.ink');
 			}
 		},
-		'2.1.3': (store) => {
+		'2.1.4': (store) => {
 			store.set('playerConfigMap', {});
 		},
 	},
@@ -287,7 +287,7 @@ const store = new Store<ISettings>({
 				hearThroughCameras: false,
 				wallsBlockAudio: false,
 				deadOnly: false,
-				meetingGhostOnly: false
+				meetingGhostOnly: false,
 			},
 		},
 	},
@@ -452,8 +452,8 @@ interface DisabledTooltipProps {
 }
 
 interface IConfirmDialog {
-	confirmCallback?: () => any;
-	description?: String;
+	confirmCallback?: () => void;
+	description?: string;
 	title?: string;
 	open: boolean;
 }
@@ -538,7 +538,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 		if (k === ' ') k = 'Space';
 
 		/* @ts-ignore */
-		let c = ev.code as string;
+		const c = ev.code as string;
 		if (c && c.startsWith('Numpad')) {
 			k = c;
 		}
@@ -849,7 +849,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 						disabled={!canChangeLobbySettings}
 						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
 					>
-					<FormControlLabel
+						<FormControlLabel
 							label="Meetings &amp; lobby only"
 							disabled={!canChangeLobbySettings}
 							onChange={(_, newValue: boolean) => {

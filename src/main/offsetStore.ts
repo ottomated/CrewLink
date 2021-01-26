@@ -91,8 +91,8 @@ export default {
 		hqHudSystemType_CompletedConsoles: [0x18, 0x20], // OAMJKPNKGBM
 		HudOverrideSystemType_isActive: [0x10],
 		miniGame: [0x1c57cac, 0xb8, 0x0],
-		planetSurveillanceMinigame_currentCamera: [0xC8], 
-		planetSurveillanceMinigame_camarasCount: [0xA0, 0x18], 
+		planetSurveillanceMinigame_currentCamera: [0xc8],
+		planetSurveillanceMinigame_camarasCount: [0xa0, 0x18],
 		surveillanceMinigame_FilteredRoomsCount: [0x70, 0x18],
 		player: {
 			struct: [
@@ -147,8 +147,7 @@ export default {
 				addressOffset: 4,
 			},
 			miniGame: {
-				sig:
-					'48 8B 05 ? ? ? ? 48 8B 90 ? ? ? ? 48 C7 02 ? ? ? ? ',
+				sig: '48 8B 05 ? ? ? ? 48 8B 90 ? ? ? ? 48 C7 02 ? ? ? ? ',
 				patternOffset: 3,
 				addressOffset: 4,
 			},
@@ -174,9 +173,9 @@ export default {
 		hqHudSystemType_CompletedConsoles: [0xc, 0x10],
 		HudOverrideSystemType_isActive: [0x8],
 		miniGame: [0x1c57cac, 0x5c, 0x0],
-		planetSurveillanceMinigame_currentCamera: [0x64], 
-		planetSurveillanceMinigame_camarasCount: [0x50, 0x0c], 
-		surveillanceMinigame_FilteredRoomsCount: [0x38, 0x0C],
+		planetSurveillanceMinigame_currentCamera: [0x64],
+		planetSurveillanceMinigame_camarasCount: [0x50, 0x0c],
+		surveillanceMinigame_FilteredRoomsCount: [0x38, 0x0c],
 		player: {
 			struct: [
 				{ type: 'SKIP', skip: 8, name: 'unused' },

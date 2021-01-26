@@ -23,7 +23,7 @@ let pushToTalkShortcut = store.get('pushToTalkShortcut') as K;
 let deafenShortcut = store.get('deafenShortcut') as K;
 let muteShortcut = store.get('muteShortcut') as K;
 
-function resetKeyHooks(): void { 
+function resetKeyHooks(): void {
 	pushToTalkShortcut = store.get('pushToTalkShortcut') as K;
 	deafenShortcut = store.get('deafenShortcut') as K;
 	muteShortcut = store.get('muteShortcut') as K;
@@ -33,7 +33,7 @@ function resetKeyHooks(): void {
 	AddKeyHanlder(muteShortcut);
 }
 
-ipcMain.on(IpcHandlerMessages.RESET_KEYHOOKS, (event) => {
+ipcMain.on(IpcHandlerMessages.RESET_KEYHOOKS, () => {
 	resetKeyHooks();
 });
 
