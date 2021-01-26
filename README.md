@@ -63,7 +63,7 @@ Server code is located at [ottomated/CrewLink-server](https://github.com/ottomat
 This is an example of how to list things you need to use the software and how to install them.
 * [Python](https://www.python.org/downloads/)
 * [node.js](https://nodejs.org/en/download/)
-* yarn
+* [yarn](https://classic.yarnpkg.com/en/docs/install/#windows-stable)
 ```sh
 npm install yarn -g
 ```
