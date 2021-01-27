@@ -175,7 +175,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 	const settingsRef = useRef<ISettings>(settings);
 	const [lobbySettings, setLobbySettings] = useContext(LobbySettingsContext);
 	const lobbySettingsRef = useRef(lobbySettings);
-	const lightsRadiusRef = useRef(2);
+	const maxDistanceRef = useRef(2);
 	const gameState = useContext(GameStateContext);
 	const hostRef = useRef({ hostId: gameState.hostId, isHost: gameState.isHost });
 	let { lobbyCode: displayedLobbyCode } = gameState;
@@ -229,7 +229,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		const { pan, gain, muffle, reverb, destination } = audio;
 		const audioContext = pan.context;
 		const useLightSource = true;
-		let maxdistance = useLightSource ? lightsRadiusRef.current : lobbySettings.maxDistance;
+		let maxdistance = maxDistanceRef.current;
 		let panPos = [other.x - me.x, other.y - me.y];
 		let endGain = 0;
 		let collided = false;
@@ -298,7 +298,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		}
 
 		if (useLightSource && state.lightRadiusChanged) {
-			pan.maxDistance = lightsRadiusRef.current;
+			pan.maxDistance = maxDistanceRef.current;
 		}
 
 		if (!other.isDead || state.gameState !== GameState.TASKS || !me.isImpostor || me.isDead) {
@@ -447,9 +447,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 	useEffect(() => {
 		for (const peer in audioElements.current) {
-			audioElements.current[peer].pan.maxDistance = lobbySettings.visionHearing
-				? gameState.lightRadius
-				: lobbySettings.maxDistance;
+			audioElements.current[peer].pan.maxDistance = maxDistanceRef.current;
 		}
 	}, [lobbySettings.maxDistance, lobbySettings.visionHearing]);
 
@@ -687,9 +685,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						pan.refDistance = 0.1;
 						pan.panningModel = 'equalpower';
 						pan.distanceModel = 'linear';
-						pan.maxDistance = lobbySettingsRef.current.visionHearing
-							? lightsRadiusRef.current
-							: lobbySettingsRef.current.maxDistance;
+						pan.maxDistance = maxDistanceRef.current;
 						pan.rolloffFactor = 1;
 
 						const muffle = context.createBiquadFilter();
@@ -834,9 +830,13 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		let otherPlayers: Player[];
 		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) return [];
 		else otherPlayers = gameState.players.filter((p) => !p.isLocal);
-		lightsRadiusRef.current = myPlayer.isImpostor ? lobbySettings.maxDistance : gameState.lightRadius + 0.5;
-		if (lightsRadiusRef.current <= 0.6) {
-			lightsRadiusRef.current = 1;
+		maxDistanceRef.current = lobbySettings.visionHearing
+			? myPlayer.isImpostor
+				? lobbySettings.maxDistance
+				: gameState.lightRadius + 0.5
+			: lobbySettings.maxDistance;
+		if (maxDistanceRef.current <= 0.6) {
+			maxDistanceRef.current = 1;
 		}
 		hostRef.current = { hostId: gameState.hostId, isHost: gameState.isHost };
 		const playerSocketIds: {
