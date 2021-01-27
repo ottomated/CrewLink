@@ -650,7 +650,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					</Dialog>
 					<Typography variant="h6">Lobby Settings</Typography>
 					<Typography gutterBottom>
-						<i>{localLobbySettings.visionHearing ? 'Imposter & original crewlink' : ''}</i> Voice Distance:{' '}
+						<i>{canChangeLobbySettings ? localLobbySettings.visionHearing : lobbySettings.visionHearing ? 'Imposter & original crewlink' : ''}</i> Voice Distance:{' '}
 						{canChangeLobbySettings ? localLobbySettings.maxDistance : lobbySettings.maxDistance}
 					</Typography>
 					<DisabledTooltip
