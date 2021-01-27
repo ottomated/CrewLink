@@ -149,6 +149,7 @@ export default function App(): JSX.Element {
 			meetingGhostOnly: false,
 			hearThroughCameras: false,
 			wallsBlockAudio: false,
+			visionHearing: false,
 		},
 	});
 	const lobbySettings = useReducer(lobbySettingsReducer, settings[0].localLobbySettings);

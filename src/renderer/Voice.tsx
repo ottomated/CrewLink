@@ -164,6 +164,7 @@ const defaultlocalLobbySettings: ILobbySettings = {
 	hearThroughCameras: false,
 	wallsBlockAudio: false,
 	meetingGhostOnly: false,
+	visionHearing: false,
 };
 
 const store = new Store<ISettings>();
@@ -174,6 +175,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 	const settingsRef = useRef<ISettings>(settings);
 	const [lobbySettings, setLobbySettings] = useContext(LobbySettingsContext);
 	const lobbySettingsRef = useRef(lobbySettings);
+	const lightsRadiusRef = useRef(2);
 	const gameState = useContext(GameStateContext);
 	const hostRef = useRef({ hostId: gameState.hostId, isHost: gameState.isHost });
 	let { lobbyCode: displayedLobbyCode } = gameState;
@@ -217,7 +219,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			console.log('error with applying effect: ', player.name, effectNode);
 		}
 	}
-
 	function calculateVoiceAudio(
 		state: AmongUsState,
 		settings: ISettings,
@@ -227,7 +228,8 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 	): number {
 		const { pan, gain, muffle, reverb, destination } = audio;
 		const audioContext = pan.context;
-		let maxdistance = lobbySettings.maxDistance;
+		const useLightSource = true;
+		let maxdistance = useLightSource ? lightsRadiusRef.current : lobbySettings.maxDistance;
 		let panPos = [other.x - me.x, other.y - me.y];
 		let endGain = 0;
 		let collided = false;
@@ -295,6 +297,10 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				break;
 		}
 
+		if (useLightSource && state.lightRadiusChanged) {
+			pan.maxDistance = lightsRadiusRef.current;
+		}
+
 		if (!other.isDead || state.gameState !== GameState.TASKS || !me.isImpostor || me.isDead) {
 			if (audio.reverbConnected && reverb) {
 				audio.reverbConnected = false;
@@ -334,6 +340,8 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		// Mute players if distancte between two players is too big
 		// console.log({ x: other.x, y: other.y }, Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]));
 		//console.log(state.currentCamera);
+		let distance = Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]);
+		console.log(other.name, distance);
 		if (Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]) > maxdistance) {
 			if (lobbySettings.hearThroughCameras && state.gameState === GameState.TASKS) {
 				if (state.currentCamera !== CameraLocation.NONE && state.currentCamera !== CameraLocation.Skeld) {
@@ -439,9 +447,11 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 
 	useEffect(() => {
 		for (const peer in audioElements.current) {
-			audioElements.current[peer].pan.maxDistance = lobbySettings.maxDistance;
+			audioElements.current[peer].pan.maxDistance = lobbySettings.visionHearing
+				? gameState.lightRadius
+				: lobbySettings.maxDistance;
 		}
-	}, [lobbySettings.maxDistance]);
+	}, [lobbySettings.maxDistance, lobbySettings.visionHearing]);
 
 	useEffect(() => {
 		if (settingsRef.current.mobileHost) {
@@ -677,7 +687,9 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 						pan.refDistance = 0.1;
 						pan.panningModel = 'equalpower';
 						pan.distanceModel = 'linear';
-						pan.maxDistance = lobbySettingsRef.current.maxDistance;
+						pan.maxDistance = lobbySettingsRef.current.visionHearing
+							? lightsRadiusRef.current
+							: lobbySettingsRef.current.maxDistance;
 						pan.rolloffFactor = 1;
 
 						const muffle = context.createBiquadFilter();
@@ -822,6 +834,10 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		let otherPlayers: Player[];
 		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) return [];
 		else otherPlayers = gameState.players.filter((p) => !p.isLocal);
+		lightsRadiusRef.current = myPlayer.isImpostor ? lobbySettings.maxDistance : gameState.lightRadius + 0.5;
+		if (lightsRadiusRef.current <= 0.6) {
+			lightsRadiusRef.current = 1;
+		}
 		hostRef.current = { hostId: gameState.hostId, isHost: gameState.isHost };
 		const playerSocketIds: {
 			[index: number]: string;

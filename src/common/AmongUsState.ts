@@ -11,6 +11,8 @@ export interface AmongUsState {
 	comsSabotaged: boolean;
 	currentCamera: CameraLocation;
 	map: MapType;
+	lightRadius: number;
+	lightRadiusChanged: boolean;
 }
 
 export interface Player {

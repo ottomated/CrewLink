@@ -69,7 +69,9 @@ export default class GameReader {
 			this.amongUs = null;
 			try {
 				this.sendIPC(IpcRendererMessages.NOTIFY_GAME_OPENED, false);
-			} catch (e) {/*empty*/}
+			} catch (e) {
+				/*empty*/
+			}
 		}
 		return;
 	}
@@ -130,7 +132,8 @@ export default class GameReader {
 				this.offsets.exiledPlayerId
 			);
 			let impostors = 0,
-				crewmates = 0;
+				crewmates = 0,
+				lightRadius = 0;
 			let comsSabotaged = false;
 			let currentCamera = CameraLocation.NONE;
 			let map = MapType.UNKNOWN;
@@ -153,7 +156,9 @@ export default class GameReader {
 					if (player.isImpostor) impostors++;
 					else crewmates++;
 				}
-
+				if (localPlayer) {
+					lightRadius = this.readMemory<number>('float', localPlayer.objectPtr, [0x54, 0x1c], -1);
+				}
 				const shipPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.shipStatus);
 
 				const systemsPtr = this.readMemory<number>('ptr', shipPtr, this.offsets.shipStatus_systems);
@@ -244,6 +249,8 @@ export default class GameReader {
 				clientId: clientId,
 				comsSabotaged,
 				currentCamera,
+				lightRadius,
+				lightRadiusChanged: lightRadius != this.lastState?.lightRadius,
 				map,
 			};
 			//	const stateHasChanged = !equal(this.lastState, newState);

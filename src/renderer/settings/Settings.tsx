@@ -270,6 +270,10 @@ const store = new Store<ISettings>({
 					type: 'boolean',
 					default: false,
 				},
+				visionHearing: {
+					type: 'boolean',
+					default: false,
+				},
 				hearThroughCameras: {
 					type: 'boolean',
 					default: false,
@@ -288,6 +292,7 @@ const store = new Store<ISettings>({
 				wallsBlockAudio: false,
 				deadOnly: false,
 				meetingGhostOnly: false,
+				visionHearing: false,
 			},
 		},
 	},
@@ -575,7 +580,8 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 	}, [settings.localLobbySettings]);
 
 	const isInMenuOrLobby = gameState?.gameState === GameState.LOBBY || gameState?.gameState === GameState.MENU;
-	const canChangeLobbySettings = gameState?.gameState === GameState.MENU || (gameState?.isHost && gameState?.gameState === GameState.LOBBY);
+	const canChangeLobbySettings =
+		gameState?.gameState === GameState.MENU || (gameState?.isHost && gameState?.gameState === GameState.LOBBY);
 
 	const [warningDialog, setWarningDialog] = React.useState({ open: false } as IConfirmDialog);
 
@@ -644,7 +650,8 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					</Dialog>
 					<Typography variant="h6">Lobby Settings</Typography>
 					<Typography gutterBottom>
-						Voice Distance: {canChangeLobbySettings ? localLobbySettings.maxDistance : lobbySettings.maxDistance}
+						<i>{localLobbySettings.visionHearing ? 'Imposter & original crewlink' : ''}</i> Voice Distance:{' '}
+						{canChangeLobbySettings ? localLobbySettings.maxDistance : lobbySettings.maxDistance}
 					</Typography>
 					<DisabledTooltip
 						disabled={!canChangeLobbySettings}
@@ -668,7 +675,35 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 							}}
 						/>
 					</DisabledTooltip>
+					<DisabledTooltip
+						disabled={!canChangeLobbySettings}
+						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
+					>
+						<FormControlLabel
+							label="Hear people in vision only"
+							disabled={!canChangeLobbySettings}
+							onChange={(_, newValue: boolean) => {
+								console.log('new vlaue of setting: ', newValue);
+								// openWarningDialog(
+								// 	'Be aware!',
+								// 	'Imposters and original crewlink users still use the voice distance setting',
+								// 	() => {
+										localLobbySettings.visionHearing = newValue;
+										setSettings({
+											type: 'setLobbySetting',
+											action: ['visionHearing', newValue],
+										});
 
+										setLocalLobbySettings(localLobbySettings);
+								// 	},
+								// 	newValue
+								// );
+							}}
+							value={canChangeLobbySettings ? localLobbySettings.visionHearing : lobbySettings.visionHearing}
+							checked={canChangeLobbySettings ? localLobbySettings.visionHearing : lobbySettings.visionHearing}
+							control={<Checkbox />}
+						/>
+					</DisabledTooltip>
 					<DisabledTooltip
 						disabled={!canChangeLobbySettings}
 						title={isInMenuOrLobby ? 'Only the game host can change this!' : 'You can only change this in the lobby!'}
