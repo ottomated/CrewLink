@@ -40,7 +40,9 @@ export const initializeIpcListeners = (): void => {
 	ipcMain.on(IpcMessages.SEND_TO_OVERLAY, (_, event: IpcOverlayMessages, ...args: unknown[]) => {
 		try {
 			if (global.overlay) global.overlay.webContents.send(event, ...args);
-		} catch (e) {/*empty*/}
+		} catch (e) {
+			/*empty*/
+		}
 	});
 
 	ipcMain.on(IpcMessages.QUIT_CREWLINK, () => {

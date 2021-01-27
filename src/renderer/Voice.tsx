@@ -340,7 +340,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		// Mute players if distancte between two players is too big
 		// console.log({ x: other.x, y: other.y }, Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]));
 		//console.log(state.currentCamera);
-		let distance = Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]);
+		const distance = Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]);
 		console.log(other.name, distance);
 		if (Math.sqrt(panPos[0] * panPos[0] + panPos[1] * panPos[1]) > maxdistance) {
 			if (lobbySettings.hearThroughCameras && state.gameState === GameState.TASKS) {

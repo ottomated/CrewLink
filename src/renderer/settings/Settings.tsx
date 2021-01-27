@@ -688,13 +688,13 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 								// 	'Be aware!',
 								// 	'Imposters and original crewlink users still use the voice distance setting',
 								// 	() => {
-										localLobbySettings.visionHearing = newValue;
-										setSettings({
-											type: 'setLobbySetting',
-											action: ['visionHearing', newValue],
-										});
+								localLobbySettings.visionHearing = newValue;
+								setSettings({
+									type: 'setLobbySetting',
+									action: ['visionHearing', newValue],
+								});
 
-										setLocalLobbySettings(localLobbySettings);
+								setLocalLobbySettings(localLobbySettings);
 								// 	},
 								// 	newValue
 								// );
