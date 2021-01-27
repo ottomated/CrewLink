@@ -24,6 +24,7 @@ export interface IOffsets {
 	hostId: number[];
 	clientId: number[];
 	shipStatus: number[];
+	lightRadius: number[];
 	shipStatus_systems: number[];
 	shipStatus_map: number[];
 	hqHudSystemType_CompletedConsoles: number[];
@@ -94,6 +95,7 @@ export default {
 		planetSurveillanceMinigame_currentCamera: [0xc8],
 		planetSurveillanceMinigame_camarasCount: [0xa0, 0x18],
 		surveillanceMinigame_FilteredRoomsCount: [0x70, 0x18],
+		lightRadius: [0x78, 0x34],
 		player: {
 			struct: [
 				{ type: 'SKIP', skip: 16, name: 'unused' },
@@ -176,6 +178,7 @@ export default {
 		planetSurveillanceMinigame_currentCamera: [0x64],
 		planetSurveillanceMinigame_camarasCount: [0x50, 0x0c],
 		surveillanceMinigame_FilteredRoomsCount: [0x38, 0x0c],
+		lightRadius: [0x54, 0x1c],
 		player: {
 			struct: [
 				{ type: 'SKIP', skip: 8, name: 'unused' },

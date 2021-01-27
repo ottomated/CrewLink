@@ -133,7 +133,7 @@ export default class GameReader {
 			);
 			let impostors = 0,
 				crewmates = 0,
-				lightRadius = 0;
+				lightRadius = 1;
 			let comsSabotaged = false;
 			let currentCamera = CameraLocation.NONE;
 			let map = MapType.UNKNOWN;
@@ -157,7 +157,7 @@ export default class GameReader {
 					else crewmates++;
 				}
 				if (localPlayer) {
-					lightRadius = this.readMemory<number>('float', localPlayer.objectPtr, [0x54, 0x1c], -1);
+					lightRadius = this.readMemory<number>('float', localPlayer.objectPtr,this.offsets.lightRadius , -1);
 				}
 				const shipPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.shipStatus);
 
