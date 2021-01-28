@@ -35,6 +35,10 @@ const TestSpeakersButton: React.FC<TestSpeakersProps> = ({
 			audio.play();
 			setPlaying(true);
 		}
+
+		audio.onended = () => { 
+			setPlaying(false); 
+		};
 	};
 
 	return (
