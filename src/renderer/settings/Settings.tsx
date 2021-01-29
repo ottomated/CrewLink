@@ -1160,10 +1160,18 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					label="NAT FIX"
 					checked={settings.natFix}
 					onChange={(_, checked: boolean) => {
-						setSettings({
-							type: 'setOne',
-							action: ['natFix', checked],
-						});
+						openWarningDialog(
+							'Are you sure?',
+							'This will FIX the nat issues but will add a delay since it is using a server instead of p2p',
+							() => {
+								setSettings({
+									type: 'setOne',
+									action: ['natFix', checked],
+								});
+							},
+							checked
+						);
+						
 					}}
 					control={<Checkbox />}
 				/>
