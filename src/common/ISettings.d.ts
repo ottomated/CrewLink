@@ -23,6 +23,10 @@ export interface ISettings {
 	noiseSuppression: boolean;
 	enableSpatialAudio: boolean;
 	playerConfigMap: playerConfigMap;
+	obsOverlay: boolean;
+	obsComptaibilityMode: boolean;
+	obsSecret: string | undefined;
+
 }
 
 export interface ILobbySettings {

@@ -157,7 +157,7 @@ export default class GameReader {
 					else crewmates++;
 				}
 				if (localPlayer) {
-					lightRadius = this.readMemory<number>('float', localPlayer.objectPtr,this.offsets.lightRadius , -1);
+					lightRadius = this.readMemory<number>('float', localPlayer.objectPtr, this.offsets.lightRadius, -1);
 				}
 				const shipPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.shipStatus);
 
@@ -360,9 +360,9 @@ export default class GameReader {
 
 	readString(address: number): string {
 		if (address === 0 || !this.amongUs) return '';
-		const length = Math.min(
-			readMemoryRaw<number>(this.amongUs.handle, address + (this.is_64bit ? 0x10 : 0x8), 'int'),
-			15
+		const length = Math.max(
+			0,
+			Math.min(readMemoryRaw<number>(this.amongUs.handle, address + (this.is_64bit ? 0x10 : 0x8), 'int'), 15)
 		);
 		const buffer = readBuffer(this.amongUs.handle, address + (this.is_64bit ? 0x14 : 0xc), length << 1);
 		return buffer.toString('utf16le').replace(/\0/g, '');

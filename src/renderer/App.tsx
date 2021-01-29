@@ -137,6 +137,9 @@ export default function App(): JSX.Element {
 		vadEnabled: true,
 		echoCancellation: true,
 		enableSpatialAudio: true,
+		obsSecret: undefined,
+		obsOverlay: false,
+		obsComptaibilityMode: false,
 		noiseSuppression: true,
 		playerConfigMap: {},
 		localLobbySettings: {

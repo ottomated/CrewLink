@@ -226,6 +226,18 @@ const store = new Store<ISettings>({
 			type: 'boolean',
 			default: true,
 		},
+		obsSecret: {
+			type: 'string',
+			default: undefined,
+		},
+		obsComptaibilityMode: {
+			type: 'boolean',
+			default: true,
+		},
+		obsOverlay: {
+			type: 'boolean',
+			default: false,
+		},
 		echoCancellation: {
 			type: 'boolean',
 			default: true,
@@ -501,6 +513,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 		settings.natFix,
 		settings.noiseSuppression,
 		settings.echoCancellation,
+		settings.obsComptaibilityMode
 	]);
 
 	useEffect(() => {
@@ -650,8 +663,14 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					</Dialog>
 					<Typography variant="h6">Lobby Settings</Typography>
 					<Typography gutterBottom>
-						<i>{canChangeLobbySettings ? localLobbySettings.visionHearing : lobbySettings.visionHearing ? 'Imposter & original crewlink' : ''}</i> Voice Distance:{' '}
-						{canChangeLobbySettings ? localLobbySettings.maxDistance : lobbySettings.maxDistance}
+						<i>
+							{canChangeLobbySettings
+								? localLobbySettings.visionHearing
+								: lobbySettings.visionHearing
+								? 'Imposter & original crewlink'
+								: ''}
+						</i>{' '}
+						Voice Distance: {canChangeLobbySettings ? localLobbySettings.maxDistance : lobbySettings.maxDistance}
 					</Typography>
 					<DisabledTooltip
 						disabled={!canChangeLobbySettings}
@@ -1148,17 +1167,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					}}
 					control={<Checkbox />}
 				/>
-				<FormControlLabel
-					label="Show Lobby Code"
-					checked={!settings.hideCode}
-					onChange={(_, checked: boolean) => {
-						setSettings({
-							type: 'setOne',
-							action: ['hideCode', !checked],
-						});
-					}}
-					control={<Checkbox />}
-				/>
+				
 
 				<URLInput
 					initialURL={settings.serverURL}
@@ -1189,7 +1198,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					onChange={(_, checked: boolean) => {
 						openWarningDialog(
 							'Are you sure?',
-							"Are you sure? <br/> You won't see who's talking if deactivate.",
+							"You won't see who's talking if deactivate.",
 							() => {
 								setSettings({
 									type: 'setOne',
@@ -1234,7 +1243,77 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 					}}
 					control={<Checkbox />}
 				/>
+				<Divider />
+				<Typography variant="h6">Streaming settings</Typography>
+				<FormControlLabel
+					label="Show Lobby Code"
+					checked={!settings.hideCode}
+					onChange={(_, checked: boolean) => {
+						setSettings({
+							type: 'setOne',
+							action: ['hideCode', !checked],
+						});
+					}}
+					control={<Checkbox />}
+				/>
+				<FormControlLabel
+					label="OBS browseroverlay"
+					checked={settings.obsOverlay}
+					onChange={(_, checked: boolean) => {
+						setSettings({
+							type: 'setOne',
+							action: ['obsOverlay', checked],
+						});
+						if (!settings.obsSecret) {
+							setSettings({
+								type: 'setOne',
+								action: ['obsSecret', Math.random().toString(36).substr(2, 9).toUpperCase()],
+							});
+						}
+					}}
+					control={<Checkbox />}
+				/>
+				{settings.obsOverlay && (
+					<>
+						<FormControlLabel
+							label="VS compatibility mode"
+							checked={settings.obsComptaibilityMode}
+							onChange={(_, checked: boolean) => {
+								openWarningDialog(
+									'Are you sure?',
+									'It is recommended to just change the voice server to a bettercrewlink voice server https://bettercrewl.ink for example.',
+									() => {
+										setSettings({
+											type: 'setOne',
+											action: ['obsComptaibilityMode', checked],
+										});
+									},
+									!checked
+								);
+							}}
+							control={<Checkbox />}
+						/>
 
+						<TextField
+							fullWidth
+							spellCheck={false}
+							label="Obs browsersource url"
+							value={
+								`${(settings.obsComptaibilityMode && !settings.serverURL.includes("bettercrewl.ink")) || settings.serverURL.includes("https")? "https" : "http"}://obs.bettercrewlink.app/?compact=${settings.compactOverlay ? '1' : '0'}&position=${
+									settings.overlayPosition
+								}&meeting=${settings.meetingOverlay ? '1' : '0'}&secret=${settings.obsSecret}&server=${settings.obsComptaibilityMode
+									? 'https://bettercrewl.ink'
+									: settings.serverURL}`
+								
+							}
+							variant="outlined"
+							color="primary"
+							InputProps={{
+								readOnly: true,
+							}}
+						/>
+					</>
+				)}
 				<Alert className={classes.alert} severity="info" style={{ display: unsaved ? undefined : 'none' }}>
 					Exit Settings to apply changes
 				</Alert>

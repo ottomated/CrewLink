@@ -56,6 +56,10 @@ export interface OtherTalking {
 	[playerId: number]: boolean; // isTalking
 }
 
+export interface OtherDead {
+	[playerId: number]: boolean; // isTalking
+}
+
 export interface AudioConnected {
 	[peer: string]: boolean; // isConnected
 }
@@ -65,7 +69,7 @@ export interface VoiceState {
 	playerSocketIds: {
 		[index: number]: string;
 	};
-	otherDead: OtherTalking;
+	otherDead: OtherDead;
 	socketClients: SocketClientMap;
 	audioConnected: AudioConnected;
 	localTalking: boolean;
