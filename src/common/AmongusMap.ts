@@ -100,4 +100,4 @@ export function poseCollide(p1: Vector2, p2: Vector2, map: MapType): boolean {
 	}
 
 	return false;
-} 
+}  
