@@ -30,6 +30,8 @@ export interface IOffsets {
 	shipstatus_allDoors: number[];
 	door_doorId: number;
 	door_isOpen: number;
+	deconDoorUpperOpen: number[];
+	deconDoorLowerOpen: number[];
 	hqHudSystemType_CompletedConsoles: number[];
 	HudOverrideSystemType_isActive: number[];
 	miniGame: number[];
@@ -95,6 +97,9 @@ export default {
 		shipstatus_allDoors: [0xB0],
 		door_doorId: 0x1C,
 		door_isOpen: 0x20,
+		deconDoorUpperOpen: [0x18, 0x18],
+		deconDoorLowerOpen: [0x20, 0x18],
+
 		hqHudSystemType_CompletedConsoles: [0x18, 0x20], // OAMJKPNKGBM
 		HudOverrideSystemType_isActive: [0x10],
 		miniGame: [0x1c57cac, 0xb8, 0x0],
@@ -181,6 +186,8 @@ export default {
 		shipstatus_allDoors: [0x7C],
 		door_doorId: 0x10,
 		door_isOpen: 0x14,
+		deconDoorUpperOpen: [0xc, 0xc],
+		deconDoorLowerOpen: [0x10, 0xc],
 		hqHudSystemType_CompletedConsoles: [0xc, 0x10],
 		HudOverrideSystemType_isActive: [0x8],
 		miniGame: [0x1c57cac, 0x5c, 0x0],

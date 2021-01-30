@@ -191,8 +191,8 @@ export default class GameReader {
 							} else if (key === 18 && map === MapType.MIRA_HQ) {
 								//SystemTypes Decontamination
 								const value = this.readMemory<number>('ptr', v);
-								const lowerDoorOpen = this.readMemory<number>('int', value, [0x10, 0xc]);
-								const upperDoorOpen = this.readMemory<number>('int', value, [0xc, 0xc]);
+								const lowerDoorOpen = this.readMemory<number>('int', value, this.offsets?.deconDoorLowerOpen);
+								const upperDoorOpen = this.readMemory<number>('int', value, this.offsets?.deconDoorUpperOpen);
 								if (!lowerDoorOpen) {
 									closedDoors.push(0);
 								}
