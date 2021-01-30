@@ -26,9 +26,10 @@ import Divider from '@material-ui/core/Divider';
 import { validateClientPeerConfig } from './validateClientPeerConfig';
 // @ts-ignore
 import reverbOgx from 'arraybuffer-loader!../../static/reverb.ogx';
-import { CameraLocation, poseCollide, PolusMap, SkeldMap,  } from '../common/AmongusMap';
+import { CameraLocation, PolusMap, SkeldMap,  } from '../common/AmongusMap';
 import Store from 'electron-store';
 import { ObsVoiceState } from '../common/ObsOverlay';
+import { poseCollide } from '../common/ColliderMap';
 
 export interface ExtendedAudioElement extends HTMLAudioElement {
 	setSinkId: (sinkId: string) => Promise<void>;
@@ -263,7 +264,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				if (
 					lobbySettings.wallsBlockAudio &&
 					!me.isDead &&
-					poseCollide({ x: me.x, y: me.y }, { x: other.x, y: other.y }, gameState.map)
+					poseCollide({ x: me.x, y: me.y }, { x: other.x, y: other.y }, gameState.map, gameState.openDoors)
 				) {
 					collided = true;
 				}

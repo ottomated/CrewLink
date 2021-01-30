@@ -137,6 +137,7 @@ export default class GameReader {
 			let comsSabotaged = false;
 			let currentCamera = CameraLocation.NONE;
 			let map = MapType.UNKNOWN;
+			let openDoors: number[] = [];
 			let localPlayer = undefined;
 			if (this.gameCode && playerCount) {
 				for (let i = 0; i < Math.min(playerCount, 20); i++) {
@@ -217,6 +218,25 @@ export default class GameReader {
 						}
 					}
 				}
+
+				const allDoors = this.readMemory<number>('ptr', shipPtr, [0x7c]);
+			//	console.log('alldoorsptr: ', allDoors.toString(16));
+				const doorCount = Math.max(this.readMemory<number>('int', allDoors, this.offsets.playerCount), 16);
+				let doorsOpen = 0;
+				for (let doorNr = 0; doorNr < doorCount; doorNr++) {
+					const door = this.readMemory<number>('ptr', allDoors + 0x10 + doorNr * 0x4);
+
+					const doorOpen = this.readMemory<number>('int', door + 0x14) === 1;
+					const doorId = this.readMemory<number>('int', door + 0x10);
+
+					if (doorOpen) {
+						openDoors.push(doorId);
+						doorsOpen++;
+						console.log("Door open: ", doorId)
+					}
+				}
+
+			//	console.log('doorcount: ', doorCount, doorsOpen);
 			}
 
 			if (this.oldGameState === GameState.DISCUSSION && state === GameState.TASKS) {
@@ -252,6 +272,7 @@ export default class GameReader {
 				lightRadius,
 				lightRadiusChanged: lightRadius != this.lastState?.lightRadius,
 				map,
+				openDoors
 			};
 			//	const stateHasChanged = !equal(this.lastState, newState);
 			//	if (stateHasChanged) {
