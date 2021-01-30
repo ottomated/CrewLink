@@ -260,7 +260,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				) {
 					endGain = 0;
 				}
-
+console.log("XXX??", lobbySettings.wallsBlockAudio, !me.isDead);
 				if (
 					lobbySettings.wallsBlockAudio &&
 					!me.isDead &&

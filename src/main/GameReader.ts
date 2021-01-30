@@ -160,7 +160,7 @@ export default class GameReader {
 				if (localPlayer) {
 					lightRadius = this.readMemory<number>('float', localPlayer.objectPtr, this.offsets.lightRadius, -1);
 				}
-				if (gameState === GameState.TASKS) {
+				if (state === GameState.TASKS) {
 					const shipPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.shipStatus);
 
 					const systemsPtr = this.readMemory<number>('ptr', shipPtr, this.offsets.shipStatus_systems);
@@ -220,17 +220,19 @@ export default class GameReader {
 						}
 					}
 
-					const allDoors = this.readMemory<number>('ptr', shipPtr, this.offsets.shipstatus_allDoors);
-					const doorCount = Math.max(this.readMemory<number>('int', allDoors, this.offsets.playerCount), 16);
+					const allDoors = this.readMemory<number>('ptr', shipPtr, [0x7C]);
+					const doorCount = Math.min(this.readMemory<number>('int', allDoors, this.offsets.playerCount), 16);
+				//	console.log(doorCount, allDoors.toString(16));
 					for (let doorNr = 0; doorNr < doorCount; doorNr++) {
 						const door = this.readMemory<number>(
 							'ptr',
 							allDoors + this.offsets.playerAddrPtr + doorNr * (this.is_64bit ? 0x8 : 0x4)
 						);
 						const doorOpen = this.readMemory<number>('int', door + this.offsets.door_isOpen) === 1;
-						const doorId = this.readMemory<number>('int', door + this.offsets.door_doorId);
+					//	const doorId = this.readMemory<number>('int', door + this.offsets.door_doorId);
+						//console.log(doorId);
 						if (!doorOpen) {
-							closedDoors.push(doorId);
+							closedDoors.push(doorNr);
 						}
 					}
 				}

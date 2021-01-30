@@ -28,28 +28,47 @@ export const colliderMaps: { [key in MapType]: string[] | undefined } = {
 	[MapType.UNKNOWN]: undefined,
 };
 
-const doors: { [key in number]: string | undefined } = {
-	0: 'M 51.35 48.227 L 51.369 50.09', // right elecrtrical door
-	1: 'M 48.426 50.094 V 50.515 H 46.964', // electical vence door
-	2: 'M 44.594 53.511 H 46.486', // electical door to o
-	3: 'M 44.566 57.666 H 46.477', // o2 door to electical
-	4: 'M 45.27 61.755 H 46.701', // o2 to outside
-	5: 'M 52.41 60.07 H 54.127', // Weapons door
-	6: 'M 50.189 59.272 H 51.771', // communications door
-	7: 'M 68.822 55.941 V 57.483', // office vidals door
-	8: 'M 57.445 60.539 V 62.21', // office left door
-	9: 'M 66.087 48.323 H 67.422', // door to drill
-	10: 'M 64.894 48.653 V 50.117', // door outside to med
-	11: 'M 57.354 49.784 V 51.414', // storage door
-	12: 'M 65.552 63.143 V 64.9', // decom door office->spec
-	13: 'M 63.324 63.159 H 65.536', // decom door spec->office
-	14: 'M 78.198 50.885 V 48.433', // decom door med->spec
-	15: 'M 78.198 50.885 H 79.987', // decom door spec->med
+export const doorMaps: { [key in MapType]: { [key in number]: string | undefined } | undefined } = {
+	[MapType.THE_SKELD]: {
+		0: 'M 44.882 37.745 V 39.521', // cafetaria-> weapons
+		3: 'M 38.563 44.387 H 40.068', // cafetaria
+		8: 'M 33.899 37.680 V 39.613', // cafetaria
+		10: 'M 30.301 39.613 H 31.806', //medbay
+		2: 'M 25.43 39.589 V 37.655', // upperengine
+		5: 'M 22.615 41.559 V 24.108', // upperengine
+		6: 'M 24.132 44.154 V 45.953', // security
+		4: 'M 22.652 48.658 H 24.169', // lowerengine
+		11: 'M 29.946 53.126 H 31.366', // lowerengine
+		9: 'M 29.946 53.126 H 31.366', // elecrtrical
+		1: 'M 25.418 52.012 V 50.274', //storage
+		7: 'M 34.989 54.864 V 53.052', // storage
+		12: 'M 40.961 52.624 V 50.849', // storage
+	},
+	[MapType.MIRA_HQ]: undefined,
+	[MapType.POLUS]: {
+		0: 'M 51.35 48.227 L 51.369 50.09', // right elecrtrical door
+		1: 'M 48.426 50.094 V 50.515 H 46.964', // electical vence door
+		2: 'M 44.594 53.511 H 46.486', // electical door to o
+		3: 'M 44.566 57.666 H 46.477', // o2 door to electical
+		4: 'M 45.27 61.755 H 46.701', // o2 to outside
+		5: 'M 52.41 60.07 H 54.127', // Weapons door
+		6: 'M 50.189 59.272 H 51.771', // communications door
+		7: 'M 68.822 55.941 V 57.483', // office vidals door
+		8: 'M 57.445 60.539 V 62.21', // office left door
+		9: 'M 66.087 48.323 H 67.422', // door to drill
+		10: 'M 64.894 48.653 V 50.117', // door outside to med
+		11: 'M 57.354 49.784 V 51.414', // storage door
+		12: 'M 65.552 63.143 V 64.9', // decom door office->spec
+		13: 'M 63.324 63.159 H 65.536', // decom door spec->office
+		14: 'M 78.198 50.885 V 48.433', // decom door med->spec
+		15: 'M 78.198 50.885 H 79.987', // decom door spec->med
+	},
+	[MapType.UNKNOWN]: undefined,
 };
 
 export function poseCollide(p1: Vector2, p2: Vector2, map: MapType, closedDoors: number[]): boolean {
 	// console.log(p1.x + 40, 40 - p1.y);
-	//console.log(colliderMaps[MapType.POLUS]?.join(' '));
+	console.log(colliderMaps[MapType.THE_SKELD]?.join(' '));
 	const colliderMap = colliderMaps[map];
 	if (!colliderMap || map === MapType.UNKNOWN) {
 		return false;
@@ -61,15 +80,18 @@ export function poseCollide(p1: Vector2, p2: Vector2, map: MapType, closedDoors:
 			return true;
 		}
 	}
-
-	if (map === MapType.POLUS) { // temp only polus
-		for (const doorId of Object.values(closedDoors)) {
-			let doorPath = doors[doorId];
-			if (doorPath) {
-				const intersections = intersect(doorPath, `M ${p1.x + 40} ${40 - p1.y} L ${p2.x + 40} ${40 - p2.y}`);
-				if (intersections.length > 0) {
-					return true;
-				}
+	console.log('Closed doors: ', closedDoors);
+	// if (map === MapType.POLUS) { // temp only polus
+	const doorMap = doorMaps[map];
+	if (!doorMap) {
+		return false;
+	}
+	for (const doorId of Object.values(closedDoors)) {
+		let doorPath = doorMap[doorId];
+		if (doorPath) {
+			const intersections = intersect(doorPath, `M ${p1.x + 40} ${40 - p1.y} L ${p2.x + 40} ${40 - p2.y}`);
+			if (intersections.length > 0) {
+				return true;
 			}
 		}
 	}
