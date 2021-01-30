@@ -29,22 +29,11 @@ export const colliderMaps: { [key in MapType]: string[] | undefined } = {
 };
 
 export const doorMaps: { [key in MapType]: { [key in number]: string | undefined } | undefined } = {
-	[MapType.THE_SKELD]: {
-		0: 'M 44.882 37.745 V 39.521', // cafetaria-> weapons
-		3: 'M 38.563 44.387 H 40.068', // cafetaria
-		8: 'M 33.899 37.680 V 39.613', // cafetaria
-		10: 'M 30.301 39.613 H 31.806', //medbay
-		2: 'M 25.43 39.589 V 37.655', // upperengine
-		5: 'M 22.615 41.559 V 24.108', // upperengine
-		6: 'M 24.132 44.154 V 45.953', // security
-		4: 'M 22.652 48.658 H 24.169', // lowerengine
-		11: 'M 29.946 53.126 H 31.366', // lowerengine
-		9: 'M 29.946 53.126 H 31.366', // elecrtrical
-		1: 'M 25.418 52.012 V 50.274', //storage
-		7: 'M 34.989 54.864 V 53.052', // storage
-		12: 'M 40.961 52.624 V 50.849', // storage
+
+	[MapType.MIRA_HQ]: {
+		0: 'M 45.008 36.849 H 47.187',
+		1: 'M 45.008 30.307 H 47.187'
 	},
-	[MapType.MIRA_HQ]: undefined,
 	[MapType.POLUS]: {
 		0: 'M 51.35 48.227 L 51.369 50.09', // right elecrtrical door
 		1: 'M 48.426 50.094 V 50.515 H 46.964', // electical vence door
@@ -63,12 +52,27 @@ export const doorMaps: { [key in MapType]: { [key in number]: string | undefined
 		14: 'M 78.198 50.885 V 48.433', // decom door med->spec
 		15: 'M 78.198 50.885 H 79.987', // decom door spec->med
 	},
+	[MapType.THE_SKELD]: {
+		0: 'M 44.882 37.745 V 39.521', // cafetaria-> weapons
+		3: 'M 38.561 44.6841 H 40.068', // cafetaria -> Admin hallway
+		8: 'M 33.899 37.680 V 39.613', // cafetaria -> medbay hallway
+		10: 'M 30.301 39.7466 H 31.806', //medbay
+		2: 'M 25.43 39.589 V 37.655', // upperengine <- medbay hallway
+		5: 'M 22.615 42.000 H 24.108', // upperengine <- security hallway
+		6: 'M 25.154 44.154 V 45.953', // security
+		4: 'M 22.652 48.658 H 24.169', // lowerengine <- security hallway
+		11: 'M 25.4117 52.012 V 50.274', // lowerengine <- Elecrtical hallway //25.4117 51.3337
+		9: 'M 29.946 53.126 H 31.366', // elecrtrical
+		1: 'M 25.418 52.012 V 50.274', //storage -> Electrical 
+		7: 'M 34.989 54.864 V 53.052', // storage -> Admin 
+		12: 'M 40.961 52.624 V 50.849', // storage -> shields
+	},
 	[MapType.UNKNOWN]: undefined,
 };
 
 export function poseCollide(p1: Vector2, p2: Vector2, map: MapType, closedDoors: number[]): boolean {
-	// console.log(p1.x + 40, 40 - p1.y);
-	console.log(colliderMaps[MapType.THE_SKELD]?.join(' '));
+	//  console.log(p1.x + 40, 40 - p1.y);
+	//console.log(colliderMaps[MapType.MIRA_HQ]?.join(' '));
 	const colliderMap = colliderMaps[map];
 	if (!colliderMap || map === MapType.UNKNOWN) {
 		return false;
@@ -80,7 +84,7 @@ export function poseCollide(p1: Vector2, p2: Vector2, map: MapType, closedDoors:
 			return true;
 		}
 	}
-	console.log('Closed doors: ', closedDoors);
+	// console.log('Closed doors: ', closedDoors);
 	// if (map === MapType.POLUS) { // temp only polus
 	const doorMap = doorMaps[map];
 	if (!doorMap) {

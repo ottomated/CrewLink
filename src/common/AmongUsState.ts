@@ -3,6 +3,7 @@ import { CameraLocation, MapType } from './AmongusMap';
 export interface AmongUsState {
 	gameState: GameState;
 	oldGameState: GameState;
+	lobbyCodeInt: number;
 	lobbyCode: string;
 	players: Player[];
 	isHost: boolean;

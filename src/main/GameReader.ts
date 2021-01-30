@@ -111,10 +111,11 @@ export default class GameReader {
 					break;
 			}
 
+			const lobbyCodeInt = this.readMemory<number>('int32', innerNetClient, this.offsets.gameCode);
 			this.gameCode =
 				state === GameState.MENU
 					? ''
-					: this.IntToGameCode(this.readMemory<number>('int32', innerNetClient, this.offsets.gameCode));
+					:  lobbyCodeInt === this.lastState.lobbyCodeInt? this.lastState.lobbyCode : this.IntToGameCode(lobbyCodeInt);
 
 			const allPlayersPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.allPlayersPtr);
 			const allPlayers = this.readMemory<number>('ptr', allPlayersPtr, this.offsets.allPlayers);
@@ -183,7 +184,18 @@ export default class GameReader {
 											this.readMemory<number>('uint32', value, this.offsets?.hqHudSystemType_CompletedConsoles) < 2;
 									}
 								}
-							}
+							} else if (key === 18 && map === MapType.MIRA_HQ) {
+								//SystemTypes Decontamination
+								const value = this.readMemory<number>('ptr', v);
+								const lowerDoorOpen = this.readMemory<number>('int', value, [0x10, 0xc]);
+								const upperDoorOpen = this.readMemory<number>('int', value, [0xc, 0xc]);
+								if (!lowerDoorOpen) {
+									closedDoors.push(0);
+								}
+								if (!upperDoorOpen) {
+									closedDoors.push(1);
+								}
+							} 
 						});
 					}
 					const minigamePtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets?.miniGame);
@@ -219,20 +231,20 @@ export default class GameReader {
 							}
 						}
 					}
-
-					const allDoors = this.readMemory<number>('ptr', shipPtr, [0x7C]);
-					const doorCount = Math.min(this.readMemory<number>('int', allDoors, this.offsets.playerCount), 16);
-				//	console.log(doorCount, allDoors.toString(16));
-					for (let doorNr = 0; doorNr < doorCount; doorNr++) {
-						const door = this.readMemory<number>(
-							'ptr',
-							allDoors + this.offsets.playerAddrPtr + doorNr * (this.is_64bit ? 0x8 : 0x4)
-						);
-						const doorOpen = this.readMemory<number>('int', door + this.offsets.door_isOpen) === 1;
-					//	const doorId = this.readMemory<number>('int', door + this.offsets.door_doorId);
-						//console.log(doorId);
-						if (!doorOpen) {
-							closedDoors.push(doorNr);
+					if (map !== MapType.MIRA_HQ) {
+						const allDoors = this.readMemory<number>('ptr', shipPtr, this.offsets.shipstatus_allDoors);
+						const doorCount = Math.min(this.readMemory<number>('int', allDoors, this.offsets.playerCount), 16);
+						for (let doorNr = 0; doorNr < doorCount; doorNr++) {
+							const door = this.readMemory<number>(
+								'ptr',
+								allDoors + this.offsets.playerAddrPtr + doorNr * (this.is_64bit ? 0x8 : 0x4)
+							);
+							const doorOpen = this.readMemory<number>('int', door + this.offsets.door_isOpen) === 1;
+							//	const doorId = this.readMemory<number>('int', door + this.offsets.door_doorId);
+							//console.log(doorId);
+							if (!doorOpen) {
+								closedDoors.push(doorNr);
+							}
 						}
 					}
 				}
@@ -261,6 +273,7 @@ export default class GameReader {
 			const lobbyCode = state !== GameState.MENU ? this.gameCode || 'MENU' : 'MENU';
 			const newState: AmongUsState = {
 				lobbyCode: lobbyCode,
+				lobbyCodeInt,
 				players,
 				gameState: lobbyCode === 'MENU' ? GameState.MENU : state,
 				oldGameState: this.oldGameState,
@@ -380,13 +393,21 @@ export default class GameReader {
 	}
 
 	readString(address: number): string {
-		if (address === 0 || !this.amongUs) return '';
-		const length = Math.max(
-			0,
-			Math.min(readMemoryRaw<number>(this.amongUs.handle, address + (this.is_64bit ? 0x10 : 0x8), 'int'), 15)
-		);
-		const buffer = readBuffer(this.amongUs.handle, address + (this.is_64bit ? 0x14 : 0xc), length << 1);
-		return buffer.toString('utf16le').replace(/\0/g, '');
+		try {
+			if (address === 0 || !this.amongUs) return '';
+			const length = Math.max(
+				0,
+				Math.min(readMemoryRaw<number>(this.amongUs.handle, address + (this.is_64bit ? 0x10 : 0x8), 'int'), 15)
+			);
+			const buffer = readBuffer(this.amongUs.handle, address + (this.is_64bit ? 0x14 : 0xc), length << 1);
+			if (buffer) {
+				return buffer.toString('utf16le').replace(/\0/g, '');
+			} else {
+				return '';
+			}
+		} catch (e) {
+			return '';
+		}
 	}
 
 	readDictionary(
@@ -463,7 +484,6 @@ export default class GameReader {
 		let y = this.readMemory<number>('float', data.objectPtr, positionOffsets[1]);
 		let bugged = false;
 		if (x === undefined || y === undefined) {
-			console.log('error parsing ->: ', this.readString(data.name), x, y, ptr.toString(16));
 			x = 9999;
 			y = 9999;
 			bugged = true;
