@@ -47,7 +47,7 @@ const doors: { [key in number]: string | undefined } = {
 	15: 'M 78.198 50.885 H 79.987', // decom door spec->med
 };
 
-export function poseCollide(p1: Vector2, p2: Vector2, map: MapType, openDoors: number[]): boolean {
+export function poseCollide(p1: Vector2, p2: Vector2, map: MapType, closedDoors: number[]): boolean {
 	// console.log(p1.x + 40, 40 - p1.y);
 	//console.log(colliderMaps[MapType.POLUS]?.join(' '));
 	const colliderMap = colliderMaps[map];
@@ -63,7 +63,7 @@ export function poseCollide(p1: Vector2, p2: Vector2, map: MapType, openDoors: n
 	}
 
 	if (map === MapType.POLUS) { // temp only polus
-		for (const doorId of Object.values(openDoors)) {
+		for (const doorId of Object.values(closedDoors)) {
 			let doorPath = doors[doorId];
 			if (doorPath) {
 				const intersections = intersect(doorPath, `M ${p1.x + 40} ${40 - p1.y} L ${p2.x + 40} ${40 - p2.y}`);

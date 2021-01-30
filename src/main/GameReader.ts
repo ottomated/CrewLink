@@ -137,7 +137,7 @@ export default class GameReader {
 			let comsSabotaged = false;
 			let currentCamera = CameraLocation.NONE;
 			let map = MapType.UNKNOWN;
-			let openDoors: number[] = [];
+			let closedDoors: number[] = [];
 			let localPlayer = undefined;
 			if (this.gameCode && playerCount) {
 				for (let i = 0; i < Math.min(playerCount, 20); i++) {
@@ -160,83 +160,81 @@ export default class GameReader {
 				if (localPlayer) {
 					lightRadius = this.readMemory<number>('float', localPlayer.objectPtr, this.offsets.lightRadius, -1);
 				}
-				const shipPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.shipStatus);
+				if (gameState === GameState.TASKS) {
+					const shipPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.shipStatus);
 
-				const systemsPtr = this.readMemory<number>('ptr', shipPtr, this.offsets.shipStatus_systems);
-				map = this.readMemory<number>('int32', shipPtr, this.offsets.shipStatus_map, MapType.UNKNOWN);
+					const systemsPtr = this.readMemory<number>('ptr', shipPtr, this.offsets.shipStatus_systems);
+					map = this.readMemory<number>('int32', shipPtr, this.offsets.shipStatus_map, MapType.UNKNOWN);
 
-				if (systemsPtr !== 0 && state === GameState.TASKS) {
-					this.readDictionary(systemsPtr, 32, (k, v) => {
-						const key = this.readMemory<number>('int32', k);
-						if (key === 14) {
-							const value = this.readMemory<number>('ptr', v);
-							switch (map) {
-								case MapType.POLUS:
-								case MapType.THE_SKELD: {
-									comsSabotaged =
-										this.readMemory<number>('uint32', value, this.offsets?.HudOverrideSystemType_isActive) === 1;
-									break;
+					if (systemsPtr !== 0 && state === GameState.TASKS) {
+						this.readDictionary(systemsPtr, 32, (k, v) => {
+							const key = this.readMemory<number>('int32', k);
+							if (key === 14) {
+								const value = this.readMemory<number>('ptr', v);
+								switch (map) {
+									case MapType.POLUS:
+									case MapType.THE_SKELD: {
+										comsSabotaged =
+											this.readMemory<number>('uint32', value, this.offsets?.HudOverrideSystemType_isActive) === 1;
+										break;
+									}
+									case MapType.MIRA_HQ: {
+										comsSabotaged =
+											this.readMemory<number>('uint32', value, this.offsets?.hqHudSystemType_CompletedConsoles) < 2;
+									}
 								}
-								case MapType.MIRA_HQ: {
-									comsSabotaged =
-										this.readMemory<number>('uint32', value, this.offsets?.hqHudSystemType_CompletedConsoles) < 2;
+							}
+						});
+					}
+					const minigamePtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets?.miniGame);
+					const minigameCachePtr = this.readMemory<number>('ptr', minigamePtr, this.offsets?.objectCachePtr);
+
+					if (minigameCachePtr && minigameCachePtr !== 0 && localPlayer) {
+						if (map === MapType.POLUS) {
+							const currentCameraId = this.readMemory<number>(
+								'uint32',
+								minigamePtr,
+								this.offsets?.planetSurveillanceMinigame_currentCamera
+							);
+							const camarasCount = this.readMemory<number>(
+								'uint32',
+								minigamePtr,
+								this.offsets?.planetSurveillanceMinigame_camarasCount
+							);
+
+							if (currentCameraId >= 0 && currentCameraId <= 5 && camarasCount === 6) {
+								currentCamera = currentCameraId as CameraLocation;
+							}
+						} else if (map === MapType.THE_SKELD) {
+							const roomCount = this.readMemory<number>(
+								'uint32',
+								minigamePtr,
+								this.offsets?.surveillanceMinigame_FilteredRoomsCount
+							);
+							if (roomCount === 4) {
+								const dist = Math.sqrt(Math.pow(localPlayer.x - -12.9364, 2) + Math.pow(localPlayer.y - -2.7928, 2));
+								if (dist < 0.6) {
+									currentCamera = CameraLocation.Skeld;
 								}
 							}
 						}
-					});
-				}
-				const minigamePtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets?.miniGame);
-				const minigameCachePtr = this.readMemory<number>('ptr', minigamePtr, this.offsets?.objectCachePtr);
+					}
 
-				if (minigameCachePtr && minigameCachePtr !== 0 && localPlayer) {
-					if (map === MapType.POLUS) {
-						const currentCameraId = this.readMemory<number>(
-							'uint32',
-							minigamePtr,
-							this.offsets?.planetSurveillanceMinigame_currentCamera
+					const allDoors = this.readMemory<number>('ptr', shipPtr, this.offsets.shipstatus_allDoors);
+					const doorCount = Math.max(this.readMemory<number>('int', allDoors, this.offsets.playerCount), 16);
+					for (let doorNr = 0; doorNr < doorCount; doorNr++) {
+						const door = this.readMemory<number>(
+							'ptr',
+							allDoors + this.offsets.playerAddrPtr + doorNr * (this.is_64bit ? 0x8 : 0x4)
 						);
-						const camarasCount = this.readMemory<number>(
-							'uint32',
-							minigamePtr,
-							this.offsets?.planetSurveillanceMinigame_camarasCount
-						);
-
-						if (currentCameraId >= 0 && currentCameraId <= 5 && camarasCount === 6) {
-							currentCamera = currentCameraId as CameraLocation;
-						}
-					} else if (map === MapType.THE_SKELD) {
-						const roomCount = this.readMemory<number>(
-							'uint32',
-							minigamePtr,
-							this.offsets?.surveillanceMinigame_FilteredRoomsCount
-						);
-						if (roomCount === 4) {
-							const dist = Math.sqrt(Math.pow(localPlayer.x - -12.9364, 2) + Math.pow(localPlayer.y - -2.7928, 2));
-							if (dist < 0.6) {
-								currentCamera = CameraLocation.Skeld;
-							}
+						const doorOpen = this.readMemory<number>('int', door + this.offsets.door_isOpen) === 1;
+						const doorId = this.readMemory<number>('int', door + this.offsets.door_doorId);
+						if (!doorOpen) {
+							closedDoors.push(doorId);
 						}
 					}
 				}
-
-				const allDoors = this.readMemory<number>('ptr', shipPtr, [0x7c]);
-			//	console.log('alldoorsptr: ', allDoors.toString(16));
-				const doorCount = Math.max(this.readMemory<number>('int', allDoors, this.offsets.playerCount), 16);
-				let doorsOpen = 0;
-				for (let doorNr = 0; doorNr < doorCount; doorNr++) {
-					const door = this.readMemory<number>('ptr', allDoors + 0x10 + doorNr * 0x4);
-
-					const doorOpen = this.readMemory<number>('int', door + 0x14) === 1;
-					const doorId = this.readMemory<number>('int', door + 0x10);
-
-					if (doorOpen) {
-						openDoors.push(doorId);
-						doorsOpen++;
-						console.log("Door open: ", doorId)
-					}
-				}
-
-			//	console.log('doorcount: ', doorCount, doorsOpen);
+				//	console.log('doorcount: ', doorCount, doorsOpen);
 			}
 
 			if (this.oldGameState === GameState.DISCUSSION && state === GameState.TASKS) {
@@ -272,7 +270,7 @@ export default class GameReader {
 				lightRadius,
 				lightRadiusChanged: lightRadius != this.lastState?.lightRadius,
 				map,
-				openDoors
+				closedDoors,
 			};
 			//	const stateHasChanged = !equal(this.lastState, newState);
 			//	if (stateHasChanged) {

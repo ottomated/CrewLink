@@ -13,7 +13,7 @@ export interface AmongUsState {
 	map: MapType;
 	lightRadius: number;
 	lightRadiusChanged: boolean;
-	openDoors: number[];
+	closedDoors: number[];
 }
 
 export interface Player {

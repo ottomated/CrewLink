@@ -1,4 +1,3 @@
-import intersect from 'path-intersection';
 
 export enum MapType {
 	THE_SKELD,

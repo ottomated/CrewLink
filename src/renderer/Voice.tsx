@@ -264,7 +264,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				if (
 					lobbySettings.wallsBlockAudio &&
 					!me.isDead &&
-					poseCollide({ x: me.x, y: me.y }, { x: other.x, y: other.y }, gameState.map, gameState.openDoors)
+					poseCollide({ x: me.x, y: me.y }, { x: other.x, y: other.y }, gameState.map, gameState.closedDoors)
 				) {
 					collided = true;
 				}
