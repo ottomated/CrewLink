@@ -111,11 +111,15 @@ export default class GameReader {
 					break;
 			}
 
-			const lobbyCodeInt = this.readMemory<number>('int32', innerNetClient, this.offsets.gameCode);
+			const lobbyCodeInt =
+				state === GameState.MENU ? -1 : this.readMemory<number>('int32', innerNetClient, this.offsets.gameCode);
 			this.gameCode =
 				state === GameState.MENU
 					? ''
-					:  lobbyCodeInt === this.lastState.lobbyCodeInt? this.lastState.lobbyCode : this.IntToGameCode(lobbyCodeInt);
+					: lobbyCodeInt === this.lastState.lobbyCodeInt
+					?  this.gameCode
+					: this.IntToGameCode(lobbyCodeInt);
+
 
 			const allPlayersPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.allPlayersPtr);
 			const allPlayers = this.readMemory<number>('ptr', allPlayersPtr, this.offsets.allPlayers);
@@ -195,7 +199,7 @@ export default class GameReader {
 								if (!upperDoorOpen) {
 									closedDoors.push(1);
 								}
-							} 
+							}
 						});
 					}
 					const minigamePtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets?.miniGame);
