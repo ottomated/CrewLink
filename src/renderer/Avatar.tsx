@@ -15,11 +15,12 @@ import { SocketConfig } from '../common/ISettings';
 interface UseStylesParams {
 	size: number;
 	borderColor: string;
+	overflow: boolean;
 }
 const useStyles = makeStyles(() => ({
 	avatar: {
 		borderRadius: '50%',
-		overflow: 'hidden',
+			overflow:  ({ overflow }: UseStylesParams) => overflow? 'undefined' : 'hidden',
 		position: 'relative',
 		borderStyle: 'solid',
 		transition: 'border-color .2s ease-out',
@@ -66,7 +67,8 @@ export interface AvatarProps {
 	socketConfig?: SocketConfig;
 	showborder?: boolean;
 	showHat?: boolean;
-	lookLeft? : boolean;
+	lookLeft?: boolean;
+	overflow?: boolean;
 	onConfigChange?: () => void;
 }
 
@@ -83,6 +85,7 @@ const Avatar: React.FC<AvatarProps> = function ({
 	showborder,
 	showHat,
 	lookLeft,
+	overflow = false,
 	onConfigChange,
 }: AvatarProps) {
 	const status = isAlive ? 'alive' : 'dead';
@@ -91,6 +94,7 @@ const Avatar: React.FC<AvatarProps> = function ({
 	const classes = useStyles({
 		borderColor: talking ? borderColor : showborder === true ? '#ccbdcc86' : 'transparent',
 		size,
+		overflow,
 	});
 
 	let icon;
@@ -173,48 +177,44 @@ const useCanvasStyles = makeStyles(() => ({
 		top: 0,
 		left: 0,
 		zIndex: 2,
-		transform: ({ lookLeft }: UseCanvasStylesParams) => (lookLeft ?  'scaleX(-1)' : 'undefined')
-
+		transform: ({ lookLeft }: UseCanvasStylesParams) => (lookLeft ? 'scaleX(-1)' : 'undefined'),
 	},
 	hat: {
 		width: '100%',
 		position: 'absolute',
-		top: ({ hatY }: UseCanvasStylesParams) => hatY ,
+		top: ({ hatY }: UseCanvasStylesParams) => hatY,
 		left: 0,
 		zIndex: ({ backLayerHat }: UseCanvasStylesParams) => (backLayerHat ? 1 : 4),
 		display: ({ isAlive }: UseCanvasStylesParams) => (isAlive ? 'block' : 'none'),
-		transform: ({ lookLeft }: UseCanvasStylesParams) => (lookLeft ?  'scaleX(-1)' : 'undefined')
+		transform: ({ lookLeft }: UseCanvasStylesParams) => (lookLeft ? 'scaleX(-1)' : 'undefined'),
 	},
 	skin: {
 		position: 'absolute',
-		top: '33%', 
+		top: '33%',
 		left: 0,
-		width: '100%', 
-		transform: ({ lookLeft }: UseCanvasStylesParams) => (lookLeft ?  'scaleX(-1)' :  'undefined'),
+		width: '100%',
+		transform: ({ lookLeft }: UseCanvasStylesParams) => (lookLeft ? 'scaleX(-1)' : 'undefined'),
 		zIndex: 3,
 		display: ({ isAlive }: UseCanvasStylesParams) => (isAlive ? 'block' : 'none'),
-
 	},
 }));
 
-
-
-function Canvas({ src, hat, skin, isAlive,lookLeft }: CanvasProps) {
-	const hatImg = useRef<HTMLImageElement>(null);  
-	const skinImg = useRef<HTMLImageElement>(null); 
-	const image = useRef<HTMLImageElement>(null);  
-	const hatY = hatOffsets[hat + 1] || '-33%'; 
-	const classes = useCanvasStyles({    
-		backLayerHat: backLayerHats.has(hat), 
-		isAlive,  
+function Canvas({ src, hat, skin, isAlive, lookLeft }: CanvasProps) {
+	const hatImg = useRef<HTMLImageElement>(null);
+	const skinImg = useRef<HTMLImageElement>(null);
+	const image = useRef<HTMLImageElement>(null);
+	const hatY = hatOffsets[hat + 1] || '-33%';
+	const classes = useCanvasStyles({
+		backLayerHat: backLayerHats.has(hat),
+		isAlive,
 		hatY,
-		lookLeft
+		lookLeft,
 	});
- 
+
 	return (
 		<>
 			<img src={src} ref={image} className={classes.base} />
-			<img src={hats[hat]} ref={hatImg} className={classes.hat} style={{ top: hatY }} />
+			<img src={hats[hat]} ref={hatImg} className={classes.hat} />
 			<img src={skins[skin]} ref={skinImg} className={classes.skin} />
 		</>
 	);

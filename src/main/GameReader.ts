@@ -260,7 +260,7 @@ export default class GameReader {
 					state = GameState.LOBBY;
 				}
 			}
-
+ 
 			if (
 				this.oldGameState === GameState.MENU &&
 				state === GameState.LOBBY &&

@@ -190,6 +190,8 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 						borderColor="#2ecc71"
 						isAlive={!voiceState.otherDead[player.clientId] || (player.isLocal && !player.isDead)}
 						size={100}
+						lookLeft={true}
+						overflow={true}
 						// showHat={false}
 					/>
 				</div>
