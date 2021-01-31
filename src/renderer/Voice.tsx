@@ -30,6 +30,9 @@ import { CameraLocation, PolusMap, SkeldMap,  } from '../common/AmongusMap';
 import Store from 'electron-store';
 import { ObsVoiceState } from '../common/ObsOverlay';
 import { poseCollide } from '../common/ColliderMap';
+import adapter from 'webrtc-adapter';
+
+console.log(adapter.browserDetails.browser);
 
 export interface ExtendedAudioElement extends HTMLAudioElement {
 	setSinkId: (sinkId: string) => Promise<void>;
@@ -170,6 +173,7 @@ const defaultlocalLobbySettings: ILobbySettings = {
 
 const store = new Store<ISettings>();
 const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProps) {
+	
 	const [error, setError] = useState(initialError);
 	const [settings, setSettings] = useContext(SettingsContext);
 
@@ -624,6 +628,9 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			echoCancellation: settings.echoCancellation,
 			latency: 0,
 			noiseSuppression: settings.noiseSuppression,
+			sampleRate: 48000,
+			sampleSize: 16,
+
 		};
 
 		// Get microphone settings
@@ -762,7 +769,10 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 							});
 						}
 						gain.connect(destination);
-						const audio = new Audio() as ExtendedAudioElement;
+						const audio = document.createElement(
+							'audio'
+						) as ExtendedAudioElement;
+						document.body.appendChild(audio);
 						audio.setAttribute('autoplay', '');
 						audio.srcObject = dest.stream;
 						if (settingsRef.current.speaker.toLowerCase() !== 'default') {

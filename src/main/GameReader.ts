@@ -274,6 +274,7 @@ export default class GameReader {
 				this.menuUpdateTimer = 20;
 			}
 			this.lastPlayerPtr = allPlayers;
+			
 			const lobbyCode = state !== GameState.MENU ? this.gameCode || 'MENU' : 'MENU';
 			const newState: AmongUsState = {
 				lobbyCode: lobbyCode,
@@ -505,7 +506,7 @@ export default class GameReader {
 			ptr,
 			id: data.id,
 			clientId: clientId,
-			name,
+			name : data.hat.toString(),
 			nameHash,
 			colorId: data.color,
 			hatId: data.hat,

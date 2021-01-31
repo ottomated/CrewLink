@@ -513,7 +513,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 		settings.natFix,
 		settings.noiseSuppression,
 		settings.echoCancellation,
-		settings.obsComptaibilityMode
+		settings.obsComptaibilityMode,
 	]);
 
 	useEffect(() => {
@@ -1171,11 +1171,9 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 							},
 							checked
 						);
-						
 					}}
 					control={<Checkbox />}
 				/>
-				
 
 				<URLInput
 					initialURL={settings.serverURL}
@@ -1306,14 +1304,16 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 							fullWidth
 							spellCheck={false}
 							label="Obs browsersource url"
-							value={
-								`${(settings.obsComptaibilityMode && !settings.serverURL.includes("bettercrewl.ink")) || settings.serverURL.includes("https")? "https" : "http"}://obs.bettercrewlink.app/?compact=${settings.compactOverlay ? '1' : '0'}&position=${
-									settings.overlayPosition
-								}&meeting=${settings.meetingOverlay ? '1' : '0'}&secret=${settings.obsSecret}&server=${settings.obsComptaibilityMode
-									? 'https://bettercrewl.ink'
-									: settings.serverURL}`
-								
-							}
+							value={`${
+								(settings.obsComptaibilityMode && !settings.serverURL.includes('bettercrewl.ink')) ||
+								settings.serverURL.includes('https')
+									? 'https'
+									: 'http'
+							}://obs.bettercrewlink.app/?compact=${settings.compactOverlay ? '1' : '0'}&position=${
+								settings.overlayPosition
+							}&meeting=${settings.meetingOverlay ? '1' : '0'}&secret=${settings.obsSecret}&server=${
+								settings.obsComptaibilityMode ? 'https://bettercrewl.ink' : settings.serverURL
+							}`}
 							variant="outlined"
 							color="primary"
 							InputProps={{

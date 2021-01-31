@@ -110,7 +110,6 @@ const Avatar: React.FC<AvatarProps> = function ({
 	if (player.bugged) {
 		icon = <ErrorOutlIne className={classes.icon} style={{ background: 'red', borderColor: '' }} />;
 	}
-
 	return (
 		<Tooltip
 			useHover={!player.isLocal}
@@ -160,6 +159,7 @@ const Avatar: React.FC<AvatarProps> = function ({
 interface UseCanvasStylesParams {
 	backLayerHat: boolean;
 	isAlive: boolean;
+	hatY: string;
 }
 const useCanvasStyles = makeStyles(() => ({
 	base: {
@@ -168,13 +168,17 @@ const useCanvasStyles = makeStyles(() => ({
 		top: 0,
 		left: 0,
 		zIndex: 2,
+		// transform: 'scaleX(-1)'
+
 	},
 	hat: {
+		width: '100%',
 		position: 'absolute',
-		left: '50%',
-		transform: 'translateX(calc(-50% + 4px)) scale(0.7)',
+		top: ({ hatY }: UseCanvasStylesParams) => hatY ,
+		left: 0,
 		zIndex: ({ backLayerHat }: UseCanvasStylesParams) => (backLayerHat ? 1 : 4),
 		display: ({ isAlive }: UseCanvasStylesParams) => (isAlive ? 'block' : 'none'),
+		// transform: 'scaleX(-1)'
 	},
 	skin: {
 		position: 'absolute',
@@ -184,23 +188,27 @@ const useCanvasStyles = makeStyles(() => ({
 		transform: 'scale(0.8)',
 		zIndex: 3,
 		display: ({ isAlive }: UseCanvasStylesParams) => (isAlive ? 'block' : 'none'),
+
 	},
 }));
 
-function Canvas({ src, hat, skin, isAlive }: CanvasProps) {
-	const hatImg = useRef<HTMLImageElement>(null);
-	const skinImg = useRef<HTMLImageElement>(null);
-	const image = useRef<HTMLImageElement>(null);
-	const hatY = 11 - hatOffsets[hat];
-	const classes = useCanvasStyles({
-		backLayerHat: backLayerHats.has(hat),
-		isAlive,
-	});
 
+
+function Canvas({ src, hat, skin, isAlive }: CanvasProps) {
+	const hatImg = useRef<HTMLImageElement>(null);  
+	const skinImg = useRef<HTMLImageElement>(null); 
+	const image = useRef<HTMLImageElement>(null);  
+	const hatY = hatOffsets[hat + 1] || '-33%'; 
+	const classes = useCanvasStyles({    
+		backLayerHat: backLayerHats.has(hat), 
+		isAlive, 
+		hatY
+	});
+ 
 	return (
 		<>
 			<img src={src} ref={image} className={classes.base} />
-			<img src={hats[hat]} ref={hatImg} className={classes.hat} style={{ top: `${hatY}%` }} />
+			<img src={hats[hat]} ref={hatImg} className={classes.hat} style={{ top: hatY }} />
 			<img src={skins[skin]} ref={skinImg} className={classes.skin} />
 		</>
 	);
