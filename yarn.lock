@@ -7391,8 +7391,8 @@ node-gyp-build@4.x.x:
   integrity sha512-MN6ZpzmfNCRM+3t57PTJHgHyw/h4OWnZ6mR8P5j/uZtqQr46RRuDE/P+g3n0YR/AiYXeWixZZzaip77gdICfRg==
 
 "node-keyboard-watcher@git://github.com/OhMyGuus/node-keyboard-watcher":
-  version "1.0.0"
-  resolved "git://github.com/OhMyGuus/node-keyboard-watcher#895ed65cd415dcc191e45465534079b0163546e0"
+  version "1.0.1"
+  resolved "git://github.com/OhMyGuus/node-keyboard-watcher#177c72212635d391fb15e787948dbcfbc30b9a5e"
   dependencies:
     "@types/throttle-debounce" "2.x.x"
     bindings "*"

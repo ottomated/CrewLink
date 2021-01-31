@@ -117,9 +117,12 @@ const keys = new Set([
 	'PageUp',
 	'PageDown',
 	'Escape',
-	'Control',
-	'Shift',
-	'Alt',
+	'LShift',
+	'RShift',
+	'RAlt',
+	'LAlt',
+	'RControl',
+	'LControl'
 ]);
 
 const store = new Store<ISettings>({
@@ -176,11 +179,11 @@ const store = new Store<ISettings>({
 		},
 		deafenShortcut: {
 			type: 'string',
-			default: 'Control',
+			default: 'LControl',
 		},
 		muteShortcut: {
 			type: 'string',
-			default: 'Alt',
+			default: 'LAlt',
 		},
 		hideCode: {
 			type: 'boolean',
@@ -560,6 +563,8 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 		if (c && c.startsWith('Numpad')) {
 			k = c;
 		}
+
+		if (k === 'Control' || k === 'Alt' || k === 'Shift') k = (ev.location === 1 ? 'L' : 'R') + k;
 
 		if (/^[0-9A-Z]$/.test(k) || /^F[0-9]{1,2}$/.test(k) || keys.has(k) || k.startsWith('Numpad')) {
 			setSettings({
