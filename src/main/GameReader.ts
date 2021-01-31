@@ -117,9 +117,8 @@ export default class GameReader {
 				state === GameState.MENU
 					? ''
 					: lobbyCodeInt === this.lastState.lobbyCodeInt
-					?  this.gameCode
+					? this.gameCode
 					: this.IntToGameCode(lobbyCodeInt);
-
 
 			const allPlayersPtr = this.readMemory<number>('ptr', this.gameAssembly.modBaseAddr, this.offsets.allPlayersPtr);
 			const allPlayers = this.readMemory<number>('ptr', allPlayersPtr, this.offsets.allPlayers);
@@ -274,7 +273,7 @@ export default class GameReader {
 				this.menuUpdateTimer = 20;
 			}
 			this.lastPlayerPtr = allPlayers;
-			
+
 			const lobbyCode = state !== GameState.MENU ? this.gameCode || 'MENU' : 'MENU';
 			const newState: AmongUsState = {
 				lobbyCode: lobbyCode,
@@ -506,7 +505,7 @@ export default class GameReader {
 			ptr,
 			id: data.id,
 			clientId: clientId,
-			name : data.hat.toString(),
+			name,
 			nameHash,
 			colorId: data.color,
 			hatId: data.hat,
