@@ -51,6 +51,7 @@ export interface CanvasProps {
 	skin: number;
 	isAlive: boolean;
 	className: string;
+	lookLeft: boolean;
 }
 
 export interface AvatarProps {
@@ -65,6 +66,7 @@ export interface AvatarProps {
 	socketConfig?: SocketConfig;
 	showborder?: boolean;
 	showHat?: boolean;
+	lookLeft? : boolean;
 	onConfigChange?: () => void;
 }
 
@@ -80,6 +82,7 @@ const Avatar: React.FC<AvatarProps> = function ({
 	socketConfig,
 	showborder,
 	showHat,
+	lookLeft,
 	onConfigChange,
 }: AvatarProps) {
 	const status = isAlive ? 'alive' : 'dead';
@@ -149,6 +152,7 @@ const Avatar: React.FC<AvatarProps> = function ({
 					hat={showHat === false ? -1 : player.hatId - 1}
 					skin={player.skinId - 1}
 					isAlive={isAlive}
+					lookLeft={lookLeft === true}
 				/>
 				{icon}
 			</div>
@@ -160,6 +164,7 @@ interface UseCanvasStylesParams {
 	backLayerHat: boolean;
 	isAlive: boolean;
 	hatY: string;
+	lookLeft: boolean;
 }
 const useCanvasStyles = makeStyles(() => ({
 	base: {
@@ -168,7 +173,7 @@ const useCanvasStyles = makeStyles(() => ({
 		top: 0,
 		left: 0,
 		zIndex: 2,
-		// transform: 'scaleX(-1)'
+		transform: ({ lookLeft }: UseCanvasStylesParams) => (lookLeft ?  'scaleX(-1)' : 'undefined')
 
 	},
 	hat: {
@@ -178,14 +183,14 @@ const useCanvasStyles = makeStyles(() => ({
 		left: 0,
 		zIndex: ({ backLayerHat }: UseCanvasStylesParams) => (backLayerHat ? 1 : 4),
 		display: ({ isAlive }: UseCanvasStylesParams) => (isAlive ? 'block' : 'none'),
-		// transform: 'scaleX(-1)'
+		transform: ({ lookLeft }: UseCanvasStylesParams) => (lookLeft ?  'scaleX(-1)' : 'undefined')
 	},
 	skin: {
 		position: 'absolute',
-		top: '38%',
-		left: '17%',
-		width: '73.5%',
-		transform: 'scale(0.8)',
+		top: '33%', 
+		left: 0,
+		width: '100%', 
+		transform: ({ lookLeft }: UseCanvasStylesParams) => (lookLeft ?  'scaleX(-1)' :  'undefined'),
 		zIndex: 3,
 		display: ({ isAlive }: UseCanvasStylesParams) => (isAlive ? 'block' : 'none'),
 
@@ -194,15 +199,16 @@ const useCanvasStyles = makeStyles(() => ({
 
 
 
-function Canvas({ src, hat, skin, isAlive }: CanvasProps) {
+function Canvas({ src, hat, skin, isAlive,lookLeft }: CanvasProps) {
 	const hatImg = useRef<HTMLImageElement>(null);  
 	const skinImg = useRef<HTMLImageElement>(null); 
 	const image = useRef<HTMLImageElement>(null);  
 	const hatY = hatOffsets[hat + 1] || '-33%'; 
 	const classes = useCanvasStyles({    
 		backLayerHat: backLayerHats.has(hat), 
-		isAlive, 
-		hatY
+		isAlive,  
+		hatY,
+		lookLeft
 	});
  
 	return (
