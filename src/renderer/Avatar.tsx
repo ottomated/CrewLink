@@ -20,7 +20,7 @@ interface UseStylesParams {
 const useStyles = makeStyles(() => ({
 	avatar: {
 		borderRadius: '50%',
-			overflow:  ({ overflow }: UseStylesParams) => overflow? 'undefined' : 'hidden',
+		overflow: ({ overflow }: UseStylesParams) => (overflow ? 'undefined' : 'hidden'),
 		position: 'relative',
 		borderStyle: 'solid',
 		transition: 'border-color .2s ease-out',
@@ -213,9 +213,11 @@ function Canvas({ src, hat, skin, isAlive, lookLeft }: CanvasProps) {
 
 	return (
 		<>
-			<img src={src} ref={image} className={classes.base} />
-			<img src={hats[hat]} ref={hatImg} className={classes.hat} />
-			<img src={skins[skin]} ref={skinImg} className={classes.skin} />
+			<div>
+				<img src={src} ref={image} className={classes.base} />
+				<img src={hats[hat]} ref={hatImg} className={classes.hat} />
+				<img src={skins[skin]} ref={skinImg} className={classes.skin} />
+			</div>
 		</>
 	);
 }

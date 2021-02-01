@@ -179,11 +179,11 @@ const store = new Store<ISettings>({
 		},
 		deafenShortcut: {
 			type: 'string',
-			default: 'LControl',
+			default: 'RControl',
 		},
 		muteShortcut: {
 			type: 'string',
-			default: 'LAlt',
+			default: 'RAlt',
 		},
 		hideCode: {
 			type: 'boolean',

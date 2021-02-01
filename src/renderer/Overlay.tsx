@@ -67,7 +67,7 @@ const playerColors = [
 	['#EF7D0D', '#B33E15'],
 	['#F5F557', '#C38823'],
 	['#3F474E', '#1E1F26'],
-	['#8394BF', '#8394BF'],
+	['#FFFFFF', '#8394BF'],
 	['#6B2FBB', '#3B177C'],
 	['#71491E', '#5E2615'],
 	['#38FEDC', '#24A8BE'],
@@ -190,9 +190,9 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 						borderColor="#2ecc71"
 						isAlive={!voiceState.otherDead[player.clientId] || (player.isLocal && !player.isDead)}
 						size={100}
-						lookLeft={true}
+						lookLeft={!(position === 'left')}
 						overflow={true}
-						// showHat={false}
+						showHat={false}
 					/>
 				</div>
 				{!compactOverlay && isOnSide && (
@@ -245,7 +245,7 @@ const MeetingHud: React.FC<MeetingHudProps> = ({ voiceState, gameState }: Meetin
 			}
 			return a.id - b.id;
 		});
-	}, [gameState.players]);
+	}, [gameState.gameState]);
 	if (!players || gameState.gameState !== GameState.DISCUSSION) return null;
 	const overlays = players.map((player) => {
 		return (
@@ -254,6 +254,9 @@ const MeetingHud: React.FC<MeetingHudProps> = ({ voiceState, gameState }: Meetin
 				className={classes.icon}
 				style={{
 					opacity: voiceState.otherTalking[player.clientId] || (player.isLocal && voiceState.localTalking) ? 1 : 0,
+					border: 'solid',
+					borderWidth: '2px',
+					borderColor: '#00000037',
 					boxShadow: `0 0 ${hudHeight / 100}px ${hudHeight / 100}px ${playerColors[player.colorId][0]}`,
 				}}
 			/>
