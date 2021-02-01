@@ -173,7 +173,7 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 			return;
 		const peer = voiceState.playerSocketIds[player.clientId];
 		const connected = voiceState.socketClients[peer]?.clientId === player.clientId || false;
-		if (!connected && !player.isLocal) return;
+	//	if (!connected && !player.isLocal) return;
 		// const audio = voiceState.audioConnected[peer];
 		avatars.push(
 			<div key={player.id} className="player_wrapper">
@@ -191,8 +191,8 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 						isAlive={!voiceState.otherDead[player.clientId] || (player.isLocal && !player.isDead)}
 						size={100}
 						lookLeft={!(position === 'left')}
-						overflow={true}
-						showHat={false}
+						overflow={false}
+						showHat={true}
 					/>
 				</div>
 				{!compactOverlay && isOnSide && (
