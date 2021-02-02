@@ -149,7 +149,9 @@ export default class GameReader {
 					const playerData = readBuffer(this.amongUs.handle, address + last, this.offsets.player.bufferLength);
 					const player = this.parsePlayer(address + last, playerData, clientId);
 					playerAddrPtr += this.is_64bit ? 8 : 4;
-					if (!player || state === GameState.MENU || player.name === '') continue;
+					if (!player || state === GameState.MENU) {
+						continue;
+					}
 
 					if (player.isLocal) {
 						localPlayer = player;
@@ -157,7 +159,7 @@ export default class GameReader {
 
 					players.push(player);
 
-					if (player.id === exiledPlayerId || player.isDead || player.disconnected) continue;
+					if (player.id === exiledPlayerId || player.isDead || player.disconnected || player.name === '') continue;
 					if (player.isImpostor) impostors++;
 					else crewmates++;
 				}
@@ -398,14 +400,16 @@ export default class GameReader {
 
 	readString(address: number): string {
 		try {
-			if (address === 0 || !this.amongUs) return '';
+			if (address === 0 || !this.amongUs) {
+				return '';
+			}
 			const length = Math.max(
 				0,
 				Math.min(readMemoryRaw<number>(this.amongUs.handle, address + (this.is_64bit ? 0x10 : 0x8), 'int'), 15)
 			);
 			const buffer = readBuffer(this.amongUs.handle, address + (this.is_64bit ? 0x14 : 0xc), length << 1);
 			if (buffer) {
-				return buffer.toString('utf16le').replace(/\0/g, '');
+				return buffer.toString('binary').replace(/\0/g, '');
 			} else {
 				return '';
 			}
