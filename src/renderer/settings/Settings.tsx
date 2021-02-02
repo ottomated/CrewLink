@@ -195,7 +195,7 @@ const store = new Store<ISettings>({
 		},
 		overlayPosition: {
 			type: 'string',
-			default: 'top',
+			default: 'right',
 		},
 		meetingOverlay: {
 			type: 'boolean',
@@ -203,7 +203,7 @@ const store = new Store<ISettings>({
 		},
 		enableOverlay: {
 			type: 'boolean',
-			default: false,
+			default: true,
 		},
 		ghostVolume: {
 			type: 'number',
@@ -1154,7 +1154,10 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 							<option value="top">Top Center</option>
 							<option value="bottom_left">Bottom Left</option>
 							<option value="right">Right</option>
+							<option value="right1">Right-background</option>
 							<option value="left">Left</option>
+							<option value="left1">Left-background</option>
+
 						</TextField>
 					</>
 				)}

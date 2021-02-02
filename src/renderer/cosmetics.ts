@@ -76,10 +76,23 @@ import hat74 from '../../static/hats/74.png'; // @ts-ignore
 import hat75 from '../../static/hats/75.png'; // @ts-ignore
 import hat76 from '../../static/hats/76.png'; // @ts-ignore
 import hat77 from '../../static/hats/77.png'; // @ts-ignore
+import hat77_0 from '../../static/hats/77-0.png'; // @ts-ignore
+import hat77_1 from '../../static/hats/77-1.png'; // @ts-ignore
+import hat77_2 from '../../static/hats/77-2.png'; // @ts-ignore
+import hat77_3 from '../../static/hats/77-3.png'; // @ts-ignore
+import hat77_4 from '../../static/hats/77-4.png'; // @ts-ignore
+import hat77_5 from '../../static/hats/77-5.png'; // @ts-ignore
+import hat77_6 from '../../static/hats/77-6.png'; // @ts-ignore
+import hat77_7 from '../../static/hats/77-7.png'; // @ts-ignore
+import hat77_8 from '../../static/hats/77-8.png'; // @ts-ignore
+import hat77_9 from '../../static/hats/77-9.png'; // @ts-ignore
+import hat77_10 from '../../static/hats/77-10.png'; // @ts-ignore
+import hat77_11 from '../../static/hats/77-11.png'; // @ts-ignore
+
 import hat78 from '../../static/hats/78.png'; // @ts-ignore
 import hat79 from '../../static/hats/79.png'; // @ts-ignore
 import hat80 from '../../static/hats/80.png'; // @ts-ignore
-import hat81 from '../../static/hats/81.png'; // @ts-ignore
+import hat81 from '../../static/hats/81.png'; // @ts-ignore 
 import hat82 from '../../static/hats/82.png'; // @ts-ignore
 import hat83 from '../../static/hats/83.png'; // @ts-ignore
 import hat84 from '../../static/hats/84.png'; // @ts-ignore
@@ -89,6 +102,18 @@ import hat87 from '../../static/hats/87.png'; // @ts-ignore
 import hat88 from '../../static/hats/88.png'; // @ts-ignore
 import hat89 from '../../static/hats/89.png'; // @ts-ignore
 import hat90 from '../../static/hats/90.png'; // @ts-ignore
+import hat90_0 from '../../static/hats/90-0.png'; // @ts-ignore
+import hat90_1 from '../../static/hats/90-1.png'; // @ts-ignore
+import hat90_2 from '../../static/hats/90-2.png'; // @ts-ignore
+import hat90_3 from '../../static/hats/90-3.png'; // @ts-ignore
+import hat90_4 from '../../static/hats/90-4.png'; // @ts-ignore
+import hat90_5 from '../../static/hats/90-5.png'; // @ts-ignore
+import hat90_6 from '../../static/hats/90-6.png'; // @ts-ignore
+import hat90_7 from '../../static/hats/90-7.png'; // @ts-ignore
+import hat90_8 from '../../static/hats/90-8.png'; // @ts-ignore
+import hat90_9 from '../../static/hats/90-9.png'; // @ts-ignore
+import hat90_10 from '../../static/hats/90-10.png'; // @ts-ignore
+import hat90_11 from '../../static/hats/90-11.png'; // @ts-ignore
 import hat91 from '../../static/hats/91.png'; // @ts-ignore
 import hat92 from '../../static/hats/92.png'; // @ts-ignore
 import hat93 from '../../static/hats/93.png';
@@ -198,21 +223,53 @@ export const hatOffsets: { [key in number]: string | undefined } = {
 	28: '-50%',
 	35: '-50%',
 	77: '-50%',
-};
+	90: '-50%',
+};                                   
+          
+export const backLayerHats = new Set([39, 4, 6, 15, 29, 42, 75, 85]);
 
-export const backLayerHats = new Set([38, 3, 5, 14, 28, 41, 74, 84]);
+export const specialHats : { [key in string]: string | undefined }= {
+	77_0: hat77_0,
+	77_1: hat77_1, 
+	77_2: hat77_2, 
+	77_3: hat77_3, 
+	77_4: hat77_4, 
+	77_5: hat77_5, 
+	77_6: hat77_6, 
+	77_7: hat77_7, 
+	77_8: hat77_8, 
+	77_9: hat77_9, 
+	77_10: hat77_10, 
+	77_11: hat77_11, 
+
+	90_0: hat90_0,
+	90_1: hat90_1, 
+	90_2: hat90_2, 
+	90_3: hat90_3, 
+	90_4: hat90_4, 
+	90_5: hat90_5, 
+	90_6: hat90_6, 
+	90_7: hat90_7, 
+	90_8: hat90_8, 
+	90_9: hat90_9, 
+	90_10: hat90_10, 
+	90_11: hat90_11, 
+
+}
+
 
 export const hats = [
-	hat1,
+	hat1, 
+	hat1, 
 	hat2,
 	hat3,
 	hat4,
-	hat5,
+	hat5,  
 	hat6,
 	hat7,
 	hat8,
 	hat9,
-	hat10,
+	hat10, 
 	hat11,
 	hat12,
 	hat13,

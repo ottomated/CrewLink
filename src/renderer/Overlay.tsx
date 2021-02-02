@@ -134,19 +134,25 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 }: AvatarOverlayProps) => {
 	if (!gameState.players) return null;
 
-	const avatars: JSX.Element[] = [];
-	const isOnSide = position == 'right' || position == 'left';
+	const positionParse = position.replace('1', '');
 
+	const avatars: JSX.Element[] = [];
+	const isOnSide = positionParse == 'right' || positionParse == 'left';
+	const showName = isOnSide && !compactOverlay;
 	const classnames: string[] = ['overlay-wrapper'];
 	if (gameState.gameState == GameState.UNKNOWN || gameState.gameState == GameState.MENU) {
 		classnames.push('gamestate_menu');
 	} else {
 		classnames.push('gamestate_game');
-		classnames.push('overlay_postion_' + position);
-		if (compactOverlay) {
+		classnames.push('overlay_postion_' + positionParse);
+		if (compactOverlay || position === 'right1' || position === 'left1') {
 			classnames.push('compactoverlay');
 		}
+		if (position === 'left1' || position === 'right1') {
+			classnames.push('overlay_postion_' + position);
+		}
 	}
+
 	const players = useMemo(() => {
 		if (!gameState.players) return null;
 		const playerss = gameState.players
@@ -174,6 +180,8 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 		const peer = voiceState.playerSocketIds[player.clientId];
 		const connected = voiceState.socketClients[peer]?.clientId === player.clientId || false;
 		if (!connected && !player.isLocal) return;
+		const talking =
+			!player.inVent && (voiceState.otherTalking[player.clientId] || (player.isLocal && voiceState.localTalking));
 		// const audio = voiceState.audioConnected[peer];
 		avatars.push(
 			<div key={player.id} className="player_wrapper">
@@ -183,20 +191,19 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 						// connectionState={!connected ? 'disconnected' : audio ? 'connected' : 'novoice'}
 						player={player}
 						showborder={isOnSide && !compactOverlay}
-						talking={
-							!player.inVent &&
-							(voiceState.otherTalking[player.clientId] || (player.isLocal && voiceState.localTalking))
-						}
+						talking={talking}
 						borderColor="#2ecc71"
 						isAlive={!voiceState.otherDead[player.clientId] || (player.isLocal && !player.isDead)}
 						size={100}
-						lookLeft={!(position === 'left')}
-						overflow={true}
-						showHat={false}
+						lookLeft={!(positionParse === 'left' || positionParse === 'bottom_left')}
+						overflow={isOnSide && !showName}
+						showHat={true}
 					/>
 				</div>
-				{!compactOverlay && isOnSide && (
-					<span className="playername">
+				{showName  && (
+					<span className="playername" style={{
+						opacity: ((position === 'right1' || position === 'left1') && !talking)? 0 : 1
+					}}>
 						<small>{player.name}</small>
 					</span>
 				)}
@@ -258,6 +265,8 @@ const MeetingHud: React.FC<MeetingHudProps> = ({ voiceState, gameState }: Meetin
 					borderWidth: '2px',
 					borderColor: '#00000037',
 					boxShadow: `0 0 ${hudHeight / 100}px ${hudHeight / 100}px ${playerColors[player.colorId][0]}`,
+					transition: 'opacity 400ms'
+
 				}}
 			/>
 		);
