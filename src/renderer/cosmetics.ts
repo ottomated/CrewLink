@@ -92,7 +92,7 @@ import hat77_11 from '../../static/hats/77-11.png'; // @ts-ignore
 import hat78 from '../../static/hats/78.png'; // @ts-ignore
 import hat79 from '../../static/hats/79.png'; // @ts-ignore
 import hat80 from '../../static/hats/80.png'; // @ts-ignore
-import hat81 from '../../static/hats/81.png'; // @ts-ignore 
+import hat81 from '../../static/hats/81.png'; // @ts-ignore
 import hat82 from '../../static/hats/82.png'; // @ts-ignore
 import hat83 from '../../static/hats/83.png'; // @ts-ignore
 import hat84 from '../../static/hats/84.png'; // @ts-ignore
@@ -224,52 +224,50 @@ export const hatOffsets: { [key in number]: string | undefined } = {
 	35: '-50%',
 	77: '-50%',
 	90: '-50%',
-};                                   
-          
+};
+
 export const backLayerHats = new Set([39, 4, 6, 15, 29, 42, 75, 85]);
 
-export const specialHats : { [key in string]: string | undefined }= {
+export const specialHats: { [key in string]: string | undefined } = {
 	77_0: hat77_0,
-	77_1: hat77_1, 
-	77_2: hat77_2, 
-	77_3: hat77_3, 
-	77_4: hat77_4, 
-	77_5: hat77_5, 
-	77_6: hat77_6, 
-	77_7: hat77_7, 
-	77_8: hat77_8, 
-	77_9: hat77_9, 
-	77_10: hat77_10, 
-	77_11: hat77_11, 
+	77_1: hat77_1,
+	77_2: hat77_2,
+	77_3: hat77_3,
+	77_4: hat77_4,
+	77_5: hat77_5,
+	77_6: hat77_6,
+	77_7: hat77_7,
+	77_8: hat77_8,
+	77_9: hat77_9,
+	77_10: hat77_10,
+	77_11: hat77_11,
 
 	90_0: hat90_0,
-	90_1: hat90_1, 
-	90_2: hat90_2, 
-	90_3: hat90_3, 
-	90_4: hat90_4, 
-	90_5: hat90_5, 
-	90_6: hat90_6, 
-	90_7: hat90_7, 
-	90_8: hat90_8, 
-	90_9: hat90_9, 
-	90_10: hat90_10, 
-	90_11: hat90_11, 
-
-}
-
+	90_1: hat90_1,
+	90_2: hat90_2,
+	90_3: hat90_3,
+	90_4: hat90_4,
+	90_5: hat90_5,
+	90_6: hat90_6,
+	90_7: hat90_7,
+	90_8: hat90_8,
+	90_9: hat90_9,
+	90_10: hat90_10,
+	90_11: hat90_11,
+};
 
 export const hats = [
-	hat1, 
-	hat1, 
+	hat1,
+	hat1,
 	hat2,
 	hat3,
 	hat4,
-	hat5,  
+	hat5,
 	hat6,
 	hat7,
 	hat8,
 	hat9,
-	hat10, 
+	hat10,
 	hat11,
 	hat12,
 	hat13,

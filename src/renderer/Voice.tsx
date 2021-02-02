@@ -26,7 +26,7 @@ import Divider from '@material-ui/core/Divider';
 import { validateClientPeerConfig } from './validateClientPeerConfig';
 // @ts-ignore
 import reverbOgx from 'arraybuffer-loader!../../static/reverb.ogx';
-import { CameraLocation, PolusMap, SkeldMap,  } from '../common/AmongusMap';
+import { CameraLocation, PolusMap, SkeldMap } from '../common/AmongusMap';
 import Store from 'electron-store';
 import { ObsVoiceState } from '../common/ObsOverlay';
 import { poseCollide } from '../common/ColliderMap';
@@ -37,7 +37,6 @@ console.log(adapter.browserDetails.browser);
 export interface ExtendedAudioElement extends HTMLAudioElement {
 	setSinkId: (sinkId: string) => Promise<void>;
 }
-
 
 interface PeerConnections {
 	[peer: string]: Peer.Instance;
@@ -173,7 +172,6 @@ const defaultlocalLobbySettings: ILobbySettings = {
 
 const store = new Store<ISettings>();
 const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProps) {
-	
 	const [error, setError] = useState(initialError);
 	const [settings, setSettings] = useContext(SettingsContext);
 
@@ -470,12 +468,13 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				data: { gameState, lobbySettings },
 			});
 		}
-		
+
 		if (
 			settings.obsOverlay &&
 			settings.obsSecret &&
 			settings.obsSecret.length === 9 &&
-			(gameState.gameState !== GameState.UNKNOWN && gameState.gameState !== GameState.MENU ||  gameState.oldGameState !== gameState.gameState) 
+			((gameState.gameState !== GameState.UNKNOWN && gameState.gameState !== GameState.MENU) ||
+				gameState.oldGameState !== gameState.gameState)
 		) {
 			if (!connectionStuff.current.overlaySocket) {
 				if (settings.obsComptaibilityMode && settings.obsOverlay && !settings.serverURL.includes('bettercrewl.ink')) {
@@ -630,7 +629,6 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			noiseSuppression: settings.noiseSuppression,
 			sampleRate: 48000,
 			sampleSize: 16,
-
 		};
 
 		// Get microphone settings
@@ -769,9 +767,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 							});
 						}
 						gain.connect(destination);
-						const audio = document.createElement(
-							'audio'
-						) as ExtendedAudioElement;
+						const audio = document.createElement('audio') as ExtendedAudioElement;
 						document.body.appendChild(audio);
 						audio.setAttribute('autoplay', '');
 						audio.srcObject = dest.stream;

@@ -141,7 +141,7 @@ export default class GameReader {
 			let comsSabotaged = false;
 			let currentCamera = CameraLocation.NONE;
 			let map = MapType.UNKNOWN;
-			let closedDoors: number[] = [];
+			const closedDoors: number[] = [];
 			let localPlayer = undefined;
 			if (this.gameCode && playerCount) {
 				for (let i = 0; i < Math.min(playerCount, 20); i++) {
@@ -260,7 +260,7 @@ export default class GameReader {
 					state = GameState.LOBBY;
 				}
 			}
- 
+
 			if (
 				this.oldGameState === GameState.MENU &&
 				state === GameState.LOBBY &&

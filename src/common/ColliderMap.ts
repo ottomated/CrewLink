@@ -29,10 +29,9 @@ export const colliderMaps: { [key in MapType]: string[] | undefined } = {
 };
 
 export const doorMaps: { [key in MapType]: { [key in number]: string | undefined } | undefined } = {
-
 	[MapType.MIRA_HQ]: {
 		0: 'M 45.008 36.849 H 47.187',
-		1: 'M 45.008 30.307 H 47.187'
+		1: 'M 45.008 30.307 H 47.187',
 	},
 	[MapType.POLUS]: {
 		0: 'M 51.35 48.227 L 51.369 50.09', // right elecrtrical door
@@ -63,8 +62,8 @@ export const doorMaps: { [key in MapType]: { [key in number]: string | undefined
 		4: 'M 22.652 48.658 H 24.169', // lowerengine <- security hallway
 		11: 'M 25.4117 52.012 V 50.274', // lowerengine <- Elecrtical hallway //25.4117 51.3337
 		9: 'M 29.946 53.126 H 31.366', // elecrtrical
-		1: 'M 25.418 52.012 V 50.274', //storage -> Electrical 
-		7: 'M 34.989 54.864 V 53.052', // storage -> Admin 
+		1: 'M 25.418 52.012 V 50.274', //storage -> Electrical
+		7: 'M 34.989 54.864 V 53.052', // storage -> Admin
 		12: 'M 40.961 52.624 V 50.849', // storage -> shields
 	},
 	[MapType.UNKNOWN]: undefined,
@@ -91,7 +90,7 @@ export function poseCollide(p1: Vector2, p2: Vector2, map: MapType, closedDoors:
 		return false;
 	}
 	for (const doorId of Object.values(closedDoors)) {
-		let doorPath = doorMap[doorId];
+		const doorPath = doorMap[doorId];
 		if (doorPath) {
 			const intersections = intersect(doorPath, `M ${p1.x + 40} ${40 - p1.y} L ${p2.x + 40} ${40 - p2.y}`);
 			if (intersections.length > 0) {

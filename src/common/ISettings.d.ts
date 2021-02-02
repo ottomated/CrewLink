@@ -26,7 +26,6 @@ export interface ISettings {
 	obsOverlay: boolean;
 	obsComptaibilityMode: boolean;
 	obsSecret: string | undefined;
-
 }
 
 export interface ILobbySettings {

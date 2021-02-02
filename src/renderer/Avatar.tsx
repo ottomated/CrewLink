@@ -164,21 +164,21 @@ const useCanvasStyles = makeStyles(() => ({
 		width: '105%',
 		position: 'absolute',
 		top: '22%',
-		left:  ({ paddingLeft }: UseCanvasStylesParams) => paddingLeft,
+		left: ({ paddingLeft }: UseCanvasStylesParams) => paddingLeft,
 		zIndex: 2,
 	},
 	hat: {
 		width: '105%',
 		position: 'absolute',
 		top: ({ hatY }: UseCanvasStylesParams) => `calc(22% + ${hatY})`,
-		left: ({ size, paddingLeft }: UseCanvasStylesParams) =>  (Math.max(2, size / 40) / 2) + paddingLeft,
+		left: ({ size, paddingLeft }: UseCanvasStylesParams) => Math.max(2, size / 40) / 2 + paddingLeft,
 		zIndex: ({ backLayerHat }: UseCanvasStylesParams) => (backLayerHat ? 1 : 4),
 		display: ({ isAlive }: UseCanvasStylesParams) => (isAlive ? 'block' : 'none'),
 	},
 	skin: {
 		position: 'absolute',
 		top: 'calc(33% + 22%)',
-		left:  ({ paddingLeft }: UseCanvasStylesParams) => paddingLeft,
+		left: ({ paddingLeft }: UseCanvasStylesParams) => paddingLeft,
 		width: '105%',
 		zIndex: 3,
 		display: ({ isAlive }: UseCanvasStylesParams) => (isAlive ? 'block' : 'none'),
@@ -209,7 +209,7 @@ function Canvas({ src, hat, skin, isAlive, lookLeft, size, borderColor, color, o
 		lookLeft,
 		size,
 		borderColor,
-		paddingLeft: -7
+		paddingLeft: -7,
 	});
 
 	return (
@@ -222,7 +222,7 @@ function Canvas({ src, hat, skin, isAlive, lookLeft, size, borderColor, color, o
 						position: 'absolute',
 						top: Math.max(2, size / 40) * -1,
 						left: Math.max(2, size / 40) * -1,
-						transform: "unset"
+						transform: 'unset',
 					}}
 				>
 					<img src={src} ref={image} className={classes.base} />

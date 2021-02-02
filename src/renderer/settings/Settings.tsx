@@ -122,7 +122,7 @@ const keys = new Set([
 	'RAlt',
 	'LAlt',
 	'RControl',
-	'LControl'
+	'LControl',
 ]);
 
 const store = new Store<ISettings>({
@@ -1157,7 +1157,6 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 							<option value="right1">Right-background</option>
 							<option value="left">Left</option>
 							<option value="left1">Left-background</option>
-
 						</TextField>
 					</>
 				)}

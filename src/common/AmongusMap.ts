@@ -1,4 +1,3 @@
-
 export enum MapType {
 	THE_SKELD,
 	MIRA_HQ,
@@ -56,6 +55,3 @@ export const SkeldMap: AmongUsMap = {
 // South: 17, -20.6
 // Southwest: 4.7, -22.73
 // Northwest: 11.6, -8.2
-
-
-  

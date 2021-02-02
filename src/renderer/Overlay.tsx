@@ -200,10 +200,13 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 						showHat={true}
 					/>
 				</div>
-				{showName  && (
-					<span className="playername" style={{
-						opacity: ((position === 'right1' || position === 'left1') && !talking)? 0 : 1
-					}}>
+				{showName && (
+					<span
+						className="playername"
+						style={{
+							opacity: (position === 'right1' || position === 'left1') && !talking ? 0 : 1,
+						}}
+					>
 						<small>{player.name}</small>
 					</span>
 				)}
@@ -265,8 +268,7 @@ const MeetingHud: React.FC<MeetingHudProps> = ({ voiceState, gameState }: Meetin
 					borderWidth: '2px',
 					borderColor: '#00000037',
 					boxShadow: `0 0 ${hudHeight / 100}px ${hudHeight / 100}px ${playerColors[player.colorId][0]}`,
-					transition: 'opacity 400ms'
-
+					transition: 'opacity 400ms',
 				}}
 			/>
 		);
