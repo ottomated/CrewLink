@@ -409,7 +409,7 @@ export default class GameReader {
 			);
 			const buffer = readBuffer(this.amongUs.handle, address + (this.is_64bit ? 0x14 : 0xc), length << 1);
 			if (buffer) {
-				return buffer.toString('binary').replace(/\0/g, '');
+				return buffer.toString('utf16le').replace(/\0/g, '');
 			} else {
 				return '';
 			}

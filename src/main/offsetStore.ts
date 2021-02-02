@@ -235,8 +235,8 @@ export default {
 			},
 			gameData: {
 				sig:
-					'A1 ? ? ? ? 8B 40 5C 8B 38 A1 ? ? ? ? F6 80 ? ? ? ? ? 74 0F 83 78 74 00 75 09 50 E8 ? ? ? ? 83 C4 04 6A 00 56',
-				patternOffset: 1,
+					'8B 0D ? ? ? ? 8B F0 83 C4 10 8B 49 5C 8B 01 85 C0 0F 84 ? ? ? ? 6A 00 FF 75 F4 50 E8 ? ? ? ? 83 C4 0C 89 45 E8 85 C0',
+				patternOffset: 2,
 				addressOffset: 0,
 			},
 			shipStatus: {
