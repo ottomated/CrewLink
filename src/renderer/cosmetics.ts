@@ -226,7 +226,7 @@ export const hatOffsets: { [key in number]: string | undefined } = {
 	90: '-50%',
 };                                   
           
-export const backLayerHats = new Set([38, 3, 5, 14, 28, 41, 74, 84]);
+export const backLayerHats = new Set([39, 4, 6, 15, 29, 42, 75, 85]);
 
 export const specialHats : { [key in string]: string | undefined }= {
 	77_0: hat77_0,
@@ -259,6 +259,7 @@ export const specialHats : { [key in string]: string | undefined }= {
 
 
 export const hats = [
+	hat1, 
 	hat1, 
 	hat2,
 	hat3,

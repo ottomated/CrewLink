@@ -55,8 +55,6 @@ body,
 	padding: 10px;
 }
 
-
-
 .overlay-wrapper.overlay_postion_left {
 	margin-left: unset !important;
 	margin-right: auto !important;
@@ -81,24 +79,38 @@ body,
 
 .overlay-wrapper.overlay_postion_right .playername,
 .overlay-wrapper.overlay_postion_left .playername {
+    transition:opacity 400ms;
 	padding-top: 3vh;
 	font-weight: bold;
-	padding-left: 20px;
-	padding-right: 20px;
+	padding-left: 5px;
+	padding-right: 5px;
 }
+
+.overlay-wrapper.overlay_postion_right1 .playername {
+	position: absolute;
+	right: 9vh;
+}
+
+.overlay-wrapper.overlay_postion_left1 .playername {
+	position: absolute;
+	left: 9vh;
+}
+
 .overlay-wrapper.overlay_postion_right .playername small,
 .overlay-wrapper.overlay_postion_left .playername small {
-	/* background-color: rgba(0, 0, 0, 0.322); */
+	background-color: rgba(0, 0, 0, 0.322);
+	border-width: 10px;
+	border-style: solid;
+	border-color: rgba(0, 0, 0, 0);
+	border-radius: 40px;
 }
-
-
 
 .overlay-wrapper.overlay_postion_right .playername {
 	float: right;
 }
+
 .overlay-wrapper.overlay_postion_left .playername {
 	float: left;
-	padding-left: 5px;
 }
 
 .overlay-wrapper.overlay_postion_left .player_wrapper,
@@ -119,7 +131,7 @@ body,
 	padding-left: 10px;
 	padding-right: 10px;
 	padding-top: 1px;
-	width: 8vh !important;
+	width: 7.5vh !important;
 	float: right;
 }
 
@@ -127,8 +139,18 @@ body,
 	padding-left: 10px;
 	padding-right: 10px;
 	padding-top: 1px;
-	width: 8vh !important;
+	width: 7.5vh !important;
 	float: left;
+}
+
+.overlay-wrapper.compactoverlay.overlay_postion_left .player_wrapper > div:first-of-type {
+	padding-right: 0px;
+
+}
+.overlay-wrapper.compactoverlay.overlay_postion_right .player_wrapper > div:first-of-type {
+	padding-left: 0px;
+	float: left !important;
+
 }
 
 .otherplayers {
@@ -138,7 +160,6 @@ body,
 	align-items: center;
 	flex-wrap: wrap;
 	white-space: nowrap;
-	overflow: hidden;
 	text-overflow: ellipsis;
 }
 
@@ -157,43 +178,41 @@ body,
 	margin: 5px;
 }
 
-
-.playerContainerBack_left{
-    background-color: #25232ac0;
-    border-top-left-radius: 25px;
-    border-bottom-left-radius: 25px;
+.playerContainerBack_left {
+	background-color: #25232ac0;
+	border-top-left-radius: 25px;
+	border-bottom-left-radius: 25px;
 }
 
-.playerContainerBack_right{
-    background-color: #25232ac0;
-    border-top-right-radius: 25px;
-    border-bottom-right-radius: 25px;
+.playerContainerBack_right {
+	background-color: #25232ac0;
+	border-top-right-radius: 25px;
+	border-bottom-right-radius: 25px;
 }
 
 .overlay_postion_left.compactoverlay,
-.overlay_postion_right.compactoverlay   {
-    width: 6% !important;
-	padding: 0px !important;
+.overlay_postion_right.compactoverlay {
+	width: 9vh !important;
 }
 
-
-.overlay_postion_left.compactoverlay > .otherplayers > .players_container{
-    background-color: #25232ac0;
-    border-top-right-radius: 25px;
-    border-bottom-right-radius: 25px;
+.overlay_postion_left.compactoverlay {
+	padding-left: 0px !important;
 }
 
-.overlay_postion_right.compactoverlay > .otherplayers > .players_container{
-    background-color: #25232ac0;
-    border-top-left-radius: 25px;
-    border-bottom-left-radius: 25px;
+.overlay_postion_right.compactoverlay {
+	padding-right: 0px !important;
 }
 
+.overlay_postion_left.compactoverlay > .otherplayers > .players_container {
+	background-color: #25232ac0;
+	border-top-right-radius: 25px;
+	border-bottom-right-radius: 25px;
+	padding: 5px;
+}
 
-
-
- 
-
-
-
-
+.overlay_postion_right.compactoverlay > .otherplayers > .players_container {
+	background-color: #25232ac0;
+	border-top-left-radius: 25px;
+	border-bottom-left-radius: 25px;
+	padding: 5px;
+}
