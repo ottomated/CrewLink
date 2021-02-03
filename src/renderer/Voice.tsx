@@ -895,6 +895,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		);
 
 		return () => {
+			hostRef.current.mobileRunning = false; 
 			socket.emit('leave');
 			Object.keys(peerConnections).forEach((k) => {
 				disconnectPeer(k);
@@ -1001,6 +1002,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			gameState.gameState === GameState.MENU
 		) {
 			// On change from a game to menu, exit from the current game properly
+			hostRef.current.mobileRunning = false; // On change from a game to menu, exit from the current game properly
 			connectionStuff.current.socket?.emit('leave');
 			Object.keys(peerConnections).forEach((k) => {
 				disconnectPeer(k);
