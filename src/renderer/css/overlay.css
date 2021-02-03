@@ -216,3 +216,13 @@ body,
 	border-bottom-left-radius: 25px;
 	padding: 5px;
 }
+
+
+.volumeicons{
+	position: absolute;
+	left:0;
+	bottom: 0;
+	background-color: #25232ac0;
+	padding:4px;
+	border-top-right-radius: 10px;
+}

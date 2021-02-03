@@ -7,6 +7,8 @@ import makeStyles from '@material-ui/core/styles/makeStyles';
 import './css/overlay.css';
 import Avatar from './Avatar';
 import { ISettings } from '../common/ISettings';
+import VolumeOff from '@material-ui/icons/VolumeOff';
+import MicOff from '@material-ui/icons/MicOff';
 
 interface UseStylesProps {
 	hudHeight: number;
@@ -191,6 +193,9 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 						// connectionState={!connected ? 'disconnected' : audio ? 'connected' : 'novoice'}
 						player={player}
 						showborder={isOnSide && !compactOverlay}
+						muted={voiceState.muted && player.isLocal}
+						deafened={voiceState.deafened && player.isLocal}
+						connectionState={'connected'}
 						talking={talking}
 						borderColor="#2ecc71"
 						isAlive={!voiceState.otherDead[player.clientId] || (player.isLocal && !player.isDead)}
@@ -221,6 +226,11 @@ const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
 					<div className="players_container playerContainerBack">{avatars}</div>
 				</div>
 			</div>
+			{(voiceState.muted || voiceState.deafened) && (
+			<div className="volumeicons">
+			{voiceState.deafened ?  (<VolumeOff />) : (<MicOff />)}
+			</div>)}
+
 		</div>
 	);
 };

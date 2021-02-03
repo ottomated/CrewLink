@@ -14,7 +14,7 @@ import { ProgressInfo } from 'builder-util-runtime';
 const args = require('minimist')(process.argv);
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
-const devTools = (isDevelopment || args.dev === 1) && true;
+const devTools = (isDevelopment || args.dev === 1) && false;
 
 declare global {
 	namespace NodeJS {

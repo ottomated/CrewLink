@@ -76,4 +76,6 @@ export interface VoiceState {
 	audioConnected: AudioConnected;
 	localTalking: boolean;
 	localIsAlive: boolean;
+	muted: boolean;
+	deafened: boolean;
 }

@@ -116,7 +116,8 @@ import hat90_10 from '../../static/hats/90-10.png'; // @ts-ignore
 import hat90_11 from '../../static/hats/90-11.png'; // @ts-ignore
 import hat91 from '../../static/hats/91.png'; // @ts-ignore
 import hat92 from '../../static/hats/92.png'; // @ts-ignore
-import hat93 from '../../static/hats/93.png';
+import hat93 from '../../static/hats/93.png';// @ts-ignore
+import hat94 from '../../static/hats/94.png';
 
 // @ts-ignore
 import skin1 from '../../static/skins/1.png'; // @ts-ignore
@@ -228,7 +229,7 @@ export const hatOffsets: { [key in number]: string | undefined } = {
 
 export const backLayerHats = new Set([39, 4, 6, 15, 29, 42, 75, 85]);
 
-export const specialHats: { [key in string]: string | undefined } = {
+export const coloredHats: { [key in string]: string | undefined } = {
 	77_0: hat77_0,
 	77_1: hat77_1,
 	77_2: hat77_2,
@@ -351,4 +352,5 @@ export const hats = [
 	hat91,
 	hat92,
 	hat93,
+	hat94,
 ];

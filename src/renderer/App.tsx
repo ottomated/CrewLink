@@ -127,7 +127,7 @@ export default function App(): JSX.Element {
 		muteShortcut: 'RAlt',
 		hideCode: false,
 		natFix: false,
-		mobileHost: false,
+		mobileHost: true,
 		overlayPosition: 'right',
 		compactOverlay: false,
 		enableOverlay: true,

@@ -219,7 +219,7 @@ const store = new Store<ISettings>({
 		},
 		mobileHost: {
 			type: 'boolean',
-			default: false,
+			default: true,
 		},
 		vadEnabled: {
 			type: 'boolean',
@@ -517,6 +517,7 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 		settings.noiseSuppression,
 		settings.echoCancellation,
 		settings.obsComptaibilityMode,
+		settings.mobileHost
 	]);
 
 	useEffect(() => {
@@ -553,7 +554,6 @@ const Settings: React.FC<SettingsProps> = function ({ open, onClose }: SettingsP
 	const setShortcut = (ev: React.KeyboardEvent, shortcut: string) => {
 		//	console.log(ev, shortcut);
 		let k = ev.key;
-		console.log(k);
 		if (k.length === 1) k = k.toUpperCase();
 		else if (k.startsWith('Arrow')) k = k.substring(5);
 		if (k === ' ') k = 'Space';

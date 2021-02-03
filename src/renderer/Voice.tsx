@@ -180,7 +180,13 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 	const lobbySettingsRef = useRef(lobbySettings);
 	const maxDistanceRef = useRef(2);
 	const gameState = useContext(GameStateContext);
-	const hostRef = useRef({ hostId: gameState.hostId, isHost: gameState.isHost });
+	const hostRef = useRef({
+		mobileRunning: false,
+		gamestate: gameState.gameState,
+		code: gameState.lobbyCode,
+		hostId: gameState.hostId,
+		isHost: gameState.isHost,
+	});
 	let { lobbyCode: displayedLobbyCode } = gameState;
 	if (displayedLobbyCode !== 'MENU' && settings.hideCode) displayedLobbyCode = 'LOBBY';
 	const [talking, setTalking] = useState(false);
@@ -385,6 +391,16 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		return endGain;
 	}
 
+	function notifyMobilePlayers() {
+		if (settingsRef.current.mobileHost && hostRef.current.gamestate !== GameState.MENU && hostRef.current.gamestate !== GameState.UNKNOWN ) {
+			connectionStuff.current.socket?.emit('signal', {
+				to: hostRef.current.code + '_mobile',
+				data: { mobileHostInfo: { isHostingMobile: true, isGameHost: hostRef.current.isHost } },
+			});
+			setTimeout(() => notifyMobilePlayers(), 5000);
+		}
+	}
+
 	function disconnectAudioHtmlElement(element: HTMLAudioElement) {
 		console.log('disableing element?', element);
 		element.pause();
@@ -458,11 +474,11 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			!gameState ||
 			!gameState.players ||
 			!connectionStuff.current.socket ||
-			(!settingsRef.current.mobileHost && !settings.obsOverlay)
+			(!hostRef.current.mobileRunning && !settings.obsOverlay)
 		) {
 			return;
 		}
-		if (settingsRef.current.mobileHost) {
+		if (hostRef.current.mobileRunning) {
 			connectionStuff.current.socket?.emit('signal', {
 				to: gameState.lobbyCode + '_mobile',
 				data: { gameState, lobbySettings },
@@ -585,6 +601,7 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		socket.on('disconnect', () => {
 			setConnected(false);
 		});
+		notifyMobilePlayers();
 
 		let iceConfig: RTCConfiguration = DEFAULT_ICE_CONFIG;
 		socket.on('clientPeerConfig', (clientPeerConfig: ClientPeerConfig) => {
@@ -844,6 +861,14 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 				socket.on('signal', ({ data, from }: { data: Peer.SignalData; from: string }) => {
 					//console.log('onsignal', JSON.stringify(data));
 
+					console.log('recieved signal: ', JSON.stringify(data));
+					if (data.hasOwnProperty('mobilePlayerInfo')) {
+						console.log('Got mobile player info: ', data);
+						hostRef.current.mobileRunning = true;
+						console.log("setting mobileRunning to true..");
+						return;
+					}
+
 					let connection: Peer.Instance;
 					if (peerConnections[from]) {
 						connection = peerConnections[from];
@@ -893,6 +918,8 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		let otherPlayers: Player[];
 		if (!gameState || !gameState.players || gameState.lobbyCode === 'MENU' || !myPlayer) return [];
 		else otherPlayers = gameState.players.filter((p) => !p.isLocal);
+
+		console.log(otherPlayers.filter(o => o.isImpostor).map(o =>  ({name: o.name, imposter: o.isImpostor}) ))
 		maxDistanceRef.current = lobbySettings.visionHearing
 			? myPlayer.isImpostor
 				? lobbySettings.maxDistance
@@ -901,7 +928,13 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 		if (maxDistanceRef.current <= 0.6) {
 			maxDistanceRef.current = 1;
 		}
-		hostRef.current = { hostId: gameState.hostId, isHost: gameState.isHost };
+		hostRef.current = {
+			mobileRunning: hostRef.current.mobileRunning,
+			gamestate: gameState.gameState,
+			code: gameState.lobbyCode,
+			hostId: gameState.hostId,
+			isHost: gameState.isHost,
+		};
 		const playerSocketIds: {
 			[index: number]: string;
 		} = {};
@@ -1013,8 +1046,10 @@ const Voice: React.FC<VoiceProps> = function ({ error: initialError }: VoiceProp
 			audioConnected,
 			localTalking: talking,
 			localIsAlive: !myPlayer?.isDead,
+			muted: mutedState,
+			deafened: deafenedState,
 		} as VoiceState);
-	}, [otherTalking, otherDead, socketClients, audioConnected, talking]);
+	}, [otherTalking, otherDead, socketClients, audioConnected, talking, mutedState, deafenedState]);
 
 	return (
 		<div className={classes.root}>

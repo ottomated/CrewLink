@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Player } from '../common/AmongUsState';
-import { backLayerHats, hatOffsets, hats, skins, players, specialHats } from './cosmetics';
+import { backLayerHats, hatOffsets, hats, skins, players, coloredHats } from './cosmetics';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import MicOff from '@material-ui/icons/MicOff';
 import VolumeOff from '@material-ui/icons/VolumeOff';
@@ -228,9 +228,9 @@ function Canvas({ src, hat, skin, isAlive, lookLeft, size, borderColor, color, o
 					<img src={src} ref={image} className={classes.base} />
 					<img src={skins[skin]} ref={skinImg} className={classes.skin} />
 
-					{overflow && <img src={specialHats[`${hat}${color}`] || hats[hat]} ref={hatImg} className={classes.hat} />}
+					{overflow && <img src={coloredHats[`${hat}${color}`] || hats[hat]} ref={hatImg} className={classes.hat} />}
 				</div>
-				{!overflow && <img src={specialHats[`${hat}${color}`] || hats[hat]} ref={hatImg} className={classes.hat} />}
+				{!overflow && <img src={coloredHats[`${hat}${color}`] || hats[hat]} ref={hatImg} className={classes.hat} />}
 			</div>
 		</>
 	);
