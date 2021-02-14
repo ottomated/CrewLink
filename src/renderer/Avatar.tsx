@@ -58,6 +58,7 @@ export interface AvatarProps {
 	deafened?: boolean;
 	muted?: boolean;
 	connectionState?: 'disconnected' | 'novoice' | 'connected';
+	style?: React.CSSProperties;
 }
 
 const Avatar: React.FC<AvatarProps> = function ({
@@ -69,6 +70,7 @@ const Avatar: React.FC<AvatarProps> = function ({
 	player,
 	size,
 	connectionState,
+	style,
 }: AvatarProps) {
 	const status = isAlive ? 'alive' : 'dead';
 	let image = players[status][player.colorId];
@@ -103,7 +105,7 @@ const Avatar: React.FC<AvatarProps> = function ({
 
 	return (
 		<Tooltip title={player.name} arrow placement="top">
-			<div className={classes.avatar}>
+			<div className={classes.avatar} style={style}>
 				<Canvas
 					className={classes.canvas}
 					src={image}
@@ -141,6 +143,7 @@ const useCanvasStyles = makeStyles(() => ({
 		position: 'absolute',
 		top: '38%',
 		left: '17%',
+		width: '73.5%',
 		transform: 'scale(0.8)',
 		zIndex: 3,
 		display: ({ isAlive }: UseCanvasStylesParams) =>

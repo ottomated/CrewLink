@@ -3,10 +3,10 @@ import { HKEY, enumerateValues } from 'registry-js';
 import spawn from 'cross-spawn';
 import path from 'path';
 
-import { IpcMessages } from '../common/ipc-messages';
+import { IpcMessages, IpcOverlayMessages } from '../common/ipc-messages';
 
 // Listeners are fire and forget, they do not have "responses" or return values
-export const initializeIpcListeners = (): void => {
+export const initializeIpcListeners = (overlayWindow: BrowserWindow): void => {
 	ipcMain.on(
 		IpcMessages.SHOW_ERROR_DIALOG,
 		(e, opts: { title: string; content: string }) => {
@@ -56,6 +56,13 @@ export const initializeIpcListeners = (): void => {
 		}
 		app.quit();
 	});
+
+	ipcMain.on(
+		IpcMessages.SEND_TO_OVERLAY,
+		(_, event: IpcOverlayMessages, ...args: unknown[]) => {
+			overlayWindow.webContents.send(event, ...args);
+		}
+	);
 };
 
 // Handlers are async cross-process instructions, they should have a return value
